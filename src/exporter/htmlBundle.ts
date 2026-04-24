@@ -139,10 +139,27 @@ ${sections.join('\n')}
     show(idx + 1);
   });
   fit();
+  if (window.location.hash === '#print') {
+    // Give fonts/layout a tick to settle before invoking the print dialog.
+    setTimeout(function(){ window.print(); }, 300);
+  }
 })();
 </script>
 </body>
 </html>`;
+}
+
+export function openPrintablePreview(html: string): void {
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const w = window.open(`${url}#print`, '_blank');
+  if (!w) {
+    // Popup blocked — fall back to same-tab navigation so users still see
+    // the printable view, even if they must trigger print manually there.
+    window.location.href = `${url}#print`;
+  }
+  // Blob URL lifetime tied to the opening document; release after a while.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function downloadBlob(content: string, filename: string, mime = 'text/html;charset=utf-8'): void {

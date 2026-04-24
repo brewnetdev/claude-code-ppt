@@ -1,6 +1,14 @@
 import { useState } from 'react';
-import { buildHtmlBundle, defaultExportName, downloadBlob } from '../exporter/htmlBundle';
+import {
+  buildHtmlBundle,
+  defaultExportName,
+  downloadBlob,
+  openPrintablePreview,
+} from '../exporter/htmlBundle';
+import { exportCurrentSlidePng } from '../exporter/pngExport';
 import { useDeckStore } from '../scene/store';
+
+type Busy = null | 'html' | 'pdf' | 'png';
 
 export function Toolbar() {
   const slides = useDeckStore((s) => s.slides);
@@ -9,15 +17,23 @@ export function Toolbar() {
   const duplicateSlide = useDeckStore((s) => s.duplicateSlide);
   const removeSlide = useDeckStore((s) => s.removeSlide);
 
-  const [exporting, setExporting] = useState(false);
+  const [busy, setBusy] = useState<Busy>(null);
 
   const canDelete = slides.length > 1;
-  const canExport = slides.length > 0 && !exporting;
+  const canExport = slides.length > 0 && busy === null;
 
-  const handleExportHtml = async () => {
+  const withBusy = async (kind: NonNullable<Busy>, fn: () => Promise<void>) => {
     if (!canExport) return;
-    setExporting(true);
+    setBusy(kind);
     try {
+      await fn();
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleExportHtml = () =>
+    withBusy('html', async () => {
       const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
       const html = await buildHtmlBundle({
         slides: latestSlides,
@@ -25,10 +41,26 @@ export function Toolbar() {
         title: latestSlides[0]?.title ?? 'Presentation',
       });
       downloadBlob(html, defaultExportName(latestSlides[0]?.title));
-    } finally {
-      setExporting(false);
-    }
-  };
+    });
+
+  const handleExportPdf = () =>
+    withBusy('pdf', async () => {
+      const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
+      const html = await buildHtmlBundle({
+        slides: latestSlides,
+        overlaysBySlide,
+        title: latestSlides[0]?.title ?? 'Presentation',
+      });
+      openPrintablePreview(html);
+    });
+
+  const handleExportPng = () =>
+    withBusy('png', async () => {
+      const { slides: latestSlides, currentIndex: idx } = useDeckStore.getState();
+      const slide = latestSlides[idx];
+      if (!slide) return;
+      await exportCurrentSlidePng(slide.title);
+    });
 
   return (
     <header className="flex h-12 items-center justify-between border-b border-editor-border bg-editor-panel px-4">
@@ -57,12 +89,14 @@ export function Toolbar() {
           Delete
         </ToolbarButton>
         <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
-        <ToolbarButton
-          onClick={handleExportHtml}
-          disabled={!canExport}
-          tone="accent"
-        >
-          {exporting ? 'Exporting…' : 'Export HTML'}
+        <ToolbarButton onClick={handleExportHtml} disabled={!canExport} tone="accent">
+          {busy === 'html' ? 'Exporting…' : 'Export HTML'}
+        </ToolbarButton>
+        <ToolbarButton onClick={handleExportPdf} disabled={!canExport} tone="accent">
+          {busy === 'pdf' ? 'Opening…' : 'Export PDF'}
+        </ToolbarButton>
+        <ToolbarButton onClick={handleExportPng} disabled={!canExport} tone="accent">
+          {busy === 'png' ? 'Rendering…' : 'PNG (current)'}
         </ToolbarButton>
         <span className="ml-3 text-editor-dim">1280×720 · export 1920×1080</span>
       </div>

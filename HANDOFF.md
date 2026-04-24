@@ -2,9 +2,10 @@
 
 > 이 문서는 `/clear` 이후 다음 Claude Code 세션이 맥락을 잃지 않고 이어받기 위한 인계 노트다. CLAUDE.md(프로젝트 상시 규칙)와 달리 **지금 이 순간의 진행 상황**만 담는다. 작업이 한 단계 끝날 때마다 갱신한다.
 
-- **Updated**: 2026-04-25
-- **Branch**: `main` (로컬이 `origin/main`보다 9 커밋 앞섬 — push 보류 중)
-- **Last commit**: `15308e1 chore(ui): rename 'Delete overlay' to 'Delete' in properties panel`
+- **Updated**: 2026-04-25 (Phase 3 export 착수 후)
+- **Branch**: `feat/editor-phases-0-through-2b` (origin에 푸시됨 / `main`도 origin에 반영 완료). 3a/3b/3c 추가 커밋은 로컬에만 있어 푸시 대기 중.
+- **Last commit (local)**: `feat(phase-3): HTML/PDF/PNG export buttons + exporter modules`
+- **PR**: #1 (HANDOFF 문서) — https://github.com/brewnetdev/claude-code-ppt/pull/1
 
 ## 완료된 Phase
 
@@ -17,6 +18,8 @@
 | 2a · Slide CRUD | `94105c2` | 툴바 +New / Duplicate / Delete. 300ms debounced DOM→store commit |
 | (hotfix) | `07ac377` | debounced commit이 `dangerouslySetInnerHTML` 재주입을 일으켜 타이핑이 끊기고 Backspace가 브라우저 뒤로가기를 트리거하던 버그 해결: `SlideRenderer`가 `initialHtml`을 `useDeckStore.getState()`로 단 한 번만 읽고, `SlideCanvas`는 `slide` 객체 대신 `slideId`만 구독. anchor click preventDefault도 추가 |
 | 2b · 편집 범위 확장 + Props | `e112064` → `15308e1` | `.slide-inner`/`.slide-footer` 전체 contenteditable(data-slot 없는 본문도 편집 가능). `<td>/<th>` 편집. 한 줄 슬롯 Enter 차단(IME-safe). BLANK 슬라이드에 body slot 추가. Overlay selection을 store로 이관. 프로퍼티 패널에 선택 이미지의 X/Y/W/H 입력 + Delete 버튼 |
+| (docs) | `88f54fb` | HANDOFF 인계 노트 추가 (PR #1) |
+| 3 · Export | (local) | Toolbar에 `Export HTML` / `Export PDF` / `PNG (current)` 추가. `src/exporter/htmlBundle.ts` 는 blob 오버레이를 base64 embed + brewnet-dark.css inline + Arrow/Space 네비 + `#print` 해시로 자동 `window.print()`. `src/exporter/pngExport.ts` 는 html-to-image로 live host를 1920×1080 캡처 |
 
 ## 현재 동작하는 기능 (브라우저에서 검증됨)
 
@@ -42,13 +45,16 @@
 
 진행 우선순위는 **사용자 녹화 시점에 임박한 가치**를 기준으로 정리한다.
 
-### 옵션 A — Phase 3 Export (HTML 번들 / PDF / PNG) · 추천
-녹화 자료 완성 후 실제로 **결과물을 꺼내 쓰려면 필수**. 다음 세션에서 가장 먼저 착수할 것을 권장.
+### 옵션 A — Phase 3 Export (HTML 번들 / PDF / PNG) · **구현됨 (브라우저 검증 필요)**
 
-- HTML 번들: `{ slides, css, overlays }` → 단일 HTML 파일 생성 (overlay 이미지는 base64 embed 또는 별도 asset)
-- PDF: 브라우저 `window.print()` + `@page { size: 1920px 1080px; margin: 0; }` + `@media print` 슬라이드 한 장당 한 페이지
-- PNG: `html-to-image`로 per-slide 캡처 (1.5배 스케일 → 1920×1080)
-- 입구: Toolbar에 "Export ▼" 드롭다운
+- HTML 번들: `buildHtmlBundle()` → 단일 `.html` 다운로드. brewnet-dark.css 인라인 + blob 오버레이 → base64. Arrow/Space/PageUp-Down 네비. `P` 키 또는 `#print` 해시로 `window.print()`.
+- PDF: `openPrintablePreview()` → 새 탭에서 `#print` 해시로 번들 열어 자동 `window.print()`. `@page { size: 1920px 1080px }`, stage에 `transform: scale(1.5)`.
+- PNG (현재 슬라이드): `exportCurrentSlidePng()` → `html-to-image`로 live `.slide-canvas-host` 캡처. canvasWidth/Height=1920×1080, pixelRatio=1.5.
+- 입구: Toolbar의 `Export HTML` / `Export PDF` / `PNG (current)` 버튼 (accent tone).
+
+**남은 보강 (옵션 A′):**
+- 전체 슬라이드 PNG 일괄 내보내기 (offscreen 1280×720 render 후 순차 캡처, zip 번들)
+- 폰트 로딩 완료 대기 (`document.fonts.ready`) 후 캡처 — 현재 첫 캡처에서 한글 폰트 깜빡임 가능
 
 ### 옵션 B — Undo/Redo
 편집 중 실수 방어. 구현은 store snapshot 스택(`slides` + `overlaysBySlide`) + Ctrl+Z / Ctrl+Shift+Z 바인딩. DOM 편집은 debounced commit 이후 스냅샷 포인트로.
