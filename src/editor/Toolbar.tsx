@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   buildHtmlBundle,
   defaultExportName,
@@ -16,11 +16,37 @@ export function Toolbar() {
   const insertBlankSlideAfter = useDeckStore((s) => s.insertBlankSlideAfter);
   const duplicateSlide = useDeckStore((s) => s.duplicateSlide);
   const removeSlide = useDeckStore((s) => s.removeSlide);
+  const undo = useDeckStore((s) => s.undo);
+  const redo = useDeckStore((s) => s.redo);
+  const pastLen = useDeckStore((s) => s.past.length);
+  const futureLen = useDeckStore((s) => s.future.length);
 
   const [busy, setBusy] = useState<Busy>(null);
 
   const canDelete = slides.length > 1;
   const canExport = slides.length > 0 && busy === null;
+  const canUndo = pastLen > 0;
+  const canRedo = futureLen > 0;
+
+  // Store-level undo: Cmd/Ctrl+Shift+Z (undo) and Cmd/Ctrl+Y or
+  // Cmd/Ctrl+Shift+Y (redo). Plain Cmd/Ctrl+Z is intentionally left to the
+  // browser so character-level contenteditable undo still works while typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if (key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
 
   const withBusy = async (kind: NonNullable<Busy>, fn: () => Promise<void>) => {
     if (!canExport) return;
@@ -74,6 +100,21 @@ export function Toolbar() {
         </span>
       </div>
       <div className="flex items-center gap-2 text-xs">
+        <ToolbarButton
+          onClick={undo}
+          disabled={!canUndo}
+          title="Undo (⇧⌘Z / Ctrl+Shift+Z)"
+        >
+          ↶ Undo
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={redo}
+          disabled={!canRedo}
+          title="Redo (⌘Y / Ctrl+Y)"
+        >
+          ↷ Redo
+        </ToolbarButton>
+        <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
         <ToolbarButton onClick={() => insertBlankSlideAfter(currentIndex)}>
           + New
         </ToolbarButton>
@@ -107,10 +148,11 @@ type ToolbarButtonProps = {
   onClick: () => void;
   disabled?: boolean;
   tone?: 'default' | 'danger' | 'accent';
+  title?: string;
   children: React.ReactNode;
 };
 
-function ToolbarButton({ onClick, disabled, tone = 'default', children }: ToolbarButtonProps) {
+function ToolbarButton({ onClick, disabled, tone = 'default', title, children }: ToolbarButtonProps) {
   const base =
     'rounded border px-2.5 py-1 font-medium transition disabled:cursor-not-allowed disabled:opacity-40';
   const tones: Record<NonNullable<ToolbarButtonProps['tone']>, string> = {
@@ -119,7 +161,7 @@ function ToolbarButton({ onClick, disabled, tone = 'default', children }: Toolba
     accent: 'border-editor-accent/50 text-editor-accent hover:bg-editor-accent/10',
   };
   return (
-    <button type="button" onClick={onClick} disabled={disabled} className={`${base} ${tones[tone]}`}>
+    <button type="button" onClick={onClick} disabled={disabled} title={title} className={`${base} ${tones[tone]}`}>
       {children}
     </button>
   );

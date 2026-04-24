@@ -5,6 +5,8 @@ import type { ParsedSlide } from '../importer/parsePresentation';
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
 
+const HISTORY_LIMIT = 50;
+
 const BLANK_SLIDE_HTML = `
 <div class="slide">
   <div class="slide-topbar"></div>
@@ -21,11 +23,24 @@ const BLANK_SLIDE_HTML = `
 </div>
 `.trim();
 
+type Snapshot = {
+  slides: ParsedSlide[];
+  overlaysBySlide: Record<string, OverlayImage[]>;
+  currentIndex: number;
+};
+
 type DeckState = {
   slides: ParsedSlide[];
   currentIndex: number;
   overlaysBySlide: Record<string, OverlayImage[]>;
   selectedOverlayId: string | null;
+
+  past: Snapshot[];
+  future: Snapshot[];
+  // Bumped on undo/redo so consumers can force-remount the slide DOM. Not
+  // bumped on commitSlideHtml (that flows DOM→store and the DOM is already
+  // authoritative).
+  revision: number;
 
   loadDeck: (slides: ParsedSlide[]) => void;
   setCurrentIndex: (i: number) => void;
@@ -39,13 +54,35 @@ type DeckState = {
   addOverlay: (slideId: string, item: OverlayImage) => void;
   updateOverlay: (slideId: string, id: string, patch: Partial<OverlayImage>) => void;
   removeOverlay: (slideId: string, id: string) => void;
+
+  undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 };
 
-export const useDeckStore = create<DeckState>((set) => ({
+function snap(state: Pick<DeckState, 'slides' | 'overlaysBySlide' | 'currentIndex'>): Snapshot {
+  return {
+    slides: state.slides,
+    overlaysBySlide: state.overlaysBySlide,
+    currentIndex: state.currentIndex,
+  };
+}
+
+function pushPast(past: Snapshot[], next: Snapshot): Snapshot[] {
+  const trimmed = past.length >= HISTORY_LIMIT ? past.slice(past.length - HISTORY_LIMIT + 1) : past;
+  return [...trimmed, next];
+}
+
+export const useDeckStore = create<DeckState>((set, get) => ({
   slides: [],
   currentIndex: 0,
   overlaysBySlide: {},
   selectedOverlayId: null,
+
+  past: [],
+  future: [],
+  revision: 0,
 
   loadDeck: (slides) =>
     set(() => ({
@@ -53,6 +90,10 @@ export const useDeckStore = create<DeckState>((set) => ({
       currentIndex: 0,
       selectedOverlayId: null,
       overlaysBySlide: Object.fromEntries(slides.map((s) => [s.id, []])),
+      // Fresh deck — discard any stale history.
+      past: [],
+      future: [],
+      revision: 0,
     })),
 
   setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null }),
@@ -60,9 +101,15 @@ export const useDeckStore = create<DeckState>((set) => ({
   setSelectedOverlayId: (id) => set({ selectedOverlayId: id }),
 
   commitSlideHtml: (id, html) =>
-    set((state) => ({
-      slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
-    })),
+    set((state) => {
+      const current = state.slides.find((s) => s.id === id);
+      if (!current || current.html === html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
+      };
+    }),
 
   insertBlankSlideAfter: (index) =>
     set((state) => {
@@ -75,6 +122,8 @@ export const useDeckStore = create<DeckState>((set) => ({
         ...state.slides.slice(insertAt),
       ];
       return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
         slides,
         currentIndex: insertAt,
         selectedOverlayId: null,
@@ -95,6 +144,8 @@ export const useDeckStore = create<DeckState>((set) => ({
       ];
       const sourceOverlays = state.overlaysBySlide[src.id] ?? [];
       return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
         slides,
         currentIndex: index + 1,
         selectedOverlayId: null,
@@ -114,11 +165,20 @@ export const useDeckStore = create<DeckState>((set) => ({
       const { [victim.id]: _dropped, ...rest } = state.overlaysBySlide;
       void _dropped;
       const nextIndex = Math.min(state.currentIndex, slides.length - 1);
-      return { slides, currentIndex: nextIndex, selectedOverlayId: null, overlaysBySlide: rest };
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        currentIndex: nextIndex,
+        selectedOverlayId: null,
+        overlaysBySlide: rest,
+      };
     }),
 
   addOverlay: (slideId, item) =>
     set((state) => ({
+      past: pushPast(state.past, snap(state)),
+      future: [],
       overlaysBySlide: {
         ...state.overlaysBySlide,
         [slideId]: [...(state.overlaysBySlide[slideId] ?? []), item],
@@ -126,21 +186,65 @@ export const useDeckStore = create<DeckState>((set) => ({
     })),
 
   updateOverlay: (slideId, id, patch) =>
-    set((state) => ({
-      overlaysBySlide: {
-        ...state.overlaysBySlide,
-        [slideId]: (state.overlaysBySlide[slideId] ?? []).map((it) =>
-          it.id === id ? { ...it, ...patch } : it,
-        ),
-      },
-    })),
+    set((state) => {
+      const list = state.overlaysBySlide[slideId] ?? [];
+      const current = list.find((it) => it.id === id);
+      if (!current) return state;
+      const changed = Object.entries(patch).some(
+        ([k, v]) => (current as Record<string, unknown>)[k] !== v,
+      );
+      if (!changed) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        overlaysBySlide: {
+          ...state.overlaysBySlide,
+          [slideId]: list.map((it) => (it.id === id ? { ...it, ...patch } : it)),
+        },
+      };
+    }),
 
   removeOverlay: (slideId, id) =>
     set((state) => ({
+      past: pushPast(state.past, snap(state)),
+      future: [],
       selectedOverlayId: state.selectedOverlayId === id ? null : state.selectedOverlayId,
       overlaysBySlide: {
         ...state.overlaysBySlide,
         [slideId]: (state.overlaysBySlide[slideId] ?? []).filter((it) => it.id !== id),
       },
     })),
+
+  undo: () =>
+    set((state) => {
+      const prev = state.past[state.past.length - 1];
+      if (!prev) return state;
+      return {
+        past: state.past.slice(0, -1),
+        future: [...state.future, snap(state)],
+        slides: prev.slides,
+        overlaysBySlide: prev.overlaysBySlide,
+        currentIndex: Math.min(prev.currentIndex, prev.slides.length - 1),
+        selectedOverlayId: null,
+        revision: state.revision + 1,
+      };
+    }),
+
+  redo: () =>
+    set((state) => {
+      const next = state.future[state.future.length - 1];
+      if (!next) return state;
+      return {
+        past: [...state.past, snap(state)],
+        future: state.future.slice(0, -1),
+        slides: next.slides,
+        overlaysBySlide: next.overlaysBySlide,
+        currentIndex: Math.min(next.currentIndex, next.slides.length - 1),
+        selectedOverlayId: null,
+        revision: state.revision + 1,
+      };
+    }),
+
+  canUndo: () => get().past.length > 0,
+  canRedo: () => get().future.length > 0,
 }));

@@ -23,6 +23,9 @@ export function SlideCanvas() {
   const setSelectedOverlayId = useDeckStore((s) => s.setSelectedOverlayId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
+  // Force SlideRenderer to remount on undo/redo so the fresh slide.html from
+  // the history snapshot is injected; normal typing never bumps revision.
+  const revision = useDeckStore((s) => s.revision);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -122,7 +125,7 @@ export function SlideCanvas() {
           transformOrigin: 'center center',
         }}
       >
-        <SlideRenderer key={slideId} slideId={slideId} />
+        <SlideRenderer key={`${slideId}:${revision}`} slideId={slideId} />
         <OverlayLayer
           items={overlays}
           selectedId={selectedOverlayId}
