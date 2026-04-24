@@ -1,25 +1,31 @@
-import type { DragEvent, ReactNode } from 'react';
+import type { DragEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDeckStore } from '../scene/store';
 import { OverlayLayer, type OverlayImage } from './OverlayLayer';
+import { SlideRenderer } from './SlideRenderer';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/types';
 import './spike.css';
 
 const FIT_PADDING = 64;
 
-type Props = {
-  children: ReactNode;
-};
-
 let nextId = 1;
 const makeId = () => `ovl-${nextId++}`;
 
-export function SlideCanvas({ children }: Props) {
+export function SlideCanvas() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [overlays, setOverlays] = useState<OverlayImage[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
+
+  const slide = useDeckStore((s) => s.slides[s.currentIndex]);
+  const overlays = useDeckStore((s) => (slide ? s.overlaysBySlide[slide.id] ?? [] : []));
+  const addOverlay = useDeckStore((s) => s.addOverlay);
+  const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
+
+  useEffect(() => {
+    setSelectedId(null);
+  }, [slide?.id]);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -49,40 +55,54 @@ export function SlideCanvas({ children }: Props) {
     if (e.currentTarget === e.target) setDropActive(false);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDropActive(false);
-    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
-    if (!file) return;
+  const onDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setDropActive(false);
+      if (!slide) return;
+      const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+      if (!file) return;
 
-    const host = hostRef.current;
-    if (!host) return;
-    const rect = host.getBoundingClientRect();
-    const sc = rect.width / SLIDE_WIDTH;
-    const dropX = (e.clientX - rect.left) / sc;
-    const dropY = (e.clientY - rect.top) / sc;
+      const host = hostRef.current;
+      if (!host) return;
+      const rect = host.getBoundingClientRect();
+      const sc = rect.width / SLIDE_WIDTH;
+      const dropX = (e.clientX - rect.left) / sc;
+      const dropY = (e.clientY - rect.top) / sc;
 
-    const w = 360;
-    const h = 240;
-    const url = URL.createObjectURL(file);
-    const id = makeId();
-    setOverlays((prev) => [
-      ...prev,
-      {
+      const w = 360;
+      const h = 240;
+      const url = URL.createObjectURL(file);
+      const id = makeId();
+      const item: OverlayImage = {
         id,
         src: url,
         x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
         y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
         w,
         h,
-      },
-    ]);
-    setSelectedId(id);
-  }, []);
+      };
+      addOverlay(slide.id, item);
+      setSelectedId(id);
+    },
+    [slide, addOverlay],
+  );
 
-  const updateOverlay = useCallback((id: string, patch: Partial<OverlayImage>) => {
-    setOverlays((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-  }, []);
+  const updateOverlay = useCallback(
+    (id: string, patch: Partial<OverlayImage>) => {
+      if (!slide) return;
+      updateOverlayInStore(slide.id, id, patch);
+    },
+    [slide, updateOverlayInStore],
+  );
+
+  if (!slide) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#020617] text-editor-dim">
+        No slide loaded
+      </div>
+    );
+  }
 
   return (
     <div
@@ -105,7 +125,7 @@ export function SlideCanvas({ children }: Props) {
           transformOrigin: 'center center',
         }}
       >
-        {children}
+        <SlideRenderer key={slide.id} slideId={slide.id} html={slide.html} />
         <OverlayLayer
           items={overlays}
           selectedId={selectedId}
