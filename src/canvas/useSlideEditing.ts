@@ -45,6 +45,14 @@ export function useSlideEditing(
     const onInput = () => notify();
     root.addEventListener('input', onInput);
 
+    // Links inside contenteditable hijack focus and trigger browser navigation
+    // on click. Suppress navigation so editors can click-to-edit the link text.
+    const onAnchorClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement | null)?.closest?.('a');
+      if (anchor && root.contains(anchor)) e.preventDefault();
+    };
+    root.addEventListener('click', onAnchorClick);
+
     const sortableRoot = root.querySelector<HTMLElement>('.slide-inner');
     const insertedHandles: HTMLElement[] = [];
     let sortable: Sortable | null = null;
@@ -69,6 +77,7 @@ export function useSlideEditing(
 
     return () => {
       root.removeEventListener('input', onInput);
+      root.removeEventListener('click', onAnchorClick);
       slots.forEach((el) => {
         el.contentEditable = 'inherit';
       });

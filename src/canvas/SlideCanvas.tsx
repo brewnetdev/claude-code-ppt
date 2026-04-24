@@ -18,14 +18,14 @@ export function SlideCanvas() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
 
-  const slide = useDeckStore((s) => s.slides[s.currentIndex]);
-  const overlays = useDeckStore((s) => (slide ? s.overlaysBySlide[slide.id] ?? [] : []));
+  const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
+  const overlays = useDeckStore((s) => (slideId ? s.overlaysBySlide[slideId] ?? [] : []));
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
 
   useEffect(() => {
     setSelectedId(null);
-  }, [slide?.id]);
+  }, [slideId]);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -59,7 +59,7 @@ export function SlideCanvas() {
     (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       setDropActive(false);
-      if (!slide) return;
+      if (!slideId) return;
       const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
       if (!file) return;
 
@@ -82,21 +82,21 @@ export function SlideCanvas() {
         w,
         h,
       };
-      addOverlay(slide.id, item);
+      addOverlay(slideId, item);
       setSelectedId(id);
     },
-    [slide, addOverlay],
+    [slideId, addOverlay],
   );
 
   const updateOverlay = useCallback(
     (id: string, patch: Partial<OverlayImage>) => {
-      if (!slide) return;
-      updateOverlayInStore(slide.id, id, patch);
+      if (!slideId) return;
+      updateOverlayInStore(slideId, id, patch);
     },
-    [slide, updateOverlayInStore],
+    [slideId, updateOverlayInStore],
   );
 
-  if (!slide) {
+  if (!slideId) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-[#020617] text-editor-dim">
         No slide loaded
@@ -125,7 +125,7 @@ export function SlideCanvas() {
           transformOrigin: 'center center',
         }}
       >
-        <SlideRenderer key={slide.id} slideId={slide.id} html={slide.html} />
+        <SlideRenderer key={slideId} slideId={slideId} />
         <OverlayLayer
           items={overlays}
           selectedId={selectedId}

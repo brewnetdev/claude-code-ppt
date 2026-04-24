@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
@@ -7,12 +7,18 @@ const COMMIT_DEBOUNCE_MS = 300;
 
 type Props = {
   slideId: string;
-  html: string;
 };
 
-export function SlideRenderer({ slideId, html }: Props) {
+export function SlideRenderer({ slideId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const commitSlideHtml = useDeckStore((s) => s.commitSlideHtml);
+
+  // Read html once per slideId. We never rebind the DOM on store updates —
+  // re-rendering dangerouslySetInnerHTML would nuke contenteditable focus mid-type.
+  const initialHtml = useMemo(
+    () => useDeckStore.getState().slides.find((s) => s.id === slideId)?.html ?? '',
+    [slideId],
+  );
 
   const commitFromDom = useCallback(() => {
     const slide = ref.current?.querySelector<HTMLElement>('div.slide');
@@ -50,5 +56,5 @@ export function SlideRenderer({ slideId, html }: Props) {
     };
   }, [commitFromDom]);
 
-  return <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div ref={ref} dangerouslySetInnerHTML={{ __html: initialHtml }} />;
 }
