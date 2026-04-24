@@ -1,0 +1,68 @@
+/* Phase 1a edit-spike — visual feedback only, removed when proper editor UX lands */
+
+.slide-canvas-host [data-slot] {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: outline-color 120ms ease;
+  cursor: text;
+}
+
+.slide-canvas-host [data-slot]:hover {
+  outline-color: rgba(245, 158, 11, 0.45);
+}
+
+.slide-canvas-host [data-slot]:focus {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.slide-canvas-host .slide-inner {
+  /* Sortable mounts here — give grabbable affordance on hover */
+}
+
+.slide-canvas-host .sortable-ghost {
+  opacity: 0.35;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.slide-canvas-host .sortable-chosen {
+  cursor: grabbing;
+}
+
+.slide-canvas-host .sortable-drag {
+  outline: 2px solid #f59e0b;
+}
+
+/* Overlay layer */
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.overlay-layer .overlay-item {
+  position: absolute;
+  pointer-events: auto;
+  cursor: move;
+  user-select: none;
+}
+
+.overlay-layer .overlay-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.overlay-layer .overlay-item.selected {
+  outline: 2px solid #60a5fa;
+  outline-offset: 0;
+}
+
+.overlay-drop-active {
+  outline: 3px dashed #60a5fa !important;
+  outline-offset: -3px;
+}

@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
 
 const SAMPLE_HTML = `
@@ -37,5 +39,7 @@ const SAMPLE_HTML = `
 `;
 
 export function SampleSlide() {
-  return <div dangerouslySetInnerHTML={{ __html: SAMPLE_HTML }} />;
+  const ref = useRef<HTMLDivElement>(null);
+  useSlideEditing(ref);
+  return <div ref={ref} dangerouslySetInnerHTML={{ __html: SAMPLE_HTML }} />;
 }
