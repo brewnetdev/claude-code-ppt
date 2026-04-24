@@ -24,7 +24,10 @@ function createDragHandle(): HTMLElement {
   return handle;
 }
 
-export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
+export function useSlideEditing(
+  slideRootRef: RefObject<HTMLElement | null>,
+  onChange?: () => void,
+) {
   useEffect(() => {
     const root = slideRootRef.current;
     if (!root) return;
@@ -37,6 +40,10 @@ export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
         el.spellcheck = false;
       }
     });
+
+    const notify = onChange ?? (() => {});
+    const onInput = () => notify();
+    root.addEventListener('input', onInput);
 
     const sortableRoot = root.querySelector<HTMLElement>('.slide-inner');
     const insertedHandles: HTMLElement[] = [];
@@ -56,15 +63,17 @@ export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
+        onEnd: () => notify(),
       });
     }
 
     return () => {
+      root.removeEventListener('input', onInput);
       slots.forEach((el) => {
         el.contentEditable = 'inherit';
       });
       insertedHandles.forEach((h) => h.remove());
       sortable?.destroy();
     };
-  }, [slideRootRef]);
+  }, [slideRootRef, onChange]);
 }
