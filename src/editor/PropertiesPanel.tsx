@@ -79,7 +79,7 @@ export function PropertiesPanel() {
               onClick={() => removeOverlay(slideId, overlay.id)}
               className="w-full rounded border border-red-500/40 px-2 py-1.5 text-xs text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
             >
-              Delete overlay
+              Delete
             </button>
 
             <p className="text-[10px] leading-relaxed text-editor-dim">
