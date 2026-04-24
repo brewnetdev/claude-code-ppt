@@ -5,7 +5,7 @@ import {
   downloadBlob,
   openPrintablePreview,
 } from '../exporter/htmlBundle';
-import { exportCurrentSlidePng } from '../exporter/pngExport';
+import { exportAllSlidesPng } from '../exporter/pngExport';
 import { useDeckStore } from '../scene/store';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -56,10 +56,9 @@ export function Toolbar() {
 
   const handleExportPng = () =>
     withBusy('png', async () => {
-      const { slides: latestSlides, currentIndex: idx } = useDeckStore.getState();
-      const slide = latestSlides[idx];
-      if (!slide) return;
-      await exportCurrentSlidePng(slide.title);
+      const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
+      if (latestSlides.length === 0) return;
+      await exportAllSlidesPng({ slides: latestSlides, overlaysBySlide });
     });
 
   return (
@@ -96,7 +95,7 @@ export function Toolbar() {
           {busy === 'pdf' ? 'Opening…' : 'Export PDF'}
         </ToolbarButton>
         <ToolbarButton onClick={handleExportPng} disabled={!canExport} tone="accent">
-          {busy === 'png' ? 'Rendering…' : 'PNG (current)'}
+          {busy === 'png' ? 'Rendering…' : 'PNG (all)'}
         </ToolbarButton>
         <span className="ml-3 text-editor-dim">1280×720 · export 1920×1080</span>
       </div>

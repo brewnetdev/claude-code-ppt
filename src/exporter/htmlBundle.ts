@@ -56,7 +56,7 @@ export async function buildHtmlBundle(input: BundleInput): Promise<string> {
   const sections = await Promise.all(
     slides.map(async (s, i) => {
       const overlayHtml = await renderOverlays(overlaysBySlide[s.id] ?? []);
-      return `<section class="export-slide" data-index="${i}"${i === 0 ? '' : ' hidden'}>
+      return `<section class="export-slide" data-index="${i}">
 <div class="export-stage">
 ${s.html}
 ${overlayHtml}
@@ -65,9 +65,9 @@ ${overlayHtml}
     }),
   );
 
-  // Inline the editor's canvas CSS but not editing-only affordances
-  // (drag handles, outlines). The theme CSS alone already renders the slide
-  // exactly as authored.
+  // All slides stack vertically — each fills the viewport (16:9, fit-scaled)
+  // so scrolling reveals the full deck, mirroring the PDF page model. Keyboard
+  // nav scrolls slide-by-slide. Print CSS keeps one slide per page.
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -79,12 +79,13 @@ ${overlayHtml}
 <style>
 ${themeCss}
 
-html, body { width: 100%; height: 100%; margin: 0; background: #020617; color: #f1f5f9; overflow: hidden; }
-body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; }
-.export-slide { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
-.export-slide[hidden] { display: none !important; }
+html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
+body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+.export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
+.export-slide:last-child { border-bottom: 0; }
 .export-stage { position: relative; width: ${SLIDE_WIDTH}px; height: ${SLIDE_HEIGHT}px; transform-origin: center center; }
-.export-overlay { position: absolute; user-select: none; pointer-events: none; }
+/* Overlays must paint above every in-slide layer, including .slide-logo (z-index: 10) */
+.export-overlay { position: absolute; user-select: none; pointer-events: none; opacity: 1 !important; z-index: 100; }
 .export-nav {
   position: fixed; right: 20px; bottom: 16px; z-index: 1000;
   font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #94a3b8;
@@ -93,10 +94,9 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; }
 }
 @media print {
   @page { size: 1920px 1080px; margin: 0; }
-  html, body { overflow: visible !important; background: var(--bg) !important; }
-  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; }
+  html, body { overflow: visible !important; background: var(--bg) !important; scroll-snap-type: none !important; }
+  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; border: 0 !important; }
   .export-slide:last-child { page-break-after: auto; break-after: auto; }
-  .export-slide[hidden] { display: flex !important; }
   .export-stage { transform: scale(1.5) !important; }
   .export-nav { display: none !important; }
 }
@@ -104,41 +104,46 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; }
 </head>
 <body>
 ${sections.join('\n')}
-<div class="export-nav" id="export-nav">1 / ${slides.length} · ← → Space · P = Print</div>
+<div class="export-nav" id="export-nav">1 / ${slides.length} · ↑ ↓ · P = Print</div>
 <script>
 (function(){
   var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
   var nav = document.getElementById('export-nav');
-  var idx = 0;
-  function fit() {
-    var stage = slides[idx] && slides[idx].querySelector('.export-stage');
-    if (!stage) return;
+  function fitAll() {
     var w = window.innerWidth, h = window.innerHeight;
     var s = Math.min(w / ${SLIDE_WIDTH}, h / ${SLIDE_HEIGHT}) * 0.96;
-    stage.style.transform = 'scale(' + s + ')';
+    slides.forEach(function(sec){
+      var stage = sec.querySelector('.export-stage');
+      if (stage) stage.style.transform = 'scale(' + s + ')';
+    });
   }
-  function show(n) {
+  function currentIndex() {
+    var mid = window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      var r = slides[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return i;
+    }
+    return 0;
+  }
+  function updateNav() {
+    nav.textContent = (currentIndex() + 1) + ' / ' + slides.length + ' · \\u2191 \\u2193 · P = Print';
+  }
+  function goTo(n) {
     if (n < 0) n = 0;
     if (n > slides.length - 1) n = slides.length - 1;
-    slides[idx].hidden = true;
-    idx = n;
-    slides[idx].hidden = false;
-    nav.textContent = (idx + 1) + ' / ' + slides.length + ' · \\u2190 \\u2192 Space · P = Print';
-    fit();
+    slides[n].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  window.addEventListener('resize', fit);
+  window.addEventListener('resize', fitAll);
+  window.addEventListener('scroll', updateNav, { passive: true });
   window.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(idx + 1); }
-    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(idx - 1); }
-    else if (e.key === 'Home') { e.preventDefault(); show(0); }
-    else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goTo(currentIndex() + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(currentIndex() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(slides.length - 1); }
     else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); window.print(); }
   });
-  document.addEventListener('click', function(e){
-    if (e.target && e.target.closest && e.target.closest('a')) return;
-    show(idx + 1);
-  });
-  fit();
+  fitAll();
+  updateNav();
   if (window.location.hash === '#print') {
     // Give fonts/layout a tick to settle before invoking the print dialog.
     setTimeout(function(){ window.print(); }, 300);
