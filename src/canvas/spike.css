@@ -17,8 +17,46 @@
   background: rgba(245, 158, 11, 0.04);
 }
 
-.slide-canvas-host .slide-inner {
-  /* Sortable mounts here — give grabbable affordance on hover */
+/* Block drag handle — injected by useSlideEditing for each direct child of .slide-inner */
+.slide-canvas-host .slide-inner > * {
+  position: relative;
+}
+
+.slide-canvas-host .block-drag-handle {
+  position: absolute;
+  left: -44px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #f59e0b;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  letter-spacing: -2px;
+  line-height: 1;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.slide-canvas-host .slide-inner > *:hover > .block-drag-handle,
+.slide-canvas-host .block-drag-handle:hover,
+.slide-canvas-host .sortable-chosen > .block-drag-handle {
+  opacity: 1;
+}
+
+.slide-canvas-host .block-drag-handle:active {
+  cursor: grabbing;
+  background: rgba(245, 158, 11, 0.18);
 }
 
 .slide-canvas-host .sortable-ghost {
@@ -65,4 +103,9 @@
 .overlay-drop-active {
   outline: 3px dashed #60a5fa !important;
   outline-offset: -3px;
+}
+
+/* Moveable handles live in document.body, but we want them above everything else */
+.moveable-control-box {
+  z-index: 1000;
 }

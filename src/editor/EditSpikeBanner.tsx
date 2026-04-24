@@ -6,7 +6,7 @@ export function EditSpikeBanner() {
       </span>
       <span className="mr-3">텍스트 클릭 → 인라인 편집</span>
       <span className="mr-3">·</span>
-      <span className="mr-3">블록 길게 누르고 드래그 → 순서 변경</span>
+      <span className="mr-3">왼쪽 ⋮⋮ 그립 드래그 → 블록 순서 변경</span>
       <span className="mr-3">·</span>
       <span className="mr-3">이미지 파일 드롭 → 오버레이 추가 (선택 시 핸들로 이동/리사이즈)</span>
       <span className="mr-3">·</span>

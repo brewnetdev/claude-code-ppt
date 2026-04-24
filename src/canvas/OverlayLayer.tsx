@@ -35,7 +35,7 @@ export function OverlayLayer({ items, selectedId, onSelect, onUpdate }: Props) {
     const target = layer.querySelector<HTMLElement>(`[data-overlay-id="${selectedId}"]`);
     if (!target) return;
 
-    const moveable = new Moveable(layer, {
+    const moveable = new Moveable(document.body, {
       target,
       draggable: true,
       resizable: true,

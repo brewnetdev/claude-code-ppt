@@ -93,6 +93,7 @@ export function SlideCanvas({ children }: Props) {
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
+      onMouseDown={() => setSelectedId(null)}
     >
       <div
         ref={hostRef}

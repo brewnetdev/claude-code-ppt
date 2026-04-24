@@ -9,7 +9,20 @@ const TEXT_SLOT_KINDS = new Set([
   'body',
   'quote',
   'page-num',
+  'bullets',
 ]);
+
+const DRAG_HANDLE_CLASS = 'block-drag-handle';
+
+function createDragHandle(): HTMLElement {
+  const handle = document.createElement('div');
+  handle.className = DRAG_HANDLE_CLASS;
+  handle.textContent = '⋮⋮';
+  handle.setAttribute('aria-label', 'Drag block');
+  handle.setAttribute('contenteditable', 'false');
+  handle.setAttribute('draggable', 'false');
+  return handle;
+}
 
 export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -26,17 +39,23 @@ export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
     });
 
     const sortableRoot = root.querySelector<HTMLElement>('.slide-inner');
+    const insertedHandles: HTMLElement[] = [];
     let sortable: Sortable | null = null;
+
     if (sortableRoot) {
+      Array.from(sortableRoot.children).forEach((child) => {
+        const block = child as HTMLElement;
+        const handle = createDragHandle();
+        block.appendChild(handle);
+        insertedHandles.push(handle);
+      });
+
       sortable = Sortable.create(sortableRoot, {
         animation: 150,
-        delay: 250,
-        delayOnTouchOnly: false,
+        handle: `.${DRAG_HANDLE_CLASS}`,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
-        filter: '[contenteditable="true"]:focus',
-        preventOnFilter: false,
       });
     }
 
@@ -44,6 +63,7 @@ export function useSlideEditing(slideRootRef: RefObject<HTMLElement | null>) {
       slots.forEach((el) => {
         el.contentEditable = 'inherit';
       });
+      insertedHandles.forEach((h) => h.remove());
       sortable?.destroy();
     };
   }, [slideRootRef]);
