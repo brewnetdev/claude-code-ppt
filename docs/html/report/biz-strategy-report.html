@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프레젠테이션 템플릿</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=Barlow+Condensed:wght@400;600;700;800;900&amp;family=Barlow:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent:    #E86A1C;
+  --accent2:   #F5C400;
+  --dark:      #141414;
+  --dark2:     #2A2A2A;
+  --gray:      #7A7872;
+  --border:    #D4D0C8;
+  --bg-cream:  #F0EDE8;
+  --bg-white:  #FAFAF8;
+  --text:      #1A1A18;
+  --text-muted:#888880;
+  --card-orange: #E8855A;
+  --card-gray:   #7A7472;
+}
+
+body {
+  background: #C8C5BE;
+  font-family: 'Noto Sans KR', 'Barlow', sans-serif;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  align-items: center;
+}
+
+/* ─── Slide Shell 16:9 = 960×540 ─── */
+.slide {
+  position: relative;
+  width: 960px;
+  height: 540px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0,0,0,.22), 0 2px 8px rgba(0,0,0,.12);
+  border-radius: 2px;
+}
+
+/* ─── Slide Label ─── */
+.slide-label {
+  position: absolute;
+  top: -32px;
+  left: 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: #888;
+  text-transform: uppercase;
+}
+
+/* ─── Placeholder Blocks ─── */
+.ph {
+  background: rgba(0,0,0,.06);
+  border: 1.5px dashed rgba(0,0,0,.15);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0,0,0,.28);
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.ph-light {
+  background: rgba(255,255,255,.12);
+  border: 1.5px dashed rgba(255,255,255,.28);
+  color: rgba(255,255,255,.38);
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Divider Line ─── */
+.divider { background: var(--border); }
+.divider-accent { background: var(--accent); }
+
+/* ─── Tag / Label text ─── */
+.tag {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+
+/* ════════════════════════════════════════════
+   S01 — COVER (Dark)
+   ════════════════════════════════════════════ */
+.s01 {
+  background: var(--dark);
+}
+.s01 .cover-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #222 0%, #111 100%);
+}
+.s01 .cover-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 52px 64px;
+}
+.s01 .cover-year {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+.s01 .cover-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 74px;
+  font-weight: 900;
+  color: #fff;
+  line-height: .96;
+  letter-spacing: -.02em;
+  margin-top: 2px;
+}
+.s01 .cover-highlight {
+  color: var(--accent2);
+}
+.s01 .cover-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  margin-top: 16px;
+  font-family: 'Barlow', sans-serif;
+  letter-spacing: .06em;
+}
+.s01 .cover-logo {
+  position: absolute;
+  bottom: 36px;
+  right: 56px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.6);
+}
+.s01 .cover-img-ph {
+  position: absolute;
+  inset: 0;
+}
+
+
+/* ════════════════════════════════════════════
+   S02 — INDEX (01 · 02)
+   S03 — INDEX (03 · 04)
+   ════════════════════════════════════════════ */
+.s02, .s03 {
+  background: var(--bg-white);
+}
+.s02 .idx-inner, .s03 .idx-inner {
+  position: absolute;
+  inset: 0;
+  padding: 56px 72px;
+}
+.s02 .idx-title, .s03 .idx-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: var(--text);
+  margin-bottom: 32px;
+}
+.s02 .idx-grid, .s03 .idx-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 80px;
+}
+.idx-col { }
+.idx-col .idx-divider {
+  height: 1.5px;
+  background: var(--text);
+  margin-bottom: 20px;
+}
+.idx-col .idx-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 88px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -.03em;
+}
+.idx-col .idx-section-name {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: .04em;
+  color: var(--text);
+  margin: 8px 0 20px;
+}
+.idx-col .idx-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.idx-col .idx-items li {
+  padding: 9px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+
+/* ════════════════════════════════════════════
+   S04 — INTRODUCTION (3-card)
+   ════════════════════════════════════════════ */
+.s04 {
+  background: var(--bg-cream);
+}
+.s04 .intro-inner {
+  position: absolute;
+  inset: 0;
+  padding: 52px 60px;
+  display: flex;
+  flex-direction: column;
+}
+.s04 .intro-tag {
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.s04 .intro-title {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 36px;
+}
+.s04 .card-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  flex: 1;
+}
+.s04 .img-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.s04 .img-card-ph {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.06);
+  border: 1.5px dashed rgba(0,0,0,.15);
+  border-radius: 8px;
+}
+.s04 .img-card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 36px 18px 16px;
+  background: linear-gradient(transparent, rgba(0,0,0,.72));
+  border-radius: 0 0 8px 8px;
+}
+.s04 .img-card-label span {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  display: block;
+  line-height: 1.5;
+}
+
+
+/* ════════════════════════════════════════════
+   S05 — BUSINESS STRATEGY (Dark photo bg + 3 circles)
+   ════════════════════════════════════════════ */
+.s05 {
+  background: #1A1A1A;
+}
+.s05 .strat-bg {
+  position: absolute;
+  inset: 0;
+}
+.s05 .strat-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+.s05 .strat-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 52px 64px;
+}
+.s05 .strat-tag {
+  font-size: 11px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--accent2);
+  margin-bottom: 12px;
+}
+.s05 .strat-title {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.3;
+  max-width: 560px;
+}
+.s05 .circle-row {
+  position: absolute;
+  bottom: 56px;
+  left: 64px;
+  right: 64px;
+  display: flex;
+  gap: 28px;
+}
+.s05 .circle-item {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.s05 .circle-item span {
+  font-size: 12px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+  padding: 12px;
+  opacity: .35;
+}
+
+
+/* ════════════════════════════════════════════
+   S06 — BUSINESS STRATEGY (6 circles: 3 white + 3 yellow)
+   ════════════════════════════════════════════ */
+.s06 {
+  background: #1A1A1A;
+}
+.s06 .strat-bg {
+  position: absolute;
+  inset: 0;
+}
+.s06 .strat-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+.s06 .strat-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 40px 64px;
+}
+.s06 .strat-tag {
+  font-size: 11px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--accent2);
+  margin-bottom: 10px;
+}
+.s06 .strat-title {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.35;
+  max-width: 520px;
+}
+.s06 .dual-circle-area {
+  position: absolute;
+  bottom: 44px;
+  left: 64px;
+  right: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.s06 .circle-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.s06 .circle-item {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+.s06 .circle-white {
+  background: rgba(255,255,255,.90);
+}
+.s06 .circle-yellow {
+  background: var(--accent2);
+}
+.s06 .circle-item span {
+  font-size: 11px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+  padding: 12px;
+  opacity: .35;
+}
+.s06 .circle-item.circle-yellow span {
+  opacity: .45;
+}
+
+
+/* ════════════════════════════════════════════
+   S07/S08/S09 — ENTER MOVEMENT (vertical text + 2-col)
+   ════════════════════════════════════════════ */
+.s07, .s08, .s09 {
+  background: var(--bg-cream);
+}
+.s07 .em-inner, .s08 .em-inner, .s09 .em-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+/* vertical label column */
+.em-vert {
+  width: 64px;
+  background: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.em-vert span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: #fff;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+/* content area */
+.em-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  padding: 0;
+}
+.em-cell {
+  background: var(--bg-cream);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+.em-cell-img {
+  flex: 1;
+  min-height: 100px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.em-cell-img.tall {
+  min-height: 160px;
+}
+.em-cell-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.em-cell-text .em-title {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  opacity: .25;
+  line-height: 1.5;
+}
+.em-cell-text .em-body {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-family: 'Noto Sans KR', sans-serif;
+  opacity: .25;
+}
+
+
+/* ════════════════════════════════════════════
+   S10 — OFFLINE MARKETING (icons + numbers)
+   ════════════════════════════════════════════ */
+.s10 {
+  background: var(--bg-cream);
+}
+.s10 .mkt-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 80px;
+  text-align: center;
+}
+.s10 .mkt-tag {
+  font-size: 11px;
+  color: var(--accent);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  letter-spacing: .15em;
+  margin-bottom: 12px;
+}
+.s10 .mkt-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 48px;
+}
+.s10 .mkt-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  width: 100%;
+}
+.s10 .mkt-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.s10 .icon-ph {
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.s10 .icon-ph svg {
+  opacity: .2;
+}
+.s10 .stat-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  text-align: center;
+  opacity: .4;
+}
+.s10 .stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -.02em;
+  opacity: .18;
+}
+
+
+/* ════════════════════════════════════════════
+   S11 — TRANSITION (blank)
+   ════════════════════════════════════════════ */
+.s11 {
+  background: var(--bg-cream);
+}
+
+
+/* ════════════════════════════════════════════
+   S12 — LOP RESULT 2023 (Dark + 2 chart areas)
+   ════════════════════════════════════════════ */
+.s12 {
+  background: #1E1C18;
+}
+.s12 .lop-inner {
+  position: absolute;
+  inset: 0;
+  padding: 48px 56px;
+  display: flex;
+  flex-direction: column;
+}
+.s12 .lop-tag {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.s12 .lop-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.s12 .lop-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,.4);
+  font-family: 'Noto Sans KR', sans-serif;
+  margin-bottom: 24px;
+}
+.s12 .chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+}
+.s12 .chart-box {
+  border: 1.5px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+.s12 .chart-box-title {
+  font-size: 12px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: rgba(255,255,255,.35);
+  line-height: 1.6;
+}
+.s12 .chart-box-title strong {
+  color: var(--accent);
+}
+.s12 .chart-ph {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  border: 1.5px dashed rgba(255,255,255,.12);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.18);
+  text-transform: uppercase;
+}
+.s12 .chart-source {
+  font-size: 10px;
+  color: rgba(255,255,255,.2);
+  font-family: 'Noto Sans KR', sans-serif;
+  text-align: center;
+}
+
+
+/* ════════════════════════════════════════════
+   S13 — LOP RESULT 2024 (Light + 2 chart areas)
+   ════════════════════════════════════════════ */
+.s13 {
+  background: var(--bg-cream);
+}
+.s13 .lop-inner {
+  position: absolute;
+  inset: 0;
+  padding: 44px 56px;
+  display: flex;
+  flex-direction: column;
+}
+.s13 .lop-tag {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.s13 .lop-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.s13 .lop-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'Noto Sans KR', sans-serif;
+  margin-bottom: 20px;
+}
+.s13 .chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+}
+.s13 .chart-box {
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.s13 .chart-box-title {
+  font-size: 12px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.s13 .chart-box-title strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+.s13 .chart-ph {
+  flex: 1;
+  background: rgba(0,0,0,.04);
+  border: 1.5px dashed rgba(0,0,0,.12);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(0,0,0,.2);
+  text-transform: uppercase;
+}
+.s13 .chart-source {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Noto Sans KR', sans-serif;
+  text-align: center;
+  opacity: .5;
+}
+
+
+/* ════════════════════════════════════════════
+   S14 — STATS CARDS (2 top + 1 bottom)
+   ════════════════════════════════════════════ */
+.s14 {
+  background: var(--bg-cream);
+}
+.s14 .stats-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 24px;
+}
+.s14 .card {
+  border-radius: 10px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.s14 .card-orange {
+  background: var(--card-orange);
+  grid-row: 1;
+  grid-column: 1;
+}
+.s14 .card-gray {
+  background: var(--card-gray);
+  grid-row: 1;
+  grid-column: 2;
+}
+.s14 .card-wide {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  background: rgba(0,0,0,.08);
+  border: 1.5px dashed rgba(0,0,0,.15);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.s14 .card-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,.6);
+}
+.s14 .card-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -.01em;
+  opacity: .3;
+}
+.s14 .card-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 56px;
+  font-weight: 900;
+  color: rgba(255,255,255,.2);
+  line-height: 1;
+  letter-spacing: -.02em;
+  align-self: flex-end;
+  text-align: right;
+}
+.s14 .card-wide-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: rgba(0,0,0,.2);
+}
+.s14 .card-wide-sub {
+  font-size: 11px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: rgba(0,0,0,.18);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+
+/* ════════════════════════════════════════════
+   S15/S16 — THANK YOU
+   ════════════════════════════════════════════ */
+.s15, .s16 {
+  background: var(--bg-cream);
+}
+.s15 .ty-inner, .s16 .ty-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.ty-accent-bar {
+  width: 36px;
+  height: 3px;
+  background: var(--accent);
+  margin-bottom: 8px;
+}
+.ty-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: var(--accent);
+}
+.ty-main {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 76px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: var(--text);
+  line-height: 1;
+}
+
+
+/* ─── Slide Number Badge ─── */
+.slide-num {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: rgba(0,0,0,.15);
+  z-index: 10;
+}
+.slide-num-light {
+  color: rgba(255,255,255,.18);
+}
+
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+/* ══ Viewer Shell ══ */
+:root {
+  --v-bg:#060E10; --v-sb:#081214; --v-card:#0A1618;
+  --v-border:#152428; --v-border2:#1E3035;
+  --v-text:#C4D0D2; --v-dim:#5E7276;
+  --v-primary:#0F9DA0; --v-orange:#18A870;
+  --v-font:'Inter',-apple-system,sans-serif;
+  --v-mono:'JetBrains Mono',monospace;
+  --v-sb-w:220px; --v-top:48px; --v-bot:48px;
+}
+html,body{width:100%;height:100%;overflow:hidden;margin:0;padding:0;}
+body{background:var(--v-bg);color:var(--v-text);font-family:var(--v-font);}
+
+#v-app{
+  display:grid;
+  grid-template-rows:var(--v-top) 1fr var(--v-bot);
+  grid-template-columns:var(--v-sb-w) 1fr;
+  height:100vh;
+  transition:grid-template-columns .2s;
+}
+#v-app.sb-hidden{grid-template-columns:0 1fr;}
+
+/* Top bar */
+#v-top{
+  grid-column:1/-1;grid-row:1;
+  background:var(--v-sb);border-bottom:1px solid var(--v-border);
+  display:flex;align-items:center;padding:0 16px;gap:12px;z-index:10;
+}
+.v-logo{display:flex;align-items:center;gap:7px;font-family:var(--v-mono);font-weight:700;font-size:15px;color:#18A870;flex-shrink:0;}
+.v-sep{width:1px;height:18px;background:var(--v-border2);}
+.v-title{font-size:12px;color:var(--v-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.v-sname{font-size:13px;font-weight:600;color:var(--v-text);}
+.v-actions{display:flex;gap:6px;}
+.v-btn{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:1px solid var(--v-border2);
+  color:var(--v-dim);font-size:11px;font-family:var(--v-font);font-weight:500;
+  padding:4px 10px;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.v-btn:hover{border-color:var(--v-border2);color:var(--v-text);background:rgba(255,255,255,.04);}
+.v-btn.active{border-color:var(--v-primary);color:var(--v-primary);background:rgba(88,166,255,.06);}
+
+/* Sidebar */
+#v-sb{
+  grid-column:1;grid-row:2;
+  background:var(--v-sb);border-right:1px solid var(--v-border);
+  overflow-y:auto;overflow-x:hidden;padding:6px 0;
+}
+#v-sb::-webkit-scrollbar{width:3px;}
+#v-sb::-webkit-scrollbar-thumb{background:var(--v-border2);border-radius:2px;}
+.v-si{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px 7px 8px;cursor:pointer;
+  border-left:2px solid transparent;transition:all .12s;
+}
+.v-si:hover{background:rgba(255,255,255,.025);}
+.v-si.active{background:rgba(88,166,255,.07);border-left-color:var(--v-primary);}
+.v-si-n{font-family:var(--v-mono);font-size:10px;font-weight:600;color:var(--v-dim);min-width:20px;text-align:right;flex-shrink:0;}
+.v-si.active .v-si-n{color:var(--v-primary);}
+.v-si-ttl{font-size:11px;font-weight:500;color:var(--v-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.v-si.active .v-si-ttl{color:var(--v-text);}
+
+/* Viewport */
+#v-vp{
+  grid-column:2;grid-row:2;
+  background:#000;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+}
+#v-fw{transform-origin:center center;will-change:transform;line-height:0;}
+
+/* Bottom bar */
+#v-bot{
+  grid-column:1/-1;grid-row:3;
+  background:var(--v-sb);border-top:1px solid var(--v-border);
+  display:flex;align-items:center;padding:0 16px;gap:10px;z-index:10;
+}
+.v-nav{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:1px solid var(--v-border2);
+  color:var(--v-dim);font-size:12px;font-family:var(--v-font);
+  padding:4px 12px;border-radius:5px;cursor:pointer;transition:all .15s;
+}
+.v-nav:hover:not(:disabled){border-color:var(--v-primary);color:var(--v-primary);}
+.v-nav:disabled{opacity:.3;cursor:not-allowed;}
+.v-ctr{font-family:var(--v-mono);font-size:13px;color:var(--v-dim);min-width:54px;text-align:center;}
+.v-ctr .v-cur{color:var(--v-orange);font-weight:700;}
+.v-pgbar{flex:1;height:3px;background:var(--v-border);border-radius:2px;overflow:hidden;cursor:pointer;}
+.v-pgfill{height:100%;background:linear-gradient(90deg,#18A870,#0F9DA0);border-radius:2px;transition:width .3s;}
+.v-kbds{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--v-dim);flex-shrink:0;}
+.v-k{display:inline-flex;align-items:center;justify-content:center;background:var(--v-border);border:1px solid var(--v-border2);border-radius:3px;font-family:var(--v-mono);font-size:9px;padding:2px 5px;color:var(--v-dim);}
+.v-kbds span{margin:0 3px;}
+
+/* Slides container — only active slide visible */
+.v-slides{position:relative;}
+.v-slides > *{display:none !important;}
+.v-slides > .v-active{display:block !important;}
+
+/* Override original body scroll/flex styles */
+
+</style>
+</head>
+<body>
+<div id="v-app">
+  <div id="v-top">
+    <div class="v-logo">
+      <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#18A870" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M8 18 C8 12 14 10 14 10 C14 10 20 12 20 18" stroke="#18A870" stroke-width="1.5" stroke-linecap="round"/><path d="M10 18 Q14 22 18 18" stroke="#18A870" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="8" r="1.5" fill="#18A870"/></svg>
+      Brewnet
+    </div>
+    <div class="v-sep"></div>
+    <div class="v-title">프레젠테이션 템플릿</div>
+    <div class="v-sname" id="v-sname"></div>
+    <div class="v-actions">
+      <button class="v-btn active" id="v-btn-sb" title="사이드바 토글">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        사이드바
+      </button>
+      <button class="v-btn" id="v-btn-fs" title="전체 화면">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        전체 화면
+      </button>
+    </div>
+  </div>
+  <div id="v-sb"></div>
+  <div id="v-vp">
+    <div id="v-fw">
+      <div class="v-slides" id="v-slides">
+<div class="slide s01">
+    <div class="cover-bg"></div>
+    <!-- Full background image placeholder -->
+    <div class="cover-img-ph" data-slot="image">
+      <div class="ph-light" style="position:absolute;inset:0;border-radius:0;border:none;background:rgba(255,255,255,.04);">IMAGE PLACEHOLDER</div>
+    </div>
+    <div class="cover-inner">
+      <div class="cover-year" data-slot="label">0000</div>
+      <div class="cover-title" data-slot="title">TITLE<br><span class="cover-highlight">SUBTITLE</span></div>
+      <div class="cover-meta" data-slot="subtitle">발표자 : 0000.00.00 팀명</div>
+    </div>
+    <div class="cover-logo" data-slot="image">LOGO</div>
+    <span class="slide-num slide-num-light" data-slot="page-num">01 / 16</span>
+  </div>
+<div class="slide s02">
+    <div class="idx-inner">
+      <div class="idx-title" data-slot="title">INDEX</div>
+      <div class="idx-grid" data-slot="body">
+        <div class="idx-col">
+          <div class="idx-divider"></div>
+          <div class="idx-num">01</div>
+          <div class="idx-section-name">Section Name</div>
+          <ul class="idx-items">
+            <li>항목 1</li>
+            <li>항목 2</li>
+            <li>항목 3</li>
+          </ul>
+        </div>
+        <div class="idx-col">
+          <div class="idx-divider"></div>
+          <div class="idx-num">02</div>
+          <div class="idx-section-name">Section Name</div>
+          <ul class="idx-items">
+            <li>항목 1</li>
+            <li>항목 2</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">02 / 16</span>
+  </div>
+<div class="slide s03">
+    <div class="idx-inner">
+      <div class="idx-title" data-slot="title">INDEX</div>
+      <div class="idx-grid" data-slot="body">
+        <div class="idx-col">
+          <div class="idx-divider"></div>
+          <div class="idx-num">03</div>
+          <div class="idx-section-name">Section Name</div>
+          <ul class="idx-items">
+            <li>항목 1</li>
+            <li>항목 2</li>
+            <li>항목 3</li>
+          </ul>
+        </div>
+        <div class="idx-col">
+          <div class="idx-divider"></div>
+          <div class="idx-num">04</div>
+          <div class="idx-section-name">Section Name</div>
+          <ul class="idx-items">
+            <li>항목 1</li>
+            <li>항목 2</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">03 / 16</span>
+  </div>
+<div class="slide s04">
+    <div class="intro-inner">
+      <div class="intro-tag tag" data-slot="label">INTRODUCTION</div>
+      <div class="intro-title" data-slot="title">섹션 메인 타이틀<br>두 줄로 구성됩니다</div>
+      <div class="card-row">
+        <div class="img-card">
+          <div class="img-card-ph"></div>
+          <div class="img-card-label">
+            <span>카드 제목</span>
+            <span>부제목</span>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-ph"></div>
+          <div class="img-card-label">
+            <span>카드 제목</span>
+            <span>부제목</span>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-ph"></div>
+          <div class="img-card-label">
+            <span>카드 제목</span>
+            <span>부제목</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">04 / 16</span>
+  </div>
+<div class="slide s05">
+    <div class="strat-bg" data-slot="image">
+      <div class="ph-light" style="position:absolute;inset:0;border-radius:0;border:none;background:rgba(255,255,255,.03);">BACKGROUND IMAGE</div>
+    </div>
+    <div class="strat-overlay"></div>
+    <div class="strat-inner">
+      <div class="strat-tag" data-slot="label">Business Strategy</div>
+      <div class="strat-title" data-slot="title">폭넓은 리서치, 명확한 UX전략<br>그리고 심도 있는 UI디자인</div>
+    </div>
+    <div class="circle-row" data-slot="body">
+      <div class="circle-item"><span>항목<br>설명</span></div>
+      <div class="circle-item"><span>항목<br>설명</span></div>
+      <div class="circle-item"><span>항목<br>설명</span></div>
+    </div>
+    <span class="slide-num slide-num-light" data-slot="page-num">05 / 16</span>
+  </div>
+<div class="slide s06">
+    <div class="strat-bg" data-slot="image">
+      <div class="ph-light" style="position:absolute;inset:0;border-radius:0;border:none;background:rgba(255,255,255,.03);">BACKGROUND IMAGE</div>
+    </div>
+    <div class="strat-overlay"></div>
+    <div class="strat-inner">
+      <div class="strat-tag" data-slot="label">Business Strategy</div>
+      <div class="strat-title" data-slot="title">폭넓은 리서치, 명확한 UX전략<br>그리고 심도 있는 UI디자인</div>
+    </div>
+    <div class="dual-circle-area" data-slot="body">
+      <!-- top row: white circles -->
+      <div class="circle-row" style="margin-bottom:-24px; position:relative; z-index:2;">
+        <div class="circle-item circle-white"><span>항목<br>설명</span></div>
+        <div class="circle-item circle-white"><span>항목<br>설명</span></div>
+        <div class="circle-item circle-white"><span>항목<br>설명</span></div>
+      </div>
+      <!-- bottom row: yellow circles -->
+      <div class="circle-row" style="position:relative; z-index:1; padding-left:30px;">
+        <div class="circle-item circle-yellow"><span>항목<br>설명</span></div>
+        <div class="circle-item circle-yellow"><span>항목<br>설명</span></div>
+        <div class="circle-item circle-yellow"><span>항목<br>설명</span></div>
+      </div>
+    </div>
+    <span class="slide-num slide-num-light" data-slot="page-num">06 / 16</span>
+  </div>
+<div class="slide s07">
+    <div class="em-inner">
+      <div class="em-vert" data-slot="label"><span>ENTER MOVEMET</span></div>
+      <div class="em-content" data-slot="body">
+        <!-- col left -->
+        <div class="em-cell" style="flex-direction:column;">
+          <div class="em-cell-img tall">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀<br>두 줄로 구성됩니다</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img" style="min-height:80px;margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀</div>
+            <div class="em-body">본문 설명 텍스트 영역.</div>
+          </div>
+        </div>
+        <!-- col right -->
+        <div class="em-cell" style="flex-direction:column;">
+          <div class="em-cell-img" style="min-height:120px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀<br>두 줄로 구성됩니다</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img" style="min-height:80px;margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">07 / 16</span>
+  </div>
+<div class="slide s08">
+    <div class="em-inner">
+      <div class="em-vert" data-slot="label"><span>ENTER MOVEMET</span></div>
+      <div class="em-content" data-slot="body">
+        <div class="em-cell">
+          <div class="em-cell-img tall">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀<br>두 줄로 구성됩니다</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img" style="min-height:88px;margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+        </div>
+        <div class="em-cell">
+          <div class="em-cell-img" style="min-height:108px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀<br>두 줄로 구성됩니다</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img tall" style="margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">08 / 16</span>
+  </div>
+<div class="slide s09">
+    <div class="em-inner">
+      <div class="em-vert" data-slot="label"><span>ENTER MOVEMET</span></div>
+      <div class="em-content" data-slot="body">
+        <div class="em-cell">
+          <div class="em-cell-img" style="min-height:92px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img tall" style="margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text">
+            <div class="em-title">콘텐츠 타이틀</div>
+            <div class="em-body">본문 설명 텍스트 영역.</div>
+          </div>
+        </div>
+        <div class="em-cell">
+          <div class="em-cell-img" style="min-height:100px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+          <div class="em-cell-text" style="margin-top:4px;">
+            <div class="em-title">콘텐츠 타이틀</div>
+            <div class="em-body">본문 설명 텍스트 영역입니다.</div>
+          </div>
+          <div class="em-cell-img" style="min-height:80px;margin-top:4px;">
+            <div class="ph" style="position:absolute;inset:0;border-radius:4px;border:none;">IMG</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">09 / 16</span>
+  </div>
+<div class="slide s10">
+    <div class="mkt-inner">
+      <div class="mkt-tag" data-slot="label">BUSINESS CONCEPT</div>
+      <div class="mkt-title" data-slot="title">섹션 타이틀<br>RESULT</div>
+      <div class="mkt-stats" data-slot="body">
+        <div class="mkt-stat">
+          <div class="icon-ph">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="4" y="4" width="24" height="24" rx="4" stroke="#333" stroke-width="2"></rect>
+              <line x1="9" y1="12" x2="23" y2="12" stroke="#333" stroke-width="2"></line>
+              <line x1="9" y1="17" x2="19" y2="17" stroke="#333" stroke-width="2"></line>
+              <line x1="9" y1="22" x2="15" y2="22" stroke="#333" stroke-width="2"></line>
+            </svg>
+          </div>
+          <div class="stat-label">항목 설명<br>라벨</div>
+          <div class="stat-num">00K</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="icon-ph">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="4" y="4" width="16" height="24" rx="3" stroke="#333" stroke-width="2"></rect>
+              <rect x="18" y="12" width="10" height="16" rx="2" stroke="#333" stroke-width="2"></rect>
+              <circle cx="12" cy="10" r="2" stroke="#333" stroke-width="1.5"></circle>
+            </svg>
+          </div>
+          <div class="stat-label">항목 설명<br>라벨</div>
+          <div class="stat-num">+00</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="icon-ph">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="4" y="4" width="24" height="24" rx="4" stroke="#333" stroke-width="2"></rect>
+              <path d="M11 16 L15 20 L21 12" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div class="stat-label">항목 설명<br>라벨</div>
+          <div class="stat-num">000</div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">10 / 16</span>
+  </div>
+<div class="slide s11">
+    <span class="slide-num" data-slot="page-num">11 / 16</span>
+  </div>
+<div class="slide s12">
+    <div class="lop-inner">
+      <div class="lop-tag" data-slot="label">SECTION LABEL</div>
+      <div class="lop-title" data-slot="title">0000 RESULT TITLE</div>
+      <div class="lop-desc" data-slot="subtitle">데이터 설명 문구가 이 위치에 들어갑니다.</div>
+      <div class="chart-row" data-slot="body">
+        <div class="chart-box">
+          <div class="chart-box-title">
+            <strong>키워드</strong>로 인한<br>항목 설명 타이틀
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.2);font-family:'Noto Sans KR',sans-serif;">[단위 : 천만원]</div>
+          <div class="chart-ph">차트 영역</div>
+          <div class="chart-source" data-slot="caption">[출처 : 자료 출처명]</div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-title">
+            <strong>키워드</strong>로 인한<br>항목 설명 타이틀
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.2);font-family:'Noto Sans KR',sans-serif;">[단위 : 천만원]</div>
+          <div class="chart-ph">차트 영역</div>
+          <div class="chart-source" data-slot="caption">[출처 : 자료 출처명]</div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num slide-num-light" data-slot="page-num">12 / 16</span>
+  </div>
+<div class="slide s13">
+    <div class="lop-inner">
+      <div class="lop-tag" data-slot="label">SECTION LABEL</div>
+      <div class="lop-title" data-slot="title">0000 RESULT TITLE</div>
+      <div class="lop-desc" data-slot="subtitle">데이터 설명 문구가 이 위치에 들어갑니다.</div>
+      <div class="chart-row" data-slot="body">
+        <div class="chart-box">
+          <div class="chart-box-title">
+            <strong>키워드</strong>로 인한<br>항목 설명 타이틀
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;">[단위 : 천만원]</div>
+          <div class="chart-ph">차트 영역</div>
+          <div class="chart-source" data-slot="caption">[출처 : 자료 출처명]</div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-title">
+            <strong>키워드</strong>로 인한<br>항목 설명 타이틀
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;">[단위 : 천만원]</div>
+          <div class="chart-ph">차트 영역</div>
+          <div class="chart-source" data-slot="caption">[출처 : 자료 출처명]</div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">13 / 16</span>
+  </div>
+<div class="slide s14">
+    <div class="stats-inner" data-slot="body">
+      <div class="card card-orange">
+        <div>
+          <div class="card-sub" data-slot="label">Sub label</div>
+          <div class="card-label" data-slot="title">CARD TITLE</div>
+        </div>
+        <div class="card-num">000+</div>
+      </div>
+      <div class="card card-gray">
+        <div>
+          <div class="card-sub">Sub label</div>
+          <div class="card-label">CARD TITLE</div>
+        </div>
+        <div class="card-num">000+</div>
+      </div>
+      <div class="card card-wide">
+        <div class="card-wide-sub">Sub Label</div>
+        <div class="card-wide-text">WIDE CARD TITLE</div>
+      </div>
+    </div>
+    <span class="slide-num" data-slot="page-num">14 / 16</span>
+  </div>
+<div class="slide s15">
+    <div class="ty-inner">
+      <div class="ty-accent-bar"></div>
+      <div class="ty-sub" data-slot="subtitle">COMPANY NAME</div>
+      <div class="ty-main" data-slot="title">THANK YOU</div>
+    </div>
+    <span class="slide-num" data-slot="page-num">15 / 16</span>
+  </div>
+</div>
+    </div>
+  </div>
+  <div id="v-bot">
+    <button class="v-nav" id="v-prev" disabled>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>이전
+    </button>
+    <div class="v-ctr"><span class="v-cur" id="v-cc">1</span>&thinsp;/&thinsp;<span id="v-ct">1</span></div>
+    <button class="v-nav" id="v-next">
+      다음<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="v-pgbar" id="v-pgbar"><div class="v-pgfill" id="v-pgfill"></div></div>
+    <div class="v-kbds">
+      <span class="v-k">←</span><span class="v-k">→</span><span>이동</span>
+      <span class="v-k" style="margin-left:6px">F</span><span>전체화면</span>
+      <span class="v-k" style="margin-left:6px">S</span><span>사이드바</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const TITLES = ["COVER","02)","04)","INTRODUCTION","3 CIRCLES","6 CIRCLES (3 white + 3 accent)","Layout A","Layout B","Layout C","ICONS + NUMBERS","BLANK","DARK","LIGHT","STATS CARDS (2 + 1)","THANK YOU"];
+const SW = 960, SH = 540;
+const slides = document.querySelectorAll('#v-slides > *');
+const total = slides.length;
+let cur = 0;
+
+const sb = document.getElementById('v-sb');
+const vp = document.getElementById('v-vp');
+const fw = document.getElementById('v-fw');
+const app = document.getElementById('v-app');
+const sname = document.getElementById('v-sname');
+const cc = document.getElementById('v-cc');
+const pgfill = document.getElementById('v-pgfill');
+const bPrev = document.getElementById('v-prev');
+const bNext = document.getElementById('v-next');
+document.getElementById('v-ct').textContent = total;
+
+// Build sidebar
+TITLES.forEach((t, i) => {
+  const el = document.createElement('div');
+  el.className = 'v-si' + (i === 0 ? ' active' : '');
+  el.innerHTML = '<span class="v-si-n">' + String(i+1).padStart(2,'0') + '</span><span class="v-si-ttl">' + t + '</span>';
+  el.addEventListener('click', () => goTo(i));
+  sb.appendChild(el);
+});
+
+function scale() {
+  const vw = vp.clientWidth, vh = vp.clientHeight;
+  const sc = Math.min(vw / SW, vh / SH) * 0.95;
+  fw.style.transform = 'scale(' + sc + ')';
+}
+const ro = new ResizeObserver(scale);
+ro.observe(vp);
+
+function goTo(i) {
+  if (i < 0 || i >= total) return;
+  cur = i;
+  slides.forEach((s, j) => s.classList.toggle('v-active', j === i));
+  sb.querySelectorAll('.v-si').forEach((el, j) => el.classList.toggle('active', j === i));
+  const act = sb.querySelector('.v-si.active');
+  if (act) act.scrollIntoView({block:'nearest',behavior:'smooth'});
+  sname.textContent = TITLES[i];
+  cc.textContent = i + 1;
+  pgfill.style.width = ((i+1)/total*100) + '%';
+  bPrev.disabled = i === 0;
+  bNext.disabled = i === total - 1;
+}
+
+bPrev.addEventListener('click', () => goTo(cur-1));
+bNext.addEventListener('click', () => goTo(cur+1));
+document.getElementById('v-pgbar').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  goTo(Math.floor((e.clientX - r.left) / r.width * total));
+});
+
+document.addEventListener('keydown', e => {
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  switch(e.key){
+    case 'ArrowRight':case 'ArrowDown':case ' ':e.preventDefault();goTo(cur+1);break;
+    case 'ArrowLeft':case 'ArrowUp':e.preventDefault();goTo(cur-1);break;
+    case 'Home':e.preventDefault();goTo(0);break;
+    case 'End':e.preventDefault();goTo(total-1);break;
+    case 'f':case 'F':if(!e.metaKey&&!e.ctrlKey){e.preventDefault();toggleFs();}break;
+    case 's':case 'S':if(!e.metaKey&&!e.ctrlKey){e.preventDefault();toggleSb();}break;
+    default:if(e.key>='1'&&e.key<='9')goTo(parseInt(e.key)-1);if(e.key==='0')goTo(9);
+  }
+});
+
+let sbVis = true;
+function toggleSb(){sbVis=!sbVis;app.classList.toggle('sb-hidden',!sbVis);document.getElementById('v-btn-sb').classList.toggle('active',sbVis);setTimeout(scale,200);}
+document.getElementById('v-btn-sb').addEventListener('click',toggleSb);
+
+function toggleFs(){
+  if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+  else{document.exitFullscreen&&document.exitFullscreen();}
+}
+document.getElementById('v-btn-fs').addEventListener('click',toggleFs);
+
+goTo(0);
+scale();
+})();
+</script>
+</body>
+</html>

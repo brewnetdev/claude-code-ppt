@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 실전 매뉴얼 — Brewnet (Dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design Tokens — Dark Template ── */
+:root {
+  --amber:         #F59E0B;
+  --amber-d:       #D97706;
+  --amber-dim:     rgba(245,158,11,.12);
+  --amber-glow:    rgba(245,158,11,.06);
+  --blue:          #60A5FA;
+  --blue-dim:      rgba(96,165,250,.14);
+  --cyan:          #22D3EE;
+  --green:         #34D399;
+  --green-dim:     rgba(52,211,153,.12);
+  --red:           #F87171;
+  --red-dim:       rgba(248,113,113,.12);
+  --yellow:        #FCD34D;
+
+  --text:          #F1F5F9;
+  --text-2:        #CBD5E1;
+  --muted:         #64748B;
+  --muted-up:      #94A3B8;
+  --border:        #1E293B;
+  --border-2:      #263349;
+  --border-hi:     #334155;
+
+  --bg:            #0F172A;
+  --bg-page:       #080E1C;
+  --bg-sidebar:    #0B1120;
+  --bg-card:       #111827;
+  --bg-card-2:     #0F1D2E;
+  --bg-elevated:   #162032;
+  --code-bg:       #1E293B;
+  --code-dark:     #040810;
+
+  --sidebar-w:     272px;
+  --toc-w:         220px;
+  --nav-h:         56px;
+  --font-sans:     'Noto Sans KR', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* subtle noise texture overlay on body */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: .4;
+}
+
+/* ───────────────────────────────────────────
+   TOP NAV
+─────────────────────────────────────────── */
+.topbar-accent {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 50%, transparent 100%);
+  z-index: 1000;
+}
+
+.nav {
+  position: fixed;
+  top: 3px; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(11,17,32,.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+  z-index: 999;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-logo-mark {
+  width: 28px; height: 28px;
+  background: var(--amber);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(245,158,11,.35);
+}
+.nav-logo-mark svg { width: 16px; height: 16px; }
+.nav-logo-text {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .08em;
+  color: var(--text);
+}
+.nav-logo-text span { color: var(--amber); }
+
+.nav-sep { width: 1px; height: 20px; background: var(--border-2); }
+
+.nav-product {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-product strong { color: var(--text-2); font-weight: 600; }
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid rgba(245,158,11,.25);
+  letter-spacing: .04em;
+}
+
+.nav-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  width: 200px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.nav-search:hover {
+  border-color: rgba(245,158,11,.4);
+  box-shadow: 0 0 0 3px var(--amber-glow);
+}
+.nav-search svg { opacity: .4; flex-shrink: 0; }
+.nav-search kbd {
+  margin-left: auto;
+  padding: 1px 5px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--border-hi);
+}
+
+/* ───────────────────────────────────────────
+   LAYOUT SHELL
+─────────────────────────────────────────── */
+.shell {
+  display: flex;
+  padding-top: calc(var(--nav-h) + 3px);
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ───────────────────────────────────────────
+   LEFT SIDEBAR
+─────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: calc(var(--nav-h) + 3px);
+  left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--nav-h) - 3px);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0 40px;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+.sidebar-section { margin-bottom: 4px; }
+
+.sidebar-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color .15s;
+}
+.sidebar-group-header:hover { color: var(--text-2); }
+.sidebar-group-header .group-icon {
+  width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .2s;
+  flex-shrink: 0;
+  margin-top: -1px;
+}
+.sidebar-section.open .sidebar-group-header .group-icon {
+  transform: rotate(-135deg);
+  margin-top: 2px;
+}
+.sidebar-group-header .group-num {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--bg-elevated);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.sidebar-items { display: none; padding: 2px 0 6px; }
+.sidebar-section.open .sidebar-items { display: block; }
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 20px 5px 28px;
+  font-size: 13px;
+  color: var(--muted-up);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-item:hover {
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+.sidebar-item.active {
+  color: var(--amber);
+  border-left-color: var(--amber);
+  background: var(--amber-dim);
+  font-weight: 500;
+}
+.sidebar-item .item-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--border-hi);
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.sidebar-item.active .item-dot,
+.sidebar-item:hover .item-dot { background: var(--amber); }
+
+.sidebar-item .item-badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.item-badge.new { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,.2); }
+.item-badge.tip { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(96,165,250,.2); }
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 20px;
+}
+
+.sidebar-version {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.sidebar-version strong {
+  background: var(--amber-dim);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--amber);
+  font-weight: 600;
+  border: 1px solid rgba(245,158,11,.2);
+}
+
+/* ───────────────────────────────────────────
+   MAIN CONTENT
+─────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  margin-right: var(--toc-w);
+  min-width: 0;
+  max-width: 820px;
+  padding: 48px 64px 80px;
+  flex: 1;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-bottom: 28px;
+}
+.breadcrumb a { color: var(--muted); text-decoration: none; transition: color .15s; }
+.breadcrumb a:hover { color: var(--amber); }
+.breadcrumb .sep { opacity: .3; }
+.breadcrumb .cur { color: var(--text-2); font-weight: 500; }
+
+/* Page title block */
+.page-title-block { margin-bottom: 36px; }
+.page-chapter {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.page-chapter::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  background: var(--amber);
+}
+.page-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  margin-bottom: 12px;
+}
+.page-title em { font-style: normal; color: var(--amber); }
+.page-desc {
+  font-size: 16px;
+  color: var(--muted-up);
+  line-height: 1.7;
+  max-width: 600px;
+}
+.page-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.page-meta-item { display: flex; align-items: center; gap: 5px; }
+.page-meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border-hi); }
+
+/* ── Content Typography ── */
+.content h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 40px 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  scroll-margin-top: 80px;
+}
+.content h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: var(--amber);
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(245,158,11,.4);
+}
+
+.content h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-2);
+  margin: 28px 0 10px;
+  scroll-margin-top: 80px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.content h3::before {
+  content: '//';
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.content p {
+  margin-bottom: 14px;
+  color: var(--text-2);
+  line-height: 1.75;
+}
+
+.content a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color .15s;
+}
+.content a:hover { color: #93C5FD; }
+
+.content code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hi);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--amber);
+}
+
+/* Code block */
+.code-block {
+  background: var(--code-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+.code-dots { display: flex; gap: 5px; }
+.code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #EF4444; }
+.dot-y { background: #F59E0B; }
+.dot-g { background: #10B981; }
+.code-filename {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 4px;
+}
+.code-copy {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  transition: all .15s;
+}
+.code-copy:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+.code-block pre {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #CBD5E1;
+  padding: 18px 20px;
+  overflow-x: auto;
+  line-height: 1.75;
+}
+.code-block pre .g  { color: #34D399; }
+.code-block pre .y  { color: #FCD34D; }
+.code-block pre .c  { color: #67E8F9; }
+.code-block pre .b  { color: #93C5FD; }
+.code-block pre .r  { color: #F87171; }
+.code-block pre .gr { color: #475569; }
+.code-block pre .str{ color: #F59E0B; }
+
+/* Terminal */
+.terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.5);
+}
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #0A0F1A;
+  border-bottom: 1px solid #0F1729;
+}
+.terminal-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #334155;
+}
+.terminal pre {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #94A3B8;
+  padding: 16px 20px;
+  line-height: 1.8;
+}
+.terminal pre .prompt { color: var(--amber); user-select: none; }
+.terminal pre .cmd   { color: #38BDF8; }
+.terminal pre .out   { color: #64748B; }
+.terminal pre .ok    { color: #34D399; }
+.terminal pre .err   { color: #F87171; }
+.terminal pre .dim   { color: #334155; }
+
+/* Callout */
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin: 20px 0;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.callout-amber {
+  background: rgba(245,158,11,.07);
+  border: 1px solid rgba(245,158,11,.2);
+  border-left: 4px solid var(--amber);
+}
+.callout-blue {
+  background: rgba(96,165,250,.07);
+  border: 1px solid rgba(96,165,250,.2);
+  border-left: 4px solid var(--blue);
+}
+.callout-green {
+  background: rgba(52,211,153,.07);
+  border: 1px solid rgba(52,211,153,.2);
+  border-left: 4px solid var(--green);
+}
+.callout-red {
+  background: rgba(248,113,113,.07);
+  border: 1px solid rgba(248,113,113,.2);
+  border-left: 4px solid var(--red);
+}
+.callout-icon { font-size: 16px; line-height: 1.4; flex-shrink: 0; }
+.callout-content { color: var(--text-2); }
+.callout-content strong { font-weight: 700; display: block; margin-bottom: 3px; color: var(--text); }
+
+/* Table */
+.table-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead th {
+  background: var(--bg-elevated);
+  border-bottom: 2px solid var(--amber);
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+tbody td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  color: var(--text-2);
+  vertical-align: top;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--bg-elevated); }
+
+/* Bullet list */
+.doc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 20px;
+  padding-left: 4px;
+}
+.doc-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+.doc-list li::before {
+  content: '▸';
+  color: var(--amber);
+  font-size: 12px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 20px 0;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: 36px;
+  width: 2px;
+  background: var(--border);
+}
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  position: relative;
+}
+.step-num {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--amber);
+  color: #0F172A;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 12px rgba(245,158,11,.3);
+}
+.step-body { flex: 1; padding-top: 5px; }
+.step-body strong { display: block; font-weight: 700; color: var(--text); margin-bottom: 3px; font-size: 14.5px; }
+.step-body p { font-size: 13.5px; color: var(--muted-up); margin: 0; line-height: 1.6; }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: .03em;
+  vertical-align: middle;
+}
+.badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+.badge-blue  { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(96,165,250,.25); }
+.badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,.25); }
+.badge-red   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,113,113,.25); }
+.badge-gray  { background: var(--bg-elevated); color: var(--muted-up); border: 1px solid var(--border-hi); }
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  background: var(--bg-card);
+}
+.card:hover {
+  border-color: rgba(245,158,11,.4);
+  box-shadow: 0 0 20px rgba(245,158,11,.08);
+  background: var(--bg-elevated);
+}
+.card-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.card-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.card-desc  { font-size: 12px; color: var(--muted-up); line-height: 1.55; }
+
+/* Param table */
+.param-table { margin: 16px 0; }
+.param-row {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  font-size: 13px;
+  background: var(--bg-card);
+}
+.param-name {
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--amber);
+  min-width: 140px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.param-desc {
+  padding: 8px 14px;
+  color: var(--text-2);
+  flex: 1;
+  line-height: 1.5;
+}
+.param-desc .type {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--blue);
+  background: var(--blue-dim);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 6px;
+  border: 1px solid rgba(96,165,250,.2);
+}
+
+/* Doc pagination */
+.doc-pagination {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 56px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.pag-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-card);
+  transition: border-color .2s, background .2s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pag-card:hover { border-color: rgba(245,158,11,.4); background: var(--amber-dim); }
+.pag-card.next { text-align: right; }
+.pag-dir { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.pag-card:hover .pag-dir { color: var(--amber); }
+.pag-title { font-size: 14px; font-weight: 700; color: var(--text); }
+
+/* ───────────────────────────────────────────
+   RIGHT TOC
+─────────────────────────────────────────── */
+.toc {
+  position: fixed;
+  top: calc(var(--nav-h) + 3px);
+  right: 0;
+  width: var(--toc-w);
+  height: calc(100vh - var(--nav-h) - 3px);
+  padding: 32px 20px 40px 16px;
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg-sidebar);
+}
+.toc-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-left: 8px;
+}
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.toc-item a {
+  display: block;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--muted-up);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  transition: all .15s;
+  line-height: 1.5;
+}
+.toc-item a:hover { color: var(--text); border-left-color: var(--border-hi); background: var(--bg-elevated); }
+.toc-item.active a {
+  color: var(--amber);
+  border-left-color: var(--amber);
+  font-weight: 500;
+  background: var(--amber-dim);
+}
+.toc-item.h3 a { padding-left: 20px; font-size: 11px; }
+
+.toc-divider { height: 1px; background: var(--border); margin: 14px 8px; }
+
+.toc-links { padding: 0 8px; display: flex; flex-direction: column; gap: 8px; }
+.toc-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color .15s;
+}
+.toc-links a:hover { color: var(--blue); }
+
+.toc-feedback {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+}
+.toc-feedback p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.feedback-btns { display: flex; gap: 6px; }
+.feedback-btn {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid var(--border-hi);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-sans);
+  color: var(--muted-up);
+}
+.feedback-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: 7px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-up);
+  transition: all .15s;
+  text-decoration: none;
+}
+.theme-toggle:hover { border-color: rgba(245,158,11,.35); color: var(--amber); }
+
+/* ───────────────────────────────────────────
+   RESPONSIVE
+─────────────────────────────────────────── */
+@media (max-width: 1200px) { .toc { display: none; } .main { margin-right: 0; } }
+@media (max-width: 800px)  { .sidebar { display: none; } .main { margin-left: 0; padding: 32px 24px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar-accent"></div>
+
+<!-- Navigation -->
+<nav class="nav" data-slot="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 16 16" fill="none">
+        <path d="M2 3L8 1L14 3V8C14 11.5 11 14 8 15C5 14 2 11.5 2 8V3Z" fill="rgba(15,23,42,0.9)"/>
+        <path d="M5.5 8L7 9.5L10.5 6" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text" data-slot="title">BREW<span>NET</span></span>
+  </a>
+  <div class="nav-sep"></div>
+  <div class="nav-product"><strong>Claude Code</strong> &nbsp;매뉴얼</div>
+  <span class="nav-badge">v2.4.1</span>
+  <div class="nav-right">
+    <a href="#" class="theme-toggle">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 1V3M8 13V15M1 8H3M13 8H15M3.05 3.05L4.46 4.46M11.54 11.54L12.95 12.95M12.95 3.05L11.54 4.46M4.46 11.54L3.05 12.95" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      라이트
+    </a>
+    <div class="nav-search">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      문서 검색...
+      <kbd>⌘K</kbd>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+
+<!-- ── Left Sidebar ── -->
+<aside class="sidebar" data-slot="nav">
+
+  <div class="sidebar-version">
+    버전 <strong>v2.4.1</strong>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section open" id="sec1">
+    <div class="sidebar-group-header" onclick="toggleSection('sec1')">
+      <span class="group-icon"></span> 시작하기 <span class="group-num">4</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#intro" onclick="setActive(this)"><span class="item-dot"></span> 소개 및 개요</a>
+      <a class="sidebar-item active" href="#install" onclick="setActive(this)"><span class="item-dot"></span> 설치 방법</a>
+      <a class="sidebar-item" href="#quickstart" onclick="setActive(this)"><span class="item-dot"></span> 빠른 시작 가이드 <span class="item-badge new">NEW</span></a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 인증 & API 키</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section open" id="sec2">
+    <div class="sidebar-group-header" onclick="toggleSection('sec2')">
+      <span class="group-icon"></span> 기본 사용법 <span class="group-num">5</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#commands" onclick="setActive(this)"><span class="item-dot"></span> 명령어 구조</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 파일 읽기 & 편집</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 코드 생성</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 터미널 실행</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 대화 기록 관리</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section open" id="sec3">
+    <div class="sidebar-group-header" onclick="toggleSection('sec3')">
+      <span class="group-icon"></span> 고급 기능 <span class="group-num">6</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 멀티 파일 편집</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 컨텍스트 관리 <span class="item-badge tip">TIP</span></a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 병렬 작업 처리</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 서브에이전트 활용</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> MCP 서버 연동 <span class="item-badge new">NEW</span></a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> Hooks 시스템</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section open" id="sec4">
+    <div class="sidebar-group-header" onclick="toggleSection('sec4')">
+      <span class="group-icon"></span> 설정 & 환경 <span class="group-num">4</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> CLAUDE.md 설정</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 환경 변수</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 커스텀 프롬프트</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 권한 & 보안</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="sec5">
+    <div class="sidebar-group-header" onclick="toggleSection('sec5')">
+      <span class="group-icon"></span> 워크플로우 패턴 <span class="group-num">5</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 프로젝트 초기화</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 코드 리뷰 자동화</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 테스트 작성</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 레거시 리팩터링</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> CI/CD 통합</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="sec6">
+    <div class="sidebar-group-header" onclick="toggleSection('sec6')">
+      <span class="group-icon"></span> API 레퍼런스 <span class="group-num">4</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 명령어 전체 목록</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 플래그 & 옵션</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 종료 코드</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> SDK 연동</a>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="sec7">
+    <div class="sidebar-group-header" onclick="toggleSection('sec7')">
+      <span class="group-icon"></span> 문제 해결 <span class="group-num">3</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 자주 묻는 질문</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 오류 메시지 해석</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 성능 최적화</a>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section" id="sec8">
+    <div class="sidebar-group-header" onclick="toggleSection('sec8')">
+      <span class="group-icon"></span> 변경 이력 <span class="group-num">2</span>
+    </div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 릴리즈 노트</a>
+      <a class="sidebar-item" href="#" onclick="setActive(this)"><span class="item-dot"></span> 마이그레이션 가이드</a>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ── Main Content ── -->
+<main class="main" data-slot="body">
+
+  <nav class="breadcrumb">
+    <a href="#">홈</a>
+    <span class="sep">›</span>
+    <a href="#">시작하기</a>
+    <span class="sep">›</span>
+    <span class="cur">설치 방법</span>
+  </nav>
+
+  <div class="page-title-block">
+    <div class="page-chapter">시작하기 · Chapter 02</div>
+    <h1 class="page-title" data-slot="title">Claude Code <em>설치 방법</em></h1>
+    <p class="page-desc">macOS, Linux, Windows(WSL) 환경에서 Claude Code CLI를 설치하고 첫 번째 세션을 시작하는 전 과정을 안내합니다.</p>
+    <div class="page-meta">
+      <span class="page-meta-item">📅 2025년 3월 업데이트</span>
+      <span class="page-meta-dot"></span>
+      <span class="page-meta-item">⏱ 읽기 5분</span>
+      <span class="page-meta-dot"></span>
+      <span class="page-meta-item">🎯 난이도 <span class="badge badge-green">입문</span></span>
+    </div>
+  </div>
+
+  <div class="content" data-slot="body">
+
+    <div class="card-grid">
+      <a href="#prerequisites" class="card">
+        <div class="card-icon">🔧</div>
+        <div class="card-title">사전 요구사항</div>
+        <div class="card-desc">Node.js, npm 버전 및 OS 요구사항 확인</div>
+      </a>
+      <a href="#install" class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">빠른 설치</div>
+        <div class="card-desc">npm 한 줄로 전역 설치 완료</div>
+      </a>
+      <a href="#auth" class="card">
+        <div class="card-icon">🔑</div>
+        <div class="card-title">인증 설정</div>
+        <div class="card-desc">API 키 연결 및 로그인 방법</div>
+      </a>
+      <a href="#verify" class="card">
+        <div class="card-icon">✅</div>
+        <div class="card-title">설치 확인</div>
+        <div class="card-desc">정상 작동 여부 테스트</div>
+      </a>
+    </div>
+
+    <h2 id="prerequisites" data-slot="title">사전 요구사항</h2>
+
+    <p>Claude Code는 <strong>Node.js 18 이상</strong>을 필요로 합니다. 설치 전 다음 요구사항을 충족하는지 확인하세요.</p>
+
+    <div class="table-wrap" data-slot="table">
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>최소 요구사항</th>
+            <th>권장사항</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Node.js</code></td>
+            <td>v18.0.0</td>
+            <td>v20.x LTS <span class="badge badge-green">권장</span></td>
+            <td>ESM 지원 필요</td>
+          </tr>
+          <tr>
+            <td><code>npm</code></td>
+            <td>v8.0.0</td>
+            <td>v10.x</td>
+            <td>npx 사용 가능</td>
+          </tr>
+          <tr>
+            <td>운영체제</td>
+            <td>macOS 12+</td>
+            <td>macOS 14 / Ubuntu 22.04</td>
+            <td>Windows는 WSL2 필요</td>
+          </tr>
+          <tr>
+            <td>디스크 공간</td>
+            <td>500MB</td>
+            <td>2GB 이상</td>
+            <td>모델 캐시 포함</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-amber" data-slot="quote">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-content">
+        <strong>Windows 사용자 주의</strong>
+        Windows 네이티브 환경은 지원하지 않습니다. <strong>WSL2(Windows Subsystem for Linux)</strong>를 먼저 설치한 후 진행해 주세요. PowerShell 또는 Command Prompt에서는 정상 작동하지 않습니다.
+      </div>
+    </div>
+
+    <h3>Node.js 버전 확인</h3>
+
+    <div class="terminal" data-slot="code">
+      <div class="terminal-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="terminal-title">Terminal</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">node --version</span>
+<span class="ok">v20.11.0</span>
+
+<span class="prompt">$ </span><span class="cmd">npm --version</span>
+<span class="ok">10.2.4</span></pre>
+    </div>
+
+    <p>버전이 너무 낮다면 <a href="#">nvm(Node Version Manager)</a>을 사용해 최신 LTS 버전으로 업그레이드하는 것을 권장합니다.</p>
+
+    <h2 id="install" data-slot="title">설치</h2>
+
+    <h3>npm 전역 설치 (권장)</h3>
+
+    <p>가장 간단한 방법입니다. 전역 설치 후 어느 디렉토리에서도 <code>claude</code> 명령어를 사용할 수 있습니다.</p>
+
+    <div class="terminal" data-slot="code">
+      <div class="terminal-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="terminal-title">Terminal</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">npm install -g @anthropic-ai/claude-code</span>
+
+<span class="dim">added 142 packages in 8.3s</span>
+<span class="ok">✓ Successfully installed claude-code@2.4.1</span></pre>
+    </div>
+
+    <h3>npx를 통한 설치 없이 실행</h3>
+
+    <p>전역 설치 없이도 <code>npx</code>로 즉시 실행할 수 있습니다. 단, 매 실행마다 다운로드가 발생하므로 자주 사용한다면 전역 설치를 권장합니다.</p>
+
+    <div class="terminal" data-slot="code">
+      <div class="terminal-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="terminal-title">Terminal</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">npx @anthropic-ai/claude-code</span></pre>
+    </div>
+
+    <h2 id="auth" data-slot="title">인증 설정</h2>
+
+    <p>설치 후 Anthropic 계정과 연결해야 합니다. 두 가지 인증 방식을 지원합니다.</p>
+
+    <div class="steps">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Claude Code 실행</strong>
+          <p>터미널에서 <code>claude</code>를 입력해 처음 실행합니다.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>인증 방식 선택</strong>
+          <p>브라우저 OAuth 로그인 또는 API 키 직접 입력 중 선택합니다.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>권한 확인</strong>
+          <p>처음 실행 시 파일 접근, 터미널 실행 등 권한을 요청합니다. 프로젝트 디렉토리에서 실행하는 것을 권장합니다.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>첫 번째 프롬프트 입력</strong>
+          <p>인증이 완료되면 바로 작업을 시작할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>API 키 환경 변수로 설정</h3>
+
+    <div class="code-block" data-slot="code">
+      <div class="code-block-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="code-filename">~/.zshrc &nbsp;또는&nbsp; ~/.bashrc</span>
+        <button class="code-copy" onclick="copyCode(this)">복사</button>
+      </div>
+      <pre><span class="gr"># Anthropic API 키 설정</span>
+<span class="g">export</span> <span class="c">ANTHROPIC_API_KEY</span>=<span class="str">"sk-ant-api03-..."</span>
+
+<span class="gr"># 선택: 기본 모델 지정</span>
+<span class="g">export</span> <span class="c">ANTHROPIC_MODEL</span>=<span class="str">"claude-opus-4-5"</span></pre>
+    </div>
+
+    <div class="callout callout-blue" data-slot="quote">
+      <div class="callout-icon">💡</div>
+      <div class="callout-content">
+        <strong>보안 팁</strong>
+        API 키를 <code>.env</code> 파일에 직접 저장하고 <code>.gitignore</code>에 추가하세요. 절대로 코드 저장소에 키를 커밋하지 마세요.
+      </div>
+    </div>
+
+    <h2 id="verify" data-slot="title">설치 확인</h2>
+
+    <p>다음 명령어로 정상 설치 여부를 확인합니다.</p>
+
+    <div class="terminal" data-slot="code">
+      <div class="terminal-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="terminal-title">Terminal</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">claude --version</span>
+<span class="ok">claude-code 2.4.1</span>
+
+<span class="prompt">$ </span><span class="cmd">claude doctor</span>
+<span class="ok">✓</span> Node.js v20.11.0 <span class="dim">(요구사항 충족)</span>
+<span class="ok">✓</span> API 키 설정 완료
+<span class="ok">✓</span> 네트워크 연결 정상
+<span class="ok">✓</span> 모델 응답 확인 완료
+<span class="dim">────────────────────────────────</span>
+<span class="ok">모든 항목 통과. Claude Code를 사용할 준비가 됐습니다! 🎉</span></pre>
+    </div>
+
+    <div class="callout callout-green" data-slot="quote">
+      <div class="callout-icon">✅</div>
+      <div class="callout-content">
+        <strong>설치 완료!</strong>
+        이제 프로젝트 디렉토리에서 <code>claude</code>를 실행하고 자연어로 코딩 작업을 시작할 수 있습니다.
+      </div>
+    </div>
+
+    <h2 id="commands" data-slot="title">주요 실행 옵션</h2>
+
+    <p>설치 후 사용할 수 있는 주요 <code>claude</code> 명령어 옵션입니다.</p>
+
+    <div class="param-table">
+      <div class="param-row">
+        <div class="param-name">--model</div>
+        <div class="param-desc"><span class="type">string</span>사용할 Claude 모델 지정. 기본값은 <code>claude-opus-4-5</code>.</div>
+      </div>
+      <div class="param-row">
+        <div class="param-name">--no-auto-approve</div>
+        <div class="param-desc"><span class="type">flag</span>파일 수정 전 매번 확인 요청. 프로덕션 환경 작업 시 권장.</div>
+      </div>
+      <div class="param-row">
+        <div class="param-name">--context-file</div>
+        <div class="param-desc"><span class="type">path</span>세션 시작 시 로드할 컨텍스트 파일 경로 지정.</div>
+      </div>
+      <div class="param-row">
+        <div class="param-name">--max-turns</div>
+        <div class="param-desc"><span class="type">number</span>자동 실행 모드에서 최대 대화 턴 수 제한.</div>
+      </div>
+      <div class="param-row">
+        <div class="param-name">--output-format</div>
+        <div class="param-desc"><span class="type">enum</span><code>text</code> | <code>json</code> | <code>stream-json</code> 형식 선택.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-amber" data-slot="quote">
+      <div class="callout-icon">📌</div>
+      <div class="callout-content">
+        <strong>다음 단계</strong>
+        설치가 완료됐다면 <a href="#">빠른 시작 가이드</a>에서 첫 번째 실전 예제를 확인해 보세요. 실제 프로젝트 파일을 분석하고 수정하는 전 과정을 단계별로 안내합니다.
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="doc-pagination">
+    <a href="#" class="pag-card prev">
+      <div class="pag-dir">← 이전</div>
+      <div class="pag-title">소개 및 개요</div>
+    </a>
+    <a href="#" class="pag-card next">
+      <div class="pag-dir">다음 →</div>
+      <div class="pag-title">빠른 시작 가이드</div>
+    </a>
+  </div>
+
+</main>
+
+<!-- ── Right TOC ── -->
+<aside class="toc" data-slot="toc">
+  <div class="toc-label">이 페이지에서</div>
+  <ul class="toc-list">
+    <li class="toc-item active"><a href="#prerequisites">사전 요구사항</a></li>
+    <li class="toc-item h3"><a href="#prerequisites">Node.js 버전 확인</a></li>
+    <li class="toc-item"><a href="#install">설치</a></li>
+    <li class="toc-item h3"><a href="#install">npm 전역 설치</a></li>
+    <li class="toc-item h3"><a href="#install">npx로 실행</a></li>
+    <li class="toc-item"><a href="#auth">인증 설정</a></li>
+    <li class="toc-item h3"><a href="#auth">API 키 환경 변수</a></li>
+    <li class="toc-item"><a href="#verify">설치 확인</a></li>
+    <li class="toc-item"><a href="#commands">주요 실행 옵션</a></li>
+  </ul>
+
+  <div class="toc-divider"></div>
+
+  <div class="toc-links">
+    <a href="#">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1L15 8L8 15M1 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      GitHub에서 수정
+    </a>
+    <a href="#">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 5V8.5L10 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      변경 이력 보기
+    </a>
+    <a href="#">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <path d="M2 8C2 4.69 4.69 2 8 2C11.31 2 14 4.69 14 8C14 11.31 11.31 14 8 14C4.69 14 2 11.31 2 8Z" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 7V11M8 5V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      이슈 신고
+    </a>
+  </div>
+
+  <div class="toc-divider"></div>
+
+  <div class="toc-feedback">
+    <p>이 문서가 도움이 됐나요?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" onclick="this.textContent='👍 감사합니다!'">👍 도움됨</button>
+      <button class="feedback-btn" onclick="this.textContent='📝 감사합니다!'">👎 개선 필요</button>
+    </div>
+  </div>
+</aside>
+
+</div><!-- /shell -->
+
+<script>
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+function setActive(el) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ 복사됨';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 2000);
+  });
+}
+const tocItems = document.querySelectorAll('.toc-item');
+const headings = document.querySelectorAll('.content h2, .content h3');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      tocItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.querySelector('a')?.getAttribute('href') === '#' + id) item.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-60px 0px -80% 0px' });
+headings.forEach(h => { if (h.id) observer.observe(h); });
+</script>
+</body>
+</html>

@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마케팅 보고서 PPT 템플릿</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:        #3B82F6;
+  --blue-dark:   #1D4ED8;
+  --blue-mid:    #4A8FE7;
+  --blue-light:  #DBEAFE;
+  --blue-section:#3D7FDE;
+  --blue-deep:   #1A5FC9;
+  --orange:      #F97316;
+  --orange-light:#FFF7ED;
+  --orange-pale: #FED7AA;
+  --purple:      #8B5CF6;
+  --purple-light:#EDE9FE;
+  --teal:        #14B8A6;
+  --teal-light:  #CCFBF1;
+  --yellow:      #F59E0B;
+  --yellow-light:#FEF3C7;
+  --dark:        #0F172A;
+  --text:        #1E293B;
+  --gray:        #64748B;
+  --border:      #E2E8F0;
+  --bg-light:    #F8FAFC;
+  --white:       #FFFFFF;
+  --card-shadow: 0 2px 16px rgba(15,23,42,.08);
+}
+
+body {
+  background: #CBD5E1;
+  font-family: 'Noto Sans KR', sans-serif;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE SHELL  1280 × 720
+══════════════════════════════════════════ */
+.slide {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  background: var(--white);
+  overflow: hidden;
+  box-shadow: 0 12px 60px rgba(0,0,0,.22);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   SHARED HEADER (content slides)
+══════════════════════════════════════════ */
+.header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 22px 48px 0;
+  z-index: 10;
+}
+.header-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.header-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.2;
+  font-family: 'Manrope', 'Noto Sans KR', sans-serif;
+}
+.header-sub {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 6px;
+}
+.header-divider {
+  position: absolute;
+  left: 48px; right: 48px;
+  top: 128px;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Logo placeholder */
+.logo-box {
+  position: absolute;
+  top: 20px; right: 40px;
+  width: 108px; height: 68px;
+  background: var(--blue-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--gray);
+  z-index: 20;
+}
+
+/* Content area below header */
+.content {
+  position: absolute;
+  top: 148px; left: 48px; right: 48px;
+  bottom: 32px;
+}
+
+/* ══════════════════════════════════════════
+   CARD
+══════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 1 — COVER
+══════════════════════════════════════════ */
+.s1 { background: var(--white); }
+
+.s1-left-bar {
+  position: absolute;
+  top: 0; left: 0;
+  width: 6px; height: 100%;
+  background: var(--blue);
+}
+.s1-bottom-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 36px;
+  background: var(--blue);
+}
+.s1-body {
+  position: absolute;
+  top: 0; left: 0;
+  width: 620px; height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 52px 36px 56px;
+}
+.s1-category {
+  font-size: 14px;
+  color: var(--blue);
+  font-weight: 500;
+  margin-bottom: 16px;
+  letter-spacing: .02em;
+}
+.s1-title {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.22;
+  font-family: 'Manrope', 'Noto Sans KR', sans-serif;
+  margin-bottom: 44px;
+}
+.s1-meta { display: flex; flex-direction: column; gap: 14px; }
+.s1-badge-row { display: flex; align-items: center; gap: 14px; }
+.badge-pill {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+.s1-badge-text { font-size: 13px; color: var(--text); }
+.s1-illust {
+  position: absolute;
+  top: 32px; right: 0;
+  width: 640px; height: 652px;
+  background: var(--blue-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--gray); text-align: center;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 2 — SECTION DIVIDER
+══════════════════════════════════════════ */
+.s2 { background: var(--blue-section); }
+.s2-overlay {
+  position: absolute;
+  top: 0; right: 0;
+  width: 480px; height: 100%;
+  background: rgba(91,154,238,.4);
+}
+.s2-body {
+  position: absolute;
+  top: 0; left: 0;
+  width: 760px; height: 100%;
+  padding: 80px 0 60px 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s2-accent {
+  width: 48px; height: 7px;
+  background: var(--white);
+  margin-bottom: 24px;
+}
+.s2-title {
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.18;
+  font-family: 'Manrope', 'Noto Sans KR', sans-serif;
+  margin-bottom: 36px;
+}
+.s2-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.s2-list li {
+  font-size: 14px;
+  color: rgba(255,255,255,.9);
+  padding-left: 20px;
+  position: relative;
+}
+.s2-list li::before {
+  content: "▪";
+  position: absolute;
+  left: 0;
+  color: rgba(255,255,255,.6);
+}
+.s2-num {
+  position: absolute;
+  bottom: 28px; right: 56px;
+  font-size: 160px;
+  font-weight: 900;
+  color: rgba(255,255,255,.22);
+  line-height: 1;
+  font-family: 'Manrope', sans-serif;
+  user-select: none;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 3 — 4 KPI CARDS
+══════════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.kpi-card {
+  padding: 18px 18px 16px;
+}
+.kpi-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.kpi-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.kpi-val {
+  font-size: 26px;
+  font-weight: 900;
+  font-family: 'Manrope', sans-serif;
+  line-height: 1;
+}
+.kpi-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.kpi-desc {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+/* Bottom SNS bar */
+.sns-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+}
+.sns-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 22px;
+  border-right: 1px solid var(--border);
+  flex: 1;
+}
+.sns-thumb {
+  width: 88px; height: 88px;
+  background: var(--blue-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gray);
+  flex-shrink: 0;
+}
+.sns-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.sns-desc {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.55;
+}
+.sns-stats {
+  display: flex;
+  align-items: center;
+}
+.sns-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 36px;
+  border-right: 1px solid var(--border);
+}
+.sns-stat:last-child { border-right: none; }
+.sns-stat-num {
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 2px;
+}
+.sns-stat-label {
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+.sns-stat-val {
+  font-size: 22px;
+  font-weight: 900;
+  font-family: 'Manrope', sans-serif;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 4 — CHART + STAT CARDS
+══════════════════════════════════════════ */
+.s4-layout {
+  display: grid;
+  grid-template-columns: 1fr 292px;
+  gap: 16px;
+  height: 100%;
+}
+.chart-box {
+  padding: 22px 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.chart-meta { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.chart-period { font-size: 11px; color: var(--gray); }
+.chart-legend { display: flex; gap: 14px; }
+.chart-legend-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--gray);
+}
+.chart-legend-dot::before {
+  content: "";
+  display: block;
+  width: 12px; height: 12px;
+}
+.legend-blue::before  { background: var(--blue); }
+.legend-orange::before { background: var(--orange); }
+.chart-val  { font-size: 28px; font-weight: 900; color: var(--dark); font-family: 'Manrope', sans-serif; }
+.chart-growth { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px; }
+.chart-area {
+  flex: 1;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--gray); text-align: center; line-height: 1.7;
+}
+.stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stat-card {
+  flex: 1;
+  padding: 22px 20px 16px;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.stat-card-val {
+  font-size: 36px;
+  font-weight: 900;
+  font-family: 'Manrope', sans-serif;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.stat-card-date {
+  font-size: 11px;
+  opacity: .85;
+}
+.stat-card-icon {
+  position: absolute;
+  bottom: 14px; right: 16px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 5 — CALENDAR + TABLE
+══════════════════════════════════════════ */
+.s5-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  height: 100%;
+}
+.panel {
+  padding: 18px 20px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.panel-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.panel-legend {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+.panel-dot {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--gray);
+}
+.panel-dot span {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  display: block;
+}
+.cal-area {
+  flex: 1;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--gray);
+}
+
+/* Table inside panel */
+.data-table { width: 100%; border-collapse: collapse; flex: 1; }
+.data-table thead tr {
+  background: var(--bg-light);
+  border-bottom: 1px solid var(--border);
+}
+.data-table th {
+  padding: 8px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--gray);
+  text-align: left;
+}
+.data-table td {
+  padding: 12px 10px;
+  font-size: 11.5px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:nth-child(odd) td { background: var(--bg-light); }
+.td-blue  { color: var(--blue);   font-weight: 700; }
+.td-bold  { font-weight: 700; }
+
+/* ══════════════════════════════════════════
+   SLIDE 6 — TESTIMONIALS + PROGRESS
+══════════════════════════════════════════ */
+.s6-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  height: 100%;
+}
+.profile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-card {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+.avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.profile-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+.profile-quote {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.65;
+}
+.progress-panel {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.progress-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.prog-icon {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.prog-label {
+  font-size: 12px;
+  color: var(--dark);
+  flex: 1;
+}
+.prog-pct {
+  font-size: 12px;
+  font-weight: 700;
+}
+.prog-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-left: 48px;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .4s;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 7 — 3-COLUMN DATA
+══════════════════════════════════════════ */
+.s7-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  height: 100%;
+}
+.donut-card {
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.donut-badge {
+  width: 100%;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.donut-area {
+  width: 148px; height: 148px;
+  border-radius: 50%;
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--gray);
+  margin-bottom: 16px;
+}
+.donut-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--dark);
+  text-align: center;
+  margin-bottom: 6px;
+}
+.donut-desc {
+  font-size: 11px;
+  color: var(--gray);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  flex: 1;
+}
+.donut-foot {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-size: 10px;
+  color: var(--gray);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 8 — IMPACT SLIDE
+══════════════════════════════════════════ */
+.s8 { background: var(--blue-section); }
+.s8-overlay {
+  position: absolute;
+  top: 0; right: 0;
+  width: 480px; height: 100%;
+  background: rgba(91,154,238,.4);
+}
+.s8-body {
+  position: absolute;
+  top: 0; left: 0;
+  width: 680px; height: 100%;
+  padding: 68px 0 0 72px;
+  display: flex;
+  flex-direction: column;
+}
+.s8-accent {
+  width: 48px; height: 7px;
+  background: var(--white);
+  margin-bottom: 22px;
+}
+.s8-headline {
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.22;
+  font-family: 'Manrope', 'Noto Sans KR', sans-serif;
+  margin-bottom: 18px;
+}
+.s8-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.88);
+  line-height: 1.65;
+  max-width: 520px;
+}
+.s8-boxes {
+  position: absolute;
+  bottom: 40px;
+  left: 48px; right: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.s8-box {
+  background: var(--blue-deep);
+  border: 1px solid rgba(255,255,255,.2);
+  padding: 20px 20px 16px;
+  color: var(--white);
+}
+.s8-box-icon {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,.18);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.s8-box-val {
+  font-size: 30px;
+  font-weight: 900;
+  font-family: 'Manrope', sans-serif;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.s8-box-label {
+  font-size: 12px;
+  opacity: .88;
+  line-height: 1.5;
+}
+.s8-illust {
+  position: absolute;
+  top: 24px; right: 48px;
+  width: 360px; height: 300px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: rgba(255,255,255,.7); text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE 9 — TABLE SLIDE
+══════════════════════════════════════════ */
+.big-table-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.big-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--bg-light);
+  border-bottom: 1px solid var(--border);
+}
+.big-table-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.big-table-head-right {
+  font-size: 11px;
+  color: var(--gray);
+}
+.big-table { width: 100%; border-collapse: collapse; }
+.big-table th {
+  padding: 11px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+.big-table td {
+  padding: 18px 18px;
+  font-size: 12px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.big-table tbody tr:nth-child(odd) td { background: var(--bg-light); }
+.row-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 14px;
+  margin-right: 12px;
+  vertical-align: middle;
+}
+.td-strong { font-weight: 700; }
+
+/* ══════════════════════════════════════════
+   SLIDE 10 — MIXED CONTENT
+══════════════════════════════════════════ */
+.s10-layout {
+  display: grid;
+  grid-template-columns: 5fr 4fr;
+  gap: 16px;
+  height: 100%;
+}
+.s10-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mix-card {
+  flex: 1;
+  display: flex;
+  gap: 0;
+}
+.mix-img {
+  width: 140px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gray);
+  flex-shrink: 0;
+}
+.mix-body {
+  flex: 1;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-left: none;
+  box-shadow: var(--card-shadow);
+}
+.mix-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.mix-text {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.65;
+}
+.chart-panel {
+  padding: 18px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.chart-panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.chart-panel-sub {
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 12px;
+}
+.chart-panel-area {
+  flex: 1;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--gray); text-align: center; line-height: 1.7;
+}
+.stat-bubble {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+/* ══════════════════════════════════════════
+   SLIDE LABELS
+══════════════════════════════════════════ */
+.slide-label {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: .03em;
+}
+
+/* ══════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════ */
+.c-blue   { color: var(--blue); }
+.c-orange { color: var(--orange); }
+.c-purple { color: var(--purple); }
+.c-yellow { color: var(--yellow); }
+.c-teal   { color: var(--teal); }
+.c-gray   { color: var(--gray); }
+.c-dark   { color: var(--dark); }
+.c-white  { color: var(--white); }
+.fw-bold  { font-weight: 700; }
+.fw-black { font-weight: 900; }
+.font-mono { font-family: 'Manrope', sans-serif; }
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+/* ══ Viewer Shell ══ */
+:root {
+  --v-bg:#060810; --v-sb:#080C16; --v-card:#0A101C;
+  --v-border:#151D30; --v-border2:#1E283E;
+  --v-text:#C4CCE0; --v-dim:#5E6880;
+  --v-primary:#2B72D8; --v-orange:#E82C7A;
+  --v-font:'Inter',-apple-system,sans-serif;
+  --v-mono:'JetBrains Mono',monospace;
+  --v-sb-w:220px; --v-top:48px; --v-bot:48px;
+}
+html,body{width:100%;height:100%;overflow:hidden;margin:0;padding:0;}
+body{background:var(--v-bg);color:var(--v-text);font-family:var(--v-font);}
+
+#v-app{
+  display:grid;
+  grid-template-rows:var(--v-top) 1fr var(--v-bot);
+  grid-template-columns:var(--v-sb-w) 1fr;
+  height:100vh;
+  transition:grid-template-columns .2s;
+}
+#v-app.sb-hidden{grid-template-columns:0 1fr;}
+
+/* Top bar */
+#v-top{
+  grid-column:1/-1;grid-row:1;
+  background:var(--v-sb);border-bottom:1px solid var(--v-border);
+  display:flex;align-items:center;padding:0 16px;gap:12px;z-index:10;
+}
+.v-logo{display:flex;align-items:center;gap:7px;font-family:var(--v-mono);font-weight:700;font-size:15px;color:#E82C7A;flex-shrink:0;}
+.v-sep{width:1px;height:18px;background:var(--v-border2);}
+.v-title{font-size:12px;color:var(--v-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.v-sname{font-size:13px;font-weight:600;color:var(--v-text);}
+.v-actions{display:flex;gap:6px;}
+.v-btn{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:1px solid var(--v-border2);
+  color:var(--v-dim);font-size:11px;font-family:var(--v-font);font-weight:500;
+  padding:4px 10px;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.v-btn:hover{border-color:var(--v-border2);color:var(--v-text);background:rgba(255,255,255,.04);}
+.v-btn.active{border-color:var(--v-primary);color:var(--v-primary);background:rgba(88,166,255,.06);}
+
+/* Sidebar */
+#v-sb{
+  grid-column:1;grid-row:2;
+  background:var(--v-sb);border-right:1px solid var(--v-border);
+  overflow-y:auto;overflow-x:hidden;padding:6px 0;
+}
+#v-sb::-webkit-scrollbar{width:3px;}
+#v-sb::-webkit-scrollbar-thumb{background:var(--v-border2);border-radius:2px;}
+.v-si{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px 7px 8px;cursor:pointer;
+  border-left:2px solid transparent;transition:all .12s;
+}
+.v-si:hover{background:rgba(255,255,255,.025);}
+.v-si.active{background:rgba(88,166,255,.07);border-left-color:var(--v-primary);}
+.v-si-n{font-family:var(--v-mono);font-size:10px;font-weight:600;color:var(--v-dim);min-width:20px;text-align:right;flex-shrink:0;}
+.v-si.active .v-si-n{color:var(--v-primary);}
+.v-si-ttl{font-size:11px;font-weight:500;color:var(--v-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.v-si.active .v-si-ttl{color:var(--v-text);}
+
+/* Viewport */
+#v-vp{
+  grid-column:2;grid-row:2;
+  background:#000;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+}
+#v-fw{transform-origin:center center;will-change:transform;line-height:0;}
+
+/* Bottom bar */
+#v-bot{
+  grid-column:1/-1;grid-row:3;
+  background:var(--v-sb);border-top:1px solid var(--v-border);
+  display:flex;align-items:center;padding:0 16px;gap:10px;z-index:10;
+}
+.v-nav{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:1px solid var(--v-border2);
+  color:var(--v-dim);font-size:12px;font-family:var(--v-font);
+  padding:4px 12px;border-radius:5px;cursor:pointer;transition:all .15s;
+}
+.v-nav:hover:not(:disabled){border-color:var(--v-primary);color:var(--v-primary);}
+.v-nav:disabled{opacity:.3;cursor:not-allowed;}
+.v-ctr{font-family:var(--v-mono);font-size:13px;color:var(--v-dim);min-width:54px;text-align:center;}
+.v-ctr .v-cur{color:var(--v-orange);font-weight:700;}
+.v-pgbar{flex:1;height:3px;background:var(--v-border);border-radius:2px;overflow:hidden;cursor:pointer;}
+.v-pgfill{height:100%;background:linear-gradient(90deg,#E82C7A,#2B72D8);border-radius:2px;transition:width .3s;}
+.v-kbds{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--v-dim);flex-shrink:0;}
+.v-k{display:inline-flex;align-items:center;justify-content:center;background:var(--v-border);border:1px solid var(--v-border2);border-radius:3px;font-family:var(--v-mono);font-size:9px;padding:2px 5px;color:var(--v-dim);}
+.v-kbds span{margin:0 3px;}
+
+/* Slides container — only active slide visible */
+.v-slides{position:relative;}
+.v-slides > *{display:none !important;}
+.v-slides > .v-active{display:block !important;}
+
+/* Override original body scroll/flex styles */
+
+</style>
+</head>
+<body>
+<div id="v-app">
+  <div id="v-top">
+    <div class="v-logo">
+      <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#E82C7A" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M8 18 C8 12 14 10 14 10 C14 10 20 12 20 18" stroke="#E82C7A" stroke-width="1.5" stroke-linecap="round"/><path d="M10 18 Q14 22 18 18" stroke="#E82C7A" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="8" r="1.5" fill="#E82C7A"/></svg>
+      Brewnet
+    </div>
+    <div class="v-sep"></div>
+    <div class="v-title">마케팅 보고서 PPT 템플릿</div>
+    <div class="v-sname" id="v-sname"></div>
+    <div class="v-actions">
+      <button class="v-btn active" id="v-btn-sb" title="사이드바 토글">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        사이드바
+      </button>
+      <button class="v-btn" id="v-btn-fs" title="전체 화면">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        전체 화면
+      </button>
+    </div>
+  </div>
+  <div id="v-sb"></div>
+  <div id="v-vp">
+    <div id="v-fw">
+      <div class="v-slides" id="v-slides">
+<div class="slide s1">
+  <div class="s1-left-bar"></div>
+  <div class="s1-bottom-bar"></div>
+
+  <div class="s1-body">
+    <p class="s1-category" data-slot="label">Company Marketing Report</p>
+    <h1 class="s1-title" data-slot="title">[보고서 제목을<br>입력하세요]</h1>
+    <div class="s1-meta" data-slot="body">
+      <div class="s1-badge-row">
+        <span class="badge-pill">발표 날짜</span>
+        <span class="s1-badge-text">[YYYY년 MM월 DD일 HH:MM]</span>
+      </div>
+      <div class="s1-badge-row">
+        <span class="badge-pill">발표자</span>
+        <span class="s1-badge-text">[발표자 이름 / 팀]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="s1-illust" data-slot="image">[ 이미지 / 일러스트레이션<br>삽입 영역 ]</div>
+</div>
+<div class="slide s2">
+  <div class="s2-overlay"></div>
+  <div class="s2-body">
+    <div class="s2-accent"></div>
+    <h2 class="s2-title" data-slot="title">[섹션 제목을<br>입력하세요]</h2>
+    <ul class="s2-list" data-slot="bullets">
+      <li>[항목 1 설명]</li>
+      <li>[항목 2 설명]</li>
+      <li>[항목 3 설명]</li>
+    </ul>
+  </div>
+  <div class="s2-num" data-slot="page-num">01</div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">01. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="kpi-grid">
+
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#EFF6FF;">
+            <span style="font-size:18px;">💬</span>
+          </div>
+          <span class="kpi-val c-blue">+000</span>
+        </div>
+        <p class="kpi-name">[항목 이름]</p>
+        <p class="kpi-desc">[설명 텍스트를 여기에 입력하세요]</p>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#FFF7ED;">
+            <span style="font-size:18px;">🔥</span>
+          </div>
+          <span class="kpi-val c-orange">+00%</span>
+        </div>
+        <p class="kpi-name">[항목 이름]</p>
+        <p class="kpi-desc">[설명 텍스트를 여기에 입력하세요]</p>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#F0FDFA;">
+            <span style="font-size:18px;">🌐</span>
+          </div>
+          <span class="kpi-val c-teal">+000</span>
+        </div>
+        <p class="kpi-name">[항목 이름]</p>
+        <p class="kpi-desc">[설명 텍스트를 여기에 입력하세요]</p>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#FFFBEB;">
+            <span style="font-size:18px;">📸</span>
+          </div>
+          <span class="kpi-val c-yellow">+000%</span>
+        </div>
+        <p class="kpi-name">[항목 이름]</p>
+        <p class="kpi-desc">[설명 텍스트를 여기에 입력하세요]</p>
+      </div>
+
+    </div>
+
+    <!-- SNS 성과 바 -->
+    <div class="sns-bar">
+      <div class="sns-left">
+        <div class="sns-thumb">[이미지]</div>
+        <div>
+          <p class="sns-title">[항목 제목]</p>
+          <p class="sns-desc">[설명 텍스트를 입력하세요. 두세 문장 분량의<br>내용을 작성합니다.]</p>
+        </div>
+      </div>
+      <div class="sns-stats">
+        <div class="sns-stat">
+          <span class="sns-stat-num">01</span>
+          <span class="sns-stat-label">[항목]</span>
+          <span class="sns-stat-val c-blue">[수치]</span>
+        </div>
+        <div class="sns-stat">
+          <span class="sns-stat-num">02</span>
+          <span class="sns-stat-label">[항목]</span>
+          <span class="sns-stat-val c-purple">[수치]</span>
+        </div>
+        <div class="sns-stat">
+          <span class="sns-stat-num">03</span>
+          <span class="sns-stat-label">[항목]</span>
+          <span class="sns-stat-val c-orange">[수치]</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">01. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="s4-layout">
+
+      <div class="card chart-box">
+        <div class="chart-meta">
+          <div>
+            <p class="chart-period">[기간] 총 매출액</p>
+            <p class="chart-val">[수치]</p>
+            <p class="chart-growth">+00.00%</p>
+          </div>
+          <div class="chart-legend">
+            <span class="chart-legend-dot legend-blue">[올해]</span>
+            <span class="chart-legend-dot legend-orange">[작년]</span>
+          </div>
+        </div>
+        <div class="chart-area">[ 차트 영역 ]<br>막대·라인·파이 차트 등을 삽입하세요</div>
+      </div>
+
+      <div class="stat-col">
+        <div class="stat-card" style="background:var(--blue);">
+          <p class="stat-card-val">+00.0%</p>
+          <p class="stat-card-label">[키워드 01]</p>
+          <p class="stat-card-date">날짜 &nbsp;|&nbsp; [YYYY.MM.DD]</p>
+          <div class="stat-card-icon">💬</div>
+        </div>
+        <div class="stat-card" style="background:var(--orange);">
+          <p class="stat-card-val">-00.0%</p>
+          <p class="stat-card-label">[키워드 02]</p>
+          <p class="stat-card-date">날짜 &nbsp;|&nbsp; [YYYY.MM.DD]</p>
+          <div class="stat-card-icon">📸</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">02. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="s5-layout">
+
+      <div class="card panel">
+        <div class="panel-head">
+          <span style="font-size:20px;">📅</span>
+          <span class="panel-title">[패널 제목 1]</span>
+          <div class="panel-legend">
+            <span class="panel-dot"><span style="background:var(--blue)"></span>[이벤트 01]</span>
+            <span class="panel-dot"><span style="background:var(--purple)"></span>[이벤트 02]</span>
+            <span class="panel-dot"><span style="background:var(--orange)"></span>[이벤트 03]</span>
+          </div>
+        </div>
+        <div class="cal-area">[ 캘린더 / 일정표 영역 ]</div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head">
+          <span style="font-size:20px;">📊</span>
+          <span class="panel-title">[패널 제목 2]</span>
+        </div>
+        <table class="data-table" data-slot="table">
+          <thead>
+            <tr>
+              <th>종류</th>
+              <th>이벤트 이름</th>
+              <th>매출</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">[항목]</td>
+              <td>[이름을 입력하세요]</td>
+              <td class="td-blue">[수치]</td>
+            </tr>
+            <tr>
+              <td class="td-bold">[항목]</td>
+              <td>[이름을 입력하세요]</td>
+              <td class="td-blue">[수치]</td>
+            </tr>
+            <tr>
+              <td class="td-bold">[항목]</td>
+              <td>[이름을 입력하세요]</td>
+              <td class="td-blue">[수치]</td>
+            </tr>
+            <tr>
+              <td class="td-bold">[항목]</td>
+              <td>[이름을 입력하세요]</td>
+              <td class="td-blue">[수치]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">03. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="s6-layout">
+
+      <div class="profile-col">
+        <div class="card profile-card">
+          <div class="avatar">👤</div>
+          <div>
+            <p class="profile-name">[이름 (직업/역할)]</p>
+            <p class="profile-quote">[인터뷰 또는 후기 내용을 여기에 입력하세요. 두세 줄 분량으로 작성합니다. 실제 고객의 목소리를 담아주세요.]</p>
+          </div>
+        </div>
+        <div class="card profile-card">
+          <div class="avatar">👤</div>
+          <div>
+            <p class="profile-name">[이름 (직업/역할)]</p>
+            <p class="profile-quote">[인터뷰 또는 후기 내용을 여기에 입력하세요. 두세 줄 분량으로 작성합니다. 실제 고객의 목소리를 담아주세요.]</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card progress-panel">
+        <div class="progress-item">
+          <div class="progress-top">
+            <div class="prog-icon" style="background:#EFF6FF;">💬</div>
+            <span class="prog-label">[항목 1]</span>
+            <span class="prog-pct c-blue">76%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:76%;background:var(--blue)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-top">
+            <div class="prog-icon" style="background:#EDE9FE;">🔮</div>
+            <span class="prog-label">[항목 2]</span>
+            <span class="prog-pct c-purple">48%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:48%;background:var(--purple)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-top">
+            <div class="prog-icon" style="background:#FFF7ED;">🌐</div>
+            <span class="prog-label">[항목 3]</span>
+            <span class="prog-pct c-orange">91%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--orange)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-top">
+            <div class="prog-icon" style="background:#FFFBEB;">📸</div>
+            <span class="prog-label">[항목 4]</span>
+            <span class="prog-pct c-yellow">43%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:43%;background:var(--yellow)"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">04. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="s7-grid">
+
+      <div class="card donut-card">
+        <div class="donut-badge" style="background:var(--bg-light);color:var(--gray);">[항목 비율]</div>
+        <div class="donut-area">[ 차트 ]</div>
+        <p class="donut-title">[항목 설명]</p>
+        <p class="donut-desc">[보조 설명 텍스트를 입력합니다]</p>
+        <div class="donut-foot">[기준]</div>
+      </div>
+
+      <div class="card donut-card">
+        <div class="donut-badge" style="background:var(--blue);color:var(--white);">62.4% [주요층]</div>
+        <div class="donut-area">[ 차트 ]</div>
+        <p class="donut-title">[항목 설명]</p>
+        <p class="donut-desc">[보조 설명 텍스트를 입력합니다]</p>
+        <div class="donut-foot">[기준]</div>
+      </div>
+
+      <div class="card donut-card">
+        <div class="donut-badge" style="background:var(--orange);color:var(--white);">37.6% [보조층]</div>
+        <div class="donut-area">[ 차트 ]</div>
+        <p class="donut-title">[항목 설명]</p>
+        <p class="donut-desc">[보조 설명 텍스트를 입력합니다]</p>
+        <div class="donut-foot">[기준]</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="slide s8">
+  <div class="s8-overlay"></div>
+
+  <div class="s8-body">
+    <div class="s8-accent"></div>
+    <h2 class="s8-headline" data-slot="title">[핵심 메시지 또는<br>인사이트를 입력하세요]</h2>
+    <p class="s8-sub" data-slot="subtitle">[보조 설명: 핵심 결과나 액션 아이템을 요약하는 문장을 입력하세요]</p>
+  </div>
+
+  <div class="s8-illust" data-slot="image">[ 이미지 / 일러스트 삽입 ]</div>
+
+  <div class="s8-boxes" data-slot="body">
+    <div class="s8-box">
+      <div class="s8-box-icon">☁️</div>
+      <p class="s8-box-val">+000K</p>
+      <p class="s8-box-label">[항목 1]<br>설명 텍스트</p>
+    </div>
+    <div class="s8-box">
+      <div class="s8-box-icon">🎯</div>
+      <p class="s8-box-val">+0.0M</p>
+      <p class="s8-box-label">[항목 2]<br>설명 텍스트</p>
+    </div>
+    <div class="s8-box">
+      <div class="s8-box-icon">🔥</div>
+      <p class="s8-box-val">+000k</p>
+      <p class="s8-box-label">[항목 3]<br>설명 텍스트</p>
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">04. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="card big-table-wrap">
+      <div class="big-table-head">
+        <div class="big-table-head-left">
+          <span style="color:var(--yellow)">🔸</span>
+          [표 제목]
+        </div>
+        <span class="big-table-head-right">[기준 정보]</span>
+      </div>
+      <table class="big-table" data-slot="table">
+        <thead>
+          <tr>
+            <th style="width:38%">항목</th>
+            <th style="width:15%">날짜</th>
+            <th style="width:18%">장소</th>
+            <th style="width:14%">수치</th>
+            <th style="width:15%">키워드</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="row-icon">🎪</span><strong>[항목 1 이름]</strong></td>
+            <td class="c-gray">[날짜]</td>
+            <td class="c-gray">[장소]</td>
+            <td class="td-blue td-strong">[수치]</td>
+            <td class="td-blue">[#키워드]</td>
+          </tr>
+          <tr>
+            <td><span class="row-icon">🎁</span><strong>[항목 2 이름]</strong></td>
+            <td class="c-gray">[날짜]</td>
+            <td class="c-gray">[장소]</td>
+            <td class="td-blue td-strong">[수치]</td>
+            <td class="td-blue">[#키워드]</td>
+          </tr>
+          <tr>
+            <td><span class="row-icon">🎤</span><strong>[항목 3 이름]</strong></td>
+            <td class="c-gray">[날짜]</td>
+            <td class="c-gray">[장소]</td>
+            <td class="td-blue td-strong">[수치]</td>
+            <td class="td-blue">[#키워드]</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="logo-box" data-slot="image">[Logo]</div>
+  <div class="header">
+    <p class="header-tag" data-slot="label">04. Section Label</p>
+    <h2 class="header-title" data-slot="title">[슬라이드 제목을 입력하세요]</h2>
+    <p class="header-sub" data-slot="subtitle">[부제목 또는 슬라이드 설명을 입력하세요]</p>
+  </div>
+  <div class="header-divider"></div>
+
+  <div class="content">
+    <div class="s10-layout">
+
+      <div class="s10-left">
+        <div class="mix-card">
+          <div class="mix-img">[이미지]</div>
+          <div class="mix-body">
+            <span class="mix-tag" style="background:var(--blue-light);color:var(--blue);">[태그 / 키워드 레이블]</span>
+            <p class="mix-text">[설명 텍스트를 입력하세요. 해당 항목에 대한 결과나 내용을 두세 문장으로 작성합니다.]</p>
+          </div>
+        </div>
+        <div class="mix-card">
+          <div class="mix-img">[이미지]</div>
+          <div class="mix-body">
+            <span class="mix-tag" style="background:var(--orange-pale);color:var(--orange);">[태그 / 키워드 레이블]</span>
+            <p class="mix-text">[설명 텍스트를 입력하세요. 해당 항목에 대한 결과나 내용을 두세 문장으로 작성합니다.]</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card chart-panel">
+        <p class="chart-panel-title">[차트 제목]</p>
+        <p class="chart-panel-sub">[보조 설명 또는 기준 정보]</p>
+        <div class="chart-panel-area">
+          <div class="stat-bubble">[핵심 수치] &nbsp;2024.06</div>
+          [ 차트 / 그래프 영역 ]<br>라인차트·면적 차트 등을 삽입하세요
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+    </div>
+  </div>
+  <div id="v-bot">
+    <button class="v-nav" id="v-prev" disabled>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>이전
+    </button>
+    <div class="v-ctr"><span class="v-cur" id="v-cc">1</span>&thinsp;/&thinsp;<span id="v-ct">1</span></div>
+    <button class="v-nav" id="v-next">
+      다음<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="v-pgbar" id="v-pgbar"><div class="v-pgfill" id="v-pgfill"></div></div>
+    <div class="v-kbds">
+      <span class="v-k">←</span><span class="v-k">→</span><span>이동</span>
+      <span class="v-k" style="margin-left:6px">F</span><span>전체화면</span>
+      <span class="v-k" style="margin-left:6px">S</span><span>사이드바</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const TITLES = ["표지","섹션 구분","핵심 지표","차트 + 수치 카드","캘린더 + 표","인터뷰 + 만족도","3열 데이터","핵심 강조","표","혼합 레이아웃"];
+const SW = 1280, SH = 720;
+const slides = document.querySelectorAll('#v-slides > *');
+const total = slides.length;
+let cur = 0;
+
+const sb = document.getElementById('v-sb');
+const vp = document.getElementById('v-vp');
+const fw = document.getElementById('v-fw');
+const app = document.getElementById('v-app');
+const sname = document.getElementById('v-sname');
+const cc = document.getElementById('v-cc');
+const pgfill = document.getElementById('v-pgfill');
+const bPrev = document.getElementById('v-prev');
+const bNext = document.getElementById('v-next');
+document.getElementById('v-ct').textContent = total;
+
+// Build sidebar
+TITLES.forEach((t, i) => {
+  const el = document.createElement('div');
+  el.className = 'v-si' + (i === 0 ? ' active' : '');
+  el.innerHTML = '<span class="v-si-n">' + String(i+1).padStart(2,'0') + '</span><span class="v-si-ttl">' + t + '</span>';
+  el.addEventListener('click', () => goTo(i));
+  sb.appendChild(el);
+});
+
+function scale() {
+  const vw = vp.clientWidth, vh = vp.clientHeight;
+  const sc = Math.min(vw / SW, vh / SH) * 0.95;
+  fw.style.transform = 'scale(' + sc + ')';
+}
+const ro = new ResizeObserver(scale);
+ro.observe(vp);
+
+function goTo(i) {
+  if (i < 0 || i >= total) return;
+  cur = i;
+  slides.forEach((s, j) => s.classList.toggle('v-active', j === i));
+  sb.querySelectorAll('.v-si').forEach((el, j) => el.classList.toggle('active', j === i));
+  const act = sb.querySelector('.v-si.active');
+  if (act) act.scrollIntoView({block:'nearest',behavior:'smooth'});
+  sname.textContent = TITLES[i];
+  cc.textContent = i + 1;
+  pgfill.style.width = ((i+1)/total*100) + '%';
+  bPrev.disabled = i === 0;
+  bNext.disabled = i === total - 1;
+}
+
+bPrev.addEventListener('click', () => goTo(cur-1));
+bNext.addEventListener('click', () => goTo(cur+1));
+document.getElementById('v-pgbar').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  goTo(Math.floor((e.clientX - r.left) / r.width * total));
+});
+
+document.addEventListener('keydown', e => {
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  switch(e.key){
+    case 'ArrowRight':case 'ArrowDown':case ' ':e.preventDefault();goTo(cur+1);break;
+    case 'ArrowLeft':case 'ArrowUp':e.preventDefault();goTo(cur-1);break;
+    case 'Home':e.preventDefault();goTo(0);break;
+    case 'End':e.preventDefault();goTo(total-1);break;
+    case 'f':case 'F':if(!e.metaKey&&!e.ctrlKey){e.preventDefault();toggleFs();}break;
+    case 's':case 'S':if(!e.metaKey&&!e.ctrlKey){e.preventDefault();toggleSb();}break;
+    default:if(e.key>='1'&&e.key<='9')goTo(parseInt(e.key)-1);if(e.key==='0')goTo(9);
+  }
+});
+
+let sbVis = true;
+function toggleSb(){sbVis=!sbVis;app.classList.toggle('sb-hidden',!sbVis);document.getElementById('v-btn-sb').classList.toggle('active',sbVis);setTimeout(scale,200);}
+document.getElementById('v-btn-sb').addEventListener('click',toggleSb);
+
+function toggleFs(){
+  if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+  else{document.exitFullscreen&&document.exitFullscreen();}
+}
+document.getElementById('v-btn-fs').addEventListener('click',toggleFs);
+
+goTo(0);
+scale();
+})();
+</script>
+</body>
+</html>
