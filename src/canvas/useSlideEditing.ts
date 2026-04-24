@@ -1,17 +1,7 @@
 import { useEffect, type RefObject } from 'react';
 import Sortable from 'sortablejs';
 
-const TEXT_SLOT_KINDS = new Set([
-  'label',
-  'title',
-  'subtitle',
-  'caption',
-  'body',
-  'quote',
-  'page-num',
-  'bullets',
-]);
-
+const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
 
 function createDragHandle(): HTMLElement {
@@ -24,6 +14,22 @@ function createDragHandle(): HTMLElement {
   return handle;
 }
 
+function enforceEditable(el: HTMLElement) {
+  el.contentEditable = 'true';
+  el.spellcheck = false;
+}
+
+// Suppress browser newline insertion in single-line slots while keeping IME
+// composition functional. During hangul/japanese composition, keyCode=229
+// and isComposing=true — leave those alone so the IME can commit normally.
+function guardSingleLineEnter(el: HTMLElement) {
+  el.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (e.isComposing || e.keyCode === 229) return;
+    e.preventDefault();
+  });
+}
+
 export function useSlideEditing(
   slideRootRef: RefObject<HTMLElement | null>,
   onChange?: () => void,
@@ -32,28 +38,40 @@ export function useSlideEditing(
     const root = slideRootRef.current;
     if (!root) return;
 
-    const slots = root.querySelectorAll<HTMLElement>('[data-slot]');
-    slots.forEach((el) => {
-      const kind = el.dataset.slot ?? '';
-      if (TEXT_SLOT_KINDS.has(kind)) {
-        el.contentEditable = 'true';
-        el.spellcheck = false;
-      }
-    });
+    const slideInner = root.querySelector<HTMLElement>('.slide-inner');
+    const slideFooter = root.querySelector<HTMLElement>('.slide-footer');
+    const editableRegions = [slideInner, slideFooter].filter(
+      (el): el is HTMLElement => el != null,
+    );
+
+    // Make the whole content region editable so any text node — including
+    // elements without data-slot — can be modified. Drag handles explicitly
+    // opt out via contenteditable=false on creation.
+    editableRegions.forEach(enforceEditable);
+
+    // Single-line slots get Enter suppression (IME-safe).
+    const singleLineSlots = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-slot]'),
+    ).filter((el) => SINGLE_LINE_SLOTS.has(el.dataset.slot ?? ''));
+    singleLineSlots.forEach(guardSingleLineEnter);
+
+    // Table cells aren't under data-slot; ensure they remain editable when a
+    // parent is non-editable (e.g., if tables live outside .slide-inner).
+    root.querySelectorAll<HTMLElement>('td, th').forEach(enforceEditable);
 
     const notify = onChange ?? (() => {});
     const onInput = () => notify();
     root.addEventListener('input', onInput);
 
-    // Links inside contenteditable hijack focus and trigger browser navigation
-    // on click. Suppress navigation so editors can click-to-edit the link text.
+    // Anchors inside contenteditable would navigate on click — block so the
+    // href text can be edited without leaving the page.
     const onAnchorClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement | null)?.closest?.('a');
       if (anchor && root.contains(anchor)) e.preventDefault();
     };
     root.addEventListener('click', onAnchorClick);
 
-    const sortableRoot = root.querySelector<HTMLElement>('.slide-inner');
+    const sortableRoot = slideInner;
     const insertedHandles: HTMLElement[] = [];
     let sortable: Sortable | null = null;
 
@@ -78,7 +96,7 @@ export function useSlideEditing(
     return () => {
       root.removeEventListener('input', onInput);
       root.removeEventListener('click', onAnchorClick);
-      slots.forEach((el) => {
+      editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });
       insertedHandles.forEach((h) => h.remove());

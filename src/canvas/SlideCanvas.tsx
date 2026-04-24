@@ -15,17 +15,14 @@ export function SlideCanvas() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
 
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
   const overlays = useDeckStore((s) => (slideId ? s.overlaysBySlide[slideId] ?? [] : []));
+  const selectedOverlayId = useDeckStore((s) => s.selectedOverlayId);
+  const setSelectedOverlayId = useDeckStore((s) => s.setSelectedOverlayId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
-
-  useEffect(() => {
-    setSelectedId(null);
-  }, [slideId]);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -83,9 +80,9 @@ export function SlideCanvas() {
         h,
       };
       addOverlay(slideId, item);
-      setSelectedId(id);
+      setSelectedOverlayId(id);
     },
-    [slideId, addOverlay],
+    [slideId, addOverlay, setSelectedOverlayId],
   );
 
   const updateOverlay = useCallback(
@@ -113,7 +110,7 @@ export function SlideCanvas() {
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      onMouseDown={() => setSelectedId(null)}
+      onMouseDown={() => setSelectedOverlayId(null)}
     >
       <div
         ref={hostRef}
@@ -128,8 +125,8 @@ export function SlideCanvas() {
         <SlideRenderer key={slideId} slideId={slideId} />
         <OverlayLayer
           items={overlays}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
+          selectedId={selectedOverlayId}
+          onSelect={setSelectedOverlayId}
           onUpdate={updateOverlay}
         />
       </div>

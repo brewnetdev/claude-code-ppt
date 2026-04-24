@@ -19,6 +19,8 @@ type Props = {
 
 export function OverlayLayer({ items, selectedId, onSelect, onUpdate }: Props) {
   const layerRef = useRef<HTMLDivElement>(null);
+  const moveableRef = useRef<Moveable | null>(null);
+  const selected = items.find((it) => it.id === selectedId) ?? null;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -45,6 +47,7 @@ export function OverlayLayer({ items, selectedId, onSelect, onUpdate }: Props) {
       throttleDrag: 0,
       throttleResize: 0,
     });
+    moveableRef.current = moveable;
 
     moveable.on('drag', ({ left, top, target: t }: OnDrag) => {
       (t as HTMLElement).style.left = `${left}px`;
@@ -76,8 +79,15 @@ export function OverlayLayer({ items, selectedId, onSelect, onUpdate }: Props) {
 
     return () => {
       moveable.destroy();
+      if (moveableRef.current === moveable) moveableRef.current = null;
     };
   }, [selectedId, onUpdate]);
+
+  // Keep Moveable handles in sync when the selected overlay's geometry is
+  // edited from the properties panel instead of via drag handles.
+  useEffect(() => {
+    moveableRef.current?.updateRect();
+  }, [selected?.x, selected?.y, selected?.w, selected?.h]);
 
   return (
     <div ref={layerRef} className="overlay-layer">
