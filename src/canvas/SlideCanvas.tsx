@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDeckStore } from '../scene/store';
 import { OverlayLayer, type OverlayImage } from './OverlayLayer';
 import { SlideRenderer } from './SlideRenderer';
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/types';
+import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import './spike.css';
 
 const FIT_PADDING = 64;

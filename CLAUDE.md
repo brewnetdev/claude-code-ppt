@@ -59,28 +59,32 @@ Each slide has two distinct edit surfaces. Do not collapse them.
 | **Content blocks** (flex flow inside `.slide-inner`, indexed by `data-slot`) | Inline text edit, reorder up/down, add/delete | `contenteditable` + SortableJS |
 | **Overlay items** (free position images / textboxes / shapes layered above) | Drag x/y, resize w/h, rotate | Moveable.js |
 
-Sample HTML elements with `data-slot="..."` attributes map 1:1 to `ContentBlock.kind` in `src/scene/types.ts`. Slot names observed so far: `title`, `subtitle`, `label`, `caption`, `body`, `bullets`, `table`, `code`, `quote`, `link-list`, `number`, `step`, `page-num`.
+Sample HTML elements with `data-slot="..."` attributes are parsed by `src/importer/parsePresentation.ts` and editable in place via `src/canvas/useSlideEditing.ts`. Slot names observed so far: `title`, `subtitle`, `label`, `caption`, `body`, `bullets`, `table`, `code`, `quote`, `link-list`, `number`, `step`, `page-num`.
 
 ## Project Layout
 
 ```
 src/
-  main.tsx              # React entry
-  App.tsx               # Editor shell composition
-  styles/editor.css     # Tailwind + global editor styles only
-  scene/types.ts        # Scene model TypeScript types
+  main.tsx                         # React entry
+  App.tsx                          # Editor shell + initial deck load
+  styles/editor.css                # Tailwind + global editor styles only
+  scene/
+    constants.ts                   # 1280×720 authoring / 1920×1080 target dimensions
+    store.ts                       # Zustand deck store (slides, currentIndex, overlays)
   canvas/
-    SlideCanvas.tsx     # 1280×720 canvas with scale-to-fit
-    SampleSlide.tsx     # Phase 0 hardcoded sample slide
+    SlideCanvas.tsx                # 1280×720 canvas with scale-to-fit, drop target
+    SlideRenderer.tsx              # Per-slide HTML renderer, commits edits back to store
+    OverlayLayer.tsx               # Moveable-powered free-position image layer
+    useSlideEditing.ts             # contenteditable + SortableJS wiring with drag handles
+    spike.css                      # Edit-affordance CSS (grip handle, selection outlines)
     themes/
-      brewnet-dark.css  # Extracted sample CSS (preserved as-is)
+      brewnet-dark.css             # Extracted sample CSS (preserved as-is)
   editor/
-    Toolbar.tsx
-    SlideListSidebar.tsx
-    PropertiesPanel.tsx
-  importer/             # Phase 1 — sample HTML parser
-  exporter/             # Phase 3 — HTML / PDF / PNG
-docs/html/              # Provided sample HTML families (presentation, manual, portfolio, report)
+    Toolbar.tsx / SlideListSidebar.tsx / PropertiesPanel.tsx / EditSpikeBanner.tsx
+  importer/
+    parsePresentation.ts           # DOMParser → ParsedSlide[] from sample HTML
+  exporter/                        # Phase 3 — HTML / PDF / PNG
+docs/html/                         # Provided sample HTML families (presentation, manual, portfolio, report)
 ```
 
 ## Commands
@@ -95,8 +99,10 @@ docs/html/              # Provided sample HTML families (presentation, manual, p
 ## Phase Status
 
 - **Phase 0 — Scaffold** ✓ Editor shell + sample slide rendering at 1280×720 scale-to-fit
-- **Phase 1 — Scene model + Importer** — parse `docs/html/presentation/*.html` into Scene
-- **Phase 2 — Editing UX** — inline text, block reorder, overlay drag/resize, image insert
+- **Phase 1a — Edit spike** ✓ contenteditable + grip-handle reorder + overlay drag/resize on hardcoded slide
+- **Phase 1b — Importer + store + nav** ✓ DOMParser → Zustand deck → clickable slide list, edits persist per slide
+- **Phase 1c — CSS scope isolation** — PostCSS prefix to namespace sample CSS under `.slide-canvas-host`
+- **Phase 2 — Editing UX** — bullet-item granular edit, table edit, undo/redo, properties panel
 - **Phase 3 — Persistence + Export** — JSON save/load, HTML bundle, PDF (print), PNG (html-to-image)
 
 PPTX export is **not** in scope unless requested.
