@@ -1,5 +1,6 @@
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
+import { TextFormatPanel } from './TextFormatPanel';
 
 export function PropertiesPanel() {
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
@@ -17,7 +18,8 @@ export function PropertiesPanel() {
       <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
         Properties
       </div>
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 space-y-4 overflow-y-auto p-3">
+        <TextFormatPanel />
         {!overlay || !slideId ? (
           <p className="text-[11px] leading-relaxed text-editor-dim">
             이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다.

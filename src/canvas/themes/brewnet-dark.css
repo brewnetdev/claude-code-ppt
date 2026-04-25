@@ -499,6 +499,7 @@
   .hl-amber { color: var(--amber); font-weight: 700; }
   .hl-blue  { color: var(--blue);  font-weight: 700; }
   .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
 
   /* slide nav label */
   .slide-label {
