@@ -2,10 +2,9 @@
 
 > 이 문서는 `/clear` 이후 다음 Claude Code 세션이 맥락을 잃지 않고 이어받기 위한 인계 노트다. CLAUDE.md(프로젝트 상시 규칙)와 달리 **지금 이 순간의 진행 상황**만 담는다. 작업이 한 단계 끝날 때마다 갱신한다.
 
-- **Updated**: 2026-04-25 (Phase 3 export 착수 후)
-- **Branch**: `feat/editor-phases-0-through-2b` (origin에 푸시됨 / `main`도 origin에 반영 완료). 3a/3b/3c 추가 커밋은 로컬에만 있어 푸시 대기 중.
-- **Last commit (local)**: `feat(phase-3): HTML/PDF/PNG export buttons + exporter modules`
-- **PR**: #1 (HANDOFF 문서) — https://github.com/brewnetdev/claude-code-ppt/pull/1
+- **Updated**: 2026-04-25 (Phase 3 export + Undo/Redo + Text props 완료)
+- **Branch**: `feat/editor-phases-0-through-2b` — 사용자가 push 완료
+- **Last commit**: `b86a6bc feat(text-props): selection-driven Bold/Italic/Underline + brand color highlights`
 
 ## 완료된 Phase
 
@@ -17,11 +16,15 @@
 | (refactor) | `7085d8e` | 미사용 `scene/types.ts` 제거, `scene/constants.ts`로 축소 |
 | 2a · Slide CRUD | `94105c2` | 툴바 +New / Duplicate / Delete. 300ms debounced DOM→store commit |
 | (hotfix) | `07ac377` | debounced commit이 `dangerouslySetInnerHTML` 재주입을 일으켜 타이핑이 끊기고 Backspace가 브라우저 뒤로가기를 트리거하던 버그 해결: `SlideRenderer`가 `initialHtml`을 `useDeckStore.getState()`로 단 한 번만 읽고, `SlideCanvas`는 `slide` 객체 대신 `slideId`만 구독. anchor click preventDefault도 추가 |
-| 2b · 편집 범위 확장 + Props | `e112064` → `15308e1` | `.slide-inner`/`.slide-footer` 전체 contenteditable(data-slot 없는 본문도 편집 가능). `<td>/<th>` 편집. 한 줄 슬롯 Enter 차단(IME-safe). BLANK 슬라이드에 body slot 추가. Overlay selection을 store로 이관. 프로퍼티 패널에 선택 이미지의 X/Y/W/H 입력 + Delete 버튼 |
-| (docs) | `88f54fb` | HANDOFF 인계 노트 추가 (PR #1) |
-| 3 · Export | (local) | Toolbar에 `Export HTML` / `Export PDF` / `PNG (current)` 추가. `src/exporter/htmlBundle.ts` 는 blob 오버레이를 base64 embed + brewnet-dark.css inline + Arrow/Space 네비 + `#print` 해시로 자동 `window.print()`. `src/exporter/pngExport.ts` 는 html-to-image로 live host를 1920×1080 캡처 |
+| 2b · 편집 범위 확장 + Props | `e112064` → `15308e1` | `.slide-inner`/`.slide-footer` 전체 contenteditable. `<td>/<th>` 편집. 한 줄 슬롯 Enter 차단(IME-safe). Overlay selection을 store로 이관. 프로퍼티 패널에 X/Y/W/H 입력 + Delete |
+| (docs) | `88f54fb` | HANDOFF 인계 노트 추가 |
+| 3a · HTML bundle | `d15192d` | `Export HTML` 버튼 + `src/exporter/htmlBundle.ts` |
+| 3b/3c · PDF + PNG | `3e8759f` | `Export PDF` (`#print` 해시 자동 `window.print()`) / `PNG (current)` (html-to-image) |
+| 3 · Export 통일/수정 | `6a32096` | HTML 번들을 세로 스택 + scroll-snap 으로 변경(모든 슬라이드 즉시 노출). PNG → 전체 슬라이드 일괄 (오프스크린 호스트 + 250ms 간격). `.export-overlay { z-index:100; opacity:1 !important }` 로 `.slide-logo`(z=10) 등 슬라이드 내부 요소가 오버레이를 가리던 투명 버그 해결 |
+| Undo/Redo | `0f16234` | store에 `past[]`/`future[]` 스냅샷 스택(50). `revision` 카운터가 undo/redo에서만 증가 → `SlideRenderer key={slideId:revision}` 으로 강제 재마운트(일반 편집은 카운터 미증가 → 커서 보존). 툴바 ↶/↷ + 키보드 Cmd/Ctrl+Shift+Z (undo) / Cmd/Ctrl+Y (redo). 단독 Cmd/Ctrl+Z 는 브라우저 contenteditable native undo 보존을 위해 의도적으로 가로채지 않음 |
+| Text Props | `b86a6bc` | `src/editor/TextFormatPanel.tsx` 추가. 선택이 캔버스 내부일 때만 활성. B/I/U(execCommand) + 4색 highlight (`hl-amber/blue/green/cyan` — cyan은 신규 추가) 토큰 기반 wrap. Clear 버튼은 hl-* 클래스 strip. 모든 버튼은 `mousedown` preventDefault 로 캔버스 selection 보존 |
 
-## 현재 동작하는 기능 (브라우저에서 검증됨)
+## 현재 동작하는 기능 (브라우저에서 검증 필요 — Phase 3 이후는 정적 빌드만 통과)
 
 1. 좌측 사이드바 슬라이드 리스트 클릭으로 전환
 2. 텍스트/불릿/테이블 셀/페이지 번호/footer 인라인 편집 (IME 한국어 정상)
@@ -29,47 +32,40 @@
 4. 이미지 파일 드롭 → 자유 위치 이미지(오버레이)로 배치
 5. 오버레이 클릭 선택 → 드래그 이동 / 모서리 리사이즈 / Esc·빈영역 클릭 해제
 6. 우측 프로퍼티 패널에서 선택 오버레이의 X/Y/W/H 숫자 입력 + Delete
-7. 툴바 `+ New` / `Duplicate` / `Delete`로 슬라이드 추가/복제/삭제 (편집 내용·오버레이 반영)
+7. 툴바 `+ New` / `Duplicate` / `Delete`로 슬라이드 CRUD
+8. **Export HTML / Export PDF / PNG (all)** — 모두 1920×1080 결과
+9. **↶ Undo / ↷ Redo** + 키보드 단축키 (Cmd/Ctrl+Shift+Z / Cmd/Ctrl+Y)
+10. **텍스트 선택 시 B/I/U + 4색 highlight + Clear**
 
 ## 알려진 한계 / 미처리 항목
 
-- **Undo/Redo 없음** — `.slide-inner` 전체 editable이라 실수로 블록을 통째 지울 수 있음. Ctrl+Z가 contenteditable 내부 텍스트 수준에서만 부분 작동.
-- **텍스트 스타일 편집 UI 없음** — 색/굵기/정렬은 원본 CSS의 기존 span 구조(`<span class="hl-amber">` 등)에 의존. 프로퍼티 패널은 현재 이미지 오버레이만 대상.
-- **우클릭 컨텍스트 메뉴 없음** — 대신 프로퍼티 패널로 크기/삭제 처리.
 - **샘플 CSS scope 격리(Phase 1c) 안 됨** — 현재 `brewnet-dark.css`만 로드 중이라 문제 없지만, manual/report/portfolio 등 다른 샘플 패밀리를 섞을 땐 CSS 선택자 충돌 가능. PostCSS prefix 플러그인 필요.
-- **번들 크기 585KB** — `docs/html/presentation/brewnet-presentation.html`(138KB)을 `?raw`로 번들에 포함. Phase 3에서 `public/`로 이관 또는 `fetch` 로딩으로 전환 예정.
+- **번들 크기 ~625KB** — `brewnet-presentation.html`(138KB) `?raw` import + html-to-image + Moveable 등 합산. 향후 동적 import 또는 manualChunks 분리 고려.
 - **`keyCode` deprecation 경고** — `useSlideEditing.ts` Enter 가드에서 의도적 사용 (IME 감지 방어책). 빌드 차단 아님.
-- **Push 차단** — `main`으로 직접 push는 "PR 리뷰 우회" 정책으로 거부됨. 사용자가 허용하거나 feature 브랜치로 옮겨 PR 생성해야 함.
+- **`document.execCommand` deprecation 경고** — `TextFormatPanel.tsx`에서 사용. 모던 대안(Range API + Selection 직접 조작)으로 마이그레이션은 후순위.
 
 ## 다음 단계 선택지
 
-진행 우선순위는 **사용자 녹화 시점에 임박한 가치**를 기준으로 정리한다.
+### 옵션 E — JSON Save / Load (자동 저장 포함) · 추천
+브라우저 새로고침으로 작업 손실 방지. localStorage `claude-code-ppt:deck` 키에 `{slides, overlaysBySlide}` 직렬화. 오버레이 blob URL은 base64로 변환 후 저장. 변경 시 debounce 후 자동 save, 시작 시 자동 load.
 
-### 옵션 A — Phase 3 Export (HTML 번들 / PDF / PNG) · **구현됨 (브라우저 검증 필요)**
+### 옵션 F — Slide 사이드바 정렬(드래그)
+사이드바에서 슬라이드 순서를 드래그로 바꾸기. SortableJS 또는 react-dnd. store에 `reorderSlide(from, to)` 추가.
 
-- HTML 번들: `buildHtmlBundle()` → 단일 `.html` 다운로드. brewnet-dark.css 인라인 + blob 오버레이 → base64. Arrow/Space/PageUp-Down 네비. `P` 키 또는 `#print` 해시로 `window.print()`.
-- PDF: `openPrintablePreview()` → 새 탭에서 `#print` 해시로 번들 열어 자동 `window.print()`. `@page { size: 1920px 1080px }`, stage에 `transform: scale(1.5)`.
-- PNG (현재 슬라이드): `exportCurrentSlidePng()` → `html-to-image`로 live `.slide-canvas-host` 캡처. canvasWidth/Height=1920×1080, pixelRatio=1.5.
-- 입구: Toolbar의 `Export HTML` / `Export PDF` / `PNG (current)` 버튼 (accent tone).
+### 옵션 G — Slide Templates 갤러리
+`+ New` 누르면 빈 슬라이드 대신 템플릿 선택 (cover / section / body / table / quote / TOC ...). `docs/html/presentation/brewnet-presentation.html`의 7슬라이드를 분해해 템플릿화.
 
-**남은 보강 (옵션 A′):**
-- 전체 슬라이드 PNG 일괄 내보내기 (offscreen 1280×720 render 후 순차 캡처, zip 번들)
-- 폰트 로딩 완료 대기 (`document.fonts.ready`) 후 캡처 — 현재 첫 캡처에서 한글 폰트 깜빡임 가능
-
-### 옵션 B — Undo/Redo
-편집 중 실수 방어. 구현은 store snapshot 스택(`slides` + `overlaysBySlide`) + Ctrl+Z / Ctrl+Shift+Z 바인딩. DOM 편집은 debounced commit 이후 스냅샷 포인트로.
-
-### 옵션 C — Phase 1c CSS Scope
+### 옵션 H — Phase 1c CSS Scope
 다른 샘플 패밀리(manual/report 등)를 추가 임포트할 계획이 있으면 먼저 해결. 단일 프레젠테이션이면 후순위.
 
-### 옵션 D — 텍스트 블록 프로퍼티 확장
-선택한 텍스트(또는 data-slot)에 대해 색/굵기/폰트 크기를 프로퍼티 패널에서 제어. 원본 CSS custom property 일부를 editable로.
+### 옵션 I — 폰트 사이즈 / 정렬 조작
+TextFormatPanel 확장: A+/A−, left/center/right align. inline `style="font-size:Npx"` 또는 텍스트 wrapper 클래스.
 
 ## 바로 실행용 체크리스트 (새 세션 시작 시)
 
 ```bash
 # 1. 상태 훑기
-git log --oneline -5
+git log --oneline -8
 git status
 
 # 2. 개발 서버
@@ -79,19 +75,22 @@ npm run dev        # http://127.0.0.1:5173
 npm run build
 ```
 
-다음 세션에서 해야 할 것:
-1. `HANDOFF.md`와 `CLAUDE.md`를 읽어 컨텍스트 복원
-2. 사용자에게 옵션 A/B/C/D 중 어느 것을 진행할지 확인
+새 세션에서 해야 할 것:
+1. `HANDOFF.md` 와 `CLAUDE.md` 읽어 컨텍스트 복원
+2. 사용자에게 옵션 E/F/G/H/I 중 어느 것을 진행할지 확인 (auto 모드면 E 부터)
 3. 선택된 옵션을 하위 Phase로 쪼개 순차 커밋
-4. 이 문서의 "완료된 Phase" 표에 결과 추가, 현재 Phase 표 갱신
+4. 이 문서의 "완료된 Phase" 표 갱신
 
 ## 참고 경로
 
-- `src/canvas/SlideCanvas.tsx` — 캔버스 / 스케일 / 오버레이 drop 진입점
+- `src/canvas/SlideCanvas.tsx` — 캔버스 / 스케일 / 오버레이 drop 진입점. SlideRenderer key는 `slideId:revision`
 - `src/canvas/SlideRenderer.tsx` — `initialHtml`을 store에서 **한 번만** 읽고 DOM을 소유. 재렌더로 DOM 파괴 금지가 원칙
 - `src/canvas/useSlideEditing.ts` — 편집 가능 영역 설정 / SortableJS / IME-safe Enter / anchor click 차단
 - `src/canvas/OverlayLayer.tsx` — Moveable 컨테이너는 `document.body` (pointer-events 이슈 회피)
-- `src/scene/store.ts` — Zustand deck store, CRUD + overlay + selection
-- `src/editor/PropertiesPanel.tsx` — 선택된 오버레이 X/Y/W/H 입력
-- `src/editor/Toolbar.tsx` — 슬라이드 CRUD 버튼
+- `src/scene/store.ts` — Zustand deck store, CRUD + overlay + selection + undo/redo + revision
+- `src/editor/PropertiesPanel.tsx` — TextFormatPanel + 오버레이 X/Y/W/H 입력
+- `src/editor/TextFormatPanel.tsx` — 선택 기반 B/I/U + hl-* highlight
+- `src/editor/Toolbar.tsx` — 슬라이드 CRUD + Undo/Redo + Export 3종 (accent tone)
+- `src/exporter/htmlBundle.ts` — 세로 스택 HTML 번들 + 자동 print + scroll-snap
+- `src/exporter/pngExport.ts` — `exportAllSlidesPng()` (offscreen 1280×720 → 1920×1080)
 - `docs/html/presentation/brewnet-presentation.html` — 현재 로드되는 샘플 (7슬라이드)
