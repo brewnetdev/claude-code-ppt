@@ -92,8 +92,14 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`flex flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition ${
+                  onClick={(e) => {
+                    setCurrentIndex(idx);
+                    // Drop DOM focus so the browser's :focus ring doesn't
+                    // linger on the previously-clicked row when subsequent
+                    // ArrowUp/ArrowDown navigation moves only store state.
+                    e.currentTarget.blur();
+                  }}
+                  className={`flex flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition focus:outline-none focus-visible:ring-1 focus-visible:ring-editor-accent ${
                     active ? 'text-editor-text' : 'text-editor-dim hover:text-editor-text'
                   }`}
                 >
