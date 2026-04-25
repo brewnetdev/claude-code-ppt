@@ -1,7 +1,7 @@
 import type { DragEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDeckStore } from '../scene/store';
-import { OverlayLayer, type OverlayImage } from './OverlayLayer';
+import { OverlayLayer, type ImageOverlay, type Overlay } from './OverlayLayer';
 import { SlideRenderer } from './SlideRenderer';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import './spike.css';
@@ -21,6 +21,7 @@ export function SlideCanvas() {
   const overlays = useDeckStore((s) => (slideId ? s.overlaysBySlide[slideId] ?? [] : []));
   const selectedOverlayId = useDeckStore((s) => s.selectedOverlayId);
   const setSelectedOverlayId = useDeckStore((s) => s.setSelectedOverlayId);
+  const setSelectedBlockId = useDeckStore((s) => s.setSelectedBlockId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
   // Force SlideRenderer to remount on undo/redo so the fresh slide.html from
@@ -74,8 +75,9 @@ export function SlideCanvas() {
       const h = 240;
       const url = URL.createObjectURL(file);
       const id = makeId();
-      const item: OverlayImage = {
+      const item: ImageOverlay = {
         id,
+        kind: 'image',
         src: url,
         x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
         y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
@@ -89,7 +91,7 @@ export function SlideCanvas() {
   );
 
   const updateOverlay = useCallback(
-    (id: string, patch: Partial<OverlayImage>) => {
+    (id: string, patch: Partial<Overlay>) => {
       if (!slideId) return;
       updateOverlayInStore(slideId, id, patch);
     },
@@ -113,7 +115,10 @@ export function SlideCanvas() {
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      onMouseDown={() => setSelectedOverlayId(null)}
+      onMouseDown={() => {
+        setSelectedOverlayId(null);
+        setSelectedBlockId(null);
+      }}
     >
       <div
         ref={hostRef}

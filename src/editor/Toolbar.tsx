@@ -16,7 +16,11 @@ import { TemplatePicker } from './TemplatePicker';
 
 type Busy = null | 'html' | 'pdf' | 'png';
 
-export function Toolbar() {
+type ToolbarProps = {
+  onPresent: () => void;
+};
+
+export function Toolbar({ onPresent }: ToolbarProps) {
   const slides = useDeckStore((s) => s.slides);
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const insertSlideAfter = useDeckStore((s) => s.insertSlideAfter);
@@ -137,6 +141,21 @@ export function Toolbar() {
           title="Redo (⇧⌘Z / ⌘Y / Ctrl+Y)"
         >
           ↷ Redo
+        </ToolbarButton>
+        <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
+        <ToolbarButton
+          onClick={() => {
+            // Drain any pending typing-debounce so the latest edits (link
+            // hrefs, text changes) land in the store before presentation
+            // reads from it. Otherwise users see "stale" content for up
+            // to 300ms after their last keystroke.
+            flushPendingCommit();
+            onPresent();
+          }}
+          disabled={slides.length === 0}
+          title="Present full screen (← → 이동, Esc 종료)"
+        >
+          ⛶ Present
         </ToolbarButton>
         <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
         <ToolbarButton onClick={() => setPickerOpen(true)}>

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { OverlayImage } from '../canvas/OverlayLayer';
+import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 
 let slideSeq = 0;
@@ -25,15 +25,16 @@ const BLANK_SLIDE_HTML = `
 
 type Snapshot = {
   slides: ParsedSlide[];
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   currentIndex: number;
 };
 
 type DeckState = {
   slides: ParsedSlide[];
   currentIndex: number;
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   selectedOverlayId: string | null;
+  selectedBlockId: string | null;
 
   past: Snapshot[];
   future: Snapshot[];
@@ -45,7 +46,7 @@ type DeckState = {
   loadDeck: (slides: ParsedSlide[]) => void;
   loadDeckFull: (payload: {
     slides: ParsedSlide[];
-    overlaysBySlide: Record<string, OverlayImage[]>;
+    overlaysBySlide: Record<string, Overlay[]>;
     currentIndex: number;
   }) => void;
   setCurrentIndex: (i: number) => void;
@@ -57,8 +58,9 @@ type DeckState = {
   reorderSlide: (from: number, to: number) => void;
 
   setSelectedOverlayId: (id: string | null) => void;
-  addOverlay: (slideId: string, item: OverlayImage) => void;
-  updateOverlay: (slideId: string, id: string, patch: Partial<OverlayImage>) => void;
+  setSelectedBlockId: (id: string | null) => void;
+  addOverlay: (slideId: string, item: Overlay) => void;
+  updateOverlay: (slideId: string, id: string, patch: Partial<Overlay>) => void;
   removeOverlay: (slideId: string, id: string) => void;
 
   undo: () => void;
@@ -85,6 +87,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   currentIndex: 0,
   overlaysBySlide: {},
   selectedOverlayId: null,
+  selectedBlockId: null,
 
   past: [],
   future: [],
@@ -95,6 +98,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       slides,
       currentIndex: 0,
       selectedOverlayId: null,
+      selectedBlockId: null,
       overlaysBySlide: Object.fromEntries(slides.map((s) => [s.id, []])),
       // Fresh deck — discard any stale history.
       past: [],
@@ -111,15 +115,22 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       slides,
       currentIndex: Math.max(0, Math.min(currentIndex, slides.length - 1)),
       selectedOverlayId: null,
+      selectedBlockId: null,
       overlaysBySlide,
       past: [],
       future: [],
       revision: state.revision + 1,
     })),
 
-  setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null }),
+  setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null, selectedBlockId: null }),
 
-  setSelectedOverlayId: (id) => set({ selectedOverlayId: id }),
+  // Selecting an overlay clears any block selection (mutually exclusive
+  // selection so the Properties panel branches cleanly). Clearing one
+  // does not touch the other.
+  setSelectedOverlayId: (id) =>
+    set((s) => (id ? { selectedOverlayId: id, selectedBlockId: null } : { ...s, selectedOverlayId: null })),
+  setSelectedBlockId: (id) =>
+    set((s) => (id ? { selectedBlockId: id, selectedOverlayId: null } : { ...s, selectedBlockId: null })),
 
   commitSlideHtml: (id, html) =>
     set((state) => {
@@ -148,6 +159,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         slides,
         currentIndex: insertAt,
         selectedOverlayId: null,
+        selectedBlockId: null,
         overlaysBySlide: { ...state.overlaysBySlide, [id]: [] },
       };
     }),
@@ -170,9 +182,10 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         slides,
         currentIndex: index + 1,
         selectedOverlayId: null,
+        selectedBlockId: null,
         overlaysBySlide: {
           ...state.overlaysBySlide,
-          [id]: sourceOverlays.map((o) => ({ ...o, id: `${o.id}-copy-${slideSeq}` })),
+          [id]: sourceOverlays.map((o): Overlay => ({ ...o, id: `${o.id}-copy-${slideSeq}` })),
         },
       };
     }),
@@ -192,6 +205,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         slides,
         currentIndex: nextIndex,
         selectedOverlayId: null,
+        selectedBlockId: null,
         overlaysBySlide: rest,
       };
     }),
@@ -247,7 +261,9 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         future: [],
         overlaysBySlide: {
           ...state.overlaysBySlide,
-          [slideId]: list.map((it) => (it.id === id ? { ...it, ...patch } : it)),
+          [slideId]: list.map((it) =>
+            it.id === id ? ({ ...it, ...patch } as Overlay) : it,
+          ),
         },
       };
     }),
@@ -274,6 +290,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         overlaysBySlide: prev.overlaysBySlide,
         currentIndex: Math.min(prev.currentIndex, prev.slides.length - 1),
         selectedOverlayId: null,
+        selectedBlockId: null,
         revision: state.revision + 1,
       };
     }),
@@ -289,6 +306,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         overlaysBySlide: next.overlaysBySlide,
         currentIndex: Math.min(next.currentIndex, next.slides.length - 1),
         selectedOverlayId: null,
+        selectedBlockId: null,
         revision: state.revision + 1,
       };
     }),

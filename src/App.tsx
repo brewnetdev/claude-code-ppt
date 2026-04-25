@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import presentationHtml from '../docs/html/presentation/brewnet-presentation.html?raw';
 import { SlideCanvas } from './canvas/SlideCanvas';
 import { EditSpikeBanner } from './editor/EditSpikeBanner';
+import { PresentationView } from './editor/PresentationView';
 import { PropertiesPanel } from './editor/PropertiesPanel';
 import { SlideListSidebar } from './editor/SlideListSidebar';
 import { Toolbar } from './editor/Toolbar';
@@ -16,6 +17,8 @@ export function App() {
   const loadDeckFull = useDeckStore((s) => s.loadDeckFull);
   const hasSlides = useDeckStore((s) => s.slides.length > 0);
   const [bootReady, setBootReady] = useState(false);
+  const [presenting, setPresenting] = useState(false);
+  const exitPresenting = useCallback(() => setPresenting(false), []);
 
   useEffect(() => {
     if (hasSlides) {
@@ -41,15 +44,16 @@ export function App() {
 
   return (
     <div className="flex h-full flex-col bg-editor-bg text-editor-text">
-      <Toolbar />
+      <Toolbar onPresent={() => setPresenting(true)} />
       <EditSpikeBanner />
       <div className="flex flex-1 overflow-hidden">
-        <SlideListSidebar />
+        <SlideListSidebar arrowKeysEnabled={!presenting} />
         <main className="flex-1 overflow-hidden">
           <SlideCanvas />
         </main>
         <PropertiesPanel />
       </div>
+      {presenting ? <PresentationView onExit={exitPresenting} /> : null}
     </div>
   );
 }
