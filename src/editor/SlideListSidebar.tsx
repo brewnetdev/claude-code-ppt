@@ -2,12 +2,37 @@ import { useEffect, useRef } from 'react';
 import Sortable from 'sortablejs';
 import { useDeckStore } from '../scene/store';
 
-export function SlideListSidebar() {
+type Props = {
+  arrowKeysEnabled?: boolean;
+};
+
+export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
   const slides = useDeckStore((s) => s.slides);
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const setCurrentIndex = useDeckStore((s) => s.setCurrentIndex);
   const reorderSlide = useDeckStore((s) => s.reorderSlide);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Global ArrowUp/ArrowDown navigation through the slide list. Skips when
+  // a text input or contenteditable is focused so typing isn't hijacked,
+  // and when modifier keys are held (those belong to other shortcuts).
+  useEffect(() => {
+    if (!arrowKeysEnabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      const ae = document.activeElement;
+      if (ae instanceof HTMLInputElement || ae instanceof HTMLTextAreaElement || ae instanceof HTMLSelectElement) return;
+      if (ae instanceof HTMLElement && ae.isContentEditable) return;
+      const { slides: cur, currentIndex: i, setCurrentIndex: set } = useDeckStore.getState();
+      if (cur.length === 0) return;
+      e.preventDefault();
+      if (e.key === 'ArrowUp') set(Math.max(0, i - 1));
+      else set(Math.min(cur.length - 1, i + 1));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [arrowKeysEnabled]);
 
   useEffect(() => {
     const el = listRef.current;
