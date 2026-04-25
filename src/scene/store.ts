@@ -51,7 +51,7 @@ type DeckState = {
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
 
-  insertBlankSlideAfter: (index: number) => void;
+  insertSlideAfter: (index: number, html?: string, title?: string) => void;
   duplicateSlide: (index: number) => void;
   removeSlide: (index: number) => void;
   reorderSlide: (from: number, to: number) => void;
@@ -132,10 +132,10 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       };
     }),
 
-  insertBlankSlideAfter: (index) =>
+  insertSlideAfter: (index, html = BLANK_SLIDE_HTML, title = '새 슬라이드') =>
     set((state) => {
       const id = makeSlideId();
-      const newSlide: ParsedSlide = { id, html: BLANK_SLIDE_HTML, title: '새 슬라이드' };
+      const newSlide: ParsedSlide = { id, html, title };
       const insertAt = Math.min(index + 1, state.slides.length);
       const slides = [
         ...state.slides.slice(0, insertAt),

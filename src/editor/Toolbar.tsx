@@ -12,13 +12,14 @@ import { clearDeckFromLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
 import { flushPendingCommit } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
+import { TemplatePicker } from './TemplatePicker';
 
 type Busy = null | 'html' | 'pdf' | 'png';
 
 export function Toolbar() {
   const slides = useDeckStore((s) => s.slides);
   const currentIndex = useDeckStore((s) => s.currentIndex);
-  const insertBlankSlideAfter = useDeckStore((s) => s.insertBlankSlideAfter);
+  const insertSlideAfter = useDeckStore((s) => s.insertSlideAfter);
   const duplicateSlide = useDeckStore((s) => s.duplicateSlide);
   const removeSlide = useDeckStore((s) => s.removeSlide);
   const loadDeck = useDeckStore((s) => s.loadDeck);
@@ -28,6 +29,7 @@ export function Toolbar() {
   const futureLen = useDeckStore((s) => s.future.length);
 
   const [busy, setBusy] = useState<Busy>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const canDelete = slides.length > 1;
   const canExport = slides.length > 0 && busy === null;
@@ -109,6 +111,7 @@ export function Toolbar() {
     });
 
   return (
+    <>
     <header className="flex h-12 items-center justify-between border-b border-editor-border bg-editor-panel px-4">
       <div className="flex items-center gap-3">
         <span className="text-sm font-bold tracking-wide text-editor-accent">
@@ -136,7 +139,7 @@ export function Toolbar() {
           ↷ Redo
         </ToolbarButton>
         <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
-        <ToolbarButton onClick={() => insertBlankSlideAfter(currentIndex)}>
+        <ToolbarButton onClick={() => setPickerOpen(true)}>
           + New
         </ToolbarButton>
         <ToolbarButton onClick={() => duplicateSlide(currentIndex)}>
@@ -180,6 +183,15 @@ export function Toolbar() {
         <span className="ml-3 text-editor-dim">1280×720 · export 1920×1080</span>
       </div>
     </header>
+    <TemplatePicker
+      open={pickerOpen}
+      onClose={() => setPickerOpen(false)}
+      onSelect={(t) => {
+        insertSlideAfter(currentIndex, t.html, t.title);
+        setPickerOpen(false);
+      }}
+    />
+    </>
   );
 }
 
