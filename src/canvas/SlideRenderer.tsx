@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { registerPendingFlush } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
@@ -59,6 +60,12 @@ export function SlideRenderer({ slideId }: Props) {
   }, [commitFromDom]);
 
   useSlideEditing(ref, scheduleCommit, commitNow);
+
+  // Expose synchronous flush so undo/redo (and any other store-mutating
+  // action) can drain pending typing before snapshotting/reverting. Without
+  // this, the unmount cleanup below would commitFromDom() *after* undo()
+  // already wrote the previous snapshot, re-applying typed text on top.
+  useEffect(() => registerPendingFlush(commitNow), [commitNow]);
 
   useEffect(() => {
     return () => {

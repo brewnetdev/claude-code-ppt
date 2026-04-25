@@ -10,6 +10,7 @@ import { exportAllSlidesPng } from '../exporter/pngExport';
 import { parsePresentationHTML } from '../importer/parsePresentation';
 import { clearDeckFromLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
+import { flushPendingCommit } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -33,19 +34,34 @@ export function Toolbar() {
   const canUndo = pastLen > 0;
   const canRedo = futureLen > 0;
 
-  // Store-level undo: Cmd/Ctrl+Shift+Z (undo) and Cmd/Ctrl+Y or
-  // Cmd/Ctrl+Shift+Y (redo). Plain Cmd/Ctrl+Z is intentionally left to the
-  // browser so character-level contenteditable undo still works while typing.
+  // Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z → store undo. Cmd/Ctrl+Y → redo.
+  // We intentionally hijack plain Cmd/Ctrl+Z (the OS-conventional shortcut)
+  // because the browser's native contenteditable undo only tracks `input`
+  // events — it can't see Sortable reorders or Moveable drag/resize, so
+  // those would silently never undo if we let the native handler win.
+  // Trade-off: per-character native undo is gone; our debounced snapshots
+  // give 300ms-burst granularity instead.
+  const undoWithFlush = () => {
+    flushPendingCommit();
+    undo();
+  };
+  const redoWithFlush = () => {
+    flushPendingCommit();
+    redo();
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
       if (!mod) return;
       const key = e.key.toLowerCase();
-      if (key === 'z' && e.shiftKey) {
+      if (key === 'z') {
         e.preventDefault();
-        undo();
+        flushPendingCommit();
+        if (e.shiftKey) redo();
+        else undo();
       } else if (key === 'y') {
         e.preventDefault();
+        flushPendingCommit();
         redo();
       }
     };
@@ -106,16 +122,16 @@ export function Toolbar() {
       </div>
       <div className="flex items-center gap-2 text-xs">
         <ToolbarButton
-          onClick={undo}
+          onClick={undoWithFlush}
           disabled={!canUndo}
-          title="Undo (⇧⌘Z / Ctrl+Shift+Z)"
+          title="Undo (⌘Z / Ctrl+Z)"
         >
           ↶ Undo
         </ToolbarButton>
         <ToolbarButton
-          onClick={redo}
+          onClick={redoWithFlush}
           disabled={!canRedo}
-          title="Redo (⌘Y / Ctrl+Y)"
+          title="Redo (⇧⌘Z / ⌘Y / Ctrl+Y)"
         >
           ↷ Redo
         </ToolbarButton>
