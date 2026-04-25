@@ -2,9 +2,9 @@
 
 > 이 문서는 `/clear` 이후 다음 Claude Code 세션이 맥락을 잃지 않고 이어받기 위한 인계 노트다. CLAUDE.md(프로젝트 상시 규칙)와 달리 **지금 이 순간의 진행 상황**만 담는다. 작업이 한 단계 끝날 때마다 갱신한다.
 
-- **Updated**: 2026-04-25 (Option E · localStorage auto-save 완료)
-- **Branch**: `feat/editor-phases-0-through-2b` — push 필요 (ahead 3)
-- **Last commit**: `7044b73 feat(persist): localStorage auto-save + auto-load with reset`
+- **Updated**: 2026-04-25 (Option F · 사이드바 드래그 정렬 완료)
+- **Branch**: `feat/editor-phases-0-through-2b` — push 필요 (ahead 2)
+- **Last commit**: `33c566c feat(slide-reorder): drag-to-reorder slides in sidebar`
 
 ## 완료된 Phase
 
@@ -25,6 +25,8 @@
 | Text Props | `b86a6bc` | `src/editor/TextFormatPanel.tsx` 추가. 선택이 캔버스 내부일 때만 활성. B/I/U(execCommand) + 4색 highlight (`hl-amber/blue/green/cyan` — cyan은 신규 추가) 토큰 기반 wrap. Clear 버튼은 hl-* 클래스 strip. 모든 버튼은 `mousedown` preventDefault 로 캔버스 selection 보존 |
 | (docs) | `cab83e5` | HANDOFF 인계 노트 갱신 (Phase 3 / Undo-Redo / Text-Props) |
 | Option E · Persistence | `7044b73` | `src/persistence/{localStore,persistenceStore,useAutoSave}.ts` 추가. v1 스키마(`claude-code-ppt:deck:v1`) — slides/overlaysBySlide/currentIndex 직렬화, blob URL → base64 인라이닝. 800ms debounced auto-save (slides/overlays/index ref 변경 시에만). store에 `loadDeckFull` 추가. App boot: localStorage 우선 → 없으면 sample HTML. Toolbar에 `SaveIndicator` (Saved Xs ago / Saving… / Save failed)와 `Reset` 버튼(confirm 후 storage clear + 샘플 재로드) |
+| (fix) | `36f2527` | `loadDeck`/`loadDeckFull`이 `revision`을 0으로 리셋 대신 **bump**. parsePresentationHTML이 결정적 ID(`slide-1..N`)를 반환하므로 SlideCanvas key가 안 바뀌어 Reset/auto-load 시 SlideRenderer가 stale HTML을 유지하던 문제 해결 |
+| Option F · Slide drag-reorder | `33c566c` | store에 `reorderSlide(from,to)` 추가 — splice 기반 재배치 + `currentIndex` 추적으로 활성 슬라이드 유지. `SlideListSidebar`에 SortableJS 적용, 행 좌측 `⋮⋮` 그립만 핸들. onEnd에서 Sortable의 DOM mutation을 revert 후 store dispatch → React keyed reconciliation으로 깔끔히 재배치 |
 
 ## 현재 동작하는 기능 (브라우저에서 검증 필요 — Phase 3 이후는 정적 빌드만 통과)
 
@@ -39,6 +41,7 @@
 9. **↶ Undo / ↷ Redo** + 키보드 단축키 (Cmd/Ctrl+Shift+Z / Cmd/Ctrl+Y)
 10. **텍스트 선택 시 B/I/U + 4색 highlight + Clear**
 11. **localStorage auto-save** (변경 후 800ms) + 새로고침 시 자동 복원, **Reset** 버튼으로 초기화
+12. **사이드바 ⋮⋮ 드래그**로 슬라이드 순서 변경 (활성 슬라이드 자동 추적)
 
 ## 알려진 한계 / 미처리 항목
 
@@ -50,10 +53,7 @@
 
 ## 다음 단계 선택지
 
-### 옵션 F — Slide 사이드바 정렬(드래그) · 추천
-사이드바에서 슬라이드 순서를 드래그로 바꾸기. SortableJS 또는 react-dnd. store에 `reorderSlide(from, to)` 추가.
-
-### 옵션 G — Slide Templates 갤러리
+### 옵션 G — Slide Templates 갤러리 · 추천
 `+ New` 누르면 빈 슬라이드 대신 템플릿 선택 (cover / section / body / table / quote / TOC ...). `docs/html/presentation/brewnet-presentation.html`의 7슬라이드를 분해해 템플릿화.
 
 ### 옵션 H — Phase 1c CSS Scope
@@ -78,7 +78,7 @@ npm run build
 
 새 세션에서 해야 할 것:
 1. `HANDOFF.md` 와 `CLAUDE.md` 읽어 컨텍스트 복원
-2. 사용자에게 옵션 F/G/H/I 중 어느 것을 진행할지 확인 (auto 모드면 F 부터)
+2. 사용자에게 옵션 G/H/I 중 어느 것을 진행할지 확인 (auto 모드면 G 부터)
 3. 선택된 옵션을 하위 Phase로 쪼개 순차 커밋
 4. 이 문서의 "완료된 Phase" 표 갱신
 
@@ -91,7 +91,8 @@ npm run build
 - `src/scene/store.ts` — Zustand deck store, CRUD + overlay + selection + undo/redo + revision
 - `src/editor/PropertiesPanel.tsx` — TextFormatPanel + 오버레이 X/Y/W/H 입력
 - `src/editor/TextFormatPanel.tsx` — 선택 기반 B/I/U + hl-* highlight
-- `src/editor/Toolbar.tsx` — 슬라이드 CRUD + Undo/Redo + Export 3종 (accent tone)
+- `src/editor/Toolbar.tsx` — 슬라이드 CRUD + Undo/Redo + Export 3종 + SaveIndicator + Reset (accent/danger tone)
+- `src/editor/SlideListSidebar.tsx` — Sortable로 ⋮⋮ 그립 드래그 정렬, 클릭은 슬라이드 전환
 - `src/exporter/htmlBundle.ts` — 세로 스택 HTML 번들 + 자동 print + scroll-snap
 - `src/exporter/pngExport.ts` — `exportAllSlidesPng()` (offscreen 1280×720 → 1920×1080)
 - `src/persistence/localStore.ts` — `claude-code-ppt:deck:v1` save/load/clear, blob→base64 인라이닝
