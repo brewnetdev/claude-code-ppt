@@ -42,7 +42,38 @@ e1f15d3 fix(editor): NumberField draft state, Esc clears selection, selected-blo
 
 ---
 
-## 2. 이번 세션에서 완료한 작업 (커밋 단위)
+## 2. 완료된 Phase 누적 표
+
+| Phase | Commit | 결과 |
+|---|---|---|
+| 0 · Scaffold | `d289416` | Vite + React + TS + Tailwind 셸 + Brewnet 샘플 슬라이드 1280×720 scale-to-fit 렌더 |
+| 1a · Edit spike | `8fb2d6a` → `c737ce9` | contenteditable · ⋮⋮ grip 블록 순서 변경(SortableJS) · 이미지 드롭/드래그/리사이즈(Moveable) 동작 검증 |
+| 1b · Importer + Store + Nav | `5b06e93` | DOMParser로 `docs/html/presentation/brewnet-presentation.html` 7슬라이드 파싱 → Zustand `useDeckStore` → 사이드바 클릭 전환 + 편집 내용·오버레이 슬라이드별 유지 |
+| (refactor) | `7085d8e` | 미사용 `scene/types.ts` 제거, `scene/constants.ts`로 축소 |
+| 2a · Slide CRUD | `94105c2` | 툴바 +New / Duplicate / Delete. 300ms debounced DOM→store commit |
+| (hotfix) | `07ac377` | debounced commit이 `dangerouslySetInnerHTML` 재주입을 일으켜 타이핑이 끊기고 Backspace가 브라우저 뒤로가기를 트리거하던 버그 해결: `SlideRenderer`가 `initialHtml`을 `useDeckStore.getState()`로 단 한 번만 읽고, `SlideCanvas`는 `slide` 객체 대신 `slideId`만 구독. anchor click preventDefault도 추가 |
+| 2b · 편집 범위 확장 + Props | `e112064` → `15308e1` | `.slide-inner`/`.slide-footer` 전체 contenteditable. `<td>/<th>` 편집. 한 줄 슬롯 Enter 차단(IME-safe). Overlay selection을 store로 이관. 프로퍼티 패널에 X/Y/W/H 입력 + Delete |
+| (docs) | `88f54fb` | HANDOFF 인계 노트 추가 |
+| 3a · HTML bundle | `d15192d` | `Export HTML` 버튼 + `src/exporter/htmlBundle.ts` |
+| 3b/3c · PDF + PNG | `3e8759f` | `Export PDF` (`#print` 해시 자동 `window.print()`) / `PNG (current)` (html-to-image) |
+| 3 · Export 통일/수정 | `6a32096` | HTML 번들을 세로 스택 + scroll-snap으로 변경(모든 슬라이드 즉시 노출). PNG → 전체 슬라이드 일괄 (오프스크린 호스트 + 250ms 간격). `.export-overlay { z-index:100; opacity:1 !important }`로 `.slide-logo`(z=10) 등 슬라이드 내부 요소가 오버레이를 가리던 투명 버그 해결 |
+| Undo/Redo | `0f16234` | store에 `past[]`/`future[]` 스냅샷 스택(50). `revision` 카운터가 undo/redo에서만 증가 → `SlideRenderer key={slideId:revision}`으로 강제 재마운트(일반 편집은 카운터 미증가 → 커서 보존). 툴바 ↶/↷ + 키보드 Cmd/Ctrl+Shift+Z (undo) / Cmd/Ctrl+Y (redo). 단독 Cmd/Ctrl+Z는 브라우저 contenteditable native undo 보존을 위해 의도적으로 가로채지 않음 |
+| Text Props | `b86a6bc` | `src/editor/TextFormatPanel.tsx` 추가. 선택이 캔버스 내부일 때만 활성. B/I/U(execCommand) + 4색 highlight (`hl-amber/blue/green/cyan` — cyan은 신규 추가) 토큰 기반 wrap. Clear 버튼은 hl-* 클래스 strip. 모든 버튼은 `mousedown` preventDefault로 캔버스 selection 보존 |
+| (docs) | `cab83e5` | HANDOFF 인계 노트 갱신 (Phase 3 / Undo-Redo / Text-Props) |
+| Option E · Persistence | `7044b73` | `src/persistence/{localStore,persistenceStore,useAutoSave}.ts` 추가. v1 스키마(`claude-code-ppt:deck:v1`) — slides/overlaysBySlide/currentIndex 직렬화, blob URL → base64 인라이닝. 800ms debounced auto-save (slides/overlays/index ref 변경 시에만). store에 `loadDeckFull` 추가. App boot: localStorage 우선 → 없으면 sample HTML. Toolbar에 `SaveIndicator` (Saved Xs ago / Saving… / Save failed)와 `Reset` 버튼(confirm 후 storage clear + 샘플 재로드) |
+| (fix) | `36f2527` | `loadDeck`/`loadDeckFull`이 `revision`을 0으로 리셋 대신 **bump**. parsePresentationHTML이 결정적 ID(`slide-1..N`)를 반환하므로 SlideCanvas key가 안 바뀌어 Reset/auto-load 시 SlideRenderer가 stale HTML을 유지하던 문제 해결 |
+| Option F · Slide drag-reorder | `33c566c` | store에 `reorderSlide(from,to)` 추가 — splice 기반 재배치 + `currentIndex` 추적으로 활성 슬라이드 유지. `SlideListSidebar`에 SortableJS 적용, 행 좌측 `⋮⋮` 그립만 핸들. onEnd에서 Sortable의 DOM mutation을 revert 후 store dispatch → React keyed reconciliation으로 깔끔히 재배치 |
+| (fix) block reorder atomic | `4f6f972` | 블록 reorder가 debounced commit 경로를 타면 직후 타이핑과 한 스냅샷에 합쳐져 단독 undo 불가. `SlideRenderer.commitNow()` (pending timer 취소 + 동기 commit) + `useSlideEditing(onReorder)` 인자 추가로 Sortable `onEnd`가 즉시 commit하도록 분리 |
+| (fix) Cmd+Z routing | `7a2dd37` | **근본 원인**: 브라우저 contenteditable native undo는 `input` 이벤트만 추적 → Sortable reorder, Moveable drag/resize, 사이드바 슬라이드 reorder는 native undo 히스토리에 없어 Cmd+Z 시 복원 불가. 단독 Cmd/Ctrl+Z를 store undo에 강제 매핑(Cmd/Ctrl+Shift+Z는 redo alias). `src/scene/pendingCommit.ts` 등록부 추가 — SlideRenderer가 sync flusher 등록, Toolbar가 undo/redo 직전 호출하여 pending 타이핑 debounce를 drain. 트레이드오프: 글자단위 native CE undo 상실 / 모든 편집 surface 일관 undo |
+| Sidebar thumbnails | `ef1549d` | 사이드바 각 행에 196px 폭 미니 캔버스 썸네일. CSS `transform: scale(width/1280)` + `pointer-events: none`. `SlideThumbnail.tsx` 신규, `SlideListSidebar.tsx` 수정 |
+| react-grab dev tool | `c70ad89` | DEV 모드 전용. `⌘C` + 요소 클릭으로 React 컴포넌트 소스 위치 클립보드 복사. prod 번들에서 tree-shake됨 |
+| Code blocks + shiki | `7653b73` | "Code Block" / "Terminal" 템플릿. 언어 선택(12종) + textarea 편집 + 300ms 디바운스 재하이라이팅. `src/highlight/highlighter.ts` + `src/editor/CodeBlockTemplates.tsx` + `src/editor/CodeBlockEditPanel.tsx` + `src/canvas/themes/code-blocks.css` 신규 |
+| (fix) focus ring | `fd0672b` | 사이드바 클릭 후 방향키 이동 시 이전 버튼에 파란 outline 잔상 버그. onClick에서 `e.currentTarget.blur()` + `focus-visible:ring-1` |
+| Zoom control | `f030df0` | 캔버스 우측 하단 플로팅 `[− | NN % | + | Fit]`. 25–200%, 10% 단위, 직접 입력. `baseScale × zoomPercent/100`. `zoomDraft` 별도 상태로 백스페이스 버그 회피 |
+
+---
+
+## 3. 이번 세션에서 완료한 작업 (커밋 단위)
 
 ### `ef1549d` — 사이드바 슬라이드 썸네일
 
@@ -84,7 +115,7 @@ e1f15d3 fix(editor): NumberField draft state, Esc clears selection, selected-blo
 
 ---
 
-## 3. 환경 인프라 (레포 외부, 사용자 macOS)
+## 4. 환경 인프라 (레포 외부, 사용자 macOS)
 
 이번 세션 후반에 **Claude Context MCP 로컬 배포**를 완료했습니다. 코드베이스 시맨틱 검색용이며, **코드가 외부로 전송되지 않습니다**.
 
@@ -129,9 +160,45 @@ overlay drag/resize 처리하는 함수 찾아줘
 
 ---
 
-## 4. 남은 작업 (우선순위 순)
+## 5. 현재 동작하는 기능
 
-### 우선순위 1: 슬라이드 배경 컨트롤 (옵션 3)
+1. 좌측 사이드바 슬라이드 리스트 클릭으로 전환 (썸네일 포함)
+2. 텍스트/불릿/테이블 셀/페이지 번호/footer 인라인 편집 (IME 한국어 정상)
+3. 블록 왼쪽 ⋮⋮ 그립 드래그로 순서 변경
+4. 이미지 파일 드롭 → 자유 위치 이미지(오버레이)로 배치
+5. 오버레이 클릭 선택 → 드래그 이동 / 모서리 리사이즈 / Esc·빈영역 클릭 해제
+6. 우측 프로퍼티 패널에서 선택 오버레이의 X/Y/W/H 숫자 입력 + Delete
+7. 툴바 `+ New` / `Duplicate` / `Delete`로 슬라이드 CRUD
+8. **Export HTML / Export PDF / PNG (all)** — 모두 1920×1080 결과
+9. **↶ Undo / ↷ Redo** + 키보드 단축키 — `Cmd/Ctrl+Z` undo · `Cmd/Ctrl+Shift+Z` 또는 `Cmd/Ctrl+Y` redo (텍스트 / 블록 reorder / 오버레이 drag·resize / 슬라이드 reorder 모두)
+10. **텍스트 선택 시 B/I/U + 4색 highlight + Clear**
+11. **localStorage auto-save** (변경 후 800ms) + 새로고침 시 자동 복원, **Reset** 버튼으로 초기화
+12. **사이드바 ⋮⋮ 드래그**로 슬라이드 순서 변경 (활성 슬라이드 자동 추적)
+13. **코드 블록 / 터미널 템플릿** 삽입 + shiki 신택스 하이라이팅 + Properties 패널에서 언어 전환/코드 편집
+14. **캔버스 줌 컨트롤** (25–200%, Fit 버튼)
+
+---
+
+## 6. 알려진 이슈 / 트레이드오프
+
+| 이슈 | 영향 | 회피 |
+|---|---|---|
+| 줌 컨트롤 세션 휘발성 | 새로고침 시 100%로 복귀 | localStorage 저장 추가 시 `usePersistenceStore` 또는 별도 key |
+| 줌 200% 시 일부 잘림 | wrapper `overflow-hidden`으로 가려짐 | `overflow: auto`로 바꿀지 결정 필요 (스크롤바 노출) |
+| 샘플 CSS scope 격리(Phase 1c) 미완 | `brewnet-dark.css`만 로드 중이라 지금은 문제 없음; manual/report/portfolio 섞으면 CSS 선택자 충돌 가능 | PostCSS prefix 플러그인 필요 |
+| 번들 크기 ~675KB | `brewnet-presentation.html`(138KB) `?raw` + html-to-image + Moveable + shiki grammar 청크 합산 | 동적 import / manualChunks 분리 고려 |
+| `keyCode` deprecation 경고 | `useSlideEditing.ts` Enter 가드에서 IME 감지용 의도적 사용 | 빌드 차단 아님 |
+| `document.execCommand` deprecation 경고 | `TextFormatPanel.tsx`에서 사용 | 모던 Range API 마이그레이션은 후순위 |
+| localStorage 5MB 한도 | 큰 이미지 여러 장 드롭 시 QuotaExceededError; SaveIndicator "Save failed" 노출 | IndexedDB 마이그레이션 (향후 옵션) |
+| Milvus는 Docker Desktop 필수 | Docker 꺼지면 멈춤 | Docker Desktop autostart |
+| `docs/DEPLOY_VERCEL.md` 삭제 + `docs/guide/DEPLOY_VERCEL.md` 추가 미커밋 | 한 번에 묶어 commit 필요 | `git add docs/ && git commit -m "docs: relocate guides to docs/guide/"` |
+| `docs/images/책-투명.png` 삭제됨 | 의도적인지 확인 필요 | `git status`로 확인 |
+
+---
+
+## 7. 남은 작업 (우선순위 순)
+
+### 우선순위 1: 슬라이드 배경 컨트롤
 
 - 슬라이드별 배경색 / 배경 이미지 설정.
 - 작업량 소~중, 위험도 낮음.
@@ -150,7 +217,13 @@ overlay drag/resize 처리하는 함수 찾아줘
 
 - **텍스트 회전**: Moveable이 rotate를 지원하나 `TextOverlay` 모델에 `rotation: number` 필드 추가 필요. export 시 transform 보존 필수.
 - **폰트 패밀리 확장**: 현재 JetBrains Mono / Pretendard 외 옵션 부재. Google Fonts 동적 로드 검토.
+- **폰트 사이즈 / 정렬**: TextFormatPanel 확장 — A+/A−, left/center/right align. inline `style="font-size:Npx"` 또는 텍스트 wrapper 클래스.
 - **그라디언트 / 보더 / 그림자**: ColorPicker 확장 또는 별도 섹션.
+
+### 우선순위 4: Slide Templates 갤러리
+
+- `+ New` 누르면 빈 슬라이드 대신 템플릿 선택 (cover / section / body / table / quote / TOC 등).
+- `docs/html/presentation/brewnet-presentation.html`의 7슬라이드를 분해해 템플릿화.
 
 ### 그 외 (TaskList 미완료)
 
@@ -159,21 +232,7 @@ overlay drag/resize 처리하는 함수 찾아줘
 
 ---
 
-## 5. 알려진 이슈 / 트레이드오프
-
-| 이슈 | 영향 | 회피 |
-|---|---|---|
-| 줌 컨트롤 세션 휘발성 | 새로고침 시 100%로 복귀 | localStorage 저장 추가 시 `usePersistenceStore` 또는 별도 key |
-| 줌 200% 시 일부 잘림 | wrapper `overflow-hidden`로 가려짐 | `overflow: auto`로 바꿀지 결정 필요 (스크롤바 노출) |
-| Milvus는 Docker Desktop 필수 | Docker 꺼지면 멈춤 | Docker Desktop autostart |
-| 코드베이스 < 5천 줄 | claude-context 효과 제한적 | 더 큰 프로젝트로 검증 |
-| `docs/DEPLOY_VERCEL.md` 삭제 + `docs/guide/DEPLOY_VERCEL.md` 추가 미커밋 | 한 번에 묶어 commit 필요 | `git add docs/ && git commit -m "docs: relocate guides to docs/guide/"` |
-| react-grab MCP 서버 | 별도 MCP — 이번 작업과 무관, 항상 connect 상태 | 무시 가능 |
-| `docs/images/책-투명.png` 삭제됨 | 의도적인지 확인 필요 | `git status`로 확인 |
-
----
-
-## 6. 빠른 시작 (다음 세션)
+## 8. 빠른 시작 (다음 세션)
 
 ```bash
 cd /Users/codevillain/Claude-Code-Expert/claude-code-ppt
@@ -198,7 +257,7 @@ npx playwright test
 
 ---
 
-## 7. 핵심 아키텍처 메모 (잊기 쉬운 것들)
+## 9. 핵심 아키텍처 메모 (잊기 쉬운 것들)
 
 ### 데이터 흐름
 
@@ -234,13 +293,6 @@ slide.html 갱신                    <-- 다시 정규 상태로
 
 ---
 
-## 8. 이전 handoff 문서 (참고)
-
-- `29ebd9e` — `docs: HANDOFF — Cmd+Z routing fix + block-reorder atomic commit` (이미 커밋됨, `docs/HANDOFF.md`로 추정)
-- 본 문서가 그 이후 모든 작업을 덮어 씀
-
----
-
 ## 부록: 스크린 위치 빠른 참조
 
 | 영역 | 파일 |
@@ -260,8 +312,10 @@ slide.html 갱신                    <-- 다시 정규 상태로
 | 우측 — 템플릿 (텍스트/코드) | `src/editor/{TextBlockTemplates,CodeBlockTemplates}.tsx` |
 | 신택스 하이라이팅 | `src/highlight/highlighter.ts` |
 | Zustand store | `src/scene/store.ts` |
+| Pending commit flush 등록부 | `src/scene/pendingCommit.ts` |
 | HTML 임포터 | `src/importer/parsePresentation.ts` |
 | HTML/PDF/PNG 익스포터 | `src/exporter/{htmlBundle,pngExport}.ts` |
 | 자동저장/복원 | `src/persistence/{persistenceStore,useAutoSave,localStore}.ts` |
 | brewnet 샘플 CSS | `src/canvas/themes/brewnet-dark.css` |
 | 코드 블록 CSS | `src/canvas/themes/code-blocks.css` |
+| 샘플 HTML | `docs/html/presentation/brewnet-presentation.html` |
