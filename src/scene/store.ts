@@ -43,6 +43,11 @@ type DeckState = {
   revision: number;
 
   loadDeck: (slides: ParsedSlide[]) => void;
+  loadDeckFull: (payload: {
+    slides: ParsedSlide[];
+    overlaysBySlide: Record<string, OverlayImage[]>;
+    currentIndex: number;
+  }) => void;
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
 
@@ -91,6 +96,17 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       selectedOverlayId: null,
       overlaysBySlide: Object.fromEntries(slides.map((s) => [s.id, []])),
       // Fresh deck — discard any stale history.
+      past: [],
+      future: [],
+      revision: 0,
+    })),
+
+  loadDeckFull: ({ slides, overlaysBySlide, currentIndex }) =>
+    set(() => ({
+      slides,
+      currentIndex: Math.max(0, Math.min(currentIndex, slides.length - 1)),
+      selectedOverlayId: null,
+      overlaysBySlide,
       past: [],
       future: [],
       revision: 0,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import presentationHtml from '../../docs/html/presentation/brewnet-presentation.html?raw';
 import {
   buildHtmlBundle,
   defaultExportName,
@@ -6,6 +7,9 @@ import {
   openPrintablePreview,
 } from '../exporter/htmlBundle';
 import { exportAllSlidesPng } from '../exporter/pngExport';
+import { parsePresentationHTML } from '../importer/parsePresentation';
+import { clearDeckFromLocalStorage } from '../persistence/localStore';
+import { usePersistenceStore } from '../persistence/persistenceStore';
 import { useDeckStore } from '../scene/store';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -16,6 +20,7 @@ export function Toolbar() {
   const insertBlankSlideAfter = useDeckStore((s) => s.insertBlankSlideAfter);
   const duplicateSlide = useDeckStore((s) => s.duplicateSlide);
   const removeSlide = useDeckStore((s) => s.removeSlide);
+  const loadDeck = useDeckStore((s) => s.loadDeck);
   const undo = useDeckStore((s) => s.undo);
   const redo = useDeckStore((s) => s.redo);
   const pastLen = useDeckStore((s) => s.past.length);
@@ -138,10 +143,74 @@ export function Toolbar() {
         <ToolbarButton onClick={handleExportPng} disabled={!canExport} tone="accent">
           {busy === 'png' ? 'Rendering…' : 'PNG (all)'}
         </ToolbarButton>
+        <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
+        <SaveIndicator />
+        <ToolbarButton
+          onClick={() => {
+            const ok = window.confirm(
+              '저장된 작업을 모두 지우고 샘플 슬라이드로 되돌립니다. 계속하시겠습니까?',
+            );
+            if (!ok) return;
+            clearDeckFromLocalStorage();
+            usePersistenceStore.getState().reset();
+            const { slides: fresh } = parsePresentationHTML(presentationHtml);
+            loadDeck(fresh);
+          }}
+          tone="danger"
+          title="localStorage 비우고 샘플로 리셋"
+        >
+          Reset
+        </ToolbarButton>
         <span className="ml-3 text-editor-dim">1280×720 · export 1920×1080</span>
       </div>
     </header>
   );
+}
+
+function SaveIndicator() {
+  const lastSavedAt = usePersistenceStore((s) => s.lastSavedAt);
+  const lastError = usePersistenceStore((s) => s.lastError);
+  const saving = usePersistenceStore((s) => s.saving);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  let label: string;
+  let tone: string;
+  if (lastError) {
+    label = `Save failed`;
+    tone = 'text-red-300';
+  } else if (saving) {
+    label = 'Saving…';
+    tone = 'text-editor-dim';
+  } else if (lastSavedAt === null) {
+    label = 'Not saved yet';
+    tone = 'text-editor-dim';
+  } else {
+    label = `Saved ${formatAgo(now - lastSavedAt)}`;
+    tone = 'text-editor-dim';
+  }
+  return (
+    <span
+      className={`text-[11px] ${tone}`}
+      title={lastError ?? (lastSavedAt ? new Date(lastSavedAt).toLocaleString() : '')}
+    >
+      {label}
+    </span>
+  );
+}
+
+function formatAgo(ms: number): string {
+  if (ms < 5_000) return 'just now';
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  return `${hr}h ago`;
 }
 
 type ToolbarButtonProps = {
