@@ -12,6 +12,7 @@ import { clearDeckFromLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
 import { flushPendingCommit } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
+import { HelpModal } from './HelpModal';
 import { TemplatePicker } from './TemplatePicker';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -34,6 +35,7 @@ export function Toolbar({ onPresent }: ToolbarProps) {
 
   const [busy, setBusy] = useState<Busy>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const canDelete = slides.length > 1;
   const canExport = slides.length > 0 && busy === null;
@@ -121,6 +123,15 @@ export function Toolbar({ onPresent }: ToolbarProps) {
         <span className="text-sm font-bold tracking-wide text-editor-accent">
           claude-code-ppt
         </span>
+        <button
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          title="도움말 (편집·단축키·내보내기)"
+          aria-label="도움말 열기"
+          className="flex h-5 w-5 items-center justify-center rounded-full border border-editor-border text-[11px] text-editor-dim transition hover:border-editor-accent hover:text-editor-accent"
+        >
+          ?
+        </button>
         <span className="text-xs text-editor-dim">
           {slides.length > 0
             ? `Slide ${currentIndex + 1} / ${slides.length}`
@@ -210,6 +221,7 @@ export function Toolbar({ onPresent }: ToolbarProps) {
         setPickerOpen(false);
       }}
     />
+    <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </>
   );
 }

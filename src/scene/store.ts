@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
 
 let slideSeq = 0;
@@ -68,6 +69,11 @@ type DeckState = {
   // of the given slide. Bumps revision so SlideRenderer remounts and
   // useSlideEditing re-runs (drag handles, blockId stamping).
   insertBlock: (slideId: string, blockHtml: string) => void;
+
+  // Atomic conversion: removes an in-flow block by id and adds an overlay
+  // representing the same content at the supplied 1280×720 coords. Single
+  // history entry so undo restores both halves at once.
+  floatBlock: (slideId: string, blockId: string, overlay: Overlay) => void;
 
   undo: () => void;
   redo: () => void;
@@ -307,6 +313,34 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         past: pushPast(state.past, snap(state)),
         future: [],
         slides: state.slides.map((s) => (s.id === slideId ? { ...s, html: newHtml } : s)),
+        revision: state.revision + 1,
+      };
+    });
+  },
+
+  floatBlock: (slideId, blockId, overlay) => {
+    flushPendingCommit();
+    set((state) => {
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
+      if (!block) return state;
+      block.remove();
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) =>
+          s.id === slideId ? { ...s, html: newHtml } : s,
+        ),
+        overlaysBySlide: {
+          ...state.overlaysBySlide,
+          [slideId]: [...(state.overlaysBySlide[slideId] ?? []), overlay],
+        },
+        selectedBlockId: null,
+        selectedOverlayId: overlay.id,
         revision: state.revision + 1,
       };
     });

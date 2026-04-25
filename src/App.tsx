@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import presentationHtml from '../docs/html/presentation/brewnet-presentation.html?raw';
 import { SlideCanvas } from './canvas/SlideCanvas';
-import { EditSpikeBanner } from './editor/EditSpikeBanner';
 import { PresentationView } from './editor/PresentationView';
 import { PropertiesPanel } from './editor/PropertiesPanel';
 import { SlideListSidebar } from './editor/SlideListSidebar';
@@ -45,7 +44,6 @@ export function App() {
   return (
     <div className="flex h-full flex-col bg-editor-bg text-editor-text">
       <Toolbar onPresent={() => setPresenting(true)} />
-      <EditSpikeBanner />
       <div className="flex flex-1 overflow-hidden">
         <SlideListSidebar arrowKeysEnabled={!presenting} />
         <main className="flex-1 overflow-hidden">

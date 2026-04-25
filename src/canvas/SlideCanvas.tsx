@@ -133,6 +133,7 @@ export function SlideCanvas() {
     >
       <div
         ref={hostRef}
+        data-canvas-role="main"
         className="slide-canvas-host relative shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
         style={{
           width: SLIDE_WIDTH,

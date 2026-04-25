@@ -25,23 +25,36 @@ export function PropertiesPanel() {
         Properties
       </div>
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
-        <TextFormatPanel />
         {selectedBlockId && !overlay ? (
-          <div className="space-y-4">
-            {isCodeBlock(selectedBlockId) ? (
+          isCodeBlock(selectedBlockId) ? (
+            // Code / Terminal: position-only block panel + source/lang editor.
+            // Text formatting & templates are intentionally hidden — the
+            // semantics (font size, align, presets) don't apply to a syntax-
+            // highlighted code box.
+            <div className="space-y-4">
+              <BlockFormatPanel blockId={selectedBlockId} />
               <CodeBlockEditPanel blockId={selectedBlockId} />
-            ) : null}
-            <BlockFormatPanel blockId={selectedBlockId} />
-          </div>
-        ) : !overlay || !slideId ? (
+            </div>
+          ) : (
+            // Text block: position panel + the full text formatting controls.
+            <div className="space-y-4">
+              <BlockFormatPanel blockId={selectedBlockId} />
+              <TextFormatPanel />
+            </div>
+          )
+        ) : null}
+        {!selectedBlockId && !overlay ? (
+          // Default landing view: text format defaults + insertion templates.
           <div className="space-y-4">
+            <TextFormatPanel />
             <TextBlockTemplates />
             <CodeBlockTemplates />
             <p className="text-[11px] leading-relaxed text-editor-dim">
-              이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다. 슬라이드의 텍스트 블록을 클릭하면 정렬/배경/사이즈 프리셋을 조정할 수 있습니다.
+              이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다. 슬라이드의 텍스트 블록을 클릭하면 X·Y·W·H 좌표로 위치/크기를 조정할 수 있습니다.
             </p>
           </div>
-        ) : overlay.kind === 'image' ? (
+        ) : null}
+        {!overlay || !slideId ? null : overlay.kind === 'image' ? (
           <div className="space-y-4">
             <div>
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
