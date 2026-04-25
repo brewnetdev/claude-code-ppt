@@ -2,9 +2,9 @@
 
 > 이 문서는 `/clear` 이후 다음 Claude Code 세션이 맥락을 잃지 않고 이어받기 위한 인계 노트다. CLAUDE.md(프로젝트 상시 규칙)와 달리 **지금 이 순간의 진행 상황**만 담는다. 작업이 한 단계 끝날 때마다 갱신한다.
 
-- **Updated**: 2026-04-25 (Option F · 사이드바 드래그 정렬 완료)
-- **Branch**: `feat/editor-phases-0-through-2b` — push 필요 (ahead 2)
-- **Last commit**: `33c566c feat(slide-reorder): drag-to-reorder slides in sidebar`
+- **Updated**: 2026-04-25 (Cmd+Z routing fix — 모든 편집 surface undo 동작)
+- **Branch**: `feat/editor-phases-0-through-2b` — push 필요 (ahead 4)
+- **Last commit**: `7a2dd37 fix(history): route Cmd+Z to store undo and flush pending typing`
 
 ## 완료된 Phase
 
@@ -27,6 +27,8 @@
 | Option E · Persistence | `7044b73` | `src/persistence/{localStore,persistenceStore,useAutoSave}.ts` 추가. v1 스키마(`claude-code-ppt:deck:v1`) — slides/overlaysBySlide/currentIndex 직렬화, blob URL → base64 인라이닝. 800ms debounced auto-save (slides/overlays/index ref 변경 시에만). store에 `loadDeckFull` 추가. App boot: localStorage 우선 → 없으면 sample HTML. Toolbar에 `SaveIndicator` (Saved Xs ago / Saving… / Save failed)와 `Reset` 버튼(confirm 후 storage clear + 샘플 재로드) |
 | (fix) | `36f2527` | `loadDeck`/`loadDeckFull`이 `revision`을 0으로 리셋 대신 **bump**. parsePresentationHTML이 결정적 ID(`slide-1..N`)를 반환하므로 SlideCanvas key가 안 바뀌어 Reset/auto-load 시 SlideRenderer가 stale HTML을 유지하던 문제 해결 |
 | Option F · Slide drag-reorder | `33c566c` | store에 `reorderSlide(from,to)` 추가 — splice 기반 재배치 + `currentIndex` 추적으로 활성 슬라이드 유지. `SlideListSidebar`에 SortableJS 적용, 행 좌측 `⋮⋮` 그립만 핸들. onEnd에서 Sortable의 DOM mutation을 revert 후 store dispatch → React keyed reconciliation으로 깔끔히 재배치 |
+| (fix) block reorder atomic | `4f6f972` | 블록 reorder가 debounced commit 경로를 타면 직후 타이핑과 한 스냅샷에 합쳐져 단독 undo 불가. `SlideRenderer.commitNow()` (pending timer 취소 + 동기 commit) + `useSlideEditing(onReorder)` 인자 추가로 Sortable `onEnd`가 즉시 commit하도록 분리 |
+| (fix) Cmd+Z routing | `7a2dd37` | **근본 원인**: 브라우저 contenteditable native undo는 `input` 이벤트만 추적 → Sortable reorder, Moveable drag/resize, 사이드바 슬라이드 reorder는 native undo 히스토리에 없어 Cmd+Z 시 복원 불가. 단독 Cmd/Ctrl+Z를 store undo에 강제 매핑(Cmd/Ctrl+Shift+Z는 redo alias). `src/scene/pendingCommit.ts` 등록부 추가 — SlideRenderer가 sync flusher 등록, Toolbar가 undo/redo 직전 호출하여 pending 타이핑 debounce 를 drain. 트레이드오프: 글자단위 native CE undo 상실 / 모든 편집 surface 일관 undo |
 
 ## 현재 동작하는 기능 (브라우저에서 검증 필요 — Phase 3 이후는 정적 빌드만 통과)
 
@@ -38,7 +40,7 @@
 6. 우측 프로퍼티 패널에서 선택 오버레이의 X/Y/W/H 숫자 입력 + Delete
 7. 툴바 `+ New` / `Duplicate` / `Delete`로 슬라이드 CRUD
 8. **Export HTML / Export PDF / PNG (all)** — 모두 1920×1080 결과
-9. **↶ Undo / ↷ Redo** + 키보드 단축키 (Cmd/Ctrl+Shift+Z / Cmd/Ctrl+Y)
+9. **↶ Undo / ↷ Redo** + 키보드 단축키 — `Cmd/Ctrl+Z` undo · `Cmd/Ctrl+Shift+Z` 또는 `Cmd/Ctrl+Y` redo (텍스트 / 블록 reorder / 오버레이 drag·resize / 슬라이드 reorder 모두)
 10. **텍스트 선택 시 B/I/U + 4색 highlight + Clear**
 11. **localStorage auto-save** (변경 후 800ms) + 새로고침 시 자동 복원, **Reset** 버튼으로 초기화
 12. **사이드바 ⋮⋮ 드래그**로 슬라이드 순서 변경 (활성 슬라이드 자동 추적)
@@ -89,6 +91,7 @@ npm run build
 - `src/canvas/useSlideEditing.ts` — 편집 가능 영역 설정 / SortableJS / IME-safe Enter / anchor click 차단
 - `src/canvas/OverlayLayer.tsx` — Moveable 컨테이너는 `document.body` (pointer-events 이슈 회피)
 - `src/scene/store.ts` — Zustand deck store, CRUD + overlay + selection + undo/redo + revision
+- `src/scene/pendingCommit.ts` — 한 슬라이드의 typing-debounce flush를 외부에서 트리거하기 위한 단일 등록부. SlideRenderer가 mount 시 등록 → Toolbar가 undo/redo 직전 호출
 - `src/editor/PropertiesPanel.tsx` — TextFormatPanel + 오버레이 X/Y/W/H 입력
 - `src/editor/TextFormatPanel.tsx` — 선택 기반 B/I/U + hl-* highlight
 - `src/editor/Toolbar.tsx` — 슬라이드 CRUD + Undo/Redo + Export 3종 + SaveIndicator + Reset (accent/danger tone)
