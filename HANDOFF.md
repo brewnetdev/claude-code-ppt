@@ -2,9 +2,9 @@
 
 > 이 문서는 `/clear` 이후 다음 Claude Code 세션이 맥락을 잃지 않고 이어받기 위한 인계 노트다. CLAUDE.md(프로젝트 상시 규칙)와 달리 **지금 이 순간의 진행 상황**만 담는다. 작업이 한 단계 끝날 때마다 갱신한다.
 
-- **Updated**: 2026-04-25 (Phase 3 export + Undo/Redo + Text props 완료)
-- **Branch**: `feat/editor-phases-0-through-2b` — 사용자가 push 완료
-- **Last commit**: `b86a6bc feat(text-props): selection-driven Bold/Italic/Underline + brand color highlights`
+- **Updated**: 2026-04-25 (Option E · localStorage auto-save 완료)
+- **Branch**: `feat/editor-phases-0-through-2b` — push 필요 (ahead 3)
+- **Last commit**: `7044b73 feat(persist): localStorage auto-save + auto-load with reset`
 
 ## 완료된 Phase
 
@@ -23,6 +23,8 @@
 | 3 · Export 통일/수정 | `6a32096` | HTML 번들을 세로 스택 + scroll-snap 으로 변경(모든 슬라이드 즉시 노출). PNG → 전체 슬라이드 일괄 (오프스크린 호스트 + 250ms 간격). `.export-overlay { z-index:100; opacity:1 !important }` 로 `.slide-logo`(z=10) 등 슬라이드 내부 요소가 오버레이를 가리던 투명 버그 해결 |
 | Undo/Redo | `0f16234` | store에 `past[]`/`future[]` 스냅샷 스택(50). `revision` 카운터가 undo/redo에서만 증가 → `SlideRenderer key={slideId:revision}` 으로 강제 재마운트(일반 편집은 카운터 미증가 → 커서 보존). 툴바 ↶/↷ + 키보드 Cmd/Ctrl+Shift+Z (undo) / Cmd/Ctrl+Y (redo). 단독 Cmd/Ctrl+Z 는 브라우저 contenteditable native undo 보존을 위해 의도적으로 가로채지 않음 |
 | Text Props | `b86a6bc` | `src/editor/TextFormatPanel.tsx` 추가. 선택이 캔버스 내부일 때만 활성. B/I/U(execCommand) + 4색 highlight (`hl-amber/blue/green/cyan` — cyan은 신규 추가) 토큰 기반 wrap. Clear 버튼은 hl-* 클래스 strip. 모든 버튼은 `mousedown` preventDefault 로 캔버스 selection 보존 |
+| (docs) | `cab83e5` | HANDOFF 인계 노트 갱신 (Phase 3 / Undo-Redo / Text-Props) |
+| Option E · Persistence | `7044b73` | `src/persistence/{localStore,persistenceStore,useAutoSave}.ts` 추가. v1 스키마(`claude-code-ppt:deck:v1`) — slides/overlaysBySlide/currentIndex 직렬화, blob URL → base64 인라이닝. 800ms debounced auto-save (slides/overlays/index ref 변경 시에만). store에 `loadDeckFull` 추가. App boot: localStorage 우선 → 없으면 sample HTML. Toolbar에 `SaveIndicator` (Saved Xs ago / Saving… / Save failed)와 `Reset` 버튼(confirm 후 storage clear + 샘플 재로드) |
 
 ## 현재 동작하는 기능 (브라우저에서 검증 필요 — Phase 3 이후는 정적 빌드만 통과)
 
@@ -36,6 +38,7 @@
 8. **Export HTML / Export PDF / PNG (all)** — 모두 1920×1080 결과
 9. **↶ Undo / ↷ Redo** + 키보드 단축키 (Cmd/Ctrl+Shift+Z / Cmd/Ctrl+Y)
 10. **텍스트 선택 시 B/I/U + 4색 highlight + Clear**
+11. **localStorage auto-save** (변경 후 800ms) + 새로고침 시 자동 복원, **Reset** 버튼으로 초기화
 
 ## 알려진 한계 / 미처리 항목
 
@@ -43,13 +46,11 @@
 - **번들 크기 ~625KB** — `brewnet-presentation.html`(138KB) `?raw` import + html-to-image + Moveable 등 합산. 향후 동적 import 또는 manualChunks 분리 고려.
 - **`keyCode` deprecation 경고** — `useSlideEditing.ts` Enter 가드에서 의도적 사용 (IME 감지 방어책). 빌드 차단 아님.
 - **`document.execCommand` deprecation 경고** — `TextFormatPanel.tsx`에서 사용. 모던 대안(Range API + Selection 직접 조작)으로 마이그레이션은 후순위.
+- **localStorage 5MB 한도** — 이미지 base64 인라이닝으로 인해 큰 이미지를 여러 장 드롭하면 QuotaExceededError. SaveIndicator에 "Save failed"가 뜨면 IndexedDB로 마이그레이션 필요(향후 옵션).
 
 ## 다음 단계 선택지
 
-### 옵션 E — JSON Save / Load (자동 저장 포함) · 추천
-브라우저 새로고침으로 작업 손실 방지. localStorage `claude-code-ppt:deck` 키에 `{slides, overlaysBySlide}` 직렬화. 오버레이 blob URL은 base64로 변환 후 저장. 변경 시 debounce 후 자동 save, 시작 시 자동 load.
-
-### 옵션 F — Slide 사이드바 정렬(드래그)
+### 옵션 F — Slide 사이드바 정렬(드래그) · 추천
 사이드바에서 슬라이드 순서를 드래그로 바꾸기. SortableJS 또는 react-dnd. store에 `reorderSlide(from, to)` 추가.
 
 ### 옵션 G — Slide Templates 갤러리
@@ -77,7 +78,7 @@ npm run build
 
 새 세션에서 해야 할 것:
 1. `HANDOFF.md` 와 `CLAUDE.md` 읽어 컨텍스트 복원
-2. 사용자에게 옵션 E/F/G/H/I 중 어느 것을 진행할지 확인 (auto 모드면 E 부터)
+2. 사용자에게 옵션 F/G/H/I 중 어느 것을 진행할지 확인 (auto 모드면 F 부터)
 3. 선택된 옵션을 하위 Phase로 쪼개 순차 커밋
 4. 이 문서의 "완료된 Phase" 표 갱신
 
@@ -93,4 +94,7 @@ npm run build
 - `src/editor/Toolbar.tsx` — 슬라이드 CRUD + Undo/Redo + Export 3종 (accent tone)
 - `src/exporter/htmlBundle.ts` — 세로 스택 HTML 번들 + 자동 print + scroll-snap
 - `src/exporter/pngExport.ts` — `exportAllSlidesPng()` (offscreen 1280×720 → 1920×1080)
+- `src/persistence/localStore.ts` — `claude-code-ppt:deck:v1` save/load/clear, blob→base64 인라이닝
+- `src/persistence/useAutoSave.ts` — 800ms debounced subscriber, slides/overlays/index ref 변경시에만 save
+- `src/persistence/persistenceStore.ts` — `lastSavedAt` / `lastError` / `saving` zustand
 - `docs/html/presentation/brewnet-presentation.html` — 현재 로드되는 샘플 (7슬라이드)
