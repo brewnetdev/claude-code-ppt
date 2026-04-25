@@ -90,7 +90,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   revision: 0,
 
   loadDeck: (slides) =>
-    set(() => ({
+    set((state) => ({
       slides,
       currentIndex: 0,
       selectedOverlayId: null,
@@ -98,18 +98,22 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       // Fresh deck — discard any stale history.
       past: [],
       future: [],
-      revision: 0,
+      // Bump (not reset to 0) so SlideRenderer force-remounts and re-reads
+      // initialHtml from store. Slide IDs from parsePresentationHTML are
+      // deterministic (slide-1..N), so without a revision change the key
+      // stays the same and stale HTML is shown.
+      revision: state.revision + 1,
     })),
 
   loadDeckFull: ({ slides, overlaysBySlide, currentIndex }) =>
-    set(() => ({
+    set((state) => ({
       slides,
       currentIndex: Math.max(0, Math.min(currentIndex, slides.length - 1)),
       selectedOverlayId: null,
       overlaysBySlide,
       past: [],
       future: [],
-      revision: 0,
+      revision: state.revision + 1,
     })),
 
   setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null }),
