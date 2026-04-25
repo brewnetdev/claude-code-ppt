@@ -1,16 +1,45 @@
+import { useEffect, useRef } from 'react';
+import Sortable from 'sortablejs';
 import { useDeckStore } from '../scene/store';
 
 export function SlideListSidebar() {
   const slides = useDeckStore((s) => s.slides);
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const setCurrentIndex = useDeckStore((s) => s.setCurrentIndex);
+  const reorderSlide = useDeckStore((s) => s.reorderSlide);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const sortable = Sortable.create(el, {
+      animation: 150,
+      handle: '.slide-row-grip',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      onEnd: (e) => {
+        const { oldIndex, newIndex, item, from } = e;
+        if (oldIndex === undefined || newIndex === undefined) return;
+        if (oldIndex === newIndex) return;
+        // Revert SortableJS's DOM mutation so React's keyed reconciliation
+        // can apply the new order without fiber/DOM mismatches.
+        item.remove();
+        const children = from.children;
+        if (oldIndex >= children.length) from.appendChild(item);
+        else from.insertBefore(item, children[oldIndex]);
+        reorderSlide(oldIndex, newIndex);
+      },
+    });
+    return () => sortable.destroy();
+  }, [reorderSlide]);
 
   return (
     <aside className="flex h-full w-56 flex-col border-r border-editor-border bg-editor-panel">
       <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
         Slides ({slides.length})
       </div>
-      <div className="flex-1 overflow-y-auto p-2">
+      <div ref={listRef} className="flex-1 overflow-y-auto p-2">
         {slides.length === 0 ? (
           <p className="px-2 py-3 text-[11px] text-editor-dim">Loading…</p>
         ) : (
@@ -18,19 +47,32 @@ export function SlideListSidebar() {
             const active = idx === currentIndex;
             const num = String(idx + 1).padStart(2, '0');
             return (
-              <button
+              <div
                 key={slide.id}
-                type="button"
-                onClick={() => setCurrentIndex(idx)}
-                className={`mb-1 flex w-full items-center gap-2 rounded border px-2 py-2 text-left text-xs transition ${
+                className={`mb-1 flex w-full items-stretch gap-1 rounded border transition ${
                   active
-                    ? 'border-editor-accent/50 bg-editor-accent/10 text-editor-text'
-                    : 'border-transparent text-editor-dim hover:border-editor-border hover:bg-editor-panel/60 hover:text-editor-text'
+                    ? 'border-editor-accent/50 bg-editor-accent/10'
+                    : 'border-transparent hover:border-editor-border hover:bg-editor-panel/60'
                 }`}
               >
-                <span className="font-mono text-[10px] text-editor-accent">{num}</span>
-                <span className="truncate">{slide.title}</span>
-              </button>
+                <span
+                  className="slide-row-grip flex w-5 shrink-0 cursor-grab select-none items-center justify-center text-[11px] leading-none text-editor-dim hover:text-editor-text active:cursor-grabbing"
+                  title="드래그하여 순서 변경"
+                  aria-label="Drag to reorder slide"
+                >
+                  ⋮⋮
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`flex flex-1 items-center gap-2 rounded px-1.5 py-2 text-left text-xs transition ${
+                    active ? 'text-editor-text' : 'text-editor-dim hover:text-editor-text'
+                  }`}
+                >
+                  <span className="font-mono text-[10px] text-editor-accent">{num}</span>
+                  <span className="truncate">{slide.title}</span>
+                </button>
+              </div>
             );
           })
         )}

@@ -54,6 +54,7 @@ type DeckState = {
   insertBlankSlideAfter: (index: number) => void;
   duplicateSlide: (index: number) => void;
   removeSlide: (index: number) => void;
+  reorderSlide: (from: number, to: number) => void;
 
   setSelectedOverlayId: (id: string | null) => void;
   addOverlay: (slideId: string, item: OverlayImage) => void;
@@ -192,6 +193,33 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         currentIndex: nextIndex,
         selectedOverlayId: null,
         overlaysBySlide: rest,
+      };
+    }),
+
+  reorderSlide: (from, to) =>
+    set((state) => {
+      if (from === to) return state;
+      if (from < 0 || from >= state.slides.length) return state;
+      if (to < 0 || to >= state.slides.length) return state;
+      const slides = [...state.slides];
+      const [moved] = slides.splice(from, 1);
+      slides.splice(to, 0, moved);
+
+      // Keep the active slide active by tracking where its index moved.
+      let nextIndex = state.currentIndex;
+      if (state.currentIndex === from) {
+        nextIndex = to;
+      } else if (from < state.currentIndex && to >= state.currentIndex) {
+        nextIndex -= 1;
+      } else if (from > state.currentIndex && to <= state.currentIndex) {
+        nextIndex += 1;
+      }
+
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        currentIndex: nextIndex,
       };
     }),
 
