@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { flushPendingCommit } from './pendingCommit';
 
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
@@ -62,6 +63,11 @@ type DeckState = {
   addOverlay: (slideId: string, item: Overlay) => void;
   updateOverlay: (slideId: string, id: string, patch: Partial<Overlay>) => void;
   removeOverlay: (slideId: string, id: string) => void;
+
+  // Programmatically appends a fresh block (raw HTML string) to .slide-inner
+  // of the given slide. Bumps revision so SlideRenderer remounts and
+  // useSlideEditing re-runs (drag handles, blockId stamping).
+  insertBlock: (slideId: string, blockHtml: string) => void;
 
   undo: () => void;
   redo: () => void;
@@ -278,6 +284,33 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         [slideId]: (state.overlaysBySlide[slideId] ?? []).filter((it) => it.id !== id),
       },
     })),
+
+  insertBlock: (slideId, blockHtml) => {
+    // Drain any in-flight DOM-debounced commit first so we're operating on
+    // the latest authoritative html before splicing the new block.
+    flushPendingCommit();
+    set((state) => {
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const inner = doc.querySelector('.slide-inner');
+      if (!inner) return state;
+      const tmp = doc.createElement('div');
+      tmp.innerHTML = blockHtml;
+      const block = tmp.firstElementChild;
+      if (!block) return state;
+      inner.appendChild(block);
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      if (newHtml === slide.html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === slideId ? { ...s, html: newHtml } : s)),
+        revision: state.revision + 1,
+      };
+    });
+  },
 
   undo: () =>
     set((state) => {

@@ -1,6 +1,8 @@
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { BlockFormatPanel } from './BlockFormatPanel';
+import { CodeBlockEditPanel, isCodeBlock } from './CodeBlockEditPanel';
+import { CodeBlockTemplates } from './CodeBlockTemplates';
 import { TextBlockTemplates } from './TextBlockTemplates';
 import { TextFormatPanel } from './TextFormatPanel';
 import { TextOverlayPropertiesSection } from './TextOverlayPropertiesSection';
@@ -25,10 +27,16 @@ export function PropertiesPanel() {
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
         <TextFormatPanel />
         {selectedBlockId && !overlay ? (
-          <BlockFormatPanel blockId={selectedBlockId} />
+          <div className="space-y-4">
+            {isCodeBlock(selectedBlockId) ? (
+              <CodeBlockEditPanel blockId={selectedBlockId} />
+            ) : null}
+            <BlockFormatPanel blockId={selectedBlockId} />
+          </div>
         ) : !overlay || !slideId ? (
           <div className="space-y-4">
             <TextBlockTemplates />
+            <CodeBlockTemplates />
             <p className="text-[11px] leading-relaxed text-editor-dim">
               이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다. 슬라이드의 텍스트 블록을 클릭하면 정렬/배경/사이즈 프리셋을 조정할 수 있습니다.
             </p>
