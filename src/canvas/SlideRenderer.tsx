@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { registerPendingFlush } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
+import './themes/code-blocks.css';
 
 const COMMIT_DEBOUNCE_MS = 300;
 
@@ -30,10 +32,25 @@ export function SlideRenderer({ slideId }: Props) {
       (n as HTMLElement).removeAttribute('contenteditable');
     });
     clone
-      .querySelectorAll('.sortable-chosen, .sortable-ghost, .sortable-drag')
+      .querySelectorAll('.sortable-chosen, .sortable-ghost, .sortable-drag, .selected-block')
       .forEach((n) => {
-        n.classList.remove('sortable-chosen', 'sortable-ghost', 'sortable-drag');
+        n.classList.remove(
+          'sortable-chosen',
+          'sortable-ghost',
+          'sortable-drag',
+          'selected-block',
+        );
       });
+
+    // Strip Sortable's transient inline transform/transition on drop animation.
+    // onEnd fires while the 150ms drop transition is still running, so the live
+    // children of .slide-inner have inline transforms that would otherwise
+    // bake into the persisted html and cause visual jitter on next remount.
+    clone.querySelectorAll<HTMLElement>('.slide-inner > *').forEach((el) => {
+      el.style.removeProperty('transform');
+      el.style.removeProperty('transition');
+      if (el.getAttribute('style') === '') el.removeAttribute('style');
+    });
 
     commitSlideHtml(slideId, clone.outerHTML);
   }, [slideId, commitSlideHtml]);
@@ -47,11 +64,45 @@ export function SlideRenderer({ slideId }: Props) {
     }, COMMIT_DEBOUNCE_MS);
   }, [commitFromDom]);
 
-  useSlideEditing(ref, scheduleCommit);
+  // Reorder needs an atomic commit: cancel any pending typing-debounce
+  // (otherwise it would commit again on top with the same DOM and produce
+  // a no-op snapshot) and write the post-drag DOM straight to the store.
+  const commitNow = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    commitFromDom();
+  }, [commitFromDom]);
 
+  // Drains a pending typing-debounce only if one is queued. Used by
+  // undo/redo to flush in-flight edits before the store revert. We do NOT
+  // commit when the timer is idle — re-committing the live DOM after a
+  // drag-reorder (which already committed atomically) would push a
+  // duplicate snapshot and break undo's ability to reach the pre-reorder
+  // state in one step.
+  const flushIfPending = useCallback(() => {
+    if (timerRef.current === null) return;
+    window.clearTimeout(timerRef.current);
+    timerRef.current = null;
+    commitFromDom();
+  }, [commitFromDom]);
+
+  useSlideEditing(ref, scheduleCommit, commitNow);
+
+  useEffect(() => registerPendingFlush(flushIfPending), [flushIfPending]);
+
+  // On unmount, only drain a pending typing-debounce. Do NOT unconditionally
+  // commit: when the slide remounts due to undo/redo (revision bump), the
+  // old DOM still holds the *pre-undo* html, and committing it here would
+  // re-push that pre-undo state on top of the just-applied undo, silently
+  // reverting the undo. Sortable / Moveable already commit atomically so
+  // there's nothing else to flush at unmount time.
   useEffect(() => {
     return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      if (timerRef.current === null) return;
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
       commitFromDom();
     };
   }, [commitFromDom]);

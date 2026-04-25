@@ -1,12 +1,18 @@
 import type { DragEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDeckStore } from '../scene/store';
-import { OverlayLayer, type OverlayImage } from './OverlayLayer';
+import { OverlayLayer, type ImageOverlay, type Overlay } from './OverlayLayer';
 import { SlideRenderer } from './SlideRenderer';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import './spike.css';
 
 const FIT_PADDING = 64;
+
+const ZOOM_MIN = 25;
+const ZOOM_MAX = 200;
+const ZOOM_STEP = 10;
+const clampZoom = (n: number) =>
+  Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(n)));
 
 let nextId = 1;
 const makeId = () => `ovl-${nextId++}`;
@@ -14,15 +20,24 @@ const makeId = () => `ovl-${nextId++}`;
 export function SlideCanvas() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  // baseScale auto-fits the slide to the viewport; zoomPercent layers on top
+  // so 100% always means "fit to current pane" regardless of pane size.
+  const [baseScale, setBaseScale] = useState(1);
+  const [zoomPercent, setZoomPercent] = useState(100);
+  const [zoomDraft, setZoomDraft] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
+  const scale = baseScale * (zoomPercent / 100);
 
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
   const overlays = useDeckStore((s) => (slideId ? s.overlaysBySlide[slideId] ?? [] : []));
   const selectedOverlayId = useDeckStore((s) => s.selectedOverlayId);
   const setSelectedOverlayId = useDeckStore((s) => s.setSelectedOverlayId);
+  const setSelectedBlockId = useDeckStore((s) => s.setSelectedBlockId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
+  // Force SlideRenderer to remount on undo/redo so the fresh slide.html from
+  // the history snapshot is injected; normal typing never bumps revision.
+  const revision = useDeckStore((s) => s.revision);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -32,7 +47,7 @@ export function SlideCanvas() {
       const { width, height } = el.getBoundingClientRect();
       const sx = (width - FIT_PADDING) / SLIDE_WIDTH;
       const sy = (height - FIT_PADDING) / SLIDE_HEIGHT;
-      setScale(Math.min(sx, sy, 1.5));
+      setBaseScale(Math.min(sx, sy, 1.5));
     };
 
     compute();
@@ -71,8 +86,9 @@ export function SlideCanvas() {
       const h = 240;
       const url = URL.createObjectURL(file);
       const id = makeId();
-      const item: OverlayImage = {
+      const item: ImageOverlay = {
         id,
+        kind: 'image',
         src: url,
         x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
         y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
@@ -86,7 +102,7 @@ export function SlideCanvas() {
   );
 
   const updateOverlay = useCallback(
-    (id: string, patch: Partial<OverlayImage>) => {
+    (id: string, patch: Partial<Overlay>) => {
       if (!slideId) return;
       updateOverlayInStore(slideId, id, patch);
     },
@@ -104,16 +120,20 @@ export function SlideCanvas() {
   return (
     <div
       ref={wrapperRef}
-      className={`flex h-full w-full items-center justify-center overflow-hidden bg-[#020617] ${
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-[#020617] ${
         dropActive ? 'overlay-drop-active' : ''
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      onMouseDown={() => setSelectedOverlayId(null)}
+      onMouseDown={() => {
+        setSelectedOverlayId(null);
+        setSelectedBlockId(null);
+      }}
     >
       <div
         ref={hostRef}
+        data-canvas-role="main"
         className="slide-canvas-host relative shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
         style={{
           width: SLIDE_WIDTH,
@@ -122,13 +142,69 @@ export function SlideCanvas() {
           transformOrigin: 'center center',
         }}
       >
-        <SlideRenderer key={slideId} slideId={slideId} />
+        <SlideRenderer key={`${slideId}:${revision}`} slideId={slideId} />
         <OverlayLayer
           items={overlays}
           selectedId={selectedOverlayId}
           onSelect={setSelectedOverlayId}
           onUpdate={updateOverlay}
         />
+      </div>
+      <div
+        className="pointer-events-auto absolute bottom-3 right-3 flex items-center gap-1 rounded-md border border-editor-border bg-editor-panel/90 px-1.5 py-1 text-[11px] text-editor-text shadow-[0_8px_24px_rgba(0,0,0,0.4)] backdrop-blur"
+        onMouseDown={(e) => e.stopPropagation()}
+        title="슬라이드 미리보기 크기"
+      >
+        <button
+          type="button"
+          onClick={() => setZoomPercent((p) => clampZoom(p - ZOOM_STEP))}
+          disabled={zoomPercent <= ZOOM_MIN}
+          className="rounded px-1.5 py-0.5 text-editor-dim transition hover:bg-editor-bg hover:text-editor-text disabled:opacity-40 disabled:hover:bg-transparent"
+          aria-label="축소"
+        >
+          −
+        </button>
+        <input
+          type="number"
+          min={ZOOM_MIN}
+          max={ZOOM_MAX}
+          step={ZOOM_STEP}
+          value={zoomDraft ?? zoomPercent}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => {
+            const raw = e.target.value;
+            setZoomDraft(raw);
+            const n = Number(raw);
+            if (raw !== '' && Number.isFinite(n)) setZoomPercent(clampZoom(n));
+          }}
+          onBlur={() => {
+            setZoomDraft(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+          }}
+          className="w-12 bg-transparent text-center font-mono outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+        <span className="text-editor-dim">%</span>
+        <button
+          type="button"
+          onClick={() => setZoomPercent((p) => clampZoom(p + ZOOM_STEP))}
+          disabled={zoomPercent >= ZOOM_MAX}
+          className="rounded px-1.5 py-0.5 text-editor-dim transition hover:bg-editor-bg hover:text-editor-text disabled:opacity-40 disabled:hover:bg-transparent"
+          aria-label="확대"
+        >
+          +
+        </button>
+        <span className="mx-0.5 h-3.5 w-px bg-editor-border" aria-hidden="true" />
+        <button
+          type="button"
+          onClick={() => setZoomPercent(100)}
+          disabled={zoomPercent === 100}
+          className="rounded px-1.5 py-0.5 text-editor-dim transition hover:bg-editor-bg hover:text-editor-text disabled:opacity-40 disabled:hover:bg-transparent"
+          title="100% (Fit)"
+        >
+          Fit
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useEffect, type RefObject } from 'react';
 import Sortable from 'sortablejs';
+import { DATA_BLOCK_ID, ensureBlockId } from '../scene/blockId';
+import { useDeckStore } from '../scene/store';
 
 const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
@@ -33,6 +35,7 @@ function guardSingleLineEnter(el: HTMLElement) {
 export function useSlideEditing(
   slideRootRef: RefObject<HTMLElement | null>,
   onChange?: () => void,
+  onReorder?: () => void,
 ) {
   useEffect(() => {
     const root = slideRootRef.current;
@@ -49,6 +52,15 @@ export function useSlideEditing(
     // opt out via contenteditable=false on creation.
     editableRegions.forEach(enforceEditable);
 
+    // Sweep ephemeral selection classes that may have been baked into the
+    // persisted HTML by an earlier commit (e.g., if the user typed while a
+    // block was selected, commitFromDom captured the live `.selected-block`
+    // class). Without this strip, switching slides or reloading the deck
+    // restores stale outline rings on blocks that aren't currently selected.
+    root.querySelectorAll('.selected-block').forEach((el) => {
+      el.classList.remove('selected-block');
+    });
+
     // Single-line slots get Enter suppression (IME-safe).
     const singleLineSlots = Array.from(
       root.querySelectorAll<HTMLElement>('[data-slot]'),
@@ -58,6 +70,71 @@ export function useSlideEditing(
     // Table cells aren't under data-slot; ensure they remain editable when a
     // parent is non-editable (e.g., if tables live outside .slide-inner).
     root.querySelectorAll<HTMLElement>('td, th').forEach(enforceEditable);
+
+    // Stamp stable IDs on direct children of .slide-inner so the Properties
+    // panel can refer to selected in-flow blocks. IDs survive
+    // commitFromDom (cloneNode preserves attributes) so they persist across
+    // history snapshots.
+    if (slideInner) {
+      Array.from(slideInner.children).forEach((child) => {
+        if (child instanceof HTMLElement) ensureBlockId(child);
+      });
+      // Also stamp nested code blocks / terminals. Brewnet sample slides wrap
+      // these in larger section divs (e.g., a column with h3 + code-block +
+      // callout); without an id on the code-block itself, mousedown's
+      // closest('[data-block-id]') would resolve to the wrapper and the
+      // selection ring would frame the whole column instead of the code box
+      // the user actually clicked.
+      slideInner
+        .querySelectorAll<HTMLElement>('.code-block, .terminal')
+        .forEach((el) => ensureBlockId(el));
+    }
+
+    const onMouseDownSelect = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      // Drag handle should not steal block selection.
+      if (t.closest('.block-drag-handle')) return;
+      const block = t.closest<HTMLElement>(`[${DATA_BLOCK_ID}]`);
+      if (!block) return;
+      const id = block.getAttribute(DATA_BLOCK_ID);
+      if (!id) return;
+      // Paint the selection ring synchronously here instead of waiting on
+      // BlockFormatPanel's useEffect — the panel re-render path can race
+      // with focus/contenteditable side effects and leave the class
+      // unapplied. Strip from any previously-selected sibling first.
+      root.querySelectorAll('.selected-block').forEach((n) => {
+        if (n !== block) n.classList.remove('selected-block');
+      });
+      block.classList.add('selected-block');
+      useDeckStore.getState().setSelectedBlockId(id);
+      // Stop bubbling so SlideCanvas's outer mousedown (which clears
+      // selection on background clicks) does not immediately undo us.
+      e.stopPropagation();
+    };
+    root.addEventListener('mousedown', onMouseDownSelect);
+
+    // Double-click selects ALL text in the closest text-leaf element so the
+    // user can immediately retype to replace. Native dblclick only picks the
+    // word under the cursor; for fast slide editing we want the whole heading,
+    // bullet item, table cell, or paragraph.
+    const onDblClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      if (t.closest('.block-drag-handle')) return;
+      const TEXT_LEAVES = 'li, td, th, h1, h2, h3, h4, h5, h6, p, blockquote';
+      const leaf =
+        t.closest<HTMLElement>(TEXT_LEAVES) ?? t.closest<HTMLElement>('[data-slot]');
+      if (!leaf || !root.contains(leaf)) return;
+      const sel = window.getSelection();
+      if (!sel) return;
+      const range = document.createRange();
+      range.selectNodeContents(leaf);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      e.preventDefault();
+    };
+    root.addEventListener('dblclick', onDblClick);
 
     const notify = onChange ?? (() => {});
     const onInput = () => notify();
@@ -89,18 +166,25 @@ export function useSlideEditing(
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
-        onEnd: () => notify(),
+        // Commit reorders synchronously so each drag becomes its own
+        // discrete history step. If we relied on the debounced input
+        // path, a fast typing→drag (or drag→typing) sequence could
+        // collapse into a single snapshot, making block reorders look
+        // un-undoable on their own.
+        onEnd: () => (onReorder ? onReorder() : notify()),
       });
     }
 
     return () => {
       root.removeEventListener('input', onInput);
       root.removeEventListener('click', onAnchorClick);
+      root.removeEventListener('mousedown', onMouseDownSelect);
+      root.removeEventListener('dblclick', onDblClick);
       editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });
       insertedHandles.forEach((h) => h.remove());
       sortable?.destroy();
     };
-  }, [slideRootRef, onChange]);
+  }, [slideRootRef, onChange, onReorder]);
 }

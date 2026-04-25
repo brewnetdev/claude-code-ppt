@@ -1,9 +1,16 @@
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
+import { BlockFormatPanel } from './BlockFormatPanel';
+import { CodeBlockEditPanel, isCodeBlock } from './CodeBlockEditPanel';
+import { CodeBlockTemplates } from './CodeBlockTemplates';
+import { TextBlockTemplates } from './TextBlockTemplates';
+import { TextFormatPanel } from './TextFormatPanel';
+import { TextOverlayPropertiesSection } from './TextOverlayPropertiesSection';
 
 export function PropertiesPanel() {
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
   const selectedId = useDeckStore((s) => s.selectedOverlayId);
+  const selectedBlockId = useDeckStore((s) => s.selectedBlockId);
   const overlay = useDeckStore((s) =>
     slideId && s.selectedOverlayId
       ? (s.overlaysBySlide[slideId] ?? []).find((o) => o.id === s.selectedOverlayId) ?? null
@@ -17,12 +24,37 @@ export function PropertiesPanel() {
       <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
         Properties
       </div>
-      <div className="flex-1 overflow-y-auto p-3">
-        {!overlay || !slideId ? (
-          <p className="text-[11px] leading-relaxed text-editor-dim">
-            이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다.
-          </p>
-        ) : (
+      <div className="flex-1 space-y-4 overflow-y-auto p-3">
+        {selectedBlockId && !overlay ? (
+          isCodeBlock(selectedBlockId) ? (
+            // Code / Terminal: position-only block panel + source/lang editor.
+            // Text formatting & templates are intentionally hidden — the
+            // semantics (font size, align, presets) don't apply to a syntax-
+            // highlighted code box.
+            <div className="space-y-4">
+              <BlockFormatPanel blockId={selectedBlockId} />
+              <CodeBlockEditPanel blockId={selectedBlockId} />
+            </div>
+          ) : (
+            // Text block: position panel + the full text formatting controls.
+            <div className="space-y-4">
+              <BlockFormatPanel blockId={selectedBlockId} />
+              <TextFormatPanel />
+            </div>
+          )
+        ) : null}
+        {!selectedBlockId && !overlay ? (
+          // Default landing view: text format defaults + insertion templates.
+          <div className="space-y-4">
+            <TextFormatPanel />
+            <TextBlockTemplates />
+            <CodeBlockTemplates />
+            <p className="text-[11px] leading-relaxed text-editor-dim">
+              이미지를 드롭한 뒤 캔버스에서 클릭하면 크기/위치를 여기서 수정할 수 있습니다. 슬라이드의 텍스트 블록을 클릭하면 X·Y·W·H 좌표로 위치/크기를 조정할 수 있습니다.
+            </p>
+          </div>
+        ) : null}
+        {!overlay || !slideId ? null : overlay.kind === 'image' ? (
           <div className="space-y-4">
             <div>
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
@@ -86,6 +118,8 @@ export function PropertiesPanel() {
               좌표는 1280×720 원본 기준입니다 (내보내기 시 1920×1080로 확대).
             </p>
           </div>
+        ) : (
+          <TextOverlayPropertiesSection slideId={slideId} overlay={overlay} />
         )}
       </div>
     </aside>
@@ -120,6 +154,7 @@ function NumberField({ label, value, min, max, onChange }: NumberFieldProps) {
         value={Math.round(value)}
         min={min}
         max={max}
+        onFocus={(e) => e.target.select()}
         onChange={(e) => {
           const n = Number(e.target.value);
           if (Number.isFinite(n)) onChange(n);

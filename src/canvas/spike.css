@@ -100,9 +100,61 @@
   outline-offset: 0;
 }
 
+/* Text overlays must allow text selection / input — undo the parent's
+   `user-select: none`, set a text caret cursor on the inner contenteditable,
+   and let pointer events through so the editable focus/selection works. */
+.overlay-layer .overlay-item.overlay-text {
+  cursor: default;
+  /* Padding (set inline from the model) eats into the text area instead
+     of growing the visible box, so the W/H controls stay authoritative. */
+  box-sizing: border-box;
+}
+
+.overlay-layer .overlay-item.overlay-text .overlay-text-inner {
+  user-select: text;
+  -webkit-user-select: text;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  /* Inner cursor follows the wrapper's mode: text caret only when editing,
+     move when the box is in transform mode. */
+  cursor: inherit;
+}
+
+/* Edit-mode visual: dashed blue outline distinguishes the text overlay
+   from the solid-selection state and from in-flow block selection. */
+.overlay-layer .overlay-item.overlay-text.editing {
+  outline: 2px dashed #60a5fa;
+  outline-offset: 0;
+}
+
+/* Tiny corner hint reminding users that the next click enters edit mode.
+   Hidden during edit mode (the dashed outline carries the cue then). */
+.overlay-layer .overlay-edit-hint {
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+  font-size: 10px;
+  color: rgba(96, 165, 250, 0.95);
+  background: rgba(15, 23, 42, 0.85);
+  padding: 1px 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
 .overlay-drop-active {
   outline: 3px dashed #60a5fa !important;
   outline-offset: -3px;
+}
+
+/* Visible ring for the currently selected in-flow block — gives users
+   parity with the blue outline that overlays already get on selection. */
+.slide-canvas-host .selected-block {
+  outline: 2px solid #60a5fa !important;
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* Moveable handles live in document.body, but we want them above everything else */

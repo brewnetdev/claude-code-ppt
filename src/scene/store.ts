@@ -1,9 +1,13 @@
 import { create } from 'zustand';
-import type { OverlayImage } from '../canvas/OverlayLayer';
+import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { DATA_BLOCK_ID } from './blockId';
+import { flushPendingCommit } from './pendingCommit';
 
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
+
+const HISTORY_LIMIT = 50;
 
 const BLANK_SLIDE_HTML = `
 <div class="slide">
@@ -21,53 +25,140 @@ const BLANK_SLIDE_HTML = `
 </div>
 `.trim();
 
+type Snapshot = {
+  slides: ParsedSlide[];
+  overlaysBySlide: Record<string, Overlay[]>;
+  currentIndex: number;
+};
+
 type DeckState = {
   slides: ParsedSlide[];
   currentIndex: number;
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   selectedOverlayId: string | null;
+  selectedBlockId: string | null;
+
+  past: Snapshot[];
+  future: Snapshot[];
+  // Bumped on undo/redo so consumers can force-remount the slide DOM. Not
+  // bumped on commitSlideHtml (that flows DOM→store and the DOM is already
+  // authoritative).
+  revision: number;
 
   loadDeck: (slides: ParsedSlide[]) => void;
+  loadDeckFull: (payload: {
+    slides: ParsedSlide[];
+    overlaysBySlide: Record<string, Overlay[]>;
+    currentIndex: number;
+  }) => void;
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
 
-  insertBlankSlideAfter: (index: number) => void;
+  insertSlideAfter: (index: number, html?: string, title?: string) => void;
   duplicateSlide: (index: number) => void;
   removeSlide: (index: number) => void;
+  reorderSlide: (from: number, to: number) => void;
 
   setSelectedOverlayId: (id: string | null) => void;
-  addOverlay: (slideId: string, item: OverlayImage) => void;
-  updateOverlay: (slideId: string, id: string, patch: Partial<OverlayImage>) => void;
+  setSelectedBlockId: (id: string | null) => void;
+  addOverlay: (slideId: string, item: Overlay) => void;
+  updateOverlay: (slideId: string, id: string, patch: Partial<Overlay>) => void;
   removeOverlay: (slideId: string, id: string) => void;
+
+  // Programmatically appends a fresh block (raw HTML string) to .slide-inner
+  // of the given slide. Bumps revision so SlideRenderer remounts and
+  // useSlideEditing re-runs (drag handles, blockId stamping).
+  insertBlock: (slideId: string, blockHtml: string) => void;
+
+  // Atomic conversion: removes an in-flow block by id and adds an overlay
+  // representing the same content at the supplied 1280×720 coords. Single
+  // history entry so undo restores both halves at once.
+  floatBlock: (slideId: string, blockId: string, overlay: Overlay) => void;
+
+  undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 };
 
-export const useDeckStore = create<DeckState>((set) => ({
+function snap(state: Pick<DeckState, 'slides' | 'overlaysBySlide' | 'currentIndex'>): Snapshot {
+  return {
+    slides: state.slides,
+    overlaysBySlide: state.overlaysBySlide,
+    currentIndex: state.currentIndex,
+  };
+}
+
+function pushPast(past: Snapshot[], next: Snapshot): Snapshot[] {
+  const trimmed = past.length >= HISTORY_LIMIT ? past.slice(past.length - HISTORY_LIMIT + 1) : past;
+  return [...trimmed, next];
+}
+
+export const useDeckStore = create<DeckState>((set, get) => ({
   slides: [],
   currentIndex: 0,
   overlaysBySlide: {},
   selectedOverlayId: null,
+  selectedBlockId: null,
+
+  past: [],
+  future: [],
+  revision: 0,
 
   loadDeck: (slides) =>
-    set(() => ({
+    set((state) => ({
       slides,
       currentIndex: 0,
       selectedOverlayId: null,
+      selectedBlockId: null,
       overlaysBySlide: Object.fromEntries(slides.map((s) => [s.id, []])),
+      // Fresh deck — discard any stale history.
+      past: [],
+      future: [],
+      // Bump (not reset to 0) so SlideRenderer force-remounts and re-reads
+      // initialHtml from store. Slide IDs from parsePresentationHTML are
+      // deterministic (slide-1..N), so without a revision change the key
+      // stays the same and stale HTML is shown.
+      revision: state.revision + 1,
     })),
 
-  setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null }),
+  loadDeckFull: ({ slides, overlaysBySlide, currentIndex }) =>
+    set((state) => ({
+      slides,
+      currentIndex: Math.max(0, Math.min(currentIndex, slides.length - 1)),
+      selectedOverlayId: null,
+      selectedBlockId: null,
+      overlaysBySlide,
+      past: [],
+      future: [],
+      revision: state.revision + 1,
+    })),
 
-  setSelectedOverlayId: (id) => set({ selectedOverlayId: id }),
+  setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null, selectedBlockId: null }),
+
+  // Selecting an overlay clears any block selection (mutually exclusive
+  // selection so the Properties panel branches cleanly). Clearing one
+  // does not touch the other.
+  setSelectedOverlayId: (id) =>
+    set((s) => (id ? { selectedOverlayId: id, selectedBlockId: null } : { ...s, selectedOverlayId: null })),
+  setSelectedBlockId: (id) =>
+    set((s) => (id ? { selectedBlockId: id, selectedOverlayId: null } : { ...s, selectedBlockId: null })),
 
   commitSlideHtml: (id, html) =>
-    set((state) => ({
-      slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
-    })),
+    set((state) => {
+      const current = state.slides.find((s) => s.id === id);
+      if (!current || current.html === html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
+      };
+    }),
 
-  insertBlankSlideAfter: (index) =>
+  insertSlideAfter: (index, html = BLANK_SLIDE_HTML, title = '새 슬라이드') =>
     set((state) => {
       const id = makeSlideId();
-      const newSlide: ParsedSlide = { id, html: BLANK_SLIDE_HTML, title: '새 슬라이드' };
+      const newSlide: ParsedSlide = { id, html, title };
       const insertAt = Math.min(index + 1, state.slides.length);
       const slides = [
         ...state.slides.slice(0, insertAt),
@@ -75,9 +166,12 @@ export const useDeckStore = create<DeckState>((set) => ({
         ...state.slides.slice(insertAt),
       ];
       return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
         slides,
         currentIndex: insertAt,
         selectedOverlayId: null,
+        selectedBlockId: null,
         overlaysBySlide: { ...state.overlaysBySlide, [id]: [] },
       };
     }),
@@ -95,12 +189,15 @@ export const useDeckStore = create<DeckState>((set) => ({
       ];
       const sourceOverlays = state.overlaysBySlide[src.id] ?? [];
       return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
         slides,
         currentIndex: index + 1,
         selectedOverlayId: null,
+        selectedBlockId: null,
         overlaysBySlide: {
           ...state.overlaysBySlide,
-          [id]: sourceOverlays.map((o) => ({ ...o, id: `${o.id}-copy-${slideSeq}` })),
+          [id]: sourceOverlays.map((o): Overlay => ({ ...o, id: `${o.id}-copy-${slideSeq}` })),
         },
       };
     }),
@@ -114,11 +211,48 @@ export const useDeckStore = create<DeckState>((set) => ({
       const { [victim.id]: _dropped, ...rest } = state.overlaysBySlide;
       void _dropped;
       const nextIndex = Math.min(state.currentIndex, slides.length - 1);
-      return { slides, currentIndex: nextIndex, selectedOverlayId: null, overlaysBySlide: rest };
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        currentIndex: nextIndex,
+        selectedOverlayId: null,
+        selectedBlockId: null,
+        overlaysBySlide: rest,
+      };
+    }),
+
+  reorderSlide: (from, to) =>
+    set((state) => {
+      if (from === to) return state;
+      if (from < 0 || from >= state.slides.length) return state;
+      if (to < 0 || to >= state.slides.length) return state;
+      const slides = [...state.slides];
+      const [moved] = slides.splice(from, 1);
+      slides.splice(to, 0, moved);
+
+      // Keep the active slide active by tracking where its index moved.
+      let nextIndex = state.currentIndex;
+      if (state.currentIndex === from) {
+        nextIndex = to;
+      } else if (from < state.currentIndex && to >= state.currentIndex) {
+        nextIndex -= 1;
+      } else if (from > state.currentIndex && to <= state.currentIndex) {
+        nextIndex += 1;
+      }
+
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        currentIndex: nextIndex,
+      };
     }),
 
   addOverlay: (slideId, item) =>
     set((state) => ({
+      past: pushPast(state.past, snap(state)),
+      future: [],
       overlaysBySlide: {
         ...state.overlaysBySlide,
         [slideId]: [...(state.overlaysBySlide[slideId] ?? []), item],
@@ -126,21 +260,124 @@ export const useDeckStore = create<DeckState>((set) => ({
     })),
 
   updateOverlay: (slideId, id, patch) =>
-    set((state) => ({
-      overlaysBySlide: {
-        ...state.overlaysBySlide,
-        [slideId]: (state.overlaysBySlide[slideId] ?? []).map((it) =>
-          it.id === id ? { ...it, ...patch } : it,
-        ),
-      },
-    })),
+    set((state) => {
+      const list = state.overlaysBySlide[slideId] ?? [];
+      const current = list.find((it) => it.id === id);
+      if (!current) return state;
+      const changed = Object.entries(patch).some(
+        ([k, v]) => (current as Record<string, unknown>)[k] !== v,
+      );
+      if (!changed) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        overlaysBySlide: {
+          ...state.overlaysBySlide,
+          [slideId]: list.map((it) =>
+            it.id === id ? ({ ...it, ...patch } as Overlay) : it,
+          ),
+        },
+      };
+    }),
 
   removeOverlay: (slideId, id) =>
     set((state) => ({
+      past: pushPast(state.past, snap(state)),
+      future: [],
       selectedOverlayId: state.selectedOverlayId === id ? null : state.selectedOverlayId,
       overlaysBySlide: {
         ...state.overlaysBySlide,
         [slideId]: (state.overlaysBySlide[slideId] ?? []).filter((it) => it.id !== id),
       },
     })),
+
+  insertBlock: (slideId, blockHtml) => {
+    // Drain any in-flight DOM-debounced commit first so we're operating on
+    // the latest authoritative html before splicing the new block.
+    flushPendingCommit();
+    set((state) => {
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const inner = doc.querySelector('.slide-inner');
+      if (!inner) return state;
+      const tmp = doc.createElement('div');
+      tmp.innerHTML = blockHtml;
+      const block = tmp.firstElementChild;
+      if (!block) return state;
+      inner.appendChild(block);
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      if (newHtml === slide.html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === slideId ? { ...s, html: newHtml } : s)),
+        revision: state.revision + 1,
+      };
+    });
+  },
+
+  floatBlock: (slideId, blockId, overlay) => {
+    flushPendingCommit();
+    set((state) => {
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
+      if (!block) return state;
+      block.remove();
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) =>
+          s.id === slideId ? { ...s, html: newHtml } : s,
+        ),
+        overlaysBySlide: {
+          ...state.overlaysBySlide,
+          [slideId]: [...(state.overlaysBySlide[slideId] ?? []), overlay],
+        },
+        selectedBlockId: null,
+        selectedOverlayId: overlay.id,
+        revision: state.revision + 1,
+      };
+    });
+  },
+
+  undo: () =>
+    set((state) => {
+      const prev = state.past[state.past.length - 1];
+      if (!prev) return state;
+      return {
+        past: state.past.slice(0, -1),
+        future: [...state.future, snap(state)],
+        slides: prev.slides,
+        overlaysBySlide: prev.overlaysBySlide,
+        currentIndex: Math.min(prev.currentIndex, prev.slides.length - 1),
+        selectedOverlayId: null,
+        selectedBlockId: null,
+        revision: state.revision + 1,
+      };
+    }),
+
+  redo: () =>
+    set((state) => {
+      const next = state.future[state.future.length - 1];
+      if (!next) return state;
+      return {
+        past: [...state.past, snap(state)],
+        future: state.future.slice(0, -1),
+        slides: next.slides,
+        overlaysBySlide: next.overlaysBySlide,
+        currentIndex: Math.min(next.currentIndex, next.slides.length - 1),
+        selectedOverlayId: null,
+        selectedBlockId: null,
+        revision: state.revision + 1,
+      };
+    }),
+
+  canUndo: () => get().past.length > 0,
+  canRedo: () => get().future.length > 0,
 }));
