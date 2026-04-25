@@ -33,6 +33,7 @@ function guardSingleLineEnter(el: HTMLElement) {
 export function useSlideEditing(
   slideRootRef: RefObject<HTMLElement | null>,
   onChange?: () => void,
+  onReorder?: () => void,
 ) {
   useEffect(() => {
     const root = slideRootRef.current;
@@ -89,7 +90,12 @@ export function useSlideEditing(
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
-        onEnd: () => notify(),
+        // Commit reorders synchronously so each drag becomes its own
+        // discrete history step. If we relied on the debounced input
+        // path, a fast typing→drag (or drag→typing) sequence could
+        // collapse into a single snapshot, making block reorders look
+        // un-undoable on their own.
+        onEnd: () => (onReorder ? onReorder() : notify()),
       });
     }
 

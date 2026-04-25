@@ -47,7 +47,18 @@ export function SlideRenderer({ slideId }: Props) {
     }, COMMIT_DEBOUNCE_MS);
   }, [commitFromDom]);
 
-  useSlideEditing(ref, scheduleCommit);
+  // Reorder needs an atomic commit: cancel any pending typing-debounce
+  // (otherwise it would commit again on top with the same DOM and produce
+  // a no-op snapshot) and write the post-drag DOM straight to the store.
+  const commitNow = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    commitFromDom();
+  }, [commitFromDom]);
+
+  useSlideEditing(ref, scheduleCommit, commitNow);
 
   useEffect(() => {
     return () => {
