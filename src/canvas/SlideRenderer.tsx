@@ -86,9 +86,17 @@ export function SlideRenderer({ slideId }: Props) {
 
   useEffect(() => registerPendingFlush(flushIfPending), [flushIfPending]);
 
+  // On unmount, only drain a pending typing-debounce. Do NOT unconditionally
+  // commit: when the slide remounts due to undo/redo (revision bump), the
+  // old DOM still holds the *pre-undo* html, and committing it here would
+  // re-push that pre-undo state on top of the just-applied undo, silently
+  // reverting the undo. Sortable / Moveable already commit atomically so
+  // there's nothing else to flush at unmount time.
   useEffect(() => {
     return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      if (timerRef.current === null) return;
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
       commitFromDom();
     };
   }, [commitFromDom]);
