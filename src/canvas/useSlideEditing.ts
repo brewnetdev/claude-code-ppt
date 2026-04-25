@@ -108,5 +108,5 @@ export function useSlideEditing(
       insertedHandles.forEach((h) => h.remove());
       sortable?.destroy();
     };
-  }, [slideRootRef, onChange]);
+  }, [slideRootRef, onChange, onReorder]);
 }

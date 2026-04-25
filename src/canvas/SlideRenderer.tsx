@@ -36,6 +36,16 @@ export function SlideRenderer({ slideId }: Props) {
         n.classList.remove('sortable-chosen', 'sortable-ghost', 'sortable-drag');
       });
 
+    // Strip Sortable's transient inline transform/transition on drop animation.
+    // onEnd fires while the 150ms drop transition is still running, so the live
+    // children of .slide-inner have inline transforms that would otherwise
+    // bake into the persisted html and cause visual jitter on next remount.
+    clone.querySelectorAll<HTMLElement>('.slide-inner > *').forEach((el) => {
+      el.style.removeProperty('transform');
+      el.style.removeProperty('transition');
+      if (el.getAttribute('style') === '') el.removeAttribute('style');
+    });
+
     commitSlideHtml(slideId, clone.outerHTML);
   }, [slideId, commitSlideHtml]);
 
@@ -59,13 +69,22 @@ export function SlideRenderer({ slideId }: Props) {
     commitFromDom();
   }, [commitFromDom]);
 
+  // Drains a pending typing-debounce only if one is queued. Used by
+  // undo/redo to flush in-flight edits before the store revert. We do NOT
+  // commit when the timer is idle — re-committing the live DOM after a
+  // drag-reorder (which already committed atomically) would push a
+  // duplicate snapshot and break undo's ability to reach the pre-reorder
+  // state in one step.
+  const flushIfPending = useCallback(() => {
+    if (timerRef.current === null) return;
+    window.clearTimeout(timerRef.current);
+    timerRef.current = null;
+    commitFromDom();
+  }, [commitFromDom]);
+
   useSlideEditing(ref, scheduleCommit, commitNow);
 
-  // Expose synchronous flush so undo/redo (and any other store-mutating
-  // action) can drain pending typing before snapshotting/reverting. Without
-  // this, the unmount cleanup below would commitFromDom() *after* undo()
-  // already wrote the previous snapshot, re-applying typed text on top.
-  useEffect(() => registerPendingFlush(commitNow), [commitNow]);
+  useEffect(() => registerPendingFlush(flushIfPending), [flushIfPending]);
 
   useEffect(() => {
     return () => {
