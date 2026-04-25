@@ -31,9 +31,14 @@ export function SlideRenderer({ slideId }: Props) {
       (n as HTMLElement).removeAttribute('contenteditable');
     });
     clone
-      .querySelectorAll('.sortable-chosen, .sortable-ghost, .sortable-drag')
+      .querySelectorAll('.sortable-chosen, .sortable-ghost, .sortable-drag, .selected-block')
       .forEach((n) => {
-        n.classList.remove('sortable-chosen', 'sortable-ghost', 'sortable-drag');
+        n.classList.remove(
+          'sortable-chosen',
+          'sortable-ghost',
+          'sortable-drag',
+          'selected-block',
+        );
       });
 
     // Strip Sortable's transient inline transform/transition on drop animation.

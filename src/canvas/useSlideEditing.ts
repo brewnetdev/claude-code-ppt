@@ -1,5 +1,7 @@
 import { useEffect, type RefObject } from 'react';
 import Sortable from 'sortablejs';
+import { DATA_BLOCK_ID, ensureBlockId } from '../scene/blockId';
+import { useDeckStore } from '../scene/store';
 
 const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
@@ -50,6 +52,15 @@ export function useSlideEditing(
     // opt out via contenteditable=false on creation.
     editableRegions.forEach(enforceEditable);
 
+    // Sweep ephemeral selection classes that may have been baked into the
+    // persisted HTML by an earlier commit (e.g., if the user typed while a
+    // block was selected, commitFromDom captured the live `.selected-block`
+    // class). Without this strip, switching slides or reloading the deck
+    // restores stale outline rings on blocks that aren't currently selected.
+    root.querySelectorAll('.selected-block').forEach((el) => {
+      el.classList.remove('selected-block');
+    });
+
     // Single-line slots get Enter suppression (IME-safe).
     const singleLineSlots = Array.from(
       root.querySelectorAll<HTMLElement>('[data-slot]'),
@@ -59,6 +70,32 @@ export function useSlideEditing(
     // Table cells aren't under data-slot; ensure they remain editable when a
     // parent is non-editable (e.g., if tables live outside .slide-inner).
     root.querySelectorAll<HTMLElement>('td, th').forEach(enforceEditable);
+
+    // Stamp stable IDs on direct children of .slide-inner so the Properties
+    // panel can refer to selected in-flow blocks. IDs survive
+    // commitFromDom (cloneNode preserves attributes) so they persist across
+    // history snapshots.
+    if (slideInner) {
+      Array.from(slideInner.children).forEach((child) => {
+        if (child instanceof HTMLElement) ensureBlockId(child);
+      });
+    }
+
+    const onMouseDownSelect = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      // Drag handle should not steal block selection.
+      if (t.closest('.block-drag-handle')) return;
+      const block = t.closest<HTMLElement>(`[${DATA_BLOCK_ID}]`);
+      if (!block) return;
+      const id = block.getAttribute(DATA_BLOCK_ID);
+      if (!id) return;
+      useDeckStore.getState().setSelectedBlockId(id);
+      // Stop bubbling so SlideCanvas's outer mousedown (which clears
+      // selection on background clicks) does not immediately undo us.
+      e.stopPropagation();
+    };
+    root.addEventListener('mousedown', onMouseDownSelect);
 
     const notify = onChange ?? (() => {});
     const onInput = () => notify();
@@ -102,6 +139,7 @@ export function useSlideEditing(
     return () => {
       root.removeEventListener('input', onInput);
       root.removeEventListener('click', onAnchorClick);
+      root.removeEventListener('mousedown', onMouseDownSelect);
       editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });

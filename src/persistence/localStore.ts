@@ -1,4 +1,4 @@
-import type { OverlayImage } from '../canvas/OverlayLayer';
+import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 
 const STORAGE_KEY = 'claude-code-ppt:deck:v1';
@@ -8,7 +8,7 @@ export type PersistedDeck = {
   version: number;
   savedAt: number;
   slides: ParsedSlide[];
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   currentIndex: number;
 };
 
@@ -30,12 +30,20 @@ async function blobUrlToDataUrl(url: string): Promise<string> {
 }
 
 async function inlineOverlays(
-  overlaysBySlide: Record<string, OverlayImage[]>,
-): Promise<Record<string, OverlayImage[]>> {
-  const out: Record<string, OverlayImage[]> = {};
+  overlaysBySlide: Record<string, Overlay[]>,
+): Promise<Record<string, Overlay[]>> {
+  const out: Record<string, Overlay[]> = {};
   for (const [slideId, items] of Object.entries(overlaysBySlide)) {
     out[slideId] = await Promise.all(
-      items.map(async (it) => ({ ...it, src: await blobUrlToDataUrl(it.src) })),
+      items.map(async (it): Promise<Overlay> => {
+        // Treat legacy entries without `kind` as image overlays.
+        const kind = (it as Partial<Overlay>).kind ?? 'image';
+        if (kind === 'image') {
+          const img = it as Extract<Overlay, { kind: 'image' }>;
+          return { ...img, kind: 'image', src: await blobUrlToDataUrl(img.src) };
+        }
+        return it;
+      }),
     );
   }
   return out;
@@ -43,7 +51,7 @@ async function inlineOverlays(
 
 export async function saveDeckToLocalStorage(input: {
   slides: ParsedSlide[];
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   currentIndex: number;
 }): Promise<SaveResult> {
   try {
@@ -75,7 +83,7 @@ export function loadDeckFromLocalStorage(): PersistedDeck | null {
       version: parsed.version,
       savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now(),
       slides: parsed.slides as ParsedSlide[],
-      overlaysBySlide: parsed.overlaysBySlide as Record<string, OverlayImage[]>,
+      overlaysBySlide: parsed.overlaysBySlide as Record<string, Overlay[]>,
       currentIndex: typeof parsed.currentIndex === 'number' ? parsed.currentIndex : 0,
     };
   } catch {

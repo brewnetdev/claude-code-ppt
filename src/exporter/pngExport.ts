@@ -1,14 +1,21 @@
 import { toPng } from 'html-to-image';
-import type { OverlayImage } from '../canvas/OverlayLayer';
+import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { SLIDE_HEIGHT, SLIDE_WIDTH, TARGET_HEIGHT, TARGET_WIDTH } from '../scene/constants';
 
 const EXPORT_SCALE = TARGET_WIDTH / SLIDE_WIDTH;
 const BETWEEN_DOWNLOADS_MS = 250;
 
+const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
+  h1: 't-title',
+  h2: 't-h2',
+  h3: 't-h3',
+  p: 't-body',
+};
+
 export type PngExportDeck = {
   slides: ParsedSlide[];
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
 };
 
 // Capture the live `.slide-canvas-host` element at 1920×1080 regardless of
@@ -53,6 +60,17 @@ export async function exportAllSlidesPng(deck: PngExportDeck): Promise<void> {
         canvasHeight: TARGET_HEIGHT,
         pixelRatio: EXPORT_SCALE,
         cacheBust: true,
+        // The live host is `position:fixed; top:-10000px` so users don't
+        // see a flash. html-to-image clones the host into an SVG
+        // <foreignObject> and would inherit that offset, pushing all
+        // content above the SVG viewBox and producing a blank PNG.
+        // Override the clone's positioning to render at the origin.
+        style: {
+          position: 'static',
+          top: 'auto',
+          left: 'auto',
+          transform: 'none',
+        },
       });
       await downloadDataUrl(dataUrl, pngFilename(i + 1, slide.title));
     } finally {
@@ -66,7 +84,7 @@ export async function exportAllSlidesPng(deck: PngExportDeck): Promise<void> {
   }
 }
 
-function buildOffscreenHost(slide: ParsedSlide, overlays: OverlayImage[]): HTMLElement {
+function buildOffscreenHost(slide: ParsedSlide, overlays: Overlay[]): HTMLElement {
   const host = document.createElement('div');
   host.className = 'slide-canvas-host';
   host.style.cssText = [
@@ -81,21 +99,50 @@ function buildOffscreenHost(slide: ParsedSlide, overlays: OverlayImage[]): HTMLE
   host.innerHTML = slide.html;
 
   overlays.forEach((o) => {
-    const img = document.createElement('img');
-    img.src = o.src;
-    img.alt = '';
-    img.style.cssText = [
+    // Legacy persisted overlays predate the discriminator — treat as image.
+    const kind = (o as Partial<Overlay>).kind ?? 'image';
+    if (kind === 'image') {
+      const img = o as ImageOverlay;
+      const el = document.createElement('img');
+      el.src = img.src;
+      el.alt = '';
+      el.style.cssText = [
+        'position:absolute',
+        `left:${img.x}px`,
+        `top:${img.y}px`,
+        `width:${img.w}px`,
+        `height:${img.h}px`,
+        'z-index:100',
+        'user-select:none',
+        'pointer-events:none',
+        'opacity:1',
+      ].join(';');
+      host.appendChild(el);
+      return;
+    }
+    const t = o as TextOverlay;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = [
       'position:absolute',
-      `left:${o.x}px`,
-      `top:${o.y}px`,
-      `width:${o.w}px`,
-      `height:${o.h}px`,
+      `left:${t.x}px`,
+      `top:${t.y}px`,
+      `width:${t.w}px`,
+      `height:${t.h}px`,
+      `background:${t.bg ?? 'transparent'}`,
       'z-index:100',
-      'user-select:none',
       'pointer-events:none',
-      'opacity:1',
     ].join(';');
-    host.appendChild(img);
+    const inner = document.createElement('div');
+    if (t.preset) inner.className = PRESET_CLASS[t.preset];
+    inner.style.cssText = [
+      `text-align:${t.align ?? 'left'}`,
+      t.fontSizePx ? `font-size:${t.fontSizePx}px` : '',
+    ]
+      .filter(Boolean)
+      .join(';');
+    inner.innerHTML = t.html;
+    wrap.appendChild(inner);
+    host.appendChild(wrap);
   });
 
   return host;

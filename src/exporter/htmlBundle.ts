@@ -1,11 +1,18 @@
 import themeCss from '../canvas/themes/brewnet-dark.css?raw';
-import type { OverlayImage } from '../canvas/OverlayLayer';
+import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 
+const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
+  h1: 't-title',
+  h2: 't-h2',
+  h3: 't-h3',
+  p: 't-body',
+};
+
 export type BundleInput = {
   slides: ParsedSlide[];
-  overlaysBySlide: Record<string, OverlayImage[]>;
+  overlaysBySlide: Record<string, Overlay[]>;
   title?: string;
 };
 
@@ -39,12 +46,22 @@ function escapeAttr(s: string): string {
   return s.replace(/"/g, '&quot;');
 }
 
-async function renderOverlays(overlays: OverlayImage[]): Promise<string> {
+async function renderOverlays(overlays: Overlay[]): Promise<string> {
   if (overlays.length === 0) return '';
   const parts = await Promise.all(
     overlays.map(async (o) => {
-      const src = await blobUrlToDataUrl(o.src);
-      return `<img class="export-overlay" src="${escapeAttr(src)}" alt="" style="left:${o.x}px;top:${o.y}px;width:${o.w}px;height:${o.h}px;" />`;
+      // Legacy persisted overlays predate the discriminator — treat as image.
+      const kind = (o as Partial<Overlay>).kind ?? 'image';
+      if (kind === 'image') {
+        const img = o as ImageOverlay;
+        const src = await blobUrlToDataUrl(img.src);
+        return `<img class="export-overlay" src="${escapeAttr(src)}" alt="" style="left:${img.x}px;top:${img.y}px;width:${img.w}px;height:${img.h}px;" />`;
+      }
+      const t = o as TextOverlay;
+      const presetClass = t.preset ? PRESET_CLASS[t.preset] : '';
+      const inner = `style="text-align:${t.align ?? 'left'};${t.fontSizePx ? `font-size:${t.fontSizePx}px;` : ''}"`;
+      const wrapStyle = `left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;background:${t.bg ?? 'transparent'};`;
+      return `<div class="export-overlay export-overlay-text" style="${escapeAttr(wrapStyle)}"><div class="${presetClass}" ${inner}>${t.html}</div></div>`;
     }),
   );
   return parts.join('\n');
