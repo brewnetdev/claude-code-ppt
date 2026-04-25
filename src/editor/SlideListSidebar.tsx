@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
 import Sortable from 'sortablejs';
 import { useDeckStore } from '../scene/store';
+import { SlideThumbnail } from './SlideThumbnail';
 
 type Props = {
   arrowKeysEnabled?: boolean;
 };
+
+const THUMB_WIDTH = 196;
 
 export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
   const slides = useDeckStore((s) => s.slides);
@@ -60,7 +63,7 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
   }, [reorderSlide]);
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-editor-border bg-editor-panel">
+    <aside className="flex h-full w-60 flex-col border-r border-editor-border bg-editor-panel">
       <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
         Slides ({slides.length})
       </div>
@@ -74,7 +77,7 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
             return (
               <div
                 key={slide.id}
-                className={`mb-1 flex w-full items-stretch gap-1 rounded border transition ${
+                className={`mb-2 flex w-full items-stretch gap-1 rounded border transition ${
                   active
                     ? 'border-editor-accent/50 bg-editor-accent/10'
                     : 'border-transparent hover:border-editor-border hover:bg-editor-panel/60'
@@ -90,12 +93,15 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
                 <button
                   type="button"
                   onClick={() => setCurrentIndex(idx)}
-                  className={`flex flex-1 items-center gap-2 rounded px-1.5 py-2 text-left text-xs transition ${
+                  className={`flex flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition ${
                     active ? 'text-editor-text' : 'text-editor-dim hover:text-editor-text'
                   }`}
                 >
-                  <span className="font-mono text-[10px] text-editor-accent">{num}</span>
-                  <span className="truncate">{slide.title}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px] text-editor-accent">{num}</span>
+                    <span className="truncate text-[11px]">{slide.title}</span>
+                  </div>
+                  <SlideThumbnail slideId={slide.id} width={THUMB_WIDTH} />
                 </button>
               </div>
             );
