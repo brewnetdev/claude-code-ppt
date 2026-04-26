@@ -1,0 +1,150 @@
+---
+name: md-to-slidedeck
+description: Use when the user asks to convert a Markdown document into a slide deck for the claude-code-ppt editor (e.g. "이 MD 슬라이드로 만들어줘", "make slides from this MD", "PPT로 변환"). Drives the deterministic SlidePlan → HTML pipeline so any MD + chosen template (presentation / portfolio / report) yields editor-compatible output of the same quality as design-patterns.html.
+---
+
+# md-to-slidedeck — Markdown → editor-shaped PPT deck
+
+## Why this skill exists
+
+The naïve path ("ask the LLM to write slide HTML") drifts every run — class names rot, `data-slot` slots get dropped, code-block chrome breaks. This skill enforces a **deterministic format-locked pipeline** so the agent's only creative job is *choosing what each slide says* — never how it is rendered.
+
+The pipeline is fully documented in `docs/guide/AUTHORING_RULES.md` (single source of truth — read it before any large-scale change). This SKILL.md is the operational checklist.
+
+## Core principle
+
+> **You write a SlidePlan JSON. The deterministic renderer writes the HTML.**
+
+You will never produce HTML directly. If you find yourself writing `<div class="...">`, stop — you are off-script.
+
+## Inputs
+
+The user provides:
+- a Markdown file path (or content) — e.g. `docs/sample/디자인패턴.md`
+- a **template choice**: `presentation` | `portfolio` | `report` (see "Template selection" below)
+  - if absent, infer from content (see decision rules) and announce the choice
+- optional output deck title
+
+## Template selection
+
+Same SlidePlan, different visual — **the markup is identical across templates; only `data-template` flips and CSS swaps the design tokens**. Pick by *intent*, not by content shape:
+
+| Template | Use for | Visual identity | What gets emphasized |
+|---|---|---|---|
+| `presentation` | Code-heavy talks, tutorial decks, design-pattern walkthroughs (default) | Dark BG (#0F172A), amber accent (#F59E0B), monospace footer | Code blocks, comparison tables, two-col-code, callouts |
+| `portfolio` | Personal/team intro decks, project showcases, case studies, narrative pitches | White BG (#FFFFFF), blue accent (#3D5AF1), serif-friendly | Hero titles, paragraph callouts, references, light table |
+| `report` *(not yet shipped)* | Business reports, KPI dashboards, dense data slides | TBD — sibling to portfolio with stronger table/data emphasis | (skill must abort with "report theme not shipped" until `report.css` lands) |
+
+**Inference rules (when user doesn't specify)**:
+
+- Source MD has ≥ 3 fenced code blocks → `presentation`
+- Source MD is mostly prose + ≥ 3 references → `portfolio`
+- Source MD has ≥ 2 tables and headings like "Q1/Q2", "KPI", "ROI" → would be `report` (currently abort and ask user)
+- Otherwise → `presentation` (safest fallback)
+
+> Never invent a template name outside the enum. The validator's `TEMPLATES` Set rejects anything else and the renderer's `data-template` attribute is what CSS selectors hook on — a typo means *no styling at all*.
+
+## Procedure
+
+### Step 1 — Read the contract
+
+Read these files in order before authoring anything new:
+
+1. `docs/guide/AUTHORING_RULES.md` — full pipeline spec
+2. `src/generator/slidePlan.ts` — exact TypeScript types you must match (validator lives here)
+3. `tests/generator/fixtures/sample-plan.json` — a working reference plan covering all 9 slide types
+
+If any of those files are missing, **abort and report** — the pipeline is misconfigured.
+
+### Step 2 — Read the source MD
+
+Use the Read tool. If the file is huge (> 2000 lines), read in chunks. Track:
+- top-level `#` headings (cover candidates)
+- `##` / `###` headings (slide and sub-slide boundaries)
+- code fences (note the language tag — Java/TS/Python/etc. all map to a `kind: 'code'` block; bash/sh or `$ ` prefix → `kind: 'terminal'`)
+- tables, lists, links
+
+### Step 3 — Author the SlidePlan JSON
+
+Mental model: pick slide types from `SlideNode` such that the deck reads well at presentation pace. Rule of thumb: 8–14 slides for a 2,000–4,000 word doc, 18–30 for code-heavy docs.
+
+Hard requirements (the validator will reject otherwise):
+- `slides[0].type === 'cover'`
+- every non-cover slide has a non-empty `title`
+- `section.num` values are unique (use `"01"`, `"02"`, … padded)
+- `references[].href` matches `^https?://`
+- one code block per slide max — split long files
+- bullet items ≤ 6 per slide, ≤ 60 chars per item
+
+Soft requirements (good taste):
+- start with `cover`, end with `references` if the source has external links
+- one `section` divider before each numbered chapter
+- prefer `two-col-code` (ratio 6-4) when a code listing has accompanying explanation
+- callouts: `amber` = warning/insight, `blue` = note, `green` = tip — at most one per slide
+- pure text fields are plain strings (no markdown, no HTML — the renderer escapes them)
+
+Write the plan to `.tmp/slideplan-<sourceStem>.json`. Create `.tmp/` if it doesn't exist.
+
+### Step 4 — Validate
+
+Run:
+
+```bash
+node_modules/.bin/tsx scripts/slideplan.ts validate .tmp/slideplan-<sourceStem>.json
+```
+
+- Exit 0 + summary printout → proceed.
+- Exit 1 + error list → **revise the JSON**, addressing every reported error in one pass. Do NOT play whack-a-mole — fix all errors, re-run validate, repeat. Cap retries at 3. If still failing, escalate to the user with the latest error list.
+
+### Step 5 — Render
+
+```bash
+node_modules/.bin/tsx scripts/slideplan.ts render .tmp/slideplan-<sourceStem>.json
+```
+
+This emits a standalone deck HTML to `.quality-runs/slideplan/<sourceStem>.html`. Print the path so the user can `open` it.
+
+### Step 6 — Optional: in-editor preview
+
+The standalone HTML does NOT run `upgradeSlideCodeBlocks`, so code blocks lack shiki + macOS dots chrome. To get the full editor experience:
+
+- Either copy the rendered HTML into `docs/html/presentation/<deck-id>.html` and add an entry to `BUILTIN_DECKS` in `src/library/deckRegistry.ts` (then the editor's library shows it on next dev-server boot)
+- Or open the standalone HTML directly to confirm structure and let the user load it via the future drag-drop UI
+
+Prefer the first path when the user says "에디터에서 열어줘" / "라이브러리에 추가해줘".
+
+## Definition of Done
+
+All of the following must be true:
+
+- [ ] `validate` exits 0 against the produced plan
+- [ ] `render` exits 0 and writes a deck HTML
+- [ ] Slide count is sane for the source length (see rule of thumb above)
+- [ ] Every code block in the plan has the correct `lang` (no `plaintext` for actual Java/TS code)
+- [ ] No code block has `kind: 'code'` when the source is a `$ `-prefixed shell session — those are `kind: 'terminal'`
+- [ ] You announced the rendered HTML path to the user
+
+## What this skill does NOT do
+
+- **Does not write HTML.** Ever.
+- **Does not invent `Block.kind` or `SlideNode.type` values** outside the enums defined in `slidePlan.ts`.
+- **Does not place images** — the editor handles image overlays; you only emit text/code.
+- **Does not parse markdown frontmatter** (`---\n…\n---`). Current samples don't use it; treat any frontmatter as raw text inside the first `paragraph` block until/unless explicitly asked.
+
+## Failure recovery
+
+If the pipeline fails after 3 validate retries:
+1. Stop autonomously fixing. Escalate.
+2. Show the user: the last validation error list, the offending slide indexes, and a one-sentence diagnosis (e.g. "Slide 7 has a `comparison-table` whose row count doesn't match `headers.length`").
+3. Do not delete `.tmp/slideplan-*.json` — it's the diagnostic artifact.
+
+If `render` fails after `validate` succeeded, that's a renderer bug — read `src/generator/planRenderer.ts` and report which slide type is broken. Do NOT silently downgrade or re-author the plan to dodge the bug.
+
+## Related files
+
+- `docs/guide/AUTHORING_RULES.md` — full contract / system prompt template / 4-layer format-lock matrix
+- `src/generator/slidePlan.ts` — types + `validateSlidePlan`
+- `src/generator/planRenderer.ts` — deterministic HTML emitter (one `render*` per slide type)
+- `scripts/slideplan.ts` — `validate` / `render` CLI entry points
+- `tests/generator/planRenderer.test.ts` — invariant tests (run via `npx vitest run tests/generator/planRenderer.test.ts` after touching any of the above)
+- `tests/generator/fixtures/sample-plan.json` — fixture covering all 9 slide types
