@@ -64,6 +64,25 @@ Use the Read tool. If the file is huge (> 2000 lines), read in chunks. Track:
 - code fences (note the language tag — Java/TS/Python/etc. all map to a `kind: 'code'` block; bash/sh or `$ ` prefix → `kind: 'terminal'`)
 - tables, lists, links
 
+### Step 2.5 — Compute baseline (anti silent-loss)
+
+Before authoring, write down the counts that the rubric scores against. **This is the benchmark Step 5.5 will check.** If the agent silently truncates content (e.g., 8 list items → 6 because the validator caps at 6), the baseline catches it.
+
+Record mentally (or as a comment in the plan):
+
+| Element | Count |
+|---|---|
+| `#` headings (H1) | … |
+| `##` headings (H2) | … |
+| `###` headings (H3) | … |
+| fenced code blocks (lang ∈ {ts, js, java, py, …}) | … |
+| terminal-shaped code (lang ∈ {bash, sh} or starts with `$ `) | … |
+| tables | … |
+| `[text](href)` links | … |
+| `---` thematic breaks | … |
+
+Rule: **every counted item should map to *something* in the output.** A H2 may collapse into a sub-section of a single slide (acceptable, soft warning) but a code block silently dropped is a hard failure. Note any planned collapse so you can defend it to the user later.
+
 ### Step 3 — Author the SlidePlan JSON
 
 Mental model: pick slide types from `SlideNode` such that the deck reads well at presentation pace. Rule of thumb: 8–14 slides for a 2,000–4,000 word doc, 18–30 for code-heavy docs.
@@ -104,25 +123,58 @@ node_modules/.bin/tsx scripts/slideplan.ts render .tmp/slideplan-<sourceStem>.js
 
 This emits a standalone deck HTML to `.quality-runs/slideplan/<sourceStem>.html`. Print the path so the user can `open` it.
 
+### Step 5.5 — Coverage gate (anti silent-loss)
+
+```bash
+node_modules/.bin/tsx scripts/slideplan.ts score .tmp/slideplan-<sourceStem>.json docs/sample/<sourceStem>.md
+```
+
+The CLI runs the same 11-category rubric the automated quality loop uses (`src/generator/quality/{detector,scorer}.ts`) and exits non-zero when `ratio < 0.85`. Read the printed table:
+
+- **PASS (ratio ≥ 0.85)** → proceed to Step 6.
+- **FAIL** → identify the categories with `score: 0` or low score in the "Missed / low-coverage" section. Common causes:
+  - `code` low → you split / dropped code fences. Re-author so every code fence in the MD becomes one `kind: 'code' | 'terminal'` block.
+  - `table` low → table fields collapsed to bullets. Use the `comparison-table` slide type instead.
+  - `text` low → you paraphrased instead of quoting; the probe-based check needs verbatim chunks. Quote at least the opening / middle / closing 80 chars verbatim.
+  - `h2` low → you merged too aggressively. Split the slide.
+
+Fix the plan, re-run validate → render → score. **Cap retries at 2.** If still failing, escalate to the user with the latest report.
+
 ### Step 6 — Optional: in-editor preview
 
-The standalone HTML does NOT run `upgradeSlideCodeBlocks`, so code blocks lack shiki + macOS dots chrome. To get the full editor experience:
+The standalone HTML emitted by `render` is a quick visual check; it does **not** run `upgradeSlideCodeBlocks`, so code blocks lack shiki + macOS dots chrome. To get the full editor experience and have the deck show up in the library:
 
-- Either copy the rendered HTML into `docs/html/presentation/<deck-id>.html` and add an entry to `BUILTIN_DECKS` in `src/library/deckRegistry.ts` (then the editor's library shows it on next dev-server boot)
-- Or open the standalone HTML directly to confirm structure and let the user load it via the future drag-drop UI
+```bash
+node_modules/.bin/tsx scripts/slideplan.ts publish .tmp/slideplan-<sourceStem>.json <deck-id> [--subtitle "..."]
+```
 
-Prefer the first path when the user says "에디터에서 열어줘" / "라이브러리에 추가해줘".
+- `<deck-id>` is the localStorage key — lowercase, dashes only, ≤ 64 chars (e.g. `claude-code-master-intro`). Must be unique among existing decks under `docs/html/<template>/`.
+- The command writes `docs/html/<template>/<deck-id>.html` with `<title>` from `plan.meta.title` and (optional) `<meta name="subtitle">`. The registry's `import.meta.glob` picks the file up automatically — **no need to edit `src/library/deckRegistry.ts`**.
+- Pass `--force` only when the user explicitly asks to overwrite an existing deck.
+
+Prefer this command when the user says "에디터에서 열어줘" / "라이브러리에 추가해줘". Then tell them to restart `npm run dev`.
+
+Direct edits to `src/library/deckRegistry.ts` are **only** needed when overriding the title or assigning a custom subtitle for a deck that lacks `<meta name="subtitle">`. Don't touch the registry for routine publishes.
 
 ## Definition of Done
 
-All of the following must be true:
+Split into **Hard** (auto-abort if false) and **Soft** (report to user but proceed).
+
+### Hard invariants
 
 - [ ] `validate` exits 0 against the produced plan
 - [ ] `render` exits 0 and writes a deck HTML
-- [ ] Slide count is sane for the source length (see rule of thumb above)
+- [ ] `score` exits 0 (coverage ratio ≥ 0.85 — see Step 5.5)
+- [ ] Every required slot (cover.title, section.num/title, references[].href, …) is non-empty in the plan
+- [ ] No source code fence is silently dropped — count(code+terminal blocks in plan) ≥ count(fences in MD) measured at Step 2.5
+
+### Soft invariants (report only)
+
+- [ ] Slide count is within rule of thumb (8–14 / 18–30, see Step 3)
 - [ ] Every code block in the plan has the correct `lang` (no `plaintext` for actual Java/TS code)
 - [ ] No code block has `kind: 'code'` when the source is a `$ `-prefixed shell session — those are `kind: 'terminal'`
-- [ ] You announced the rendered HTML path to the user
+- [ ] H2 collapse rate ≤ 30% (you merged at most one in three; if more, surface why)
+- [ ] You announced the rendered HTML path **and** the coverage ratio to the user
 
 ## What this skill does NOT do
 
@@ -139,6 +191,15 @@ If the pipeline fails after 3 validate retries:
 3. Do not delete `.tmp/slideplan-*.json` — it's the diagnostic artifact.
 
 If `render` fails after `validate` succeeded, that's a renderer bug — read `src/generator/planRenderer.ts` and report which slide type is broken. Do NOT silently downgrade or re-author the plan to dodge the bug.
+
+If `score` fails after `validate` + `render` succeeded (coverage ratio < 0.85):
+1. Identify the missed categories from the report's "Missed / low-coverage" section.
+2. Revise **only** the parts of the plan needed to restore those categories — don't rewrite the whole deck.
+3. Re-run `validate` → `render` → `score`.
+4. Cap at 2 score retries. After that, surface the latest report to the user with one of:
+   - "MD에 X 개의 항목 (예: code blocks 25개) 이 있는데 슬라이드에는 N 개만 담겨 있습니다. 그대로 진행 / 추가 슬라이드 분할 / 일부 무시 중 결정해 주세요."
+   - "Text coverage 가 낮습니다 — 본문을 단축 요약했기 때문입니다. 원문 verbatim 인용을 늘릴지, 그대로 진행할지 결정해 주세요."
+**Never silently accept a sub-0.85 ratio. The user has explicitly asked us not to drop content.**
 
 ## Related files
 
