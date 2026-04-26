@@ -2,6 +2,7 @@
 //
 //   slideplan validate <plan.json>
 //   slideplan render <plan.json> [out.html]
+//   slideplan score <plan.json> <source.md>
 //
 // `validate` prints the same errors that the in-app validator returns and
 // exits non-zero on failure — used by the md-to-slidedeck skill before
@@ -9,12 +10,21 @@
 // blocks CSS inlined, editor overrides stripped) suitable for opening in a
 // browser. To get shiki / macOS dots chrome, the deck must instead be loaded
 // through the editor (which runs upgradeSlideCodeBlocks at boot).
+// `score` measures coverage of the source MD by the rendered plan against
+// the 11-category rubric — exits non-zero when ratio < 0.85 so the
+// md-to-slidedeck skill can detect silent content loss.
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderPlan } from '../src/generator/planRenderer';
+import { parseMarkdown } from '../src/generator/parseMarkdown';
+import { detectFeatures } from '../src/generator/quality/detector';
+import { scoreHtml } from '../src/generator/quality/scorer';
+import { sanitizeRawHtml } from '../src/generator/sanitizeRawHtml';
 import { validateSlidePlan } from '../src/generator/slidePlan';
+
+const SCORE_HARD_GATE = 0.85;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -115,6 +125,66 @@ function cmdRender(planPath: string, outPath: string | undefined): never {
   process.exit(0);
 }
 
+function cmdScore(planPath: string, mdPath: string): never {
+  const { result } = loadPlan(planPath);
+  if (!result.ok) {
+    console.error('✗ Cannot score — plan failed validation:');
+    for (const e of result.errors) console.error('  -', e);
+    process.exit(1);
+  }
+  if (!existsSync(mdPath)) {
+    console.error(`✗ source MD not found: ${mdPath}`);
+    process.exit(2);
+  }
+
+  // Render the agent-authored plan to HTML using the same emitter the editor
+  // uses. We do NOT rely on the bundled standalone wrapper here — the scorer
+  // only inspects slide-level structure (`<div class="slide">`).
+  const slides = renderPlan(result.plan);
+  const html = slides.map((s) => s.html).join('\n');
+
+  // Parse the source MD identically to the automated pipeline so feature
+  // counts match what the rubric expects. sanitizeRawHtml strips embedded
+  // raw <svg>/<div> noise that would otherwise inflate text-coverage probes.
+  const source = readFileSync(mdPath, 'utf8');
+  const tree = parseMarkdown(source);
+  sanitizeRawHtml(tree);
+  const features = detectFeatures(tree);
+
+  const score = scoreHtml(html, features);
+
+  console.log('═══ Coverage Report ═══');
+  console.log(`  plan:   ${planPath}`);
+  console.log(`  source: ${mdPath}`);
+  console.log(`  ratio:  ${(score.ratio * 100).toFixed(1)}% (${score.earned}/${score.presentMax})`);
+  console.log(`  gate:   ratio ≥ ${(SCORE_HARD_GATE * 100).toFixed(0)}% → ${score.ratio >= SCORE_HARD_GATE ? 'PASS' : 'FAIL'}`);
+  console.log('');
+  console.log('  ID    Label        Score   Detail');
+  console.log('  ───── ──────────── ─────── ────────────────────────────────────────');
+  for (const item of score.items) {
+    const idCol = item.id.padEnd(5);
+    const labelCol = item.label.padEnd(10);
+    const scoreCol = (item.score === null ? 'N/A' : `${item.score}/10`).padEnd(7);
+    console.log(`  ${idCol} ${labelCol}   ${scoreCol} ${item.detail}`);
+  }
+  console.log('');
+
+  // Surface what the agent likely missed so the next plan revision can target it.
+  const missed = score.items.filter((i) => i.presentInMd && (i.score ?? 0) < 7);
+  if (missed.length > 0) {
+    console.log('⚠ Missed / low-coverage categories (revise plan to capture):');
+    for (const m of missed) console.log(`  - ${m.id} (${m.label}): ${m.detail}`);
+    console.log('');
+  }
+
+  if (score.ratio < SCORE_HARD_GATE) {
+    console.error(`✗ coverage gate FAILED (${(score.ratio * 100).toFixed(1)}% < ${(SCORE_HARD_GATE * 100).toFixed(0)}%)`);
+    process.exit(1);
+  }
+  console.log('✓ coverage gate PASSED');
+  process.exit(0);
+}
+
 function safeStem(p: string): string {
   return p
     .split('/')
@@ -127,6 +197,7 @@ function usage(): never {
   console.error('Usage:');
   console.error('  slideplan validate <plan.json>');
   console.error('  slideplan render <plan.json> [out.html]');
+  console.error('  slideplan score <plan.json> <source.md>');
   process.exit(64);
 }
 
@@ -135,6 +206,7 @@ function main() {
   if (!cmd) usage();
   if (cmd === 'validate' && p1) cmdValidate(resolve(p1));
   if (cmd === 'render' && p1) cmdRender(resolve(p1), p2 ? resolve(p2) : undefined);
+  if (cmd === 'score' && p1 && p2) cmdScore(resolve(p1), resolve(p2));
   usage();
 }
 
