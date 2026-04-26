@@ -22,6 +22,7 @@ const LANGS: readonly BundledLanguage[] = [
   'html',
   'css',
   'python',
+  'java',
 ];
 
 const LANG_SET = new Set<string>([...(LANGS as readonly string[]), 'plaintext']);
@@ -80,4 +81,5 @@ export const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }> = 
   { value: 'html', label: 'HTML' },
   { value: 'css', label: 'CSS' },
   { value: 'python', label: 'Python' },
+  { value: 'java', label: 'Java' },
 ];
