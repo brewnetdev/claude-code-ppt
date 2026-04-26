@@ -1,6 +1,7 @@
 import themeCss from '../canvas/themes/brewnet-dark.css?raw';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { applyBackgroundToHtml } from '../scene/applySlideBackground';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
@@ -73,9 +74,12 @@ export async function buildHtmlBundle(input: BundleInput): Promise<string> {
   const sections = await Promise.all(
     slides.map(async (s, i) => {
       const overlayHtml = await renderOverlays(overlaysBySlide[s.id] ?? []);
+      // Bake the slide-level background into the .slide style attribute so
+      // the standalone bundle is self-contained — no runtime apply needed.
+      const slideHtml = applyBackgroundToHtml(s.html, s.background);
       return `<section class="export-slide" data-index="${i}">
 <div class="export-stage">
-${s.html}
+${slideHtml}
 ${overlayHtml}
 </div>
 </section>`;

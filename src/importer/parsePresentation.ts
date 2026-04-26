@@ -1,7 +1,15 @@
+// Slide-level background override. Lives outside `html` so the markup stays
+// canonical (theme CSS still owns the default surface) and the export path
+// can opt in or out independently.
+export type SlideBackground =
+  | { kind: 'color'; value: string }
+  | { kind: 'image'; src: string; fit: 'cover' | 'contain' };
+
 export type ParsedSlide = {
   id: string;
   html: string;
   title: string;
+  background?: SlideBackground;
 };
 
 export type ParsedDeck = {
