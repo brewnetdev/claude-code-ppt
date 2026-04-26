@@ -24,6 +24,7 @@ const THEME_CSS_PATHS = [
   'src/canvas/themes/brewnet-dark.css',
   'src/canvas/themes/code-blocks.css',
   'src/canvas/themes/portfolio.css',
+  'src/canvas/themes/report.css',
 ];
 
 function stripEditorOverrides(css: string): string {

@@ -2,6 +2,7 @@ import brewnetPresentationHtml from '../../docs/html/presentation/brewnet-presen
 import designPatternsHtml from '../../docs/html/presentation/design-patterns.html?raw';
 import slideplanSamplePresentationHtml from '../../docs/html/presentation/slideplan-sample.html?raw';
 import slideplanSamplePortfolioHtml from '../../docs/html/portfolio/slideplan-sample.html?raw';
+import slideplanSampleReportHtml from '../../docs/html/report/slideplan-sample.html?raw';
 
 export type DeckSourceKind = 'builtin';
 
@@ -49,6 +50,14 @@ export const BUILTIN_DECKS: DeckRegistryEntry[] = [
     template: 'portfolio',
     kind: 'builtin',
     html: slideplanSamplePortfolioHtml,
+  },
+  {
+    id: 'slideplan-sample-report',
+    title: 'SlidePlan 샘플 (report)',
+    subtitle: '동일 fixture · 웜 크림 + 티얼 · 표 zebra 강조',
+    template: 'report',
+    kind: 'builtin',
+    html: slideplanSampleReportHtml,
   },
 ];
 
