@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { BlockFormatPanel } from './BlockFormatPanel';
@@ -18,11 +19,43 @@ export function PropertiesPanel() {
   );
   const updateOverlay = useDeckStore((s) => s.updateOverlay);
   const removeOverlay = useDeckStore((s) => s.removeOverlay);
+  const [collapsed, setCollapsed] = useState(false);
+
+  if (collapsed) {
+    return (
+      <aside className="flex h-full w-8 flex-col items-center border-l border-editor-border bg-editor-panel">
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="mt-2 flex h-6 w-6 items-center justify-center rounded text-editor-dim transition hover:bg-editor-bg hover:text-editor-text"
+          title="속성 패널 펼치기"
+          aria-label="속성 패널 펼치기"
+        >
+          ‹
+        </button>
+        <div
+          className="mt-3 select-none text-[10px] font-semibold uppercase tracking-wider text-editor-dim"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          Properties
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="flex h-full w-72 flex-col border-l border-editor-border bg-editor-panel">
-      <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
-        Properties
+      <div className="flex items-center justify-between border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
+        <span>Properties</span>
+        <button
+          type="button"
+          onClick={() => setCollapsed(true)}
+          className="flex h-5 w-5 items-center justify-center rounded text-editor-dim transition hover:bg-editor-bg hover:text-editor-text"
+          title="속성 패널 접기"
+          aria-label="속성 패널 접기"
+        >
+          ›
+        </button>
       </div>
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
         {selectedBlockId && !overlay ? (
