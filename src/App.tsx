@@ -4,6 +4,7 @@ import { DeckLibraryView } from './editor/DeckLibraryView';
 import { PresentationView } from './editor/PresentationView';
 import { PropertiesPanel } from './editor/PropertiesPanel';
 import { SlideListSidebar } from './editor/SlideListSidebar';
+import { ToastHost } from './editor/Toast';
 import { Toolbar } from './editor/Toolbar';
 import { parsePresentationHTML } from './importer/parsePresentation';
 import { upgradeSlideCodeBlocks } from './importer/upgradeCodeBlocks';
@@ -74,7 +75,12 @@ export function App() {
   }, [mode, activeDeckId]);
 
   if (mode === 'library') {
-    return <DeckLibraryView onOpen={openDeck} />;
+    return (
+      <>
+        <DeckLibraryView onOpen={openDeck} />
+        <ToastHost />
+      </>
+    );
   }
 
   const activeDeck = activeDeckId ? getDeckById(activeDeckId) : undefined;
@@ -94,6 +100,7 @@ export function App() {
         <PropertiesPanel />
       </div>
       {presenting ? <PresentationView onExit={exitPresenting} /> : null}
+      <ToastHost />
     </div>
   );
 }
