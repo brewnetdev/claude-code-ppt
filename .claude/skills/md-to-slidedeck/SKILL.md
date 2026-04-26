@@ -142,12 +142,19 @@ Fix the plan, re-run validate → render → score. **Cap retries at 2.** If sti
 
 ### Step 6 — Optional: in-editor preview
 
-The standalone HTML does NOT run `upgradeSlideCodeBlocks`, so code blocks lack shiki + macOS dots chrome. To get the full editor experience:
+The standalone HTML emitted by `render` is a quick visual check; it does **not** run `upgradeSlideCodeBlocks`, so code blocks lack shiki + macOS dots chrome. To get the full editor experience and have the deck show up in the library:
 
-- Either copy the rendered HTML into `docs/html/presentation/<deck-id>.html` and add an entry to `BUILTIN_DECKS` in `src/library/deckRegistry.ts` (then the editor's library shows it on next dev-server boot)
-- Or open the standalone HTML directly to confirm structure and let the user load it via the future drag-drop UI
+```bash
+node_modules/.bin/tsx scripts/slideplan.ts publish .tmp/slideplan-<sourceStem>.json <deck-id> [--subtitle "..."]
+```
 
-Prefer the first path when the user says "에디터에서 열어줘" / "라이브러리에 추가해줘".
+- `<deck-id>` is the localStorage key — lowercase, dashes only, ≤ 64 chars (e.g. `claude-code-master-intro`). Must be unique among existing decks under `docs/html/<template>/`.
+- The command writes `docs/html/<template>/<deck-id>.html` with `<title>` from `plan.meta.title` and (optional) `<meta name="subtitle">`. The registry's `import.meta.glob` picks the file up automatically — **no need to edit `src/library/deckRegistry.ts`**.
+- Pass `--force` only when the user explicitly asks to overwrite an existing deck.
+
+Prefer this command when the user says "에디터에서 열어줘" / "라이브러리에 추가해줘". Then tell them to restart `npm run dev`.
+
+Direct edits to `src/library/deckRegistry.ts` are **only** needed when overriding the title or assigning a custom subtitle for a deck that lacks `<meta name="subtitle">`. Don't touch the registry for routine publishes.
 
 ## Definition of Done
 
