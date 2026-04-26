@@ -5,9 +5,9 @@ import { usePersistenceStore } from './persistenceStore';
 
 const DEBOUNCE_MS = 800;
 
-export function useAutoSave(enabled: boolean): void {
+export function useAutoSave(deckId: string | null, enabled: boolean): void {
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !deckId) return;
 
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inflight = false;
@@ -26,7 +26,7 @@ export function useAutoSave(enabled: boolean): void {
         inflight = false;
         return;
       }
-      const result = await saveDeckToLocalStorage({ slides, overlaysBySlide, currentIndex });
+      const result = await saveDeckToLocalStorage(deckId, { slides, overlaysBySlide, currentIndex });
       if (result.ok) {
         usePersistenceStore.getState().setSaved(result.savedAt);
       } else {
@@ -56,5 +56,5 @@ export function useAutoSave(enabled: boolean): void {
       unsub();
       if (timer) clearTimeout(timer);
     };
-  }, [enabled]);
+  }, [deckId, enabled]);
 }

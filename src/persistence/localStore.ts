@@ -1,8 +1,14 @@
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 
-const STORAGE_KEY = 'claude-code-ppt:deck:v1';
+const KEY_PREFIX = 'claude-code-ppt:deck:v1';
+const LEGACY_KEY = 'claude-code-ppt:deck:v1';
+const LAST_DECK_KEY = 'claude-code-ppt:last-deck:v1';
 const SCHEMA_VERSION = 1;
+
+function storageKeyFor(deckId: string): string {
+  return `${KEY_PREFIX}:${deckId}`;
+}
 
 export type PersistedDeck = {
   version: number;
@@ -49,11 +55,14 @@ async function inlineOverlays(
   return out;
 }
 
-export async function saveDeckToLocalStorage(input: {
-  slides: ParsedSlide[];
-  overlaysBySlide: Record<string, Overlay[]>;
-  currentIndex: number;
-}): Promise<SaveResult> {
+export async function saveDeckToLocalStorage(
+  deckId: string,
+  input: {
+    slides: ParsedSlide[];
+    overlaysBySlide: Record<string, Overlay[]>;
+    currentIndex: number;
+  },
+): Promise<SaveResult> {
   try {
     const overlaysBySlide = await inlineOverlays(input.overlaysBySlide);
     const payload: PersistedDeck = {
@@ -64,16 +73,34 @@ export async function saveDeckToLocalStorage(input: {
       currentIndex: input.currentIndex,
     };
     const json = JSON.stringify(payload);
-    localStorage.setItem(STORAGE_KEY, json);
+    localStorage.setItem(storageKeyFor(deckId), json);
+    localStorage.setItem(LAST_DECK_KEY, deckId);
     return { ok: true, size: json.length, savedAt: payload.savedAt };
   } catch (err) {
     return { ok: false, reason: err instanceof Error ? err.message : String(err) };
   }
 }
 
-export function loadDeckFromLocalStorage(): PersistedDeck | null {
+export function loadDeckFromLocalStorage(deckId: string): PersistedDeck | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const key = storageKeyFor(deckId);
+    let raw = localStorage.getItem(key);
+
+    // One-time migration from the original single-key layout. The brewnet
+    // deck was the only thing the editor could load before deck-id scoping,
+    // so any legacy payload belongs to it. We rename rather than copy so the
+    // migration is idempotent.
+    if (!raw && deckId === 'brewnet-presentation') {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy && legacy !== '' && !localStorage.getItem(storageKeyFor('brewnet-presentation'))) {
+        // The legacy key happens to equal KEY_PREFIX itself — so reading via
+        // storageKeyFor('brewnet-presentation') returns null here. Move it.
+        localStorage.setItem(key, legacy);
+        localStorage.removeItem(LEGACY_KEY);
+        raw = legacy;
+      }
+    }
+
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<PersistedDeck>;
     if (parsed?.version !== SCHEMA_VERSION) return null;
@@ -91,10 +118,26 @@ export function loadDeckFromLocalStorage(): PersistedDeck | null {
   }
 }
 
-export function clearDeckFromLocalStorage(): void {
+export function clearDeckFromLocalStorage(deckId: string): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKeyFor(deckId));
   } catch {
     /* swallow — storage may be disabled */
+  }
+}
+
+export function getLastOpenedDeckId(): string | null {
+  try {
+    return localStorage.getItem(LAST_DECK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setLastOpenedDeckId(deckId: string): void {
+  try {
+    localStorage.setItem(LAST_DECK_KEY, deckId);
+  } catch {
+    /* swallow */
   }
 }
