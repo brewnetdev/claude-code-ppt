@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import presentationHtml from '../../docs/html/presentation/brewnet-presentation.html?raw';
 import {
   buildHtmlBundle,
   defaultExportName,
@@ -8,6 +7,7 @@ import {
 } from '../exporter/htmlBundle';
 import { exportAllSlidesPng } from '../exporter/pngExport';
 import { parsePresentationHTML } from '../importer/parsePresentation';
+import type { DeckRegistryEntry } from '../library/deckRegistry';
 import { clearDeckFromLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
 import { flushPendingCommit } from '../scene/pendingCommit';
@@ -19,9 +19,11 @@ type Busy = null | 'html' | 'pdf' | 'png';
 
 type ToolbarProps = {
   onPresent: () => void;
+  onExitToLibrary: () => void;
+  activeDeck: DeckRegistryEntry | null;
 };
 
-export function Toolbar({ onPresent }: ToolbarProps) {
+export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps) {
   const slides = useDeckStore((s) => s.slides);
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const insertSlideAfter = useDeckStore((s) => s.insertSlideAfter);
@@ -120,9 +122,20 @@ export function Toolbar({ onPresent }: ToolbarProps) {
     <>
     <header className="flex h-12 items-center justify-between border-b border-editor-border bg-editor-panel px-4">
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onExitToLibrary}
+          title="데크 라이브러리로 돌아가기"
+          className="rounded border border-editor-border px-2 py-0.5 text-[11px] font-medium text-editor-dim transition hover:border-editor-accent hover:text-editor-accent"
+        >
+          ← Library
+        </button>
         <span className="text-sm font-bold tracking-wide text-editor-accent">
           claude-code-ppt
         </span>
+        {activeDeck ? (
+          <span className="text-xs text-editor-text">{activeDeck.title}</span>
+        ) : null}
         <button
           type="button"
           onClick={() => setHelpOpen(true)}
@@ -196,17 +209,19 @@ export function Toolbar({ onPresent }: ToolbarProps) {
         <SaveIndicator />
         <ToolbarButton
           onClick={() => {
+            if (!activeDeck) return;
             const ok = window.confirm(
-              '저장된 작업을 모두 지우고 샘플 슬라이드로 되돌립니다. 계속하시겠습니까?',
+              '이 데크의 저장된 편집을 모두 지우고 원본으로 되돌립니다. 계속하시겠습니까?',
             );
             if (!ok) return;
-            clearDeckFromLocalStorage();
+            clearDeckFromLocalStorage(activeDeck.id);
             usePersistenceStore.getState().reset();
-            const { slides: fresh } = parsePresentationHTML(presentationHtml);
+            const { slides: fresh } = parsePresentationHTML(activeDeck.html);
             loadDeck(fresh);
           }}
+          disabled={!activeDeck}
           tone="danger"
-          title="localStorage 비우고 샘플로 리셋"
+          title="이 데크의 localStorage 편집 내역을 지우고 원본으로 리셋"
         >
           Reset
         </ToolbarButton>

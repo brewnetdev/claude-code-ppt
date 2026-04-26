@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
-import type { ParsedSlide } from '../importer/parsePresentation';
+import type { ParsedSlide, SlideBackground } from '../importer/parsePresentation';
 import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
 
@@ -53,6 +53,7 @@ type DeckState = {
   }) => void;
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
+  setSlideBackground: (id: string, background: SlideBackground | null) => void;
 
   insertSlideAfter: (index: number, html?: string, title?: string) => void;
   duplicateSlide: (index: number) => void;
@@ -152,6 +153,28 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         past: pushPast(state.past, snap(state)),
         future: [],
         slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
+      };
+    }),
+
+  setSlideBackground: (id, background) =>
+    set((state) => {
+      const current = state.slides.find((s) => s.id === id);
+      if (!current) return state;
+      // No-op when value matches — avoids spurious history entries when the
+      // ColorPicker re-emits the same hex on focus blur.
+      const same =
+        (background === null && !current.background) ||
+        (background &&
+          current.background &&
+          background.kind === current.background.kind &&
+          JSON.stringify(background) === JSON.stringify(current.background));
+      if (same) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) =>
+          s.id === id ? { ...s, background: background ?? undefined } : s,
+        ),
       };
     }),
 

@@ -1,8 +1,15 @@
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 
-const STORAGE_KEY = 'claude-code-ppt:deck:v1';
+const KEY_PREFIX = 'claude-code-ppt:deck:v1';
+const LEGACY_KEY = 'claude-code-ppt:deck:v1';
+const LAST_DECK_KEY = 'claude-code-ppt:last-deck:v1';
+const HIDDEN_DECKS_KEY = 'claude-code-ppt:hidden-decks:v1';
 const SCHEMA_VERSION = 1;
+
+function storageKeyFor(deckId: string): string {
+  return `${KEY_PREFIX}:${deckId}`;
+}
 
 export type PersistedDeck = {
   version: number;
@@ -49,11 +56,14 @@ async function inlineOverlays(
   return out;
 }
 
-export async function saveDeckToLocalStorage(input: {
-  slides: ParsedSlide[];
-  overlaysBySlide: Record<string, Overlay[]>;
-  currentIndex: number;
-}): Promise<SaveResult> {
+export async function saveDeckToLocalStorage(
+  deckId: string,
+  input: {
+    slides: ParsedSlide[];
+    overlaysBySlide: Record<string, Overlay[]>;
+    currentIndex: number;
+  },
+): Promise<SaveResult> {
   try {
     const overlaysBySlide = await inlineOverlays(input.overlaysBySlide);
     const payload: PersistedDeck = {
@@ -64,16 +74,34 @@ export async function saveDeckToLocalStorage(input: {
       currentIndex: input.currentIndex,
     };
     const json = JSON.stringify(payload);
-    localStorage.setItem(STORAGE_KEY, json);
+    localStorage.setItem(storageKeyFor(deckId), json);
+    localStorage.setItem(LAST_DECK_KEY, deckId);
     return { ok: true, size: json.length, savedAt: payload.savedAt };
   } catch (err) {
     return { ok: false, reason: err instanceof Error ? err.message : String(err) };
   }
 }
 
-export function loadDeckFromLocalStorage(): PersistedDeck | null {
+export function loadDeckFromLocalStorage(deckId: string): PersistedDeck | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const key = storageKeyFor(deckId);
+    let raw = localStorage.getItem(key);
+
+    // One-time migration from the original single-key layout. The brewnet
+    // deck was the only thing the editor could load before deck-id scoping,
+    // so any legacy payload belongs to it. We rename rather than copy so the
+    // migration is idempotent.
+    if (!raw && deckId === 'brewnet-presentation') {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy && legacy !== '' && !localStorage.getItem(storageKeyFor('brewnet-presentation'))) {
+        // The legacy key happens to equal KEY_PREFIX itself — so reading via
+        // storageKeyFor('brewnet-presentation') returns null here. Move it.
+        localStorage.setItem(key, legacy);
+        localStorage.removeItem(LEGACY_KEY);
+        raw = legacy;
+      }
+    }
+
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<PersistedDeck>;
     if (parsed?.version !== SCHEMA_VERSION) return null;
@@ -91,10 +119,63 @@ export function loadDeckFromLocalStorage(): PersistedDeck | null {
   }
 }
 
-export function clearDeckFromLocalStorage(): void {
+export function clearDeckFromLocalStorage(deckId: string): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKeyFor(deckId));
   } catch {
     /* swallow — storage may be disabled */
   }
+}
+
+export function getLastOpenedDeckId(): string | null {
+  try {
+    return localStorage.getItem(LAST_DECK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setLastOpenedDeckId(deckId: string): void {
+  try {
+    localStorage.setItem(LAST_DECK_KEY, deckId);
+  } catch {
+    /* swallow */
+  }
+}
+
+// Logical "delete" for built-in decks. The HTML source is bundled at build
+// time so we can't physically remove it; instead we keep an id allowlist in
+// localStorage and filter the library through it. Restoring just removes
+// the id from the set — the bundle is still there.
+export function getHiddenDeckIds(): string[] {
+  try {
+    const raw = localStorage.getItem(HIDDEN_DECKS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is string => typeof v === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function writeHiddenDeckIds(ids: string[]): void {
+  try {
+    localStorage.setItem(HIDDEN_DECKS_KEY, JSON.stringify(ids));
+  } catch {
+    /* swallow */
+  }
+}
+
+export function addHiddenDeckId(deckId: string): void {
+  const current = getHiddenDeckIds();
+  if (current.includes(deckId)) return;
+  writeHiddenDeckIds([...current, deckId]);
+}
+
+export function removeHiddenDeckId(deckId: string): void {
+  const current = getHiddenDeckIds();
+  const next = current.filter((id) => id !== deckId);
+  if (next.length === current.length) return;
+  writeHiddenDeckIds(next);
 }

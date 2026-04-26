@@ -1,6 +1,7 @@
 import { toPng } from 'html-to-image';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { applyBackgroundToElement } from '../scene/applySlideBackground';
 import { SLIDE_HEIGHT, SLIDE_WIDTH, TARGET_HEIGHT, TARGET_WIDTH } from '../scene/constants';
 
 const EXPORT_SCALE = TARGET_WIDTH / SLIDE_WIDTH;
@@ -97,6 +98,13 @@ function buildOffscreenHost(slide: ParsedSlide, overlays: Overlay[]): HTMLElemen
     'pointer-events:none',
   ].join(';');
   host.innerHTML = slide.html;
+
+  // The persisted html is canonical — bg is owned by ParsedSlide.background.
+  // Apply it now so the rasterized PNG matches what the user sees in-editor.
+  if (slide.background) {
+    const slideEl = host.querySelector<HTMLElement>('div.slide');
+    if (slideEl) applyBackgroundToElement(slideEl, slide.background);
+  }
 
   overlays.forEach((o) => {
     // Legacy persisted overlays predate the discriminator — treat as image.

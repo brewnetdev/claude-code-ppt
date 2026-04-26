@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { applyBackgroundToElement, stripBackgroundFromElement } from '../scene/applySlideBackground';
 import { registerPendingFlush } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
 import './themes/code-blocks.css';
+import './themes/portfolio.css';
+import './themes/report.css';
 
 const COMMIT_DEBOUNCE_MS = 300;
 
@@ -14,6 +17,11 @@ type Props = {
 export function SlideRenderer({ slideId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const commitSlideHtml = useDeckStore((s) => s.commitSlideHtml);
+  // Subscribe to bg only — html/style edits keep flowing through the
+  // dangerouslySetInnerHTML mount + DOM-debounced commit path.
+  const background = useDeckStore(
+    (s) => s.slides.find((slide) => slide.id === slideId)?.background ?? null,
+  );
 
   // Read html once per slideId. We never rebind the DOM on store updates —
   // re-rendering dangerouslySetInnerHTML would nuke contenteditable focus mid-type.
@@ -52,6 +60,12 @@ export function SlideRenderer({ slideId }: Props) {
       if (el.getAttribute('style') === '') el.removeAttribute('style');
     });
 
+    // Background is owned by ParsedSlide.background (a structured field),
+    // not by the html string. Strip the runtime-applied bg style before
+    // serializing so the canonical html stays clean and bg toggles can be
+    // undone independently of textual edits.
+    stripBackgroundFromElement(clone);
+
     commitSlideHtml(slideId, clone.outerHTML);
   }, [slideId, commitSlideHtml]);
 
@@ -89,6 +103,16 @@ export function SlideRenderer({ slideId }: Props) {
   }, [commitFromDom]);
 
   useSlideEditing(ref, scheduleCommit, commitNow);
+
+  // Apply background imperatively — mutating .slide style avoids a remount
+  // (which would nuke focus mid-edit) and keeps bg state independent of the
+  // html string. Re-runs whenever the slide changes or the user picks a new
+  // color/image.
+  useEffect(() => {
+    const slide = ref.current?.querySelector<HTMLElement>('div.slide');
+    if (!slide) return;
+    applyBackgroundToElement(slide, background);
+  }, [background, slideId]);
 
   useEffect(() => registerPendingFlush(flushIfPending), [flushIfPending]);
 

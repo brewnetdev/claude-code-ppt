@@ -160,15 +160,24 @@ export function BlockFormatPanel({ blockId }: Props) {
       floatBlockToOverlay(override);
       return;
     }
-    const b = readBox();
-    if (!b) return;
-    // Pin the rendered size before leaving flex flow so the wrapper doesn't
-    // shrink-wrap and lose its visual width/height.
-    if (!el.style.width) el.style.width = `${b.w}px`;
-    if (!el.style.height) el.style.height = `${b.h}px`;
-    el.style.position = 'absolute';
-    el.style.left = `${override.x ?? b.x}px`;
-    el.style.top = `${override.y ?? b.y}px`;
+    if (el.style.position !== 'absolute') {
+      // First-time flex → absolute transition. Pin the rendered size and seed
+      // both axes from the DOM box so the element stays where the user sees it.
+      const b = readBox();
+      if (!b) return;
+      if (!el.style.width) el.style.width = `${b.w}px`;
+      if (!el.style.height) el.style.height = `${b.h}px`;
+      el.style.position = 'absolute';
+      el.style.left = `${override.x ?? b.x}px`;
+      el.style.top = `${override.y ?? b.y}px`;
+    } else {
+      // Subsequent edits: only touch the axis the user actually changed.
+      // Re-reading the DOM box and rewriting the other axis caused 1-2px
+      // drift per edit (Math.round on getBoundingClientRect / scale), which
+      // surfaced as the unchanged field "moving proportionally".
+      if (override.x !== undefined) el.style.left = `${override.x}px`;
+      if (override.y !== undefined) el.style.top = `${override.y}px`;
+    }
     notifyInput(el);
     refresh();
   };
