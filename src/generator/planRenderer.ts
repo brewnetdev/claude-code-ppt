@@ -153,7 +153,7 @@ function wrapSection(
     `<div class="t-chapter" data-slot="label">${escapeHtml(label)}</div>`,
     `<div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">${escapeHtml(node.title)}</div>`,
     node.subtitle
-      ? `<div data-slot="subtitle" style="margin-top:22px; font-size:17px; color:var(--muted); max-width:620px; line-height:1.7;">${escapeHtml(node.subtitle)}</div>`
+      ? `<div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">${escapeHtml(node.subtitle)}</div>`
       : '',
   ]
     .filter(Boolean)
