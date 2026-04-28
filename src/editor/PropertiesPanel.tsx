@@ -22,8 +22,10 @@ export function PropertiesPanel() {
   const removeOverlay = useDeckStore((s) => s.removeOverlay);
   const copyOverlay = useDeckStore((s) => s.copyOverlay);
   const pasteOverlay = useDeckStore((s) => s.pasteOverlay);
+  const pasteBlock = useDeckStore((s) => s.pasteBlock);
   const clipboard = useDeckStore((s) => s.clipboard);
   const canPasteOverlay = clipboard?.kind === 'overlay';
+  const canPasteBlock = clipboard?.kind === 'block';
   const [collapsed, setCollapsed] = useState(false);
 
   if (collapsed) {
@@ -88,6 +90,38 @@ export function PropertiesPanel() {
           // into a block and the section drops out of view.
           <div className="space-y-4">
             <SlideBackgroundSection />
+            {(canPasteBlock || canPasteOverlay) && slideId ? (
+              <div>
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+                  Clipboard
+                </div>
+                <div className="grid grid-cols-1 gap-1">
+                  {canPasteBlock ? (
+                    <button
+                      type="button"
+                      onClick={() => pasteBlock(slideId, null, 'below')}
+                      title="복사한 블록을 이 슬라이드 끝에 붙여넣기 (Cmd/Ctrl+V)"
+                      className="rounded border border-editor-accent/50 px-2 py-1.5 text-[11px] font-medium text-editor-accent transition hover:bg-editor-accent/10"
+                    >
+                      Paste block here
+                    </button>
+                  ) : null}
+                  {canPasteOverlay ? (
+                    <button
+                      type="button"
+                      onClick={() => pasteOverlay(slideId)}
+                      title="복사한 오버레이를 이 슬라이드에 붙여넣기 (Cmd/Ctrl+V)"
+                      className="rounded border border-editor-accent/50 px-2 py-1.5 text-[11px] font-medium text-editor-accent transition hover:bg-editor-accent/10"
+                    >
+                      Paste overlay here
+                    </button>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-[10px] text-editor-dim">
+                  다른 슬라이드에서 복사한 항목을 이 슬라이드에 붙여넣습니다.
+                </p>
+              </div>
+            ) : null}
             <TextFormatPanel />
             <TextBlockTemplates />
             <CodeBlockTemplates />
