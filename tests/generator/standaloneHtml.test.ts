@@ -25,7 +25,7 @@ function styleBlock(html: string): string {
 }
 
 describe('standalone HTML — portfolio sample', () => {
-  const html = readArtefact('docs/html/portfolio/slideplan-sample.html');
+  const html = readArtefact('docs/html/portfolio/claude-code-curriculum-v1-portfolio.html');
   const css = styleBlock(html);
 
   it('inlines portfolio.css selectors', () => {
@@ -52,7 +52,7 @@ describe('standalone HTML — portfolio sample', () => {
 });
 
 describe('standalone HTML — report sample', () => {
-  const html = readArtefact('docs/html/report/slideplan-sample.html');
+  const html = readArtefact('docs/html/report/claude-code-curriculum-v1-report.html');
   const css = styleBlock(html);
 
   it('inlines report.css selectors', () => {
@@ -74,7 +74,7 @@ describe('standalone HTML — report sample', () => {
 });
 
 describe('standalone HTML — presentation sample', () => {
-  const html = readArtefact('docs/html/presentation/slideplan-sample.html');
+  const html = readArtefact('docs/html/presentation/claude-code-curriculum-v1.html');
   const css = styleBlock(html);
 
   it('inlines brewnet-dark base tokens (the default presentation surface)', () => {
