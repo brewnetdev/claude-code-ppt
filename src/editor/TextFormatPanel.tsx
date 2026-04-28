@@ -329,7 +329,13 @@ export function TextFormatPanel() {
                   e.preventDefault();
                   const n = Number((e.target as HTMLInputElement).value);
                   if (Number.isFinite(n) && n > 0) applyFontSize(n);
+                  (e.target as HTMLInputElement).blur();
                 }
+              }}
+              onBlur={(e) => {
+                const n = Number(e.target.value);
+                if (e.target.value === '') return;
+                if (Number.isFinite(n) && n > 0) applyFontSize(n);
               }}
               className="w-16 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs text-editor-text outline-none focus:border-editor-accent"
             />
