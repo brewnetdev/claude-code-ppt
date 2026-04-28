@@ -160,23 +160,37 @@ export function BlockFormatPanel({ blockId }: Props) {
     else el.style.flex = '';
   };
 
-  const setW = (next: number) => {
+  // Sample slides ship a variety of inline sizing constraints —
+  // `flex:1` on table/two-col wrappers, `max-width:780px` on hero titles,
+  // `min-height:120px` on architecture boxes, etc. Setting only `style.width`
+  // / `style.height` is silently capped by these, which surfaces as
+  // "W/H 입력이 안 먹는다" repeatedly. Centralize the policy here:
+  // when the user pins an explicit value, that value is the binding
+  // constraint — clear the opposing inline min/max for the same axis (we
+  // don't override class-rule constraints). When the user clears (0/blank),
+  // remove the inline value but keep the original min/max alone — they may
+  // come from the source HTML and we don't have the original to restore.
+  const applyDimension = (axis: 'width' | 'height', next: number) => {
     if (!el) return;
-    if (next > 0) el.style.width = `${next}px`;
-    else el.style.width = '';
+    if (next > 0) {
+      el.style[axis] = `${next}px`;
+      if (axis === 'width') {
+        el.style.maxWidth = '';
+        el.style.minWidth = '';
+      } else {
+        el.style.maxHeight = '';
+        el.style.minHeight = '';
+      }
+    } else {
+      el.style[axis] = '';
+    }
     reconcileFlexLock();
     notifyInput(el);
     refresh();
   };
 
-  const setH = (next: number) => {
-    if (!el) return;
-    if (next > 0) el.style.height = `${next}px`;
-    else el.style.height = '';
-    reconcileFlexLock();
-    notifyInput(el);
-    refresh();
-  };
+  const setW = (next: number) => applyDimension('width', next);
+  const setH = (next: number) => applyDimension('height', next);
 
   const disabled = !el;
 
@@ -230,12 +244,14 @@ export function BlockFormatPanel({ blockId }: Props) {
             value={size.w ?? box?.w ?? 0}
             disabled={disabled}
             onChange={setW}
+            testId="block-format-w"
           />
           <NumberField
             label="H"
             value={size.h ?? box?.h ?? 0}
             disabled={disabled}
             onChange={setH}
+            testId="block-format-h"
           />
         </div>
         <p className="mt-1 text-[10px] text-editor-dim">0 = 자동 (인라인 스타일 제거).</p>
@@ -293,9 +309,10 @@ type NumberFieldProps = {
   value: number;
   disabled?: boolean;
   onChange: (v: number) => void;
+  testId?: string;
 };
 
-function NumberField({ label, value, disabled, onChange }: NumberFieldProps) {
+function NumberField({ label, value, disabled, onChange, testId }: NumberFieldProps) {
   const rounded = Math.round(value);
   const [draft, setDraft] = useState<string>(() => String(rounded));
   const focusedRef = useRef(false);
@@ -314,6 +331,7 @@ function NumberField({ label, value, disabled, onChange }: NumberFieldProps) {
         value={draft}
         min={0}
         disabled={disabled}
+        data-testid={testId}
         onFocus={(e) => {
           focusedRef.current = true;
           setTimeout(() => e.target.select(), 0);

@@ -3,6 +3,7 @@ import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer'
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { applyBackgroundToHtml } from '../scene/applySlideBackground';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
+import { linkifyHtml } from './linkify';
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',
@@ -62,7 +63,8 @@ async function renderOverlays(overlays: Overlay[]): Promise<string> {
       const presetClass = t.preset ? PRESET_CLASS[t.preset] : '';
       const inner = `style="text-align:${t.align ?? 'left'};${t.fontSizePx ? `font-size:${t.fontSizePx}px;` : ''}"`;
       const wrapStyle = `left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;background:${t.bg ?? 'transparent'};`;
-      return `<div class="export-overlay export-overlay-text" style="${escapeAttr(wrapStyle)}"><div class="${presetClass}" ${inner}>${t.html}</div></div>`;
+      const linkedHtml = linkifyHtml(t.html, document);
+      return `<div class="export-overlay export-overlay-text" style="${escapeAttr(wrapStyle)}"><div class="${presetClass}" ${inner}>${linkedHtml}</div></div>`;
     }),
   );
   return parts.join('\n');
@@ -76,7 +78,12 @@ export async function buildHtmlBundle(input: BundleInput): Promise<string> {
       const overlayHtml = await renderOverlays(overlaysBySlide[s.id] ?? []);
       // Bake the slide-level background into the .slide style attribute so
       // the standalone bundle is self-contained — no runtime apply needed.
-      const slideHtml = applyBackgroundToHtml(s.html, s.background);
+      // linkifyHtml runs after background application so any URLs that exist
+      // in the slide body get target="_blank" + rel before shipping.
+      const slideHtml = linkifyHtml(
+        applyBackgroundToHtml(s.html, s.background),
+        document,
+      );
       return `<section class="export-slide" data-index="${i}">
 <div class="export-stage">
 ${slideHtml}
