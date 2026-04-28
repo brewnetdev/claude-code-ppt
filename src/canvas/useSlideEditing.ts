@@ -255,6 +255,70 @@ export function useSlideEditing(
     const onInput = () => notify();
     root.addEventListener('input', onInput);
 
+    // Tab inside a table cell:
+    // - Forward Tab at the last cell of the last row appends a new empty row
+    //   that clones the previous row's structure (so styling/striping/column
+    //   layout are preserved) and parks the caret in the new row's first cell.
+    // - Tab/Shift+Tab in any other cell moves the caret to the adjacent cell
+    //   and selects its contents, mirroring the cell-traversal contract users
+    //   expect from PowerPoint/Keynote/Excel.
+    const onTableTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (e.isComposing || e.keyCode === 229) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const focus = sel.focusNode;
+      if (!focus) return;
+      const focusEl = focus instanceof Element ? focus : focus.parentElement;
+      const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
+      if (!cell || !root.contains(cell)) return;
+      const table = cell.closest<HTMLTableElement>('table');
+      if (!table) return;
+      const allCells = Array.from(table.querySelectorAll<HTMLTableCellElement>('td, th'));
+      const idx = allCells.indexOf(cell);
+      if (idx < 0) return;
+
+      e.preventDefault();
+      const backward = e.shiftKey;
+
+      // Forward Tab past the last cell → append a row to <tbody>.
+      if (!backward && idx === allCells.length - 1) {
+        const tbody = table.querySelector('tbody') ?? table;
+        const templateRow =
+          tbody.querySelector<HTMLTableRowElement>('tr:last-child') ??
+          (cell.parentElement as HTMLTableRowElement | null);
+        if (!templateRow) return;
+        const newRow = templateRow.cloneNode(true) as HTMLTableRowElement;
+        newRow.querySelectorAll('td, th').forEach((c) => {
+          // Empty content but keep a <br> so the cell stays clickable and the
+          // caret has somewhere to land. Strip any nested elements that came
+          // along for the ride (e.g. `<strong>` from the template) so the
+          // user starts with a clean cell.
+          c.textContent = '';
+          c.appendChild(document.createElement('br'));
+        });
+        tbody.appendChild(newRow);
+        const firstCell = newRow.querySelector<HTMLTableCellElement>('td, th');
+        if (firstCell) {
+          const range = document.createRange();
+          range.selectNodeContents(firstCell);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        notify();
+        return;
+      }
+
+      const nextCell = backward ? allCells[idx - 1] : allCells[idx + 1];
+      if (!nextCell) return;
+      const range = document.createRange();
+      range.selectNodeContents(nextCell);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    };
+    root.addEventListener('keydown', onTableTab);
+
     // Anchors inside contenteditable would navigate on click — block so the
     // href text can be edited without leaving the page.
     const onAnchorClick = (e: MouseEvent) => {
@@ -295,6 +359,7 @@ export function useSlideEditing(
       root.removeEventListener('click', onAnchorClick);
       root.removeEventListener('mousedown', onMouseDownSelect);
       root.removeEventListener('dblclick', onDblClick);
+      root.removeEventListener('keydown', onTableTab);
       root.removeEventListener('keydown', onCodeKeydown, true);
       root.removeEventListener('paste', onCodePaste, true);
       root.removeEventListener('drop', onCodeDrop, true);
