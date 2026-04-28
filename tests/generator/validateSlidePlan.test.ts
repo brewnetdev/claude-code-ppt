@@ -120,4 +120,53 @@ describe('validateSlidePlan — negative cases', () => {
       );
     }
   });
+
+  it('rejects an empty slides array', () => {
+    const plan = goodPlan();
+    plan.slides = [];
+    const result = validateSlidePlan(plan);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.some((e) => /slides must be a non-empty array/.test(e))).toBe(true);
+    }
+  });
+
+  it('rejects a cover with an empty title', () => {
+    const plan = goodPlan();
+    plan.slides[0].title = '   ';
+    const result = validateSlidePlan(plan);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.some((e) => /title required \(cover\)/.test(e))).toBe(true);
+    }
+  });
+
+  it('rejects a callout with an unknown tone', () => {
+    const plan = goodPlan();
+    // 'red' is a valid BadgeTone but NOT a CalloutTone — easy LLM mistake.
+    const calloutSlideIdx = plan.slides.findIndex(
+      (s: { type: string }) => s.type === 'callout-summary',
+    );
+    expect(calloutSlideIdx).toBeGreaterThan(0);
+    plan.slides[calloutSlideIdx].callouts[0].tone = 'red';
+    const result = validateSlidePlan(plan);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.some((e) => /tone must be one of/.test(e))).toBe(true);
+    }
+  });
+
+  it('rejects a block with an unknown kind', () => {
+    const plan = goodPlan();
+    const titleBodyIdx = plan.slides.findIndex(
+      (s: { type: string }) => s.type === 'title-body',
+    );
+    expect(titleBodyIdx).toBeGreaterThan(0);
+    plan.slides[titleBodyIdx].blocks[0] = { kind: 'mystery-block', text: 'x' };
+    const result = validateSlidePlan(plan);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.some((e) => /kind must be one of/.test(e))).toBe(true);
+    }
+  });
 });
