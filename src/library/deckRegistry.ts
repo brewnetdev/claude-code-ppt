@@ -6,8 +6,8 @@
 // `slideplan publish` CLI writes new decks straight into that tree.
 //
 // Stable IDs matter: localStorage edits are keyed by deck id. The
-// SUBTITLE_OVERRIDES + ID_OVERRIDES maps below keep the five originally
-// hand-listed decks pointing at the same id they shipped with.
+// override maps below let us pin a title/subtitle/priority for hand-curated
+// decks (e.g. the Brewnet sample) without changing their on-disk filename.
 
 // Restricted to the three template subdirs so unrelated reference HTML at
 // docs/html/* and docs/html/manual/* (developer scratch files, not decks)
@@ -31,39 +31,18 @@ export type DeckRegistryEntry = {
 
 const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report'];
 
-// Filename `slideplan-sample.html` exists under all three templates. The
-// originally shipped registry disambiguated with `-<template>` suffixes —
-// preserve that to keep localStorage keys stable across the refactor.
-const ID_OVERRIDES: Record<string, string> = {
-  'presentation/slideplan-sample': 'slideplan-sample-presentation',
-  'portfolio/slideplan-sample': 'slideplan-sample-portfolio',
-  'report/slideplan-sample': 'slideplan-sample-report',
-};
-
 const TITLE_OVERRIDES: Record<string, string> = {
   'brewnet-presentation': 'Brewnet — Claude Code Master',
-  'design-patterns': 'GoF 디자인 패턴',
-  'slideplan-sample-presentation': 'SlidePlan 샘플 (presentation)',
-  'slideplan-sample-portfolio': 'SlidePlan 샘플 (portfolio)',
-  'slideplan-sample-report': 'SlidePlan 샘플 (report)',
 };
 
 const SUBTITLE_OVERRIDES: Record<string, string> = {
   'brewnet-presentation': '브루넷 발표 데크 (샘플)',
-  'design-patterns': 'Factory · Singleton · Strategy · Template · Facade · Command',
-  'slideplan-sample-presentation': '결정론적 렌더러 fixture · 9 슬라이드 · 다크 + 앰버',
-  'slideplan-sample-portfolio': '동일 fixture · data-template만 swap · 화이트 + 블루',
-  'slideplan-sample-report': '동일 fixture · 웜 크림 + 티얼 · 표 zebra 강조',
 };
 
 // Lower priority sorts first. Anything not listed lands at the end in
 // alphabetical id order, which gives a stable but unsurprising default.
 const PRIORITY: Record<string, number> = {
   'brewnet-presentation': 10,
-  'design-patterns': 20,
-  'slideplan-sample-presentation': 30,
-  'slideplan-sample-portfolio': 31,
-  'slideplan-sample-report': 32,
 };
 
 function inferTemplate(path: string): DeckTemplate | null {
@@ -109,9 +88,7 @@ function buildRegistry(): DeckRegistryEntry[] {
   for (const [path, html] of Object.entries(eagerHtml)) {
     const template = inferTemplate(path);
     if (!template) continue;
-    const fileStem = stem(basename(path));
-    const overrideKey = `${template}/${fileStem}`;
-    const id = ID_OVERRIDES[overrideKey] ?? fileStem;
+    const id = stem(basename(path));
     const fileTitle = extractTitle(html);
     const title = TITLE_OVERRIDES[id] ?? fileTitle ?? id;
     const subtitle = SUBTITLE_OVERRIDES[id] ?? extractMetaSubtitle(html) ?? undefined;
