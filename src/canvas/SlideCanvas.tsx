@@ -151,21 +151,64 @@ export function SlideCanvas() {
       const dropX = (e.clientX - rect.left) / sc;
       const dropY = (e.clientY - rect.top) / sc;
 
-      const w = 360;
-      const h = 240;
       const url = URL.createObjectURL(file);
       const id = makeId();
-      const item: ImageOverlay = {
-        id,
-        kind: 'image',
-        src: url,
-        x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
-        y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
-        w,
-        h,
+
+      // Probe the natural dimensions so the drop respects the source aspect
+      // ratio. The previous fixed 360×240 box was forcing portrait photos
+      // (e.g. a 3104×3647 book cover) into a landscape rectangle, which
+      // combined with `object-fit: cover` to crop the image AND downsample
+      // it ~8× — exactly the "drop tanks the resolution" report.
+      const probe = new Image();
+      probe.onload = () => {
+        const nW = probe.naturalWidth || 1;
+        const nH = probe.naturalHeight || 1;
+        // Cap the longer edge so drops don't blow up the slide. 600px on the
+        // long edge × 1.5 export scale → up to 900 device px in 1080p video,
+        // which is more than enough for a hero image while staying inside
+        // a 1280×720 authoring frame.
+        const MAX_EDGE = 600;
+        let w: number;
+        let h: number;
+        if (nW >= nH) {
+          w = Math.min(nW, MAX_EDGE);
+          h = (w * nH) / nW;
+        } else {
+          h = Math.min(nH, MAX_EDGE);
+          w = (h * nW) / nH;
+        }
+        w = Math.round(w);
+        h = Math.round(h);
+        const item: ImageOverlay = {
+          id,
+          kind: 'image',
+          src: url,
+          x: Math.max(0, Math.min(Math.round(dropX - w / 2), SLIDE_WIDTH - w)),
+          y: Math.max(0, Math.min(Math.round(dropY - h / 2), SLIDE_HEIGHT - h)),
+          w,
+          h,
+        };
+        addOverlay(slideId, item);
+        setSelectedOverlayId(id);
       };
-      addOverlay(slideId, item);
-      setSelectedOverlayId(id);
+      probe.onerror = () => {
+        // Fallback to the legacy fixed box only when natural-dim probing fails
+        // (corrupt file, blocked CORS, etc.). Better than dropping nothing.
+        const w = 360;
+        const h = 240;
+        const item: ImageOverlay = {
+          id,
+          kind: 'image',
+          src: url,
+          x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
+          y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
+          w,
+          h,
+        };
+        addOverlay(slideId, item);
+        setSelectedOverlayId(id);
+      };
+      probe.src = url;
     },
     [slideId, addOverlay, setSelectedOverlayId],
   );
