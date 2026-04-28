@@ -32,6 +32,10 @@ type Props = {
 export function TextOverlayPropertiesSection({ slideId, overlay }: Props) {
   const updateOverlay = useDeckStore((s) => s.updateOverlay);
   const removeOverlay = useDeckStore((s) => s.removeOverlay);
+  const copyOverlay = useDeckStore((s) => s.copyOverlay);
+  const pasteOverlay = useDeckStore((s) => s.pasteOverlay);
+  const clipboard = useDeckStore((s) => s.clipboard);
+  const canPasteOverlay = clipboard?.kind === 'overlay';
 
   const patch = (p: Partial<TextOverlay>) => updateOverlay(slideId, overlay.id, p);
 
@@ -168,13 +172,38 @@ export function TextOverlayPropertiesSection({ slideId, overlay }: Props) {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => removeOverlay(slideId, overlay.id)}
-        className="w-full rounded border border-red-500/40 px-2 py-1.5 text-xs text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
-      >
-        Delete
-      </button>
+      <div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+          Actions
+        </div>
+        <div className="grid grid-cols-3 gap-1">
+          <button
+            type="button"
+            onClick={() => copyOverlay(slideId, overlay.id)}
+            title="Copy overlay (Cmd/Ctrl+C)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10"
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={() => pasteOverlay(slideId)}
+            disabled={!canPasteOverlay}
+            title="Paste overlay (Cmd/Ctrl+V)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Paste
+          </button>
+          <button
+            type="button"
+            onClick={() => removeOverlay(slideId, overlay.id)}
+            title="Delete overlay (Del / Backspace)"
+            className="rounded border border-red-500/40 px-1 py-1.5 text-[11px] text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
 
       <p className="text-[10px] leading-relaxed text-editor-dim">
         좌표는 1280×720 원본 기준입니다 (내보내기 시 1920×1080로 확대).

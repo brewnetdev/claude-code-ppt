@@ -132,8 +132,10 @@ export function useSlideEditing(
     const onMouseDownSelect = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null;
       if (!t) return;
-      // Drag handle should not steal block selection.
-      if (t.closest('.block-drag-handle')) return;
+      // Handle clicks select the block too — the grip is the most
+      // discoverable affordance for "this is a block." SortableJS attaches
+      // at .slide-inner (deeper in the tree) and receives mousedown before
+      // this root listener, so drag-start is unaffected.
       const block = t.closest<HTMLElement>(`[${DATA_BLOCK_ID}]`);
       if (!block) return;
       const id = block.getAttribute(DATA_BLOCK_ID);

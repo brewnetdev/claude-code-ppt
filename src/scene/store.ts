@@ -31,12 +31,20 @@ type Snapshot = {
   currentIndex: number;
 };
 
+type ClipboardEntry =
+  | { kind: 'block'; html: string }
+  | { kind: 'overlay'; data: Overlay };
+
 type DeckState = {
   slides: ParsedSlide[];
   currentIndex: number;
   overlaysBySlide: Record<string, Overlay[]>;
   selectedOverlayId: string | null;
   selectedBlockId: string | null;
+
+  // Internal copy buffer for in-flow blocks and overlays. Survives slide
+  // navigation but is discarded on full deck reload.
+  clipboard: ClipboardEntry | null;
 
   past: Snapshot[];
   future: Snapshot[];
@@ -76,6 +84,19 @@ type DeckState = {
   // history entry so undo restores both halves at once.
   floatBlock: (slideId: string, blockId: string, overlay: Overlay) => void;
 
+  // Copy / paste / remove for in-flow blocks. Paste anchors above or below
+  // the supplied block id; if no anchor (or the anchor disappeared), paste
+  // appends to the end of .slide-inner. Copy does NOT push a history entry
+  // (pure read), paste/remove do.
+  copyBlock: (slideId: string, blockId: string) => void;
+  pasteBlock: (slideId: string, anchorBlockId: string | null, where: 'above' | 'below') => void;
+  removeBlock: (slideId: string, blockId: string) => void;
+
+  // Same trio for free-positioned overlays. Paste assigns a new id and
+  // offsets x/y by +20px to make the duplicate visually distinguishable.
+  copyOverlay: (slideId: string, overlayId: string) => void;
+  pasteOverlay: (slideId: string) => void;
+
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
@@ -101,6 +122,8 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   overlaysBySlide: {},
   selectedOverlayId: null,
   selectedBlockId: null,
+
+  clipboard: null,
 
   past: [],
   future: [],
@@ -365,6 +388,127 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         selectedBlockId: null,
         selectedOverlayId: overlay.id,
         revision: state.revision + 1,
+      };
+    });
+  },
+
+  copyBlock: (slideId, blockId) => {
+    flushPendingCommit();
+    const slide = get().slides.find((s) => s.id === slideId);
+    if (!slide) return;
+    const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+    const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
+    if (!block) return;
+    // Strip ephemeral runtime decoration the source block accumulated:
+    //   - data-block-id (pasted clone gets a fresh id from useSlideEditing)
+    //   - .block-drag-handle (re-injected on mount)
+    //   - .selected-block class (selection ring is transient)
+    const clone = block.cloneNode(true) as HTMLElement;
+    clone.removeAttribute(DATA_BLOCK_ID);
+    clone.querySelectorAll('.block-drag-handle').forEach((n) => n.remove());
+    clone.classList.remove('selected-block');
+    // Force the pasted clone to size to its content. Tables, two-col grids,
+    // and other layout wrappers commonly carry `flex: 1` (inline or via
+    // class rules) so they fill the slide's empty space. When pasted into
+    // an already-full slide-inner that auto-fill makes the new block
+    // unmanageably squished — predictable content-sized default is what
+    // a "duplicate" gesture should produce.
+    clone.style.flex = '0 0 auto';
+    set({ clipboard: { kind: 'block', html: clone.outerHTML } });
+  },
+
+  pasteBlock: (slideId, anchorBlockId, where) => {
+    flushPendingCommit();
+    set((state) => {
+      const entry = state.clipboard;
+      if (!entry || entry.kind !== 'block') return state;
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const inner = doc.querySelector('.slide-inner');
+      if (!inner) return state;
+      const tmp = doc.createElement('div');
+      tmp.innerHTML = entry.html;
+      const fresh = tmp.firstElementChild;
+      if (!fresh) return state;
+      const anchor = anchorBlockId
+        ? doc.querySelector(`[${DATA_BLOCK_ID}="${anchorBlockId}"]`)
+        : null;
+      // The anchor must be a direct child of .slide-inner — pasting a sibling
+      // of a deeply-nested element would break the flex flow. Walk up to the
+      // first child of .slide-inner if needed.
+      let anchorChild: Element | null = anchor;
+      while (anchorChild && anchorChild.parentElement !== inner) {
+        anchorChild = anchorChild.parentElement;
+      }
+      if (anchorChild) {
+        if (where === 'above') inner.insertBefore(fresh, anchorChild);
+        else inner.insertBefore(fresh, anchorChild.nextSibling);
+      } else {
+        inner.appendChild(fresh);
+      }
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      if (newHtml === slide.html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === slideId ? { ...s, html: newHtml } : s)),
+        revision: state.revision + 1,
+      };
+    });
+  },
+
+  removeBlock: (slideId, blockId) => {
+    flushPendingCommit();
+    set((state) => {
+      const slide = state.slides.find((s) => s.id === slideId);
+      if (!slide) return state;
+      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
+      if (!block) return state;
+      block.remove();
+      const slideEl = doc.querySelector('.slide');
+      const newHtml = slideEl ? slideEl.outerHTML : slide.html;
+      if (newHtml === slide.html) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides: state.slides.map((s) => (s.id === slideId ? { ...s, html: newHtml } : s)),
+        selectedBlockId: state.selectedBlockId === blockId ? null : state.selectedBlockId,
+        revision: state.revision + 1,
+      };
+    });
+  },
+
+  copyOverlay: (slideId, overlayId) => {
+    const list = get().overlaysBySlide[slideId] ?? [];
+    const target = list.find((o) => o.id === overlayId);
+    if (!target) return;
+    set({ clipboard: { kind: 'overlay', data: target } });
+  },
+
+  pasteOverlay: (slideId) => {
+    set((state) => {
+      const entry = state.clipboard;
+      if (!entry || entry.kind !== 'overlay') return state;
+      const id = `ovl-paste-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      const offset = 20;
+      const next: Overlay = {
+        ...entry.data,
+        id,
+        x: entry.data.x + offset,
+        y: entry.data.y + offset,
+      };
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        overlaysBySlide: {
+          ...state.overlaysBySlide,
+          [slideId]: [...(state.overlaysBySlide[slideId] ?? []), next],
+        },
+        selectedOverlayId: id,
+        selectedBlockId: null,
       };
     });
   },
