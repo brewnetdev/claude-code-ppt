@@ -7,6 +7,7 @@ import { idbDeleteDeck, idbGetDeck, idbPutDeck } from './idb';
 // localStorage because it's tiny and benefits from a sync read at boot.
 const LAST_DECK_KEY = 'claude-code-ppt:last-deck:v1';
 const HIDDEN_DECKS_KEY = 'claude-code-ppt:hidden-decks:v1';
+const ZOOM_PERCENT_KEY = 'claude-code-ppt:zoom-percent:v1';
 // Legacy localStorage keys we sweep on first boot after the IDB migration.
 const LEGACY_DECK_KEY_PREFIX = 'claude-code-ppt:deck:v1:';
 const LEGACY_BARE_DECK_KEY = 'claude-code-ppt:deck:v1';
@@ -223,4 +224,27 @@ export function removeHiddenDeckId(deckId: string): void {
   const next = current.filter((id) => id !== deckId);
   if (next.length === current.length) return;
   writeHiddenDeckIds(next);
+}
+
+// Zoom percent for the editor canvas. Tiny integer, sync access matters at
+// mount, so localStorage rather than IDB. Returns null when no preference is
+// stored or the stored value is out of bounds; callers fall back to 100.
+export function getZoomPercent(): number | null {
+  try {
+    const raw = localStorage.getItem(ZOOM_PERCENT_KEY);
+    if (!raw) return null;
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 25 || n > 200) return null;
+    return Math.round(n);
+  } catch {
+    return null;
+  }
+}
+
+export function setZoomPercent(n: number): void {
+  try {
+    localStorage.setItem(ZOOM_PERCENT_KEY, String(Math.round(n)));
+  } catch {
+    /* swallow */
+  }
 }
