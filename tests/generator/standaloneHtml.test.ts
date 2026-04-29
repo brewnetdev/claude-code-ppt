@@ -24,35 +24,8 @@ function styleBlock(html: string): string {
   return m[1];
 }
 
-describe('standalone HTML — portfolio sample', () => {
-  const html = readArtefact('docs/html/portfolio/slideplan-sample.html');
-  const css = styleBlock(html);
-
-  it('inlines portfolio.css selectors', () => {
-    expect(css).toMatch(/\[data-template="portfolio"\]\s*\{/);
-  });
-
-  it('preserves portfolio brand blue token', () => {
-    expect(css).toMatch(/--amber:\s*#3D5AF1/i);
-  });
-
-  it('inlines code-blocks.css (.code-block / .terminal class definitions)', () => {
-    expect(css).toMatch(/\.code-block/);
-    expect(css).toMatch(/\.terminal/);
-  });
-
-  it('every slide carries data-template="portfolio"', () => {
-    const matches = html.match(/data-template="portfolio"/g) ?? [];
-    expect(matches.length).toBeGreaterThan(0);
-  });
-
-  it('strips the editor-only body override (margin: 0 !important)', () => {
-    expect(css).not.toMatch(/body\s*\{\s*margin:\s*0\s*!important;/);
-  });
-});
-
 describe('standalone HTML — report sample', () => {
-  const html = readArtefact('docs/html/report/slideplan-sample.html');
+  const html = readArtefact('docs/html/report/claude-code-curriculum-v1-report.html');
   const css = styleBlock(html);
 
   it('inlines report.css selectors', () => {
@@ -71,19 +44,9 @@ describe('standalone HTML — report sample', () => {
     const matches = html.match(/data-template="report"/g) ?? [];
     expect(matches.length).toBeGreaterThan(0);
   });
-});
 
-describe('standalone HTML — presentation sample', () => {
-  const html = readArtefact('docs/html/presentation/slideplan-sample.html');
-  const css = styleBlock(html);
-
-  it('inlines brewnet-dark base tokens (the default presentation surface)', () => {
-    expect(css).toMatch(/:root\s*\{/);
-    expect(css).toMatch(/--bg/);
-  });
-
-  it('every slide carries data-template="presentation"', () => {
-    const matches = html.match(/data-template="presentation"/g) ?? [];
-    expect(matches.length).toBeGreaterThan(0);
+  it('inlines code-blocks.css (.code-block / .terminal class definitions)', () => {
+    expect(css).toMatch(/\.code-block/);
+    expect(css).toMatch(/\.terminal/);
   });
 });

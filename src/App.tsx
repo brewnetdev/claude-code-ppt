@@ -27,7 +27,7 @@ export function App() {
 
   const openDeck = useCallback(
     async (deck: DeckRegistryEntry) => {
-      const persisted = loadDeckFromLocalStorage(deck.id);
+      const persisted = await loadDeckFromLocalStorage(deck.id);
       if (persisted) {
         // Persisted decks were already upgraded on first import; re-upgrading
         // is idempotent (skips wired blocks) but we avoid the cost when

@@ -12,7 +12,9 @@ import { clearDeckFromLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
 import { flushPendingCommit } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
+import { ExportDropdown } from './ExportDropdown';
 import { HelpModal } from './HelpModal';
+import { IconPicker } from './IconPicker';
 import { TemplatePicker } from './TemplatePicker';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -196,25 +198,24 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
           Delete
         </ToolbarButton>
         <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
-        <ToolbarButton onClick={handleExportHtml} disabled={!canExport} tone="accent">
-          {busy === 'html' ? 'Exporting…' : 'Export HTML'}
-        </ToolbarButton>
-        <ToolbarButton onClick={handleExportPdf} disabled={!canExport} tone="accent">
-          {busy === 'pdf' ? 'Opening…' : 'Export PDF'}
-        </ToolbarButton>
-        <ToolbarButton onClick={handleExportPng} disabled={!canExport} tone="accent">
-          {busy === 'png' ? 'Rendering…' : 'PNG (all)'}
-        </ToolbarButton>
+        <IconPicker />
+        <ExportDropdown
+          busy={busy}
+          disabled={!canExport}
+          onExportHtml={handleExportHtml}
+          onExportPdf={handleExportPdf}
+          onExportPng={handleExportPng}
+        />
         <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
         <SaveIndicator />
         <ToolbarButton
-          onClick={() => {
+          onClick={async () => {
             if (!activeDeck) return;
             const ok = window.confirm(
               '이 데크의 저장된 편집을 모두 지우고 원본으로 되돌립니다. 계속하시겠습니까?',
             );
             if (!ok) return;
-            clearDeckFromLocalStorage(activeDeck.id);
+            await clearDeckFromLocalStorage(activeDeck.id);
             usePersistenceStore.getState().reset();
             const { slides: fresh } = parsePresentationHTML(activeDeck.html);
             loadDeck(fresh);

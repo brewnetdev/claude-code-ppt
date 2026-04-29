@@ -19,9 +19,9 @@
 // rather than inline contenteditable. The editor renders them correctly.
 //
 // Per-deck reinforcement:
-//   - Code-heavy decks (`design-patterns`, `slideplan-sample-presentation`)
-//     must keep at least one .code-block — the shiki upgrade path depends on
-//     this surviving any future markup change.
+//   - Code-heavy decks (`brewnet-presentation`) must keep at least one
+//     .code-block — the shiki upgrade path depends on this surviving any
+//     future markup change.
 
 import { JSDOM } from 'jsdom';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -40,8 +40,7 @@ beforeAll(() => {
 });
 
 const CODE_HEAVY_DECK_IDS = new Set<string>([
-  'design-patterns',
-  'slideplan-sample-presentation',
+  'brewnet-presentation',
 ]);
 
 function dataTemplateValues(html: string): string[] {

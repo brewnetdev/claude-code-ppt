@@ -8,13 +8,22 @@ type SelectionMeta = {
   underline: boolean;
 };
 
+// Legacy hl-* classes — older decks still carry these wrappers, and Clear
+// must keep recognising them. New highlights use inline style + a
+// data-highlight marker so the swatch hex is exactly what gets rendered,
+// regardless of the deck's data-template (portfolio/report tinted these
+// classes to different colors, which is what the "wrong color applied"
+// report actually was).
 const HL_CLASSES = ['hl-amber', 'hl-blue', 'hl-green', 'hl-cyan'] as const;
 
-const SWATCHES: { className: (typeof HL_CLASSES)[number]; label: string; color: string }[] = [
-  { className: 'hl-amber', label: 'Amber', color: '#F59E0B' },
-  { className: 'hl-blue', label: 'Blue', color: '#60A5FA' },
-  { className: 'hl-green', label: 'Green', color: '#34D399' },
-  { className: 'hl-cyan', label: 'Cyan', color: '#22D3EE' },
+const SWATCHES: { label: string; color: string }[] = [
+  { label: 'Amber', color: '#F59E0B' },
+  { label: 'Blue', color: '#60A5FA' },
+  { label: 'Green', color: '#34D399' },
+  { label: 'Cyan', color: '#22D3EE' },
+  { label: 'Deep Green', color: '#166534' },
+  { label: 'Deep Red', color: '#991B1B' },
+  { label: 'Deep Gray', color: '#374151' },
 ];
 
 function selectionInsideCanvas(): Range | null {
@@ -83,20 +92,26 @@ function notifyInput(range: Range): void {
   target?.dispatchEvent(new InputEvent('input', { bubbles: true }));
 }
 
-function wrapWithClass(className: string): void {
+// WYSIWYG highlight: write the swatch hex straight into inline `style` and
+// flag the span with `data-highlight="1"` so Clear can find it later. We
+// stopped using the legacy `hl-amber/blue/green/cyan` classes because each
+// template (presentation/portfolio/report) re-tints them — the swatch said
+// amber, but a portfolio deck would render brown. Inline color makes the
+// painted result match the swatch unconditionally.
+function applyHighlight(color: string): void {
   const range = selectionInsideCanvas();
   if (!range) return;
   const span = document.createElement('span');
-  span.className = className;
+  span.style.color = color;
+  span.style.fontWeight = '700';
+  span.setAttribute('data-highlight', '1');
   try {
     range.surroundContents(span);
   } catch {
-    // Range crosses element boundaries — extract → wrap → reinsert.
     const fragment = range.extractContents();
     span.appendChild(fragment);
     range.insertNode(span);
   }
-  // Re-select the freshly wrapped content so further actions stack predictably.
   const sel = window.getSelection();
   if (sel) {
     const fresh = document.createRange();
@@ -173,22 +188,38 @@ function wrapWithStyle(patch: InlineStylePatch): void {
 function clearHighlights(): void {
   const range = selectionInsideCanvas();
   if (!range) return;
-  // Walk the selected fragment, unwrap any span whose class is one of HL_CLASSES.
   const root = range.commonAncestorContainer.parentElement;
   if (!root) return;
   const all = Array.from(root.querySelectorAll<HTMLElement>('span'));
   for (const el of all) {
     if (!range.intersectsNode(el)) continue;
-    const cls = el.className.split(/\s+/).filter((c) => !HL_CLASSES.includes(c as (typeof HL_CLASSES)[number]));
-    if (cls.length === el.className.split(/\s+/).length) continue;
-    if (cls.length === 0) {
-      // Unwrap entirely — replace the span with its children.
+
+    // Path 1: legacy `hl-*` class wrapper.
+    const classTokens = el.className.split(/\s+/).filter(Boolean);
+    const remainingClasses = classTokens.filter(
+      (c) => !HL_CLASSES.includes(c as (typeof HL_CLASSES)[number]),
+    );
+    const strippedClass = remainingClasses.length !== classTokens.length;
+    if (strippedClass) el.className = remainingClasses.join(' ');
+
+    // Path 2: new inline-style highlight (data-highlight="1"). Drop the
+    // marker, reset the inline color/weight we wrote, but leave any other
+    // inline styles (font-size, font-family, …) alone.
+    const isMarked = el.getAttribute('data-highlight') === '1';
+    if (isMarked) {
+      el.removeAttribute('data-highlight');
+      el.style.color = '';
+      el.style.fontWeight = '';
+    }
+
+    if (!strippedClass && !isMarked) continue;
+
+    // Unwrap if nothing meaningful remains on the span.
+    if (!el.className && !el.getAttribute('style')) {
       const parent = el.parentNode;
       if (!parent) continue;
       while (el.firstChild) parent.insertBefore(el.firstChild, el);
       parent.removeChild(el);
-    } else {
-      el.className = cls.join(' ');
     }
   }
   notifyInput(range);
@@ -287,30 +318,32 @@ export function TextFormatPanel() {
           </FormatButton>
         </div>
         <div>
-          <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-editor-dim">
-            Highlight
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {SWATCHES.map((s) => (
-              <button
-                key={s.className}
-                type="button"
-                onMouseDown={guard}
-                onClick={() => wrapWithClass(s.className)}
-                title={s.label}
-                className="h-7 w-7 rounded border border-editor-border transition hover:scale-105"
-                style={{ backgroundColor: s.color }}
-              />
-            ))}
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-editor-dim">
+              Highlight
+            </span>
             <button
               type="button"
               onMouseDown={guard}
               onClick={clearHighlights}
               title="Remove highlight"
-              className="rounded border border-editor-border px-2 text-[10px] text-editor-dim hover:border-editor-accent hover:text-editor-accent"
+              className="rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim hover:border-editor-accent hover:text-editor-accent"
             >
               Clear
             </button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {SWATCHES.map((s) => (
+              <button
+                key={s.color}
+                type="button"
+                onMouseDown={guard}
+                onClick={() => applyHighlight(s.color)}
+                title={s.label}
+                className="h-7 w-7 rounded border border-editor-border transition hover:scale-105"
+                style={{ backgroundColor: s.color }}
+              />
+            ))}
           </div>
         </div>
         <div>
@@ -329,7 +362,13 @@ export function TextFormatPanel() {
                   e.preventDefault();
                   const n = Number((e.target as HTMLInputElement).value);
                   if (Number.isFinite(n) && n > 0) applyFontSize(n);
+                  (e.target as HTMLInputElement).blur();
                 }
+              }}
+              onBlur={(e) => {
+                const n = Number(e.target.value);
+                if (e.target.value === '') return;
+                if (Number.isFinite(n) && n > 0) applyFontSize(n);
               }}
               className="w-16 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs text-editor-text outline-none focus:border-editor-accent"
             />

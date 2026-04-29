@@ -1,18 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { TextOverlay } from '../canvas/OverlayLayer';
 import { DATA_BLOCK_ID } from '../scene/blockId';
 import { SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
-
-const PRESET_TO_OVERLAY: Record<string, NonNullable<TextOverlay['preset']>> = {
-  't-title': 'h1',
-  't-h2': 'h2',
-  't-h3': 'h3',
-  't-body': 'p',
-};
-
-let floatSeq = 0;
-const makeFloatId = () => `ovl-float-${Date.now()}-${++floatSeq}`;
 
 // Scope to the main canvas only. Sidebar thumbnails reuse `.slide-canvas-host`
 // with the same data-block-id values, and they appear earlier in DOM order;
@@ -47,6 +36,9 @@ export function BlockFormatPanel({ blockId }: Props) {
 
   // Subscribing to `revision` keeps `el` honest across SlideRenderer remounts.
   const revision = useDeckStore((s) => s.revision);
+  // Subscribe to clipboard so Paste buttons disable/enable reactively.
+  const clipboard = useDeckStore((s) => s.clipboard);
+  const canPaste = clipboard?.kind === 'block';
 
   const el = findBlock(blockId);
 
@@ -77,12 +69,27 @@ export function BlockFormatPanel({ blockId }: Props) {
     };
   }, [blockId, revision]);
 
-  const removeSelectedBlock = () => {
-    if (!el) return;
-    const parent = el.parentElement;
-    el.remove();
-    useDeckStore.getState().setSelectedBlockId(null);
-    parent?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+  const currentSlideId = (): string | null => {
+    const { slides, currentIndex } = useDeckStore.getState();
+    return slides[currentIndex]?.id ?? null;
+  };
+
+  const handleCopy = () => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().copyBlock(slideId, blockId);
+  };
+
+  const handlePaste = (where: 'above' | 'below') => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().pasteBlock(slideId, blockId, where);
+  };
+
+  const handleDelete = () => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().removeBlock(slideId, blockId);
   };
 
   // Live block bounding box in 1280×720 authoring coordinates.
@@ -102,64 +109,14 @@ export function BlockFormatPanel({ blockId }: Props) {
     };
   };
 
-  // Promote in-flow block to a free-positioned text overlay. Editing X/Y/W/H
-  // implicitly triggers this — flex children have no absolute coords.
-  const floatBlockToOverlay = (
-    override?: Partial<{ x: number; y: number; w: number; h: number }>,
-  ) => {
-    if (!el) return;
-    const box = readBox();
-    if (!box) return;
-
-    const clone = el.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('.block-drag-handle').forEach((n) => n.remove());
-    const html = clone.innerHTML;
-
-    const presetClass = Array.from(el.classList).find((c) => c in PRESET_TO_OVERLAY);
-    const preset = presetClass ? PRESET_TO_OVERLAY[presetClass] : null;
-
-    const inlineAlign = el.style.textAlign;
-    const align: TextOverlay['align'] =
-      inlineAlign === 'center' || inlineAlign === 'right' || inlineAlign === 'left'
-        ? inlineAlign
-        : 'left';
-
-    const overlay: TextOverlay = {
-      id: makeFloatId(),
-      kind: 'text',
-      x: override?.x ?? box.x,
-      y: override?.y ?? box.y,
-      w: override?.w ?? box.w,
-      h: override?.h ?? box.h,
-      html,
-      bg: null,
-      align,
-      preset,
-    };
-
-    const { slides, currentIndex, floatBlock } = useDeckStore.getState();
-    const slideId = slides[currentIndex]?.id;
-    if (!slideId) return;
-
-    floatBlock(slideId, blockId, overlay);
-  };
-
-  // Code/terminal wrappers carry their visual chrome (padding, border,
-  // background) on the wrapper class and their editable source on
-  // `data-code-*` attributes. Promoting them to a TextOverlay would
-  // discard both — and would also flip selection from block→overlay,
-  // unmounting the CodeBlockEditPanel mid-edit. For those blocks, keep
-  // the live element in place and switch it to absolute positioning.
+  // X/Y edit: switch the live element to inline absolute positioning so the
+  // block's wrapper class + style (font-size, color, JetBrains Mono on
+  // .section-num, etc.) are 100% preserved. Promoting to a TextOverlay would
+  // strip the outer class — `clone.innerHTML` drops it — and turn 96px
+  // section numbers into 16px default-styled text, which is what the
+  // "X/Y not applying" report actually was.
   const handlePositionChange = (override: Partial<{ x: number; y: number }>) => {
     if (!el) return;
-    const isCodeLike =
-      el.classList.contains('code-block') ||
-      el.classList.contains('terminal') ||
-      el.hasAttribute('data-code-source');
-    if (!isCodeLike) {
-      floatBlockToOverlay(override);
-      return;
-    }
     if (el.style.position !== 'absolute') {
       // First-time flex → absolute transition. Pin the rendered size and seed
       // both axes from the DOM box so the element stays where the user sees it.
@@ -190,21 +147,50 @@ export function BlockFormatPanel({ blockId }: Props) {
   const blockTag = el ? el.classList[0] ?? 'div' : 'pending';
   void tick;
 
-  const setW = (next: number) => {
+  // When the user pins an explicit W/H, lock flex sizing so the value
+  // wins against any source flex-grow (inline `style="flex:1"` is common
+  // on table wrappers, and class rules like `.two-col { flex: 1 }` would
+  // otherwise stretch the block beyond the typed height). When both
+  // dimensions are cleared, drop the inline flex override so the original
+  // CSS / class flow takes over again.
+  const reconcileFlexLock = () => {
     if (!el) return;
-    if (next > 0) el.style.width = `${next}px`;
-    else el.style.width = '';
+    const hasExplicit = !!(el.style.width || el.style.height);
+    if (hasExplicit) el.style.flex = '0 0 auto';
+    else el.style.flex = '';
+  };
+
+  // Sample slides ship a variety of inline sizing constraints —
+  // `flex:1` on table/two-col wrappers, `max-width:780px` on hero titles,
+  // `min-height:120px` on architecture boxes, etc. Setting only `style.width`
+  // / `style.height` is silently capped by these, which surfaces as
+  // "W/H 입력이 안 먹는다" repeatedly. Centralize the policy here:
+  // when the user pins an explicit value, that value is the binding
+  // constraint — clear the opposing inline min/max for the same axis (we
+  // don't override class-rule constraints). When the user clears (0/blank),
+  // remove the inline value but keep the original min/max alone — they may
+  // come from the source HTML and we don't have the original to restore.
+  const applyDimension = (axis: 'width' | 'height', next: number) => {
+    if (!el) return;
+    if (next > 0) {
+      el.style[axis] = `${next}px`;
+      if (axis === 'width') {
+        el.style.maxWidth = '';
+        el.style.minWidth = '';
+      } else {
+        el.style.maxHeight = '';
+        el.style.minHeight = '';
+      }
+    } else {
+      el.style[axis] = '';
+    }
+    reconcileFlexLock();
     notifyInput(el);
     refresh();
   };
 
-  const setH = (next: number) => {
-    if (!el) return;
-    if (next > 0) el.style.height = `${next}px`;
-    else el.style.height = '';
-    notifyInput(el);
-    refresh();
-  };
+  const setW = (next: number) => applyDimension('width', next);
+  const setH = (next: number) => applyDimension('height', next);
 
   const disabled = !el;
 
@@ -258,25 +244,62 @@ export function BlockFormatPanel({ blockId }: Props) {
             value={size.w ?? box?.w ?? 0}
             disabled={disabled}
             onChange={setW}
+            testId="block-format-w"
           />
           <NumberField
             label="H"
             value={size.h ?? box?.h ?? 0}
             disabled={disabled}
             onChange={setH}
+            testId="block-format-h"
           />
         </div>
         <p className="mt-1 text-[10px] text-editor-dim">0 = 자동 (인라인 스타일 제거).</p>
       </div>
 
-      <button
-        type="button"
-        onClick={removeSelectedBlock}
-        disabled={disabled}
-        className="w-full rounded border border-red-500/40 px-2 py-1.5 text-xs text-red-300 transition hover:border-red-500 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-red-500/40 disabled:hover:bg-transparent"
-      >
-        Delete block
-      </button>
+      <div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+          Actions
+        </div>
+        <div className="grid grid-cols-4 gap-1">
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={disabled}
+            title="Copy block (Cmd/Ctrl+C)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePaste('above')}
+            disabled={disabled || !canPaste}
+            title="Paste above"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Paste ▲
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePaste('below')}
+            disabled={disabled || !canPaste}
+            title="Paste below (Cmd/Ctrl+V)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Paste ▼
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={disabled}
+            title="Delete block (Del / Backspace)"
+            className="rounded border border-red-500/40 px-1 py-1.5 text-[11px] text-red-300 transition hover:border-red-500 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -286,9 +309,10 @@ type NumberFieldProps = {
   value: number;
   disabled?: boolean;
   onChange: (v: number) => void;
+  testId?: string;
 };
 
-function NumberField({ label, value, disabled, onChange }: NumberFieldProps) {
+function NumberField({ label, value, disabled, onChange, testId }: NumberFieldProps) {
   const rounded = Math.round(value);
   const [draft, setDraft] = useState<string>(() => String(rounded));
   const focusedRef = useRef(false);
@@ -307,6 +331,7 @@ function NumberField({ label, value, disabled, onChange }: NumberFieldProps) {
         value={draft}
         min={0}
         disabled={disabled}
+        data-testid={testId}
         onFocus={(e) => {
           focusedRef.current = true;
           setTimeout(() => e.target.select(), 0);
