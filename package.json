@@ -10,8 +10,6 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:gate": "vitest run tests/generator/e2e.test.ts",
-    "quality": "tsx scripts/run-quality-loop.ts",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui"
   },
