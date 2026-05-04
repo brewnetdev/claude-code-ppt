@@ -35,6 +35,63 @@ export function SlideCanvas() {
   const setSelectedBlockId = useDeckStore((s) => s.setSelectedBlockId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
+  // Cmd/Ctrl+C/V + Delete shortcuts for blocks and overlays. Read fresh
+  // store state inside the handler so we don't restart the listener on
+  // every selection change.
+  useEffect(() => {
+    const isEditableTarget = (target: EventTarget | null): boolean => {
+      const el =
+        target instanceof HTMLElement
+          ? target
+          : (document.activeElement as HTMLElement | null);
+      if (!el) return false;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return true;
+      return el.isContentEditable;
+    };
+    const onKeydown = (e: KeyboardEvent) => {
+      // Native text-edit shortcuts (Cmd+C/V inside a textbox, Backspace deleting
+      // a character) win unconditionally — never poach keys from text input.
+      if (isEditableTarget(e.target)) return;
+      const mod = e.metaKey || e.ctrlKey;
+      const k = e.key.toLowerCase();
+      const state = useDeckStore.getState();
+      const sid = state.slides[state.currentIndex]?.id ?? null;
+      if (!sid) return;
+
+      if (mod && k === 'c') {
+        if (state.selectedOverlayId) {
+          state.copyOverlay(sid, state.selectedOverlayId);
+          e.preventDefault();
+        } else if (state.selectedBlockId) {
+          state.copyBlock(sid, state.selectedBlockId);
+          e.preventDefault();
+        }
+        return;
+      }
+      if (mod && k === 'v') {
+        if (state.clipboard?.kind === 'overlay') {
+          state.pasteOverlay(sid);
+          e.preventDefault();
+        } else if (state.clipboard?.kind === 'block') {
+          // No anchor → append at end. With an anchor → paste below it.
+          state.pasteBlock(sid, state.selectedBlockId, 'below');
+          e.preventDefault();
+        }
+        return;
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (state.selectedOverlayId) {
+          state.removeOverlay(sid, state.selectedOverlayId);
+          e.preventDefault();
+        } else if (state.selectedBlockId) {
+          state.removeBlock(sid, state.selectedBlockId);
+          e.preventDefault();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeydown);
+    return () => window.removeEventListener('keydown', onKeydown);
+  }, []);
   // Force SlideRenderer to remount on undo/redo so the fresh slide.html from
   // the history snapshot is injected; normal typing never bumps revision.
   const revision = useDeckStore((s) => s.revision);

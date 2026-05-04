@@ -47,6 +47,9 @@ export function BlockFormatPanel({ blockId }: Props) {
 
   // Subscribing to `revision` keeps `el` honest across SlideRenderer remounts.
   const revision = useDeckStore((s) => s.revision);
+  // Subscribe to clipboard so Paste buttons disable/enable reactively.
+  const clipboard = useDeckStore((s) => s.clipboard);
+  const canPaste = clipboard?.kind === 'block';
 
   const el = findBlock(blockId);
 
@@ -77,12 +80,27 @@ export function BlockFormatPanel({ blockId }: Props) {
     };
   }, [blockId, revision]);
 
-  const removeSelectedBlock = () => {
-    if (!el) return;
-    const parent = el.parentElement;
-    el.remove();
-    useDeckStore.getState().setSelectedBlockId(null);
-    parent?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+  const currentSlideId = (): string | null => {
+    const { slides, currentIndex } = useDeckStore.getState();
+    return slides[currentIndex]?.id ?? null;
+  };
+
+  const handleCopy = () => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().copyBlock(slideId, blockId);
+  };
+
+  const handlePaste = (where: 'above' | 'below') => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().pasteBlock(slideId, blockId, where);
+  };
+
+  const handleDelete = () => {
+    const slideId = currentSlideId();
+    if (!slideId) return;
+    useDeckStore.getState().removeBlock(slideId, blockId);
   };
 
   // Live block bounding box in 1280×720 authoring coordinates.
@@ -190,10 +208,24 @@ export function BlockFormatPanel({ blockId }: Props) {
   const blockTag = el ? el.classList[0] ?? 'div' : 'pending';
   void tick;
 
+  // When the user pins an explicit W/H, lock flex sizing so the value
+  // wins against any source flex-grow (inline `style="flex:1"` is common
+  // on table wrappers, and class rules like `.two-col { flex: 1 }` would
+  // otherwise stretch the block beyond the typed height). When both
+  // dimensions are cleared, drop the inline flex override so the original
+  // CSS / class flow takes over again.
+  const reconcileFlexLock = () => {
+    if (!el) return;
+    const hasExplicit = !!(el.style.width || el.style.height);
+    if (hasExplicit) el.style.flex = '0 0 auto';
+    else el.style.flex = '';
+  };
+
   const setW = (next: number) => {
     if (!el) return;
     if (next > 0) el.style.width = `${next}px`;
     else el.style.width = '';
+    reconcileFlexLock();
     notifyInput(el);
     refresh();
   };
@@ -202,6 +234,7 @@ export function BlockFormatPanel({ blockId }: Props) {
     if (!el) return;
     if (next > 0) el.style.height = `${next}px`;
     else el.style.height = '';
+    reconcileFlexLock();
     notifyInput(el);
     refresh();
   };
@@ -269,14 +302,49 @@ export function BlockFormatPanel({ blockId }: Props) {
         <p className="mt-1 text-[10px] text-editor-dim">0 = 자동 (인라인 스타일 제거).</p>
       </div>
 
-      <button
-        type="button"
-        onClick={removeSelectedBlock}
-        disabled={disabled}
-        className="w-full rounded border border-red-500/40 px-2 py-1.5 text-xs text-red-300 transition hover:border-red-500 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-red-500/40 disabled:hover:bg-transparent"
-      >
-        Delete block
-      </button>
+      <div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+          Actions
+        </div>
+        <div className="grid grid-cols-4 gap-1">
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={disabled}
+            title="Copy block (Cmd/Ctrl+C)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePaste('above')}
+            disabled={disabled || !canPaste}
+            title="Paste above"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Paste ▲
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePaste('below')}
+            disabled={disabled || !canPaste}
+            title="Paste below (Cmd/Ctrl+V)"
+            className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Paste ▼
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={disabled}
+            title="Delete block (Del / Backspace)"
+            className="rounded border border-red-500/40 px-1 py-1.5 text-[11px] text-red-300 transition hover:border-red-500 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
