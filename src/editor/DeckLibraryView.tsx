@@ -33,13 +33,16 @@ export function DeckLibraryView({ onOpen }: DeckLibraryViewProps) {
 
   const hideDeck = useCallback((deckId: string, deckTitle: string) => {
     // Confirm because we also wipe the user's saved edits — there's no undo
-    // for the localStorage payload once it's gone.
+    // for the persisted payload once it's gone.
     const ok = window.confirm(
       `"${deckTitle}" 데크를 라이브러리에서 숨길까요?\n저장된 편집 내용도 함께 삭제됩니다.\n원본 슬라이드는 보존되며 "숨긴 데크 보기"에서 복원할 수 있습니다.`,
     );
     if (!ok) return;
     addHiddenDeckId(deckId);
-    clearDeckFromLocalStorage(deckId);
+    // Fire-and-forget: the UI state is driven by the hidden-id set, which is
+    // already updated synchronously above. The IDB delete completing later
+    // doesn't change what the user sees.
+    void clearDeckFromLocalStorage(deckId);
     setHiddenIds(getHiddenDeckIds());
     showToast({ message: `"${deckTitle}"을(를) 라이브러리에서 숨겼습니다.`, tone: 'info' });
   }, []);

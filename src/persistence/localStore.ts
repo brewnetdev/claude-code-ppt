@@ -1,15 +1,17 @@
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
+import { idbDeleteDeck, idbGetDeck, idbPutDeck } from './idb';
 
-const KEY_PREFIX = 'claude-code-ppt:deck:v1';
-const LEGACY_KEY = 'claude-code-ppt:deck:v1';
+// Deck payloads live in IndexedDB (no 5MB ceiling — important when a deck has
+// several data-URL inlined images). The bookkeeping below stays in
+// localStorage because it's tiny and benefits from a sync read at boot.
 const LAST_DECK_KEY = 'claude-code-ppt:last-deck:v1';
 const HIDDEN_DECKS_KEY = 'claude-code-ppt:hidden-decks:v1';
+// Legacy localStorage keys we sweep on first boot after the IDB migration.
+const LEGACY_DECK_KEY_PREFIX = 'claude-code-ppt:deck:v1:';
+const LEGACY_BARE_DECK_KEY = 'claude-code-ppt:deck:v1';
+const MIGRATION_FLAG_KEY = 'claude-code-ppt:migrated-to-idb:v1';
 const SCHEMA_VERSION = 1;
-
-function storageKeyFor(deckId: string): string {
-  return `${KEY_PREFIX}:${deckId}`;
-}
 
 export type PersistedDeck = {
   version: number;
@@ -24,7 +26,6 @@ export type SaveResult =
   | { ok: false; reason: string };
 
 async function blobUrlToDataUrl(url: string): Promise<string> {
-  // Already inlined or remote — keep as is.
   if (!url.startsWith('blob:')) return url;
   const res = await fetch(url);
   const blob = await res.blob();
@@ -43,7 +44,6 @@ async function inlineOverlays(
   for (const [slideId, items] of Object.entries(overlaysBySlide)) {
     out[slideId] = await Promise.all(
       items.map(async (it): Promise<Overlay> => {
-        // Treat legacy entries without `kind` as image overlays.
         const kind = (it as Partial<Overlay>).kind ?? 'image';
         if (kind === 'image') {
           const img = it as Extract<Overlay, { kind: 'image' }>;
@@ -56,6 +56,71 @@ async function inlineOverlays(
   return out;
 }
 
+function isPersistedDeck(value: unknown): value is PersistedDeck {
+  if (!value || typeof value !== 'object') return false;
+  const v = value as Partial<PersistedDeck>;
+  if (v.version !== SCHEMA_VERSION) return false;
+  if (!Array.isArray(v.slides) || v.slides.length === 0) return false;
+  if (typeof v.overlaysBySlide !== 'object' || v.overlaysBySlide === null) return false;
+  return true;
+}
+
+// One-shot sweep of pre-IDB localStorage entries into IndexedDB. Idempotent —
+// the flag prevents re-running once it has succeeded. We never block the
+// caller on failure; users with data in localStorage simply won't see it
+// migrated until a future boot succeeds.
+let migrationPromise: Promise<void> | null = null;
+async function migrateLegacyLocalStorageOnce(): Promise<void> {
+  if (migrationPromise) return migrationPromise;
+  migrationPromise = (async () => {
+    try {
+      if (localStorage.getItem(MIGRATION_FLAG_KEY) === '1') return;
+      const candidates: { deckId: string; key: string; payload: string }[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(LEGACY_DECK_KEY_PREFIX)) continue;
+        const deckId = key.slice(LEGACY_DECK_KEY_PREFIX.length);
+        if (!deckId) continue;
+        const payload = localStorage.getItem(key);
+        if (payload) candidates.push({ deckId, key, payload });
+      }
+      // The original layout used a bare `claude-code-ppt:deck:v1` key for the
+      // brewnet-presentation deck before deck-id scoping was introduced.
+      const bareLegacy = localStorage.getItem(LEGACY_BARE_DECK_KEY);
+      if (bareLegacy) {
+        candidates.push({
+          deckId: 'brewnet-presentation',
+          key: LEGACY_BARE_DECK_KEY,
+          payload: bareLegacy,
+        });
+      }
+
+      for (const { deckId, key, payload } of candidates) {
+        try {
+          const parsed = JSON.parse(payload) as unknown;
+          if (!isPersistedDeck(parsed)) {
+            localStorage.removeItem(key);
+            continue;
+          }
+          const existing = await idbGetDeck(deckId);
+          if (!existing) {
+            await idbPutDeck(deckId, parsed);
+          }
+          localStorage.removeItem(key);
+        } catch {
+          // Leave this entry behind — next boot will retry it.
+        }
+      }
+      localStorage.setItem(MIGRATION_FLAG_KEY, '1');
+    } catch {
+      // If anything explodes (e.g. IDB unavailable) leave the flag unset so a
+      // future boot can try again. Don't surface to caller — the load path
+      // handles "no persisted deck" gracefully.
+    }
+  })();
+  return migrationPromise;
+}
+
 export async function saveDeckToLocalStorage(
   deckId: string,
   input: {
@@ -65,6 +130,7 @@ export async function saveDeckToLocalStorage(
   },
 ): Promise<SaveResult> {
   try {
+    await migrateLegacyLocalStorageOnce();
     const overlaysBySlide = await inlineOverlays(input.overlaysBySlide);
     const payload: PersistedDeck = {
       version: SCHEMA_VERSION,
@@ -73,55 +139,35 @@ export async function saveDeckToLocalStorage(
       overlaysBySlide,
       currentIndex: input.currentIndex,
     };
-    const json = JSON.stringify(payload);
-    localStorage.setItem(storageKeyFor(deckId), json);
-    localStorage.setItem(LAST_DECK_KEY, deckId);
-    return { ok: true, size: json.length, savedAt: payload.savedAt };
+    await idbPutDeck(deckId, payload);
+    try {
+      localStorage.setItem(LAST_DECK_KEY, deckId);
+    } catch {
+      /* swallow — last-deck pointer is best-effort */
+    }
+    // size is informational; estimate from JSON length to keep parity with
+    // the previous return shape.
+    const size = JSON.stringify(payload).length;
+    return { ok: true, size, savedAt: payload.savedAt };
   } catch (err) {
     return { ok: false, reason: err instanceof Error ? err.message : String(err) };
   }
 }
 
-export function loadDeckFromLocalStorage(deckId: string): PersistedDeck | null {
+export async function loadDeckFromLocalStorage(deckId: string): Promise<PersistedDeck | null> {
   try {
-    const key = storageKeyFor(deckId);
-    let raw = localStorage.getItem(key);
-
-    // One-time migration from the original single-key layout. The brewnet
-    // deck was the only thing the editor could load before deck-id scoping,
-    // so any legacy payload belongs to it. We rename rather than copy so the
-    // migration is idempotent.
-    if (!raw && deckId === 'brewnet-presentation') {
-      const legacy = localStorage.getItem(LEGACY_KEY);
-      if (legacy && legacy !== '' && !localStorage.getItem(storageKeyFor('brewnet-presentation'))) {
-        // The legacy key happens to equal KEY_PREFIX itself — so reading via
-        // storageKeyFor('brewnet-presentation') returns null here. Move it.
-        localStorage.setItem(key, legacy);
-        localStorage.removeItem(LEGACY_KEY);
-        raw = legacy;
-      }
-    }
-
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<PersistedDeck>;
-    if (parsed?.version !== SCHEMA_VERSION) return null;
-    if (!Array.isArray(parsed.slides) || parsed.slides.length === 0) return null;
-    if (typeof parsed.overlaysBySlide !== 'object' || parsed.overlaysBySlide === null) return null;
-    return {
-      version: parsed.version,
-      savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now(),
-      slides: parsed.slides as ParsedSlide[],
-      overlaysBySlide: parsed.overlaysBySlide as Record<string, Overlay[]>,
-      currentIndex: typeof parsed.currentIndex === 'number' ? parsed.currentIndex : 0,
-    };
+    await migrateLegacyLocalStorageOnce();
+    const raw = await idbGetDeck(deckId);
+    if (!isPersistedDeck(raw)) return null;
+    return raw;
   } catch {
     return null;
   }
 }
 
-export function clearDeckFromLocalStorage(deckId: string): void {
+export async function clearDeckFromLocalStorage(deckId: string): Promise<void> {
   try {
-    localStorage.removeItem(storageKeyFor(deckId));
+    await idbDeleteDeck(deckId);
   } catch {
     /* swallow — storage may be disabled */
   }
@@ -145,8 +191,7 @@ export function setLastOpenedDeckId(deckId: string): void {
 
 // Logical "delete" for built-in decks. The HTML source is bundled at build
 // time so we can't physically remove it; instead we keep an id allowlist in
-// localStorage and filter the library through it. Restoring just removes
-// the id from the set — the bundle is still there.
+// localStorage and filter the library through it.
 export function getHiddenDeckIds(): string[] {
   try {
     const raw = localStorage.getItem(HIDDEN_DECKS_KEY);
