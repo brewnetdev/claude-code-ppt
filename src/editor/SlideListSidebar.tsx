@@ -148,9 +148,9 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
             return (
               <div
                 key={slide.id}
-                className={`mb-2 flex w-full items-stretch gap-1 rounded border transition ${
+                className={`mb-2 flex w-full items-stretch gap-1 rounded border-2 transition ${
                   active
-                    ? 'border-editor-accent/50 bg-editor-accent/10'
+                    ? 'border-editor-accent bg-editor-accent/15 shadow-[0_0_0_1px_rgb(245_158_11_/_0.4)] ring-1 ring-editor-accent/40'
                     : 'border-transparent hover:border-editor-border hover:bg-editor-panel/60'
                 }`}
               >
@@ -170,13 +170,15 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
                     // ArrowUp/ArrowDown navigation moves only store state.
                     e.currentTarget.blur();
                   }}
-                  className={`flex flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition focus:outline-none focus-visible:ring-1 focus-visible:ring-editor-accent ${
+                  className={`flex min-w-0 flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition focus:outline-none focus-visible:ring-1 focus-visible:ring-editor-accent ${
                     active ? 'text-editor-text' : 'text-editor-dim hover:text-editor-text'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-editor-accent">{num}</span>
-                    <span className="truncate text-[11px]">{slide.title}</span>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0 font-mono text-[10px] text-editor-accent">{num}</span>
+                    <span className="min-w-0 flex-1 truncate text-[11px]" title={slide.title}>
+                      {slide.title}
+                    </span>
                   </div>
                   <SlideThumbnail slideId={slide.id} width={thumbWidth} />
                 </button>
