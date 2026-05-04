@@ -150,3 +150,6 @@ playwright-report/
 
 # Generator scratch
 .tmp/
+
+# Saved-webpage scratch dumps (already distilled into docs/md/*.md)
+docs/resource/
