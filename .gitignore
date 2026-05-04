@@ -144,3 +144,9 @@ vite.config.ts.timestamp-*
 # Playwright artifacts
 test-results/
 playwright-report/
+
+# Quality loop output
+.quality-runs/
+
+# Generator scratch
+.tmp/
