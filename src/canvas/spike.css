@@ -90,9 +90,19 @@
 .overlay-layer .overlay-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* `contain` preserves the source aspect ratio so resizing never crops the
+     image. Drop logic now sets w/h to the natural ratio, but the user can
+     freely change either dimension afterwards — `cover` would silently chop
+     the spine off a book cover the moment they made the box wider. */
+  object-fit: contain;
   display: block;
   pointer-events: none;
+  /* High-quality resampling on the downscale path. A 3000px source rendered
+     into a 600px box looks soft with the default `auto` algorithm in some
+     browsers; `high-quality` opts into the better resampler when available
+     and gracefully falls back to `auto` otherwise. */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
 }
 
 .overlay-layer .overlay-item.selected {
