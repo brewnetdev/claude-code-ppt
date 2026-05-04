@@ -318,8 +318,19 @@ export function TextFormatPanel() {
           </FormatButton>
         </div>
         <div>
-          <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-editor-dim">
-            Highlight
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-editor-dim">
+              Highlight
+            </span>
+            <button
+              type="button"
+              onMouseDown={guard}
+              onClick={clearHighlights}
+              title="Remove highlight"
+              className="rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim hover:border-editor-accent hover:text-editor-accent"
+            >
+              Clear
+            </button>
           </div>
           <div className="flex flex-wrap gap-1">
             {SWATCHES.map((s) => (
@@ -333,15 +344,6 @@ export function TextFormatPanel() {
                 style={{ backgroundColor: s.color }}
               />
             ))}
-            <button
-              type="button"
-              onMouseDown={guard}
-              onClick={clearHighlights}
-              title="Remove highlight"
-              className="rounded border border-editor-border px-2 text-[10px] text-editor-dim hover:border-editor-accent hover:text-editor-accent"
-            >
-              Clear
-            </button>
           </div>
         </div>
         <div>

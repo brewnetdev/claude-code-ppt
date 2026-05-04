@@ -1,8 +1,72 @@
 # Handoff — `feat/editor-phases-0-through-2b`
 
-> 최종 갱신: 2026-04-26
-> 대상 브랜치: `feat/editor-phases-0-through-2b` (main 대비 ahead 1, 작업트리 미커밋 대량)
+> 최종 갱신: 2026-04-28
+> 대상 브랜치: `develop`
 > 다음 세션이 이 브랜치를 이어받을 때 가장 먼저 읽는 문서.
+
+---
+
+## Session 2026-04-28 — bullet-list 구조 보존 + 이미지 화질 + URL 자동 링크화
+
+### 무엇을 했나
+
+| 영역 | 변경 |
+|---|---|
+| **bullet-list 편집 안전성** | `<li>` 안에서의 Backspace / Delete / Cut / drag-delete / 셀렉션 가로지름 / IME 받침삭제가 inner `<div>` 래퍼를 벗기지 않도록 수정. (1) `src/canvas/listInvariant.ts` 신규 — `ensureLiWrapper` / `enforceBulletListInvariant` 정규화 유틸. (2) `src/canvas/useSlideEditing.ts` 에 `beforeinput` 캡처 핸들러 `onListItemDelete` 추가 → cross-`<li>` 삭제는 `mergeListItems` 가 직접 합치고, 단일-`<li>` 삭제는 브라우저 기본을 사용. (3) `onInput` 안전망에 `enforceBulletListInvariant` 호출 — paste / drag / 미래 핸들러 버그까지 자동 복구. |
+| **이미지 드롭 화질** | `src/canvas/SlideCanvas.tsx` 의 `MAX_EDGE = 600` 클램프 제거. 드롭한 이미지를 자연 픽셀 크기 그대로 박스로 사용 → `book.png` (3104×3647) 기준 6× 다운스케일이 사라져 1:1 페인트 화질 회복. blob URL → File 참조라 인코딩 변경 없음. |
+| **하이라이트 Clear 위치** | `src/editor/TextFormatPanel.tsx` Highlight 섹션 헤더를 `flex justify-between` 으로 바꾸고 Clear 버튼을 헤더 우측으로 이동. 컬러 셀들은 한 줄로 정렬 유지. |
+| **Export URL 링크화** | `src/exporter/linkify.ts` 신규 — `linkifyHtml(html, doc)` 헬퍼. 기존 `<a href="https://…">` → `target="_blank" rel="noopener noreferrer"` 부착, 텍스트 노드의 맨 URL → 새창 anchor 로 감쌈. `<a> / <code> / <pre> / <script> / <style>` 안쪽 무시. `src/exporter/htmlBundle.ts` 의 slideHtml + 텍스트 오버레이 양쪽에 적용 → HTML 다운로드 + `window.print()` 기반 PDF export 가 동일하게 커버. |
+| **에디터 자동 링크화** | `src/canvas/autoLinkUrl.ts` 신규 — `tryAutoLinkOnSpace(e)` 가 SPACE 입력 직전 텍스트 끝의 `https?://…` 토큰을 anchor 로 감싸고 caret 을 anchor 다음 텍스트노드로 이동. `useSlideEditing.ts` (슬라이드 콘텐츠) + `OverlayLayer.tsx` (텍스트 오버레이) 두 편집 영역에 연결. Enter 시점은 의도적으로 처리 안 함 (`onListItemEnter` 와의 DOM 변형 충돌 회피). |
+
+### 빌드 / 테스트 상태
+
+- `npm run typecheck` ✓
+- `node_modules/.bin/vitest run` — 9 파일 / **93 테스트 PASS**
+  - 신규 `tests/canvas/listInvariant.test.ts` 9개
+  - 신규 `tests/canvas/autoLinkUrl.test.ts` 8개
+  - 신규 `tests/exporter/linkify.test.ts` 8개
+- `node_modules/.bin/playwright test --grep "bullet-list (Backspace|Delete|selection|first|paste)"` — 6/6 PASS
+  - 5 신규 회귀 + 기존 Enter 1개
+
+### 미커밋 변경 (현재 working tree)
+
+수정(M):
+- `src/canvas/OverlayLayer.tsx` — `onBeforeInput` 에 `tryAutoLinkOnSpace` 연결
+- `src/canvas/SlideCanvas.tsx` — `MAX_EDGE` 캡 제거 + 자연 크기 드롭
+- `src/canvas/useSlideEditing.ts` — `onListItemDelete` + `onAutoLink` `beforeinput` 캡처 핸들러
+- `src/editor/BlockFormatPanel.tsx` — (이전 세션 잔여 변경)
+- `src/editor/TextFormatPanel.tsx` — Highlight 헤더 `flex justify-between` + Clear 이동
+- `src/exporter/htmlBundle.ts` — slideHtml/오버레이 html 양쪽에 `linkifyHtml` 적용
+- `tests/e2e/editor.spec.ts` — bullet-list 삭제 5개 회귀 추가
+
+신규(??):
+- `src/canvas/autoLinkUrl.ts` — SPACE 자동 링크화 헬퍼
+- `src/canvas/listInvariant.ts` — `<li>` 래퍼 invariant 유틸
+- `src/exporter/linkify.ts` — export 시 URL 링크화 헬퍼
+- `tests/canvas/listInvariant.test.ts`
+- `tests/canvas/autoLinkUrl.test.ts`
+- `tests/exporter/linkify.test.ts`
+
+### 다음 세션 우선순위
+
+1. **분할 커밋** — 위 변경을 4개 묶음으로:
+   1. `fix(canvas): preserve <li> wrapper across browser-default deletes` — listInvariant + useSlideEditing 의 onListItemDelete + tests/canvas/listInvariant.test.ts + tests/e2e/editor.spec.ts 추가분
+   2. `fix(canvas): drop images at natural resolution` — SlideCanvas.tsx
+   3. `feat(editor): auto-linkify URLs on space + linkify on export` — autoLinkUrl.ts + linkify.ts + useSlideEditing.ts auto-link 훅 + OverlayLayer 훅 + htmlBundle 적용 + tests/canvas/autoLinkUrl.test.ts + tests/exporter/linkify.test.ts
+   4. `chore(ui): move Highlight Clear next to header` — TextFormatPanel.tsx
+2. **Enter 시 자동 링크화** (현재는 SPACE 만 처리). `onListItemEnter` 안에서 caret 직전 URL 검사 → wrap 후 새 `<li>` 생성 흐름에 동기 추가. cross-handler 협조가 필요해 의도적으로 보류.
+3. **클립보드 paste 자동 링크화** — `onpaste` 단계에서 plain-text 가 URL 단독 / URL 포함이면 anchor 로 변환. 현재는 export 단계 안전망(`linkifyHtml`)이 보강하지만 에디터 visual 피드백 부재.
+
+### 핵심 파일 (이번 세션)
+
+| 무엇 | 파일 |
+|---|---|
+| **bullet-list 래퍼 정규화** | `src/canvas/listInvariant.ts` |
+| **`<li>` 삭제 인터셉트 + 합치 + 안전망** | `src/canvas/useSlideEditing.ts` (`onListItemDelete`, `mergeListItems`, `onInput`) |
+| **에디터 자동 링크화 헬퍼** | `src/canvas/autoLinkUrl.ts` |
+| **Export 시 링크화 헬퍼** | `src/exporter/linkify.ts` |
+| **이미지 드롭 자연 크기** | `src/canvas/SlideCanvas.tsx` (`onDrop`) |
+| **Highlight Clear 위치** | `src/editor/TextFormatPanel.tsx` |
 
 ---
 

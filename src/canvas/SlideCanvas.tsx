@@ -154,37 +154,30 @@ export function SlideCanvas() {
       const url = URL.createObjectURL(file);
       const id = makeId();
 
-      // Probe the natural dimensions so the drop respects the source aspect
-      // ratio. The previous fixed 360×240 box was forcing portrait photos
-      // (e.g. a 3104×3647 book cover) into a landscape rectangle, which
-      // combined with `object-fit: cover` to crop the image AND downsample
-      // it ~8× — exactly the "drop tanks the resolution" report.
+      // Drop at the source's NATURAL pixel dimensions. The blob URL still
+      // references the original File (no re-encoding), and using the natural
+      // size as the overlay box means the browser doesn't have to resample
+      // anything on initial paint — what you uploaded is what you see, at
+      // 1:1. The user can resize down with Moveable handles afterwards. We
+      // intentionally do NOT cap the box: the previous MAX_EDGE=600 clamp
+      // was forcing a 6× downscale on a 3104×3647 book cover and that's
+      // the "image quality tanks on drop" symptom.
       const probe = new Image();
       probe.onload = () => {
-        const nW = probe.naturalWidth || 1;
-        const nH = probe.naturalHeight || 1;
-        // Cap the longer edge so drops don't blow up the slide. 600px on the
-        // long edge × 1.5 export scale → up to 900 device px in 1080p video,
-        // which is more than enough for a hero image while staying inside
-        // a 1280×720 authoring frame.
-        const MAX_EDGE = 600;
-        let w: number;
-        let h: number;
-        if (nW >= nH) {
-          w = Math.min(nW, MAX_EDGE);
-          h = (w * nH) / nW;
-        } else {
-          h = Math.min(nH, MAX_EDGE);
-          w = (h * nW) / nH;
-        }
-        w = Math.round(w);
-        h = Math.round(h);
+        const w = probe.naturalWidth || 1;
+        const h = probe.naturalHeight || 1;
+        // Center on the drop point. Clamp the top-left to ≥ 0 so the user
+        // can see the top-left corner of an oversized image; the bottom-
+        // right is allowed to extend past the slide bounds (Moveable can
+        // pull it back in or shrink the box).
+        const x = Math.max(0, Math.round(dropX - w / 2));
+        const y = Math.max(0, Math.round(dropY - h / 2));
         const item: ImageOverlay = {
           id,
           kind: 'image',
           src: url,
-          x: Math.max(0, Math.min(Math.round(dropX - w / 2), SLIDE_WIDTH - w)),
-          y: Math.max(0, Math.min(Math.round(dropY - h / 2), SLIDE_HEIGHT - h)),
+          x,
+          y,
           w,
           h,
         };

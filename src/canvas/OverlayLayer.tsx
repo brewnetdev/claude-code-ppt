@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Moveable, { type OnDrag, type OnResize } from 'moveable';
 import { useDeckStore } from '../scene/store';
+import { tryAutoLinkOnSpace } from './autoLinkUrl';
 
 type OverlayBase = {
   id: string;
@@ -320,6 +321,13 @@ function TextOverlayBox({
           // selector specificity; without this the user's px override
           // is silently dropped.
           fontSize: overlay.fontSizePx ? `${overlay.fontSizePx}px` : undefined,
+        }}
+        onBeforeInput={(e) => {
+          // Auto-linkify a bare URL when SPACE is pressed right after typing
+          // it. Same UX as the slide-content path (see autoLinkUrl.ts) so a
+          // URL typed inside a free-floating text overlay also turns blue
+          // immediately, not only at export time.
+          if (tryAutoLinkOnSpace(e.nativeEvent as InputEvent)) onInput();
         }}
         onInput={onInput}
         dangerouslySetInnerHTML={{ __html: initialHtml }}
