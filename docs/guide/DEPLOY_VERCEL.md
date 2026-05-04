@@ -1,207 +1,181 @@
-# Vercel 배포 가이드
+# Vercel 배포 가이드 — 로컬 저자 / 원격 뷰어 모델
 
-<!-- auto-generated -->
+## 1. 운영 모델
 
-## 1. 개요
+`claude-code-ppt`는 두 환경이 분리된 정적 SPA입니다.
 
-`claude-code-ppt`는 순수 정적 SPA(Single Page Application)입니다. 백엔드 서버, API 라우트, 데이터베이스, 환경변수가 전혀 없으며, 모든 상태는 브라우저의 `localStorage`(`claude-code-ppt:deck:v1` 키)에만 저장됩니다. 샘플 HTML/CSS는 빌드 시 Vite의 `?raw` import로 번들에 인라인되므로 런타임 자산 경로도 신경 쓸 필요가 없습니다. `npm run build`로 생성된 `dist/` 디렉터리를 정적 호스팅에 올리는 것이 배포의 전부입니다.
+| 환경 | 어디서 동작 | 무엇을 할 수 있는가 |
+|---|---|---|
+| **로컬 (저자)** | 본인 컴퓨터의 `npm run dev` | Claude Code skill로 MD → SlidePlan → HTML 변환, `slideplan publish`로 새 데크를 `docs/html/<template>/`에 추가, 라이브러리에서 모든 데크 편집 |
+| **Vercel (뷰어)** | `*.vercel.app` 또는 커스텀 도메인 | git 푸시 시점의 데크들을 라이브러리에 노출. 방문자는 자기 브라우저 `localStorage`에 한정해 편집·내보내기 가능 |
 
----
-
-## 2. 사전 준비
-
-배포 전에 아래 세 가지를 먼저 확인합니다.
-
-1. **Vercel 계정** — [vercel.com](https://vercel.com)에서 무료 계정을 생성합니다. GitHub 계정으로 OAuth 로그인을 권장합니다.
-
-2. **GitHub 저장소에 push** — 현재 작업 브랜치(`main`)가 원격 저장소에 push되어 있어야 합니다.
-   ```bash
-   git push origin main
-   ```
-
-3. **로컬 빌드 검증** — Vercel에 배포하기 전에 로컬에서 빌드가 클린하게 통과하는지 확인합니다.
-   ```bash
-   npm run typecheck   # TypeScript 타입 검사
-   npm run build       # tsc -b && vite build → dist/ 생성
-   npm run preview     # dist/ 결과물을 로컬에서 확인
-   ```
-   `npm run build` 스크립트는 내부적으로 `tsc -b && vite build`를 실행합니다. TypeScript 오류가 있으면 빌드가 실패하므로 반드시 로컬에서 먼저 해결합니다.
+**핵심 원칙**:
+- 새 데크 생성·게시는 **항상 로컬**에서 한다 (`md-to-slidedeck` 스킬은 Claude Code CLI 의존이므로 서버에서 실행 불가).
+- Vercel은 빌드 결과물 호스팅 전용. 백엔드, DB, API 라우트, 환경변수 모두 없음.
+- 방문자의 편집은 **로컬 브라우저 `localStorage`에만** 저장된다. 서버나 다른 사용자에게 전파되지 않는다.
 
 ---
 
-## 3. 방법 1: Vercel Dashboard 연결 (권장)
+## 2. 데크 추가 → 배포 워크플로우
 
-GitHub 저장소와 연결하면 이후 push마다 자동으로 배포됩니다.
+### 2-1. 로컬에서 데크 생성
 
-### 3-1. 연결 절차
+```bash
+# (a) MD 원고 → SlidePlan → HTML 통째로 publish
+node_modules/.bin/tsx scripts/slideplan.ts publish .tmp/slideplan-foo.json my-deck-id --subtitle "데크 부제"
 
-1. [vercel.com/new](https://vercel.com/new)로 이동합니다.
-2. **Import Git Repository** 에서 `claude-code-ppt` 저장소를 선택합니다.
-3. 아래 표의 설정값을 확인합니다. Vercel이 Vite 프레임워크를 자동 감지하므로 대부분 이미 채워져 있습니다.
+# 또는 (b) Claude Code 스킬로 자동 변환 후 publish
+# (md-to-slidedeck 스킬이 위 publish 명령까지 자동 실행)
+```
 
-| 항목 | 값 |
-|------|----|
-| Framework Preset | `Vite` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-| Install Command | `npm install` |
-| Environment Variables | (없음) |
+`publish`는 `docs/html/<template>/<deck-id>.html`을 작성합니다. registry는 `import.meta.glob`로 빌드 타임에 자동 발견하므로 `src/library/deckRegistry.ts`를 손댈 필요는 없습니다.
 
-4. **Deploy** 버튼을 클릭합니다.
+### 2-2. 로컬 빌드 검증
 
-### 3-2. 브랜치별 동작
+```bash
+npm run typecheck
+npx vitest run        # tests/library/builtinDecks.test.ts가 신규 데크 회귀 가드
+npm run build
+npm run preview       # 5176 등 임의 포트 → 라이브러리 카드에 신규 데크 노출 확인
+```
 
-| 브랜치 | 배포 환경 |
-|--------|-----------|
-| `main` push | **Production** 배포 (`*.vercel.app` 도메인 갱신) |
-| 그 외 브랜치 / PR | **Preview** 배포 (임시 URL 발급, PR 댓글에 자동 링크) |
+### 2-3. git 푸시 → Vercel 자동 빌드
+
+```bash
+git add docs/html/<template>/<deck-id>.html
+git commit -m "feat(deck): add <deck-id>"
+git push origin main   # 또는 develop, 브랜치별 동작은 §4 참조
+```
+
+Vercel Dashboard에서 자동 트리거된 빌드가 PASS하면 배포 완료. 새 데크가 즉시 라이브러리에 노출됩니다.
 
 ---
 
-## 4. 방법 2: Vercel CLI 직접 배포
+## 3. Vercel 초기 연결 (1회성)
 
-터미널에서 즉시 배포해야 하는 경우 CLI를 사용합니다.
+### 3-1. Dashboard 연결 (권장)
 
-### 4-1. CLI 설치 및 로그인
+1. [vercel.com/new](https://vercel.com/new) → **Import Git Repository** → `claude-code-ppt`
+2. Vite preset 자동 감지. 아래 표 값과 일치하는지만 확인:
+
+| 항목 | 값 | 비고 |
+|---|---|---|
+| Framework Preset | `Vite` | 자동 감지 |
+| Build Command | `npm run build` | `tsc -b && vite build` |
+| Output Directory | `dist` | 기본값 |
+| Install Command | `npm ci` | **lock 파일 sync 필수** |
+| Node Version | `20` | `.github/workflows/ci.yml`과 동일하게 맞춤 |
+| Environment Variables | (없음) | 사용 안 함 |
+
+3. **Deploy** 클릭 → 첫 배포 URL 발급.
+
+### 3-2. CLI 직접 배포 (대안)
 
 ```bash
 npm i -g vercel
 vercel login
+cd claude-code-ppt
+vercel --prod   # main 푸시 없이도 즉시 production 배포
 ```
 
-`vercel login`은 이메일 또는 GitHub OAuth 방식을 선택할 수 있습니다.
-
-### 4-2. 배포 실행
-
-프로젝트 루트(`claude-code-ppt/`)에서 실행합니다.
-
-```bash
-# Preview 배포 (기본)
-vercel
-
-# Production 배포
-vercel --prod
-```
-
-### 4-3. 첫 실행 시 대화형 질문 답변 가이드
-
-```
-? Set up and deploy "~/claude-code-ppt"?     → Y
-? Which scope do you want to deploy to?       → (본인 계정 선택)
-? Link to existing project?                   → N  (첫 배포 시)
-? What's your project's name?                 → claude-code-ppt
-? In which directory is your code located?    → ./  (기본값, Enter)
-? Want to modify these settings?              → N
-```
-
-이후 동일 디렉터리에서 `vercel` 또는 `vercel --prod`를 실행하면 질문 없이 즉시 배포됩니다.
+CLI는 GitHub 연결 없이도 동작하지만, 자동 재배포가 안 되므로 일반 운영에는 §3-1 Dashboard 방식을 권장합니다.
 
 ---
 
-## 5. 선택: `vercel.json` 추가
+## 4. 브랜치 정책
 
-Vercel은 `vite.config.ts`를 감지해 별도 설정 없이도 정상 동작합니다. 그러나 명시적 설정을 원하거나 팀 프로젝트에서 설정을 고정하려면 프로젝트 루트에 `vercel.json`을 추가할 수 있습니다.
+| 브랜치 | Vercel 동작 | 용도 |
+|---|---|---|
+| `main` push | **Production** 갱신 | 안정 배포 |
+| `develop` push | **Preview** 임시 URL | 통합 검증 |
+| feat/* 브랜치 또는 PR | **Preview** 임시 URL | PR 댓글에 자동 링크 |
 
-> **현재 프로젝트에서 `vercel.json`은 필수가 아닙니다.** 아래는 참고용 예시입니다.
+`.github/workflows/ci.yml`이 push/PR마다 typecheck + vitest + build를 돌려 Vercel 빌드보다 먼저 실패를 잡습니다. CI가 실패하면 Vercel 빌드도 같은 이유로 실패하므로 **반드시 CI 그린 → 머지** 순서를 지킵니다.
+
+---
+
+## 5. 운영 한계와 대응
+
+### 5-1. localStorage 한계 — 방문자 편집은 다른 기기로 이전 안 됨
+
+| 문제 | 원인 | 대응 |
+|---|---|---|
+| 방문자가 편집한 내용이 다른 브라우저에서 안 보임 | `localStorage`는 브라우저·도메인 단위 격리 | 정상 동작. 협업 편집은 본 프로젝트 범위 밖 |
+| 방문자가 편집을 영구 보존하고 싶어함 | 서버 저장소 없음 | Toolbar의 **Export HTML / PDF / PNG**로 결과물 다운로드 안내 |
+| 캐시·시크릿 모드에서 편집 사라짐 | `localStorage` 비휘발성 보장 안 됨 | 동일. 영구 저장은 Export로 안내 |
+
+### 5-2. Skill은 로컬 전용 — 배포된 사이트에선 새 데크 추가 불가
+
+Vercel 배포본은 **읽기·편집만** 가능합니다. 새 데크 추가가 필요하면 항상 로컬로 돌아와 §2-1 → §2-3 사이클을 반복합니다. 이 제한을 풀려면 별도 백엔드(API + 영구 저장소)가 필요하며 본 프로젝트의 운영 모델을 벗어납니다.
+
+### 5-3. 번들 크기
+
+`docs/html/`의 모든 데크가 `?raw` import로 인라인되므로 `dist/assets/index-*.js`가 일반 SPA보다 큽니다. 현재 ~1.97 MB (gzip ~798 KB). Vercel free tier 정적 파일 한도(100 MB/파일)와는 무관하지만, 데크 수가 늘면 초기 로드 시간이 증가합니다. 임계점에 도달하면 `vite.config.ts`의 `manualChunks`로 데크별 분할을 검토합니다.
+
+### 5-4. lock 파일 sync
+
+`npm ci`(CI + Vercel)는 `package-lock.json`이 `package.json`과 strict-sync 상태일 때만 통과합니다. transitive peer-dep(예: `vitest@4` 내부 `vite@8`이 요구하는 `esbuild ^0.27/0.28`)가 lock에 빠지면 빌드 실패합니다. 의존성 변경 후에는:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+git add package-lock.json
+```
+
+로 강제 재생성하고 검증한 뒤 푸시합니다. 자세한 증상은 §7 표 참조.
+
+---
+
+## 6. 선택: `vercel.json`
+
+기본 자동 감지로 충분하지만, 설정을 명시 고정하려면:
 
 ```json
 {
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "installCommand": "npm ci"
 }
 ```
 
-`rewrites` 항목은 SPA에서 직접 URL 접근 시 발생하는 404를 방지하는 catch-all rewrite입니다. 현재 `claude-code-ppt`는 클라이언트 사이드 라우팅을 사용하지 않고 `/`에 단일 페이지로 마운트되므로 이 설정은 **필수가 아닙니다**. 향후 React Router 등을 도입하면 추가합니다.
+현재 클라이언트 라우팅을 쓰지 않으므로 `rewrites`는 불필요. React Router 도입 시점에 `[{ "source": "/(.*)", "destination": "/index.html" }]` 추가.
 
 ---
 
-## 6. 체크리스트 — 배포 직전 확인
+## 7. 트러블슈팅
 
-배포 전 아래 항목을 순서대로 확인합니다.
-
-- [ ] `npm run typecheck` — 타입 오류 없이 통과
-- [ ] `npm run build` — `dist/` 생성 완료, 빌드 로그에 오류 없음
-- [ ] `npm run preview` — 로컬에서 `dist/` 결과물 동작 확인 (슬라이드 렌더링, 편집 기능)
-- [ ] `dist/assets/*.js` 번들 크기 확인 — 샘플 HTML(`docs/html/` 하위)이 `?raw`로 번들에 인라인되므로 JS 번들이 비교적 큽니다. 빌드 완료 후 출력되는 번들 크기를 확인하고 예상치를 벗어나면 Vite 빌드 리포트로 분석합니다.
-- [ ] `localStorage` 키 충돌 없음 — 저장 키는 `claude-code-ppt:deck:v1`로 고정되어 있으며, 동일 도메인에 다른 앱을 배포하지 않는 한 충돌하지 않습니다.
-
----
-
-## 7. 알려진 주의 사항
-
-### 번들 크기
-
-`docs/html/` 하위의 샘플 HTML 파일(presentation, manual, portfolio, report 계열)이 `?raw` import로 번들에 직접 인라인됩니다. 이로 인해 `dist/assets/*.js`가 일반 React SPA보다 클 수 있습니다. Vercel free tier의 정적 파일 크기 한도(100 MB/파일)와는 무관하며, 서버리스 함수가 없는 순수 정적 배포이므로 함수 크기 한도도 해당 없습니다.
-
-번들 크기가 예상보다 클 경우 빌드 후 출력에서 각 청크 크기를 확인하거나, 아래 명령으로 상세 리포트를 확인합니다.
-
-```bash
-npx vite-bundle-visualizer
-```
-
-### Source Maps
-
-`vite.config.ts`에 별도 설정이 없으므로 production 빌드에서 source map은 기본적으로 생성되지 않습니다. 배포된 앱을 디버깅해야 할 때는 로컬에서 임시로 활성화합니다.
-
-```bash
-# 로컬 디버깅 전용 — dist/ 결과물에 source map 포함
-npx vite build --sourcemap
-```
-
-이 결과물을 Vercel에 올리면 source map 파일도 함께 공개됩니다. 운영 배포에는 권장하지 않습니다.
-
-### 웹폰트
-
-샘플 CSS(`src/canvas/themes/brewnet-dark.css` 등)에서 JetBrains Mono, Pretendard, Noto Sans KR 등의 폰트가 참조될 수 있습니다. Google Fonts CDN을 통해 로드되는 경우 별도 조치가 필요 없습니다. 로컬 폰트 파일을 `public/` 또는 `src/` 아래에 두고 참조하는 경우에는 `dist/`에 포함 여부를 `npm run preview`로 확인합니다.
-
-### Playwright E2E
-
-`npm run e2e` (Playwright)는 배포 산출물이 아니라 로컬 개발 검증용입니다. CI 파이프라인에서 E2E를 실행하려면 별도 GitHub Actions 워크플로우를 구성해야 하며, 이는 현재 배포 범위에 포함되지 않습니다.
-
----
-
-## 8. 커스텀 도메인 / Preview 배포 / 환경변수
-
-### 커스텀 도메인
-
-Vercel Dashboard → 프로젝트 → **Settings > Domains**에서 보유한 도메인을 추가합니다. DNS 공급자에서 Vercel이 안내하는 CNAME 또는 A 레코드를 등록하면 자동으로 TLS 인증서가 발급됩니다.
-
-### Preview 배포
-
-`main` 이외의 브랜치를 push하거나 PR을 열면 Vercel이 자동으로 임시 URL(`*.vercel.app`)의 Preview 배포를 생성합니다. 별도 설정 없이 Dashboard에서 URL을 확인하거나, GitHub PR 댓글에서 링크를 클릭할 수 있습니다.
-
-### 환경변수
-
-현재 `claude-code-ppt`는 환경변수를 사용하지 않습니다. 향후 외부 API 키나 기능 플래그가 필요해지면 `VITE_` prefix를 붙여 선언합니다(`VITE_API_KEY` 등). `VITE_` prefix가 있는 변수만 Vite 빌드 시 클라이언트 번들에 노출됩니다. Vercel Dashboard → **Settings > Environment Variables**에서 Production / Preview / Development 환경별로 구분하여 등록합니다.
-
----
-
-## 9. 롤백 / 트러블슈팅 — 빌드 실패 패턴
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| `npm ci` "Missing: <pkg>@<ver> from lock file" | package.json↔lock 비동기 (peer-dep 미반영) | `rm -rf node_modules package-lock.json && npm install` 후 lock 커밋 |
+| `tsc` 빌드 실패 | TypeScript 오류 | 로컬 `npm run typecheck` 재현 후 수정 |
+| `?raw` import 미해석 | `src/vite-env.d.ts` 누락 또는 `tsconfig.app.json:include`에 `src` 빠짐 | 파일/설정 복원 |
+| 배포 성공인데 빈 화면 | JS 번들 로드 실패 | DevTools Console + Network 탭 점검, `npm run preview`로 로컬 재현 |
+| 폰트/이미지 누락 | `public/` 경로 참조 오류 | `dist/` 구조 직접 확인 |
+| 라이브러리 카드에 새 데크 안 보임 | registry glob 패턴 불일치 | `docs/html/{presentation,portfolio,report}/<deck-id>.html` 위치 확인. `manual/` 등 다른 하위 경로는 의도적 제외 |
 
 ### 롤백
 
-Vercel Dashboard → 프로젝트 → **Deployments** 탭에서 이전 배포를 선택한 뒤 **Redeploy**를 클릭하면 즉시 해당 버전으로 롤백됩니다.
-
-### 빌드 실패 패턴
-
-| 증상 | 원인 | 해결 방법 |
-|------|------|-----------|
-| `tsc` 오류로 빌드 실패 | TypeScript 타입 오류 | `npm run typecheck`로 로컬 재현 후 수정 |
-| `?raw` import 오류 | `vite-env.d.ts` 참조 누락 | `tsconfig.app.json`의 `include`에 `src`가 포함되어 있는지 확인; `src/vite-env.d.ts`가 존재하는지 확인 |
-| 직접 URL 접근 시 404 | 클라이언트 라우팅 미처리 | `vercel.json`에 catch-all rewrite 추가 (5절 참조) |
-| 배포 성공이지만 앱 화면이 빈 화면 | JS 번들 로드 실패 (CSP, 경로 문제) | 브라우저 콘솔 확인; `npm run preview`로 로컬에서 동일 현상 재현 |
-| 폰트/이미지가 안 보임 | `public/` 경로 참조 오류 | `vite build` 후 `dist/` 구조에서 해당 파일 존재 여부 확인 |
+Vercel Dashboard → 프로젝트 → **Deployments** → 이전 배포 선택 → **Redeploy** = 즉시 롤백.
 
 ---
 
-## 10. 다음 액션
+## 8. 첫 배포 체크리스트
 
-프로젝트 루트에서 아래 명령 하나로 첫 배포를 시작합니다.
+배포 직전 순서대로 확인:
 
-```bash
-vercel
-```
+- [ ] `npm ci`가 통과하는지 — lock 파일 sync 확인 (`rm -rf node_modules && npm ci`)
+- [ ] `npm run typecheck` PASS
+- [ ] `npx vitest run` PASS — 빌트인 데크 회귀 14건 포함 70건 그린
+- [ ] `npm run build` PASS — `dist/` 생성, 번들 크기 합리적
+- [ ] `npm run preview` — 라이브러리에서 모든 데크 카드 클릭 → 슬라이드 ≥1개 노출 확인
+- [ ] git push → CI 워크플로우 PASS
+- [ ] Vercel Dashboard에서 빌드 PASS → 배포 URL에서 동일 검증 한 번 더
 
-배포가 완료되면 터미널에 `*.vercel.app` 형식의 URL이 출력됩니다. 이 URL을 GitHub 저장소의 **About** 설명(우측 상단 톱니바퀴 → Website)과 프로젝트 `README.md`에 추가해 두면 팀원이 항상 최신 배포 주소를 확인할 수 있습니다.
+---
+
+## 9. 향후 확장 후보 (현재 범위 외)
+
+- **데크 export → 외부 호스팅**: Toolbar의 Export HTML로 단일 파일 데크를 만들어 GitHub Pages, Notion 등 다른 정적 호스팅에 개별 게시. 본 프로젝트 빌드 사이클과 분리.
+- **백엔드 도입**: 방문자 편집을 서버에 저장하려면 Supabase / Firebase / 자체 API + 인증 필요. 현재 `localStorage`-only 모델을 벗어남.
+- **Skill의 서버 측 실행**: Claude Code CLI 의존성을 서버 함수로 옮기려면 Anthropic API 직접 호출 + 가드레일 + 비용 통제가 필요. 별도 설계 작업.
