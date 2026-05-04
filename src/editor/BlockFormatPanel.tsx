@@ -1,18 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { TextOverlay } from '../canvas/OverlayLayer';
 import { DATA_BLOCK_ID } from '../scene/blockId';
 import { SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
-
-const PRESET_TO_OVERLAY: Record<string, NonNullable<TextOverlay['preset']>> = {
-  't-title': 'h1',
-  't-h2': 'h2',
-  't-h3': 'h3',
-  't-body': 'p',
-};
-
-let floatSeq = 0;
-const makeFloatId = () => `ovl-float-${Date.now()}-${++floatSeq}`;
 
 // Scope to the main canvas only. Sidebar thumbnails reuse `.slide-canvas-host`
 // with the same data-block-id values, and they appear earlier in DOM order;
@@ -120,64 +109,14 @@ export function BlockFormatPanel({ blockId }: Props) {
     };
   };
 
-  // Promote in-flow block to a free-positioned text overlay. Editing X/Y/W/H
-  // implicitly triggers this — flex children have no absolute coords.
-  const floatBlockToOverlay = (
-    override?: Partial<{ x: number; y: number; w: number; h: number }>,
-  ) => {
-    if (!el) return;
-    const box = readBox();
-    if (!box) return;
-
-    const clone = el.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('.block-drag-handle').forEach((n) => n.remove());
-    const html = clone.innerHTML;
-
-    const presetClass = Array.from(el.classList).find((c) => c in PRESET_TO_OVERLAY);
-    const preset = presetClass ? PRESET_TO_OVERLAY[presetClass] : null;
-
-    const inlineAlign = el.style.textAlign;
-    const align: TextOverlay['align'] =
-      inlineAlign === 'center' || inlineAlign === 'right' || inlineAlign === 'left'
-        ? inlineAlign
-        : 'left';
-
-    const overlay: TextOverlay = {
-      id: makeFloatId(),
-      kind: 'text',
-      x: override?.x ?? box.x,
-      y: override?.y ?? box.y,
-      w: override?.w ?? box.w,
-      h: override?.h ?? box.h,
-      html,
-      bg: null,
-      align,
-      preset,
-    };
-
-    const { slides, currentIndex, floatBlock } = useDeckStore.getState();
-    const slideId = slides[currentIndex]?.id;
-    if (!slideId) return;
-
-    floatBlock(slideId, blockId, overlay);
-  };
-
-  // Code/terminal wrappers carry their visual chrome (padding, border,
-  // background) on the wrapper class and their editable source on
-  // `data-code-*` attributes. Promoting them to a TextOverlay would
-  // discard both — and would also flip selection from block→overlay,
-  // unmounting the CodeBlockEditPanel mid-edit. For those blocks, keep
-  // the live element in place and switch it to absolute positioning.
+  // X/Y edit: switch the live element to inline absolute positioning so the
+  // block's wrapper class + style (font-size, color, JetBrains Mono on
+  // .section-num, etc.) are 100% preserved. Promoting to a TextOverlay would
+  // strip the outer class — `clone.innerHTML` drops it — and turn 96px
+  // section numbers into 16px default-styled text, which is what the
+  // "X/Y not applying" report actually was.
   const handlePositionChange = (override: Partial<{ x: number; y: number }>) => {
     if (!el) return;
-    const isCodeLike =
-      el.classList.contains('code-block') ||
-      el.classList.contains('terminal') ||
-      el.hasAttribute('data-code-source');
-    if (!isCodeLike) {
-      floatBlockToOverlay(override);
-      return;
-    }
     if (el.style.position !== 'absolute') {
       // First-time flex → absolute transition. Pin the rendered size and seed
       // both axes from the DOM box so the element stays where the user sees it.
