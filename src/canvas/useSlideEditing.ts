@@ -1,7 +1,37 @@
 import { useEffect, type RefObject } from 'react';
 import Sortable from 'sortablejs';
+import { showToast } from '../editor/Toast';
 import { DATA_BLOCK_ID, ensureBlockId } from '../scene/blockId';
 import { useDeckStore } from '../scene/store';
+
+const CODE_BLOCK_GUARD_MESSAGE =
+  '코드블럭, 터미널은 컨텐츠 영역에서 직접 수정할 수 없습니다. 오른쪽 패널에서 코드를 수정한 뒤 Apply를 통해 적용됩니다.';
+
+// Mutating keys block when the cursor is inside a code-block / terminal.
+// Allow read-only navigation + copy / select-all so users can still inspect
+// or grab the source.
+function isMutatingKeydown(e: KeyboardEvent): boolean {
+  if (e.isComposing || e.keyCode === 229) return true; // IME → would mutate
+  // Modifier-driven shortcuts that don't mutate (copy, select-all, etc.) pass.
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod) {
+    const k = e.key.toLowerCase();
+    if (k === 'c' || k === 'a' || k === 'x') return false;
+    // Cmd+V would paste — block.
+    if (k === 'v') return true;
+    return false;
+  }
+  // Non-printable navigation keys are fine.
+  const NAV = new Set([
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Home', 'End', 'PageUp', 'PageDown',
+    'Tab', 'Escape', 'Shift', 'Control', 'Alt', 'Meta', 'CapsLock',
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+  ]);
+  if (NAV.has(e.key)) return false;
+  // Everything else (printable chars, Enter, Backspace, Delete) mutates.
+  return true;
+}
 
 const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
@@ -87,7 +117,16 @@ export function useSlideEditing(
       // the user actually clicked.
       slideInner
         .querySelectorAll<HTMLElement>('.code-block, .terminal')
-        .forEach((el) => ensureBlockId(el));
+        .forEach((el) => {
+          ensureBlockId(el);
+          // Make the block itself non-editable. Even though the parent
+          // .slide-inner is contenteditable=true, marking these subtrees
+          // false stops the browser from accepting typing/IME inside them
+          // entirely — the previous capture-listener guard relied on
+          // `e.target` matching `.code-block` which is wrong for keydown
+          // (target is the contenteditable host, not the deepest node).
+          el.contentEditable = 'false';
+        });
     }
 
     const onMouseDownSelect = (e: MouseEvent) => {
@@ -136,6 +175,80 @@ export function useSlideEditing(
     };
     root.addEventListener('dblclick', onDblClick);
 
+    // Code blocks and terminals are NOT meant to be edited inline — typing
+    // inside the highlighted `<pre><code>` would corrupt the shiki tokens
+    // (and Enter on an emptied <code> in some browsers escapes into the
+    // sibling chrome header, duplicating the macOS dots). Block mutating
+    // keys, paste, and drop here, and surface a toast pointing at the
+    // CodeBlockEditPanel — the legitimate edit path.
+    // True if the given DOM node sits inside a read-only code block / terminal.
+    const nodeInsideReadOnlyCode = (node: Node | null): boolean => {
+      if (!node) return false;
+      const el = node instanceof HTMLElement ? node : node.parentElement;
+      return !!el?.closest?.('.code-block, .terminal');
+    };
+    // True if the live caret/selection touches a read-only code block —
+    // either the caret is inside one, the selection spans into one, or the
+    // caret is parked immediately adjacent to one (so Backspace/Delete
+    // would otherwise eat the whole block).
+    const selectionTouchesReadOnlyCode = (): boolean => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return false;
+      const range = sel.getRangeAt(0);
+      if (
+        nodeInsideReadOnlyCode(range.startContainer) ||
+        nodeInsideReadOnlyCode(range.endContainer)
+      ) {
+        return true;
+      }
+      // Caret collapsed inside an element node — check the children sitting
+      // on either side of the cursor offset. Without this, putting the caret
+      // right after a code block and pressing Backspace would silently
+      // delete the whole block.
+      if (range.collapsed && range.startContainer.nodeType === Node.ELEMENT_NODE) {
+        const parent = range.startContainer as Element;
+        const offset = range.startOffset;
+        const before = parent.childNodes[offset - 1];
+        const after = parent.childNodes[offset];
+        const matches = (n: Node | undefined): boolean =>
+          n instanceof HTMLElement && (n.matches('.code-block') || n.matches('.terminal'));
+        if (matches(before) || matches(after)) return true;
+      }
+      return false;
+    };
+    const insideReadOnlyCode = (target: EventTarget | null): boolean => {
+      if (nodeInsideReadOnlyCode(target as Node | null)) return true;
+      // For keydown / beforeinput inside a contenteditable, the event target
+      // is typically the editable host (e.g., `.slide-inner`), not the deep
+      // node where the caret lives. Fall back to the live selection.
+      return selectionTouchesReadOnlyCode();
+    };
+    const onCodeKeydown = (e: KeyboardEvent) => {
+      if (!insideReadOnlyCode(e.target)) return;
+      if (!isMutatingKeydown(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      showToast({ message: CODE_BLOCK_GUARD_MESSAGE, tone: 'warn' });
+    };
+    const onCodePaste = (e: ClipboardEvent) => {
+      if (!insideReadOnlyCode(e.target)) return;
+      e.preventDefault();
+      showToast({ message: CODE_BLOCK_GUARD_MESSAGE, tone: 'warn' });
+    };
+    const onCodeDrop = (e: DragEvent) => {
+      if (!insideReadOnlyCode(e.target)) return;
+      e.preventDefault();
+    };
+    const onCodeBeforeInput = (e: InputEvent) => {
+      if (!insideReadOnlyCode(e.target)) return;
+      // Catches IME commit + drag-text-into edge cases that bypass keydown.
+      e.preventDefault();
+    };
+    root.addEventListener('keydown', onCodeKeydown, true);
+    root.addEventListener('paste', onCodePaste, true);
+    root.addEventListener('drop', onCodeDrop, true);
+    root.addEventListener('beforeinput', onCodeBeforeInput, true);
+
     const notify = onChange ?? (() => {});
     const onInput = () => notify();
     root.addEventListener('input', onInput);
@@ -180,6 +293,10 @@ export function useSlideEditing(
       root.removeEventListener('click', onAnchorClick);
       root.removeEventListener('mousedown', onMouseDownSelect);
       root.removeEventListener('dblclick', onDblClick);
+      root.removeEventListener('keydown', onCodeKeydown, true);
+      root.removeEventListener('paste', onCodePaste, true);
+      root.removeEventListener('drop', onCodeDrop, true);
+      root.removeEventListener('beforeinput', onCodeBeforeInput, true);
       editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });
