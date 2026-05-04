@@ -4,6 +4,7 @@ import { useDeckStore } from '../scene/store';
 import { BlockFormatPanel } from './BlockFormatPanel';
 import { CodeBlockEditPanel, isCodeBlock } from './CodeBlockEditPanel';
 import { CodeBlockTemplates } from './CodeBlockTemplates';
+import { SlideBackgroundSection } from './SlideBackgroundSection';
 import { TextBlockTemplates } from './TextBlockTemplates';
 import { TextFormatPanel } from './TextFormatPanel';
 import { TextOverlayPropertiesSection } from './TextOverlayPropertiesSection';
@@ -77,8 +78,12 @@ export function PropertiesPanel() {
           )
         ) : null}
         {!selectedBlockId && !overlay ? (
-          // Default landing view: text format defaults + insertion templates.
+          // Default landing view: slide-level background + text format defaults
+          // + insertion templates. Background sits at the top because it's the
+          // most "ambient" change — once set, the user typically clicks back
+          // into a block and the section drops out of view.
           <div className="space-y-4">
+            <SlideBackgroundSection />
             <TextFormatPanel />
             <TextBlockTemplates />
             <CodeBlockTemplates />
