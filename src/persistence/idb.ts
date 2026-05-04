@@ -4,8 +4,12 @@
 // localStorage where the sync API matters.
 
 const DB_NAME = 'claude-code-ppt';
-const DB_VERSION = 1;
+// v2 added the `meta` store for non-deck application state — currently
+// holds the FileSystemDirectoryHandle granted by the user for HTML
+// write-back so we don't show the directory picker on every export.
+const DB_VERSION = 2;
 const STORE_DECKS = 'decks';
+const STORE_META = 'meta';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -17,6 +21,9 @@ function openDB(): Promise<IDBDatabase> {
       const db = req.result;
       if (!db.objectStoreNames.contains(STORE_DECKS)) {
         db.createObjectStore(STORE_DECKS);
+      }
+      if (!db.objectStoreNames.contains(STORE_META)) {
+        db.createObjectStore(STORE_META);
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -55,4 +62,28 @@ export async function idbDeleteDeck(deckId: string): Promise<void> {
   const db = await openDB();
   const tx = db.transaction(STORE_DECKS, 'readwrite');
   await awaitRequest(tx.objectStore(STORE_DECKS).delete(deckId));
+}
+
+// Meta store — used for non-deck application state. Values are written via
+// IDB's structured-clone path so they accept things localStorage cannot
+// (e.g. `FileSystemDirectoryHandle`, which the File System Access API
+// explicitly designs to be cloneable into IDB so apps can keep folder
+// access across reloads).
+export async function idbGetMeta<T = unknown>(key: string): Promise<T | undefined> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_META, 'readonly');
+  const result = await awaitRequest(tx.objectStore(STORE_META).get(key));
+  return result as T | undefined;
+}
+
+export async function idbPutMeta(key: string, value: unknown): Promise<void> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_META, 'readwrite');
+  await awaitRequest(tx.objectStore(STORE_META).put(value, key));
+}
+
+export async function idbDeleteMeta(key: string): Promise<void> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_META, 'readwrite');
+  await awaitRequest(tx.objectStore(STORE_META).delete(key));
 }

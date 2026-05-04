@@ -7,6 +7,35 @@ import { flushPendingCommit } from './pendingCommit';
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
 
+// Block IDs are stamped on the live DOM in useSlideEditing's useEffect but
+// only flow into stored html via commitFromDom (typing debounce / Sortable).
+// If the user clicks a block and triggers Copy / Paste / Delete without
+// typing, the stored html has no matching id. This helper parses the slide
+// html and copies live DOM block-ids onto the parsed copy so subsequent
+// querySelector by id succeeds. Positional sync (children index) is safe
+// because edits only commit through this same store path.
+function parseSlideWithLiveIds(slideHtml: string): Document {
+  const doc = new DOMParser().parseFromString(slideHtml, 'text/html');
+  if (typeof document === 'undefined') return doc;
+  const liveSlide = document.querySelector<HTMLElement>(
+    '[data-canvas-role="main"] div.slide',
+  );
+  if (!liveSlide) return doc;
+  const innerLive = liveSlide.querySelector('.slide-inner');
+  const innerDoc = doc.querySelector('.slide-inner');
+  if (!innerLive || !innerDoc) return doc;
+  const liveKids = Array.from(innerLive.children);
+  const docKids = Array.from(innerDoc.children);
+  if (liveKids.length !== docKids.length) return doc;
+  liveKids.forEach((live, i) => {
+    const id = (live as HTMLElement).getAttribute(DATA_BLOCK_ID);
+    if (id && !docKids[i].getAttribute(DATA_BLOCK_ID)) {
+      docKids[i].setAttribute(DATA_BLOCK_ID, id);
+    }
+  });
+  return doc;
+}
+
 const HISTORY_LIMIT = 50;
 
 const BLANK_SLIDE_HTML = `
@@ -396,7 +425,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     flushPendingCommit();
     const slide = get().slides.find((s) => s.id === slideId);
     if (!slide) return;
-    const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+    const doc = parseSlideWithLiveIds(slide.html);
     const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
     if (!block) return;
     // Strip ephemeral runtime decoration the source block accumulated:
@@ -424,7 +453,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       if (!entry || entry.kind !== 'block') return state;
       const slide = state.slides.find((s) => s.id === slideId);
       if (!slide) return state;
-      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const doc = parseSlideWithLiveIds(slide.html);
       const inner = doc.querySelector('.slide-inner');
       if (!inner) return state;
       const tmp = doc.createElement('div');
@@ -464,7 +493,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     set((state) => {
       const slide = state.slides.find((s) => s.id === slideId);
       if (!slide) return state;
-      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const doc = parseSlideWithLiveIds(slide.html);
       const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
       if (!block) return state;
       block.remove();

@@ -311,18 +311,29 @@ function renderBullets(
 }
 
 function renderCodeBlock(lang: SupportedLang, source: string): string {
-  // Plain shape — upgradeSlideCodeBlocks() at deck-load time injects shiki
-  // output, .code-dots chrome, data-code-source, and data-block-id. Keeping
-  // the source readable here makes static decks reviewable in git.
-  return `<div class="code-block" data-slot="code" data-code-lang="${escapeAttr(lang)}">
+  // Match the shape produced by presentationAdapter / CodeBlockTemplates so
+  // the coverage scorer (which expects `data-code-source` on every code/term
+  // block) can find them in the static render. upgradeSlideCodeBlocks() at
+  // deck-load time refreshes the encoded source and injects shiki chrome.
+  const enc = encodeURIComponent(source);
+  const id = `cb-${shortHash(`${lang}|${source}`)}`;
+  return `<div class="code-block" data-slot="code" data-block-id="${id}" data-code-source="${enc}" data-code-lang="${escapeAttr(lang)}">
 <pre><code>${escapeHtml(source)}</code></pre>
 </div>`;
 }
 
 function renderTerminalBlock(source: string): string {
-  return `<div class="terminal" data-slot="code" data-code-lang="bash">
+  const enc = encodeURIComponent(source);
+  const id = `tb-${shortHash(`bash|${source}`)}`;
+  return `<div class="terminal" data-slot="code" data-block-id="${id}" data-code-source="${enc}" data-code-lang="bash">
 <pre><code>${escapeHtml(source)}</code></pre>
 </div>`;
+}
+
+function shortHash(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16);
 }
 
 function renderCalloutEl(c: Callout, marginTop: string): string {
@@ -371,9 +382,22 @@ function escapeInlineHtml(s: string): string {
     .replace(/<(?!\/?(strong|em|span|br|code)\b)/g, '&lt;');
 }
 
+// Adds `prefix` to each line of `text`, but skips lines that fall inside a
+// <pre>...</pre> region. <pre> preserves whitespace, so prepending an indent
+// inside it would become visible content (e.g. a terminal block whose 2nd
+// line gets pushed 4 columns right).
 function indent(text: string, prefix: string): string {
+  let inPre = 0;
   return text
     .split('\n')
-    .map((line) => (line.length === 0 ? line : prefix + line))
+    .map((line) => {
+      const before = inPre;
+      const opens = (line.match(/<pre\b/g) || []).length;
+      const closes = (line.match(/<\/pre>/g) || []).length;
+      inPre += opens - closes;
+      if (before > 0) return line; // continuation line inside <pre>
+      if (line.length === 0) return line;
+      return prefix + line;
+    })
     .join('\n');
 }

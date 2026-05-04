@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
+  clearStoredExportRoot,
+  getStoredExportRoot,
+  isFsaSupported,
+  pickExportRoot,
+  writeDeckHtml,
+} from '../exporter/fileSystemAccess';
+import {
   buildHtmlBundle,
   defaultExportName,
   downloadBlob,
@@ -99,6 +106,41 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         overlaysBySlide,
         title: latestSlides[0]?.title ?? 'Presentation',
       });
+
+      // Preferred path: write straight back into docs/html/<template>/<id>.html
+      // via the File System Access API. Requires (a) browser support
+      // (Chromium-based), (b) a deck whose template/id we know — i.e. a
+      // registry-backed deck. Anything else falls through to the download
+      // path so the export button never silently fails.
+      if (activeDeck && isFsaSupported()) {
+        try {
+          let root = await getStoredExportRoot();
+          if (!root) {
+            root = await pickExportRoot();
+          }
+          if (root) {
+            const path = await writeDeckHtml(
+              root,
+              activeDeck.template,
+              activeDeck.id,
+              html,
+            );
+            // eslint-disable-next-line no-alert
+            window.alert(`저장됨: ${path}`);
+            return;
+          }
+          // root === null means the user cancelled the picker; falling
+          // through to download would surprise them, so just bail quietly.
+          return;
+        } catch (err) {
+          console.error('Export write-back failed; falling back to download.', err);
+          // Drop the cached handle so the next click re-prompts instead of
+          // looping on the same broken handle (folder moved, perms revoked).
+          await clearStoredExportRoot();
+          // fall through to downloadBlob
+        }
+      }
+
       downloadBlob(html, defaultExportName(latestSlides[0]?.title));
     });
 

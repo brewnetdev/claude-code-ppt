@@ -59,13 +59,17 @@ function firstFamilyName(stack: string): string {
 // inherited preset (.t-title etc.), and the wrapper's inline override are
 // all reflected. Returns the select's option value ("stack||google") or ''
 // when no curated entry matches.
+function rangeAnchorElement(range: Range): Element | null {
+  const node = range.commonAncestorContainer;
+  return node.nodeType === Node.ELEMENT_NODE
+    ? (node as Element)
+    : node.parentElement;
+}
+
 function detectFontKey(range: Range): string {
-  const node =
-    range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-      ? (range.commonAncestorContainer as Element)
-      : range.commonAncestorContainer.parentElement;
+  const node = rangeAnchorElement(range);
   if (!node) return '';
-  const cs = getComputedStyle(node as Element).fontFamily;
+  const cs = getComputedStyle(node).fontFamily;
   if (!cs) return '';
   const target = firstFamilyName(cs);
   for (const g of FONT_GROUPS) {
@@ -76,6 +80,31 @@ function detectFontKey(range: Range): string {
     }
   }
   return '';
+}
+
+// `getComputedStyle().fontSize` is always reported in `px` regardless of how
+// the rule was authored (em / rem / pt …) — parseFloat is safe.
+function detectFontSizePx(range: Range): number | null {
+  const node = rangeAnchorElement(range);
+  if (!node) return null;
+  const v = parseFloat(getComputedStyle(node).fontSize);
+  return Number.isFinite(v) && v > 0 ? Math.round(v) : null;
+}
+
+// `getComputedStyle().color` returns `rgb(r, g, b)` or `rgba(r, g, b, a)`.
+// We feed the result back into `ColorSwatchButton` whose internal popover
+// matches active swatch by uppercase hex, so normalise to `#RRGGBB`.
+function rgbToHex(rgb: string): string | null {
+  const m = rgb.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (!m) return null;
+  const hex = (n: string) => Number(n).toString(16).padStart(2, '0');
+  return `#${hex(m[1])}${hex(m[2])}${hex(m[3])}`.toUpperCase();
+}
+
+function detectTextColorHex(range: Range): string | null {
+  const node = rangeAnchorElement(range);
+  if (!node) return null;
+  return rgbToHex(getComputedStyle(node).color);
 }
 
 // Notify the slide root so the debounced DOM→store commit fires after our
@@ -241,11 +270,26 @@ export function TextFormatPanel() {
   // option-value form ("stack||google"). Empty string = no curated match,
   // which displays the "기본 (해제)" placeholder.
   const [fontKey, setFontKey] = useState<string>('');
+  // Currently-applied font-size in px, as a string so the user can type
+  // freely (e.g. clear the field, type "2" before "24") without React
+  // clobbering the partial value. Number conversion happens at apply time.
+  const [fontSizeInput, setFontSizeInput] = useState<string>('');
+  // Currently-applied text color in `#RRGGBB`. Null = could not detect or
+  // selection has no canvas range. Forwarded to `ColorSwatchButton` so the
+  // active swatch and hex readout reflect the actual painted color.
+  const [textColorHex, setTextColorHex] = useState<string | null>(null);
   // Last canvas selection range, stashed so number/hex inputs can apply
   // changes after focus moves away from contenteditable. Buttons with
   // onMouseDown=preventDefault don't need this; inputs do because focus
   // transfer collapses the visible selection.
   const lastCanvasRange = useRef<Range | null>(null);
+  // Last detected font size for the active canvas selection. We only push
+  // the detected value into `fontSizeInput` when it *actually changes* —
+  // otherwise typing inside the size input itself triggers a stream of
+  // `selectionchange` events (the document selection still points at the
+  // canvas while focus is in the input), and re-running setFontSizeInput
+  // with the previously-detected value clobbers the user's partial typing.
+  const lastDetectedFontSize = useRef<number | null>(null);
 
   useEffect(() => {
     const onChange = () => {
@@ -255,6 +299,12 @@ export function TextFormatPanel() {
         lastCanvasRange.current = range.cloneRange();
         setMeta(readMeta());
         setFontKey(detectFontKey(range));
+        const px = detectFontSizePx(range);
+        if (px !== lastDetectedFontSize.current) {
+          lastDetectedFontSize.current = px;
+          setFontSizeInput(px !== null ? String(px) : '');
+        }
+        setTextColorHex(detectTextColorHex(range));
       }
     };
     document.addEventListener('selectionchange', onChange);
@@ -357,6 +407,8 @@ export function TextFormatPanel() {
               max={200}
               placeholder="px"
               data-testid="text-font-size-input"
+              value={fontSizeInput}
+              onChange={(e) => setFontSizeInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -401,7 +453,7 @@ export function TextFormatPanel() {
           <div onMouseDown={guard}>
             <ColorSwatchButton
               label="Text color"
-              value={null}
+              value={textColorHex}
               onChange={(hex) => wrapWithStyle({ color: hex })}
             />
           </div>
