@@ -4,6 +4,7 @@ import { DeckLibraryView } from './editor/DeckLibraryView';
 import { PresentationView } from './editor/PresentationView';
 import { PropertiesPanel } from './editor/PropertiesPanel';
 import { SlideListSidebar } from './editor/SlideListSidebar';
+import { StaleCacheBanner } from './editor/StaleCacheBanner';
 import { ToastHost } from './editor/Toast';
 import { Toolbar } from './editor/Toolbar';
 import { parsePresentationHTML } from './importer/parsePresentation';
@@ -43,6 +44,7 @@ export function App() {
             slides: migrated.slides,
             overlaysBySlide: persisted.overlaysBySlide,
             currentIndex: persisted.currentIndex,
+            sourceHash: persisted.sourceHash,
           });
         }
         // Persisted decks were already upgraded on first import; re-upgrading
@@ -56,6 +58,13 @@ export function App() {
           currentIndex: persisted.currentIndex,
         });
         usePersistenceStore.getState().setSaved(persisted.savedAt);
+        // Stale-cache detection: only flag when both sides have a hash and
+        // they differ. Missing-on-either-side stays silent — that's the
+        // backward-compat path for legacy caches and hand-authored decks.
+        const stale = Boolean(
+          deck.sourceHash && persisted.sourceHash && deck.sourceHash !== persisted.sourceHash,
+        );
+        usePersistenceStore.getState().setSourceStale(stale);
       } else {
         const { slides } = parsePresentationHTML(deck.html);
         const upgraded = await upgradeSlideCodeBlocks(slides);
@@ -108,6 +117,7 @@ export function App() {
         onExitToLibrary={exitToLibrary}
         activeDeck={activeDeck ?? null}
       />
+      {activeDeck ? <StaleCacheBanner activeDeck={activeDeck} /> : null}
       <div className="flex flex-1 overflow-hidden">
         <SlideListSidebar arrowKeysEnabled={!presenting} />
         <main className="flex-1 overflow-hidden">

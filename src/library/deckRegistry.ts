@@ -27,6 +27,11 @@ export type DeckRegistryEntry = {
   template: DeckTemplate;
   kind: DeckSourceKind;
   html: string;
+  // sha256-truncated identity of the slides markup, emitted by `slideplan
+  // publish` as `<meta name="deck-source-hash" content="...">`. Absent for
+  // hand-authored decks (e.g. brewnet-presentation) — those never trigger
+  // stale-cache detection.
+  sourceHash?: string;
 };
 
 const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report'];
@@ -83,6 +88,13 @@ function extractMetaSubtitle(html: string): string | null {
   return v.length > 0 ? v : null;
 }
 
+function extractMetaSourceHash(html: string): string | null {
+  const m = html.match(/<meta\s+name=["']deck-source-hash["']\s+content=["']([^"']*)["']/i);
+  if (!m) return null;
+  const v = m[1].trim();
+  return v.length > 0 ? v : null;
+}
+
 function buildRegistry(): DeckRegistryEntry[] {
   const out: DeckRegistryEntry[] = [];
   for (const [path, html] of Object.entries(eagerHtml)) {
@@ -92,7 +104,8 @@ function buildRegistry(): DeckRegistryEntry[] {
     const fileTitle = extractTitle(html);
     const title = TITLE_OVERRIDES[id] ?? fileTitle ?? id;
     const subtitle = SUBTITLE_OVERRIDES[id] ?? extractMetaSubtitle(html) ?? undefined;
-    out.push({ id, title, subtitle, template, kind: 'builtin', html });
+    const sourceHash = extractMetaSourceHash(html) ?? undefined;
+    out.push({ id, title, subtitle, template, kind: 'builtin', html, sourceHash });
   }
   out.sort((a, b) => {
     const pa = PRIORITY[a.id] ?? 1000;

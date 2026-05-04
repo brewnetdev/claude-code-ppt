@@ -20,6 +20,13 @@ export type PersistedDeck = {
   slides: ParsedSlide[];
   overlaysBySlide: Record<string, Overlay[]>;
   currentIndex: number;
+  // Identity of the source HTML this cache was seeded from. Compared at
+  // boot against the registry's current sourceHash to detect when a deck
+  // has been re-published since the user's edits were captured. Optional
+  // for backward compatibility — caches written before this field existed
+  // (and decks without a source hash, like brewnet-presentation) leave it
+  // undefined and never trigger the stale-cache banner.
+  sourceHash?: string;
 };
 
 export type SaveResult =
@@ -128,6 +135,7 @@ export async function saveDeckToLocalStorage(
     slides: ParsedSlide[];
     overlaysBySlide: Record<string, Overlay[]>;
     currentIndex: number;
+    sourceHash?: string;
   },
 ): Promise<SaveResult> {
   try {
@@ -139,6 +147,7 @@ export async function saveDeckToLocalStorage(
       slides: input.slides,
       overlaysBySlide,
       currentIndex: input.currentIndex,
+      sourceHash: input.sourceHash,
     };
     await idbPutDeck(deckId, payload);
     try {

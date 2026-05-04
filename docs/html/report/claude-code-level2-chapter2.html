@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEVEL 2 — AI 시대 개발 방법론</title>
+<meta name="subtitle" content="Claude Code Master · LEVEL 2 — AI 시대 개발 방법론">
+<meta name="deck-source-hash" content="3f12a2000556336b91d38a80b1af7e7a">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* === src/canvas/themes/brewnet-dark.css === */
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+/* === src/canvas/themes/code-blocks.css === */
+/* Code-block / terminal chrome. brewnet-dark.css already defines `.code-block`
+   so we only fill in `.terminal` + cross-cutting `.code-dots` and tighten
+   `<pre><code>` so shiki output sits flush with the existing dark cards. */
+
+.slide-canvas-host .code-dots {
+  display: flex;
+  gap: 5px;
+}
+.slide-canvas-host .code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.slide-canvas-host .code-dots .dot-r { background: #ef4444; }
+.slide-canvas-host .code-dots .dot-y { background: #f59e0b; }
+.slide-canvas-host .code-dots .dot-g { background: #10b981; }
+
+.slide-canvas-host .terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  /* `.slide-inner` is a column flex container — without an explicit
+     flex-shrink:0 the terminal collapses to header-height when a slide
+     packs multiple terminals, leaving only the dark title band visible
+     with the body clipped by overflow:hidden. Pin to content height. */
+  flex: 0 0 auto;
+}
+
+/* Same pinning for plain code blocks; brewnet-dark's `.code-block` rule
+   doesn't set flex sizing so the same collapse happens for code-heavy
+   slides on multi-block layouts. */
+.slide-canvas-host .code-block {
+  flex: 0 0 auto;
+}
+
+.slide-canvas-host .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0b1220;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.slide-canvas-host .terminal-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.slide-canvas-host .terminal pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  /* Bumped from #cbd5e1 — base color only paints text that *isn't* wrapped
+     in a shiki <span style="color:…">. Once shiki runs that's mostly
+     punctuation, but a brighter fallback also helps unhighlighted plaintext
+     terminals read against the near-black bg. */
+  color: #f1f5f9;
+  padding: 16px 20px;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* shiki injects inline-styled <span>s, but their wrapper <pre class="shiki">
+   would carry shiki's own bg color. We re-host the highlighted code inside
+   our own .code-block / .terminal pre so the outer chrome wins, and tighten
+   the inner <code> reset accordingly. */
+.slide-canvas-host .code-block pre,
+.slide-canvas-host .terminal pre {
+  background: transparent;
+}
+.slide-canvas-host .code-block pre code,
+.slide-canvas-host .terminal pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  display: block;
+  /* shiki bakes inline `style="color:#…"` on every token span, so we can't
+     re-color them via CSS rules. github-dark in particular paints comments
+     at #8b949e — readable but visibly dimmer than the active code. A scoped
+     brightness filter on the <code> wrapper lifts every token uniformly
+     (comments, strings, keywords) without touching the chrome / dots. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+/* Targeted override: shiki's `github-dark` theme paints comment tokens
+   inline as `style="color:#6A737D"` (verified by probing the actual
+   highlighter output — it uses the legacy GitHub-Octicons palette, NOT
+   the newer #8b949e variant). The filter above lifts them proportionally,
+   but #6A737D against #020408 still reads as mid-gray. Repaint to a
+   near-white tone so comments are clearly legible against the terminal
+   bg. `!important` is required because shiki writes the color inline on
+   the span, which would otherwise beat normal CSS specificity. The `i`
+   flag handles upper/lowercase variations across shiki versions. */
+.slide-canvas-host .code-block pre code span[style*="#6A737D" i],
+.slide-canvas-host .terminal pre code span[style*="#6A737D" i],
+.slide-canvas-host .code-block pre code span[style*="#8b949e" i],
+.slide-canvas-host .terminal pre code span[style*="#8b949e" i] {
+  color: #b0b1b2 !important;
+}
+
+
+/* === src/canvas/themes/portfolio.css === */
+/* ─────────────────────────────────────────────────────────────
+   Portfolio template — sibling theme to brewnet-dark.
+   Strategy: re-declare the design tokens under
+   [data-template="portfolio"] and patch only the components
+   whose dark→light conversion is non-trivial (code blocks,
+   tables, cover, callouts). Markup is identical to the
+   presentation template; planRenderer only flips the
+   data-template attribute.
+
+   Reference design: docs/html/portfolio/portfolio.html
+   (white background, blue accent #3D5AF1, dark text on white).
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="portfolio"] {
+  --bg:            #FFFFFF;
+  --text:          #111111;
+  --muted:         #888888;
+  --border:        #DDDDDD;
+  --amber:         #3D5AF1;   /* portfolio brand blue, reused via brewnet's --amber slot */
+  --amber-d:       #2A3EC9;
+  --blue:          #3D5AF1;
+  --cyan:          #0891B2;
+  --green:         #047857;
+  --code-bg:       #F8F9FB;
+  --prompt-bg:     #F0F2F5;
+  --prompt-border: #3D5AF1;
+  --link:          #3D5AF1;
+}
+
+/* Slide shell: white card on neutral page background */
+[data-template="portfolio"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: blue gradient instead of amber */
+[data-template="portfolio"] .slide-topbar {
+  background: linear-gradient(90deg, #3D5AF1 0%, #2A3EC9 50%, transparent 100%);
+}
+
+/* Footer: light border + softer caption color */
+[data-template="portfolio"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="portfolio"] .slide-footer-left,
+[data-template="portfolio"] .slide-footer-right {
+  color: #888888;
+}
+
+/* ── Typography ── */
+[data-template="portfolio"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="portfolio"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="portfolio"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .bullet-list li::before {
+  color: var(--blue);
+}
+[data-template="portfolio"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="portfolio"] .num-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .num-list li::before {
+  background: var(--blue);
+  color: #FFFFFF;
+}
+
+/* ── Tables ── */
+[data-template="portfolio"] .tbl th {
+  background: #F0F2F5;
+  border-bottom: 2px solid var(--blue);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl tr:hover td {
+  background: #F7F8FB;
+}
+
+/* ── Callouts: lighter tint on white BG ── */
+[data-template="portfolio"] .callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+[data-template="portfolio"] .callout-blue {
+  background: rgba(61, 90, 241, 0.06);
+  border: 1px solid rgba(61, 90, 241, 0.30);
+}
+[data-template="portfolio"] .callout-green {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+[data-template="portfolio"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (keeps shiki output readable) ──
+   Code chrome (.code-dots / terminal-header) is stamped by
+   upgradeSlideCodeBlocks — the dark surface contrasts well
+   against the white slide and matches the editor's existing
+   experience. Only adjust the surface so it doesn't bleed
+   into the white card. */
+[data-template="portfolio"] .code-block {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+[data-template="portfolio"] .terminal {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+
+/* ── Badges: solid pill on white BG ── */
+[data-template="portfolio"] .badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #B45309;
+}
+[data-template="portfolio"] .badge-blue {
+  background: rgba(61, 90, 241, 0.12);
+  color: #2A3EC9;
+}
+[data-template="portfolio"] .badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+[data-template="portfolio"] .badge-red {
+  background: rgba(239, 68, 68, 0.10);
+  color: #B91C1C;
+}
+[data-template="portfolio"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="portfolio"] .hl-amber { color: #B45309; font-weight: 700; }
+[data-template="portfolio"] .hl-blue  { color: #2A3EC9; font-weight: 700; }
+[data-template="portfolio"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="portfolio"] .hl-cyan  { color: #0891B2; font-weight: 700; }
+
+/* ── Cover slide: blue background, white type ── */
+[data-template="portfolio"].slide-cover {
+  background: #3D5AF1;
+}
+[data-template="portfolio"].slide-cover::before {
+  background: none;
+}
+[data-template="portfolio"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 4px;
+}
+[data-template="portfolio"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item strong {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .cover-deco {
+  color: rgba(255, 255, 255, 0.18);
+}
+[data-template="portfolio"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="portfolio"].slide-cover .slide-footer-left,
+[data-template="portfolio"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: white bg, large light blue numeral ── */
+[data-template="portfolio"] .slide-section .section-num {
+  color: #E8EAF0;
+}
+
+/* ── Architecture / Step flow nodes (used rarely but covered) ── */
+[data-template="portfolio"] .step-circle {
+  background: var(--blue);
+}
+[data-template="portfolio"] .step-arrow {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-box {
+  background: #F8F9FB;
+  border-color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-line {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="portfolio"] .link {
+  color: var(--link);
+}
+[data-template="portfolio"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: light surface ── */
+[data-template="portfolio"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="portfolio"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="portfolio"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="portfolio"] .divider {
+  background: var(--border);
+}
+
+
+/* === src/canvas/themes/report.css === */
+/* ─────────────────────────────────────────────────────────────
+   Report template — sibling theme to brewnet-dark + portfolio.
+   Strategy: re-declare the design tokens under
+   [data-template="report"] and patch only the components whose
+   business-report intent is non-trivial (tables, callouts,
+   cover, code blocks).
+
+   Reference designs: docs/html/report/{biz,biz-strategy,marketing}-report.html
+   Tone: warm off-white BG (#FAFAF8) with teal accent (#0F766E)
+   for the brewnet "amber" slot. Tables get extra weight (zebra
+   rows, 2px header underline) since report decks are
+   data-centric. Code blocks stay dark for shiki readability —
+   identical to portfolio's strategy.
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="report"] {
+  --bg:            #FAFAF8;
+  --text:          #1A1A18;
+  --muted:         #6B6560;
+  --border:        #D4D0C8;
+  --amber:         #0F766E;   /* report accent: teal-700 in brewnet's --amber slot */
+  --amber-d:       #115E59;
+  --blue:          #1E40AF;
+  --cyan:          #0E7490;
+  --green:         #059669;
+  --code-bg:       #F5F3F0;
+  --prompt-bg:     #EFEDE8;
+  --prompt-border: #0F766E;
+  --link:          #0F766E;
+}
+
+/* Slide shell: cream card on neutral page background */
+[data-template="report"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: teal gradient instead of amber */
+[data-template="report"] .slide-topbar {
+  background: linear-gradient(90deg, #0F766E 0%, #115E59 50%, transparent 100%);
+}
+
+/* Footer: warm border + softer caption color */
+[data-template="report"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="report"] .slide-footer-left,
+[data-template="report"] .slide-footer-right {
+  color: var(--muted);
+}
+
+/* ── Typography ── */
+[data-template="report"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="report"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="report"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="report"] .bullet-list li::before {
+  color: var(--amber);
+}
+[data-template="report"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="report"] .num-list li {
+  color: var(--text);
+}
+[data-template="report"] .num-list li::before {
+  background: var(--amber);
+  color: #FFFFFF;
+}
+
+/* ── Tables (report-grade emphasis) ── */
+[data-template="report"] .tbl th {
+  background: #F0EDE8;
+  border-bottom: 2px solid var(--amber);
+  color: var(--text);
+  font-weight: 700;
+}
+[data-template="report"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="report"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.04);
+}
+[data-template="report"] .tbl tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* ── Callouts: lighter tint on cream BG ── */
+[data-template="report"] .callout-amber {
+  background: rgba(15, 118, 110, 0.06);
+  border: 1px solid rgba(15, 118, 110, 0.40);
+}
+[data-template="report"] .callout-blue {
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.30);
+}
+[data-template="report"] .callout-green {
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.40);
+}
+[data-template="report"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (matches portfolio strategy) ──
+   shiki output reads best on dark surface; we border with the
+   warm card color so the dark block doesn't feel grafted on. */
+[data-template="report"] .code-block {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+[data-template="report"] .terminal {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+
+/* ── Badges: solid pill on cream BG ── */
+[data-template="report"] .badge-amber {
+  background: rgba(15, 118, 110, 0.14);
+  color: #115E59;
+}
+[data-template="report"] .badge-blue {
+  background: rgba(30, 64, 175, 0.12);
+  color: #1E3A8A;
+}
+[data-template="report"] .badge-green {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+[data-template="report"] .badge-red {
+  background: rgba(220, 38, 38, 0.10);
+  color: #B91C1C;
+}
+[data-template="report"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="report"] .hl-amber { color: #115E59; font-weight: 700; }
+[data-template="report"] .hl-blue  { color: #1E3A8A; font-weight: 700; }
+[data-template="report"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="report"] .hl-cyan  { color: #0E7490; font-weight: 700; }
+
+/* ── Cover slide: deep slate BG with teal underline accent ── */
+[data-template="report"].slide-cover {
+  background: #0F172A;
+}
+[data-template="report"].slide-cover::before {
+  background: none;
+}
+[data-template="report"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="report"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 4px;
+}
+[data-template="report"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="report"].slide-cover .cover-meta-item strong {
+  color: #0F766E;
+}
+[data-template="report"].slide-cover .cover-deco {
+  color: rgba(15, 118, 110, 0.25);
+}
+[data-template="report"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="report"].slide-cover .slide-footer-left,
+[data-template="report"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: warm cream with large faded teal numeral ── */
+[data-template="report"] .slide-section .section-num {
+  color: rgba(15, 118, 110, 0.10);
+}
+
+/* ── Architecture / Step flow nodes ── */
+[data-template="report"] .step-circle {
+  background: var(--amber);
+}
+[data-template="report"] .step-arrow {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-box {
+  background: #F5F3F0;
+  border-color: #C5C2BC;
+}
+[data-template="report"] .arch-line {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="report"] .link {
+  color: var(--link);
+}
+[data-template="report"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: warm light surface ── */
+[data-template="report"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="report"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="report"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="report"] .divider {
+  background: var(--border);
+}
+
+</style>
+</head>
+<body>
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="cover-deco" data-slot="number">L2</div>
+    <div class="cover-level" data-slot="label">LEVEL 02 · METHODOLOGY</div>
+    <div class="t-hero" data-slot="title">LEVEL 2 — AI 시대 개발 방법론</div>
+    <div class="cover-subtitle" data-slot="subtitle">② 기초 개념 · UI 컴포넌트 제작하기 (🔵 LEVEL 2)</div>
+    <div class="cover-meta" data-slot="body">
+      <div class="cover-meta-item">🧭 <strong>키워드</strong> 설계 · Taste · 비결정성 · TDD · SDD</div>
+      <div class="cover-meta-item">📚 <strong>기반 사례</strong> Kent Beck Augmented Coding · GitHub SpecKit · AGENTS.md</div>
+      <div class="cover-meta-item">✅ <strong>검증</strong> 할루시네이션 검증 완료 (2026-04-29)</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">AI가 빠를수록 방향 수정 비용이 커진다 — 설계·리뷰·테스트로 안전망 구축</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">01</div>
+    <div class="t-chapter" data-slot="label">PART 01</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">2.1 AI와 함께하는 개발의 원칙</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">왜 설계가 더 중요해졌는가 · Taste · 비결정성</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">01 · 2.1 AI와 함께하는 개발의 원칙</span>
+    <span class="slide-footer-right" data-slot="page-num">2.1</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.1 BACKGROUND</div>
+    <div class="t-title" data-slot="title">2.1.1 왜 설계가 더 중요해졌는가</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">바이브 코딩 숙취 — AI 시대의 역설</div>
+    <div class="t-body" data-slot="body">코드 생성이 쉬워졌기 때문에 오히려 유지보수와 기능 완성도를 위한 설계가 더 중요해졌다. AI는 &#39;어떻게(How)&#39; 구현할지는 잘 알지만, &#39;무엇을(What)&#39; 만들어야 하는지는 모른다.</div>
+    <div class="t-h3">구현 전 선행되어야 할 3가지</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>요구사항 분석<span class="sub">무엇을 만들 것인가? 핵심 기능과 비기능적 요구사항 수립</span></div></li>
+      <li><div>아키텍처 결정<span class="sub">빌드/배포까지 영향 — 신중히 결정</span></div></li>
+      <li><div>인터페이스 정의<span class="sub">API 규격, 데이터 흐름 사전 정의</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.1.1 왜 설계가 더 중요해졌는가</span>
+    <span class="slide-footer-right" data-slot="page-num">01</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.1 ANTI-PATTERN</div>
+    <div class="t-title" data-slot="title">설계 없는 개발 — 재작업 사이클 (TODO 앱 사례)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">1주 만에 전면 재작성으로 이어지는 전형적 흐름</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-3f49bbef" data-code-source="1%EC%9D%BC%EC%B0%A8%3A%20%22TODO%20%EC%9B%B9%20%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98%22%20%E2%86%92%20%EA%B0%9C%EC%9D%B8%EC%9A%A9%20CRUD%20%EC%83%9D%EC%84%B1%0A3%EC%9D%BC%EC%B0%A8%3A%20%22%ED%8C%80%20%EA%B3%B5%EC%9C%A0%20%EA%B8%B0%EB%8A%A5%20%EC%B6%94%EA%B0%80%ED%95%B4%EC%A4%98%22%20%E2%86%92%20%EC%9D%B8%EC%A6%9D%2F%EA%B6%8C%ED%95%9C%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EA%B8%89%EC%A1%B0%0A7%EC%9D%BC%EC%B0%A8%3A%20%22SaaS%EB%A1%9C%20%EC%84%9C%EB%B9%84%EC%8A%A4%ED%95%98%EA%B3%A0%20%EC%8B%B6%EC%96%B4%22%20%E2%86%92%20%EB%A9%80%ED%8B%B0%ED%85%8C%EB%84%8C%EC%8B%9C%20%EA%B5%AC%EC%A1%B0%20%EC%A0%84%EB%A9%B4%20%EC%9E%AC%EC%9E%91%EC%84%B1%0A14%EC%9D%BC%EC%B0%A8%3A%20%22%EC%98%A8%ED%94%84%EB%A0%88%EB%AF%B8%EC%8A%A4%20%EC%84%A4%EC%B9%98%20%EC%98%B5%EC%85%98%EB%8F%84%20%ED%95%84%EC%9A%94%ED%95%B4%22%20%E2%86%92%20%ED%99%98%EA%B2%BD%20%EC%84%A4%EC%A0%95%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%9E%AC%EC%84%A4%EA%B3%84" data-code-lang="plaintext">
+    <pre><code>1일차: &quot;TODO 웹 애플리케이션 만들어줘&quot; → 개인용 CRUD 생성
+3일차: &quot;팀 공유 기능 추가해줘&quot; → 인증/권한 시스템 급조
+7일차: &quot;SaaS로 서비스하고 싶어&quot; → 멀티테넌시 구조 전면 재작성
+14일차: &quot;온프레미스 설치 옵션도 필요해&quot; → 환경 설정 시스템 재설계</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>Garbage In, Garbage Out</strong> 입력의 품질 = 출력의 품질. 명세 없는 요청은 AI가 임의로 결정하게 만든다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">설계 없는 개발 — 재작업 사이클 (TODO 앱 사례)</span>
+    <span class="slide-footer-right" data-slot="page-num">02</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.1 PROMPT QUALITY</div>
+    <div class="t-title" data-slot="title">명세 없는 요청 vs 명세 있는 요청</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">명세 없는 요청</div>
+        <div class="terminal" data-slot="code" data-block-id="tb-5b1320a" data-code-source="%23%20AI%EA%B0%80%20%EC%9E%84%EC%9D%98%EB%A1%9C%20%EA%B2%B0%EC%A0%95%0A%3E%20TODO%20%EC%95%B1%20%EB%B0%B1%EC%97%94%EB%93%9C%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98" data-code-lang="bash">
+        <pre><code># AI가 임의로 결정
+&gt; TODO 앱 백엔드 만들어줘</code></pre>
+        </div>
+        <div class="t-body" data-slot="body">AI가 배포 형태·DB·인증 방식을 임의 선택. 며칠 후 모두 재작성.</div>
+      </div>
+      <div>
+        <div class="t-h3">명세 있는 요청</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-4079e851" data-code-source="%3E%20%EB%8B%A4%EC%9D%8C%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%EC%97%90%20%EB%A7%9E%EB%8A%94%20TODO%20%EC%95%B1%20%EB%B0%B1%EC%97%94%EB%93%9C%EB%A5%BC%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%0A%3E%20-%20%EC%98%A8%ED%94%84%EB%A0%88%EB%AF%B8%EC%8A%A4%20%EC%84%A4%EC%B9%98%ED%98%95%2C%20Docker%20%EB%8B%A8%EC%9D%BC%20%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88%0A%3E%20-%2050-100%EB%AA%85%20%EB%8F%99%EC%8B%9C%20%EC%82%AC%EC%9A%A9%EC%9E%90%0A%3E%20-%20PostgreSQL%0A%3E%20-%20%EC%9E%90%EC%B2%B4%20%EC%9D%B8%EC%A6%9D%20%2B%20Google%20OAuth%0A%3E%20-%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%EB%B0%98%20%ED%8C%80%20%ED%98%91%EC%97%85%20%EC%A7%80%EC%9B%90" data-code-lang="plaintext">
+        <pre><code>&gt; 다음 요구사항에 맞는 TODO 앱 백엔드를 만들어줘.
+&gt; - 온프레미스 설치형, Docker 단일 컨테이너
+&gt; - 50-100명 동시 사용자
+&gt; - PostgreSQL
+&gt; - 자체 인증 + Google OAuth
+&gt; - 프로젝트 기반 팀 협업 지원</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">명세 없는 요청 vs 명세 있는 요청</span>
+    <span class="slide-footer-right" data-slot="page-num">03</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.2 TASTE</div>
+    <div class="t-title" data-slot="title">2.1.2 AI에게 없는 것 — 판단력(Taste)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">문법적으로 &#39;올바른&#39; 코드와 &#39;좋은&#39; 코드를 구분하는 능력</div>
+    <div class="t-body" data-slot="body">Taste는 기술적 판단력과 미적 감각을 아우르는 개념이다. 여러 선택지 중에서 현재 상황에 가장 적합한 것을 고르는 안목이 Taste다.</div>
+    <div class="t-body" data-slot="body">AI는 패턴을 인식하지만 왜 그 패턴이 중요한지는 이해하지 못한다. 성능·비용·보안·확장성 사이에서 균형을 잡는 것은 맥락을 아는 개발자만이 할 수 있다.</div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>YAGNI — AI가 스스로 적용하기 어려운 원칙</strong> AI는 &#39;더 완전한&#39; 코드를 만들려는 경향이 있다. 지금 당장 필요하지 않은 것은 만들지 않는다는 판단은 개발자의 몫이다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.1.2 AI에게 없는 것 — 판단력(Taste)</span>
+    <span class="slide-footer-right" data-slot="page-num">04</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.2 EXAMPLE</div>
+    <div class="t-title" data-slot="title">Taste — &#39;작동하는 코드&#39; vs &#39;좋은 코드&#39;</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">AI 생성 — 작동하지만 확장성 낮음</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-bb90bf4e" data-code-source="function%20filterTodos(todos%3A%20Todo%5B%5D%2C%20filter%3A%20string)%20%7B%0A%20%20if%20(filter%20%3D%3D%3D%20'all')%20%7B%0A%20%20%20%20return%20todos%3B%0A%20%20%7D%20else%20if%20(filter%20%3D%3D%3D%20'active')%20%7B%0A%20%20%20%20return%20todos.filter(todo%20%3D%3E%20!todo.completed)%3B%0A%20%20%7D%20else%20if%20(filter%20%3D%3D%3D%20'completed')%20%7B%0A%20%20%20%20return%20todos.filter(todo%20%3D%3E%20todo.completed)%3B%0A%20%20%7D%20else%20%7B%0A%20%20%20%20return%20todos%3B%0A%20%20%7D%0A%7D" data-code-lang="typescript">
+        <pre><code>function filterTodos(todos: Todo[], filter: string) {
+  if (filter === &#39;all&#39;) {
+    return todos;
+  } else if (filter === &#39;active&#39;) {
+    return todos.filter(todo =&gt; !todo.completed);
+  } else if (filter === &#39;completed&#39;) {
+    return todos.filter(todo =&gt; todo.completed);
+  } else {
+    return todos;
+  }
+}</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">개선 — 타입 안전 · 새 필터 추가 용이</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-fda9dc42" data-code-source="type%20FilterType%20%3D%20'all'%20%7C%20'active'%20%7C%20'completed'%3B%0A%0Aconst%20filterStrategies%3A%20Record%3CFilterType%2C%20(todo%3A%20Todo)%20%3D%3E%20boolean%3E%20%3D%20%7B%0A%20%20all%3A%20()%20%3D%3E%20true%2C%0A%20%20active%3A%20(todo)%20%3D%3E%20!todo.completed%2C%0A%20%20completed%3A%20(todo)%20%3D%3E%20todo.completed%2C%0A%7D%3B%0A%0Afunction%20filterTodos(todos%3A%20Todo%5B%5D%2C%20filter%3A%20FilterType)%3A%20Todo%5B%5D%20%7B%0A%20%20return%20todos.filter(filterStrategies%5Bfilter%5D)%3B%0A%7D" data-code-lang="typescript">
+        <pre><code>type FilterType = &#39;all&#39; | &#39;active&#39; | &#39;completed&#39;;
+
+const filterStrategies: Record&lt;FilterType, (todo: Todo) =&gt; boolean&gt; = {
+  all: () =&gt; true,
+  active: (todo) =&gt; !todo.completed,
+  completed: (todo) =&gt; todo.completed,
+};
+
+function filterTodos(todos: Todo[], filter: FilterType): Todo[] {
+  return todos.filter(filterStrategies[filter]);
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Taste — &#39;작동하는 코드&#39; vs &#39;좋은 코드&#39;</span>
+    <span class="slide-footer-right" data-slot="page-num">05</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.2 TRADE-OFF</div>
+    <div class="t-title" data-slot="title">트레이드오프 결정의 주체는 개발자</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">AI는 정보를 제공하지만 최종 결정은 맥락을 아는 개발자의 몫</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>오프라인 우선 경험이 중요한가?<span class="sub">→ 로컬 스토리지 + 동기화</span></div></li>
+      <li><div>여러 기기에서 접근해야 하는가?<span class="sub">→ 서버 API 필수</span></div></li>
+      <li><div>빠른 출시가 우선인가?<span class="sub">→ 가장 단순한 방법</span></div></li>
+      <li><div>향후 협업 기능을 추가할 예정인가?<span class="sub">→ 처음부터 서버 연동</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">트레이드오프 결정의 주체는 개발자</span>
+    <span class="slide-footer-right" data-slot="page-num">06</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.1.3 NON-DETERMINISTIC</div>
+    <div class="t-title" data-slot="title">2.1.3 AI 출력의 비결정적 특성</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Deterministic 프로그래밍과 달리 같은 요청에도 다른 결과</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>미묘하게 다른 구현<span class="sub">정규식 / 조건문 / 외부 라이브러리 — 매번 다른 접근</span></div></li>
+      <li><div>예상치 못한 변경<span class="sub">관련 없는 부분까지 변경, 빌드 성공 주장이 거짓일 수도</span></div></li>
+      <li><div>치팅 징후 (가장 위험)<span class="sub">테스트를 통과시키기 위해 테스트 자체를 비활성화·삭제</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:20px;">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body"><strong>테스트 = 결정적 검문소</strong> AI가 어떤 방식으로 구현하든 테스트를 통과하면 요구사항 충족. 결과물의 &#39;동일함&#39;이 아니라 &#39;동작함&#39;이 성공의 기준이다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.1.3 AI 출력의 비결정적 특성</span>
+    <span class="slide-footer-right" data-slot="page-num">07</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">02</div>
+    <div class="t-chapter" data-slot="label">PART 02</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">작은 단위로 쪼개기의 힘</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">컴포넌트 단위 설계와 기능 정의</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">02 · 작은 단위로 쪼개기의 힘</span>
+    <span class="slide-footer-right" data-slot="page-num">2.2</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.1 SINGLE TASK</div>
+    <div class="t-title" data-slot="title">2.2.1 한 번에 하나의 작업만 요청하기</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">프롬프트의 &#39;그리고 / 또한 / 추가로&#39;는 분해 신호</div>
+    <div class="t-body" data-slot="body">AI에게 작업을 요청할 때 가장 흔히 저지르는 실수는 여러 가지를 한꺼번에 요청하는 것이다.</div>
+    <div class="t-h3">한 번에 너무 많이 요청할 때 생기는 문제</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>기능·코드 품질 저하</div></li>
+      <li><div>복합적 에러 발생으로 인한 디버깅 어려움</div></li>
+      <li><div>서로 다른 기능 간 침범으로 인한 컨텍스트 혼란</div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.2.1 한 번에 하나의 작업만 요청하기</span>
+    <span class="slide-footer-right" data-slot="page-num">08</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.1 BAD EXAMPLE</div>
+    <div class="t-title" data-slot="title">나쁜 예 — 한 번에 너무 많이</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">회원가입·로그인·로그아웃·비밀번호 변경·이메일 인증을 한 번에</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-d869185" data-code-source="%23%20%EB%82%98%EC%81%9C%20%EC%98%88%20%E2%80%94%20%ED%95%9C%20%EB%B2%88%EC%97%90%20%EB%84%88%EB%AC%B4%20%EB%A7%8E%EC%9D%B4%0A%22%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%9D%B8%EC%A6%9D%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%20%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85%2C%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%2C%20%EB%A1%9C%EA%B7%B8%EC%95%84%EC%9B%83%2C%0A%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%20%EB%B3%80%EA%B2%BD%2C%20%EA%B7%B8%EB%A6%AC%EA%B3%A0%20%EC%9D%B4%EB%A9%94%EC%9D%BC%20%EC%9D%B8%EC%A6%9D%EA%B9%8C%EC%A7%80%20%ED%8F%AC%ED%95%A8%ED%95%B4%EC%84%9C.%22" data-code-lang="bash">
+    <pre><code># 나쁜 예 — 한 번에 너무 많이
+&quot;사용자 인증 시스템 만들어줘. 회원가입, 로그인, 로그아웃,
+ 비밀번호 변경, 그리고 이메일 인증까지 포함해서.&quot;</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">나쁜 예 — 한 번에 너무 많이</span>
+    <span class="slide-footer-right" data-slot="page-num">09</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.1 GOOD EXAMPLE</div>
+    <div class="t-title" data-slot="title">좋은 예 — 단계별 분해</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">각 단계 검증 후 다음 단계로</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-d0b54b2" data-code-source="%23%20%EC%A2%8B%EC%9D%80%20%EC%98%88%20%E2%80%94%20%EB%8B%A8%EA%B3%84%EB%B3%84%20%EB%B6%84%ED%95%B4%0A%EC%9A%94%EC%B2%AD%201%3A%20%22User%20%EB%AA%A8%EB%8D%B8%20%EC%8A%A4%ED%82%A4%EB%A7%88%20%EC%A0%95%EC%9D%98%ED%95%B4%EC%A4%98.%0A%20%20%20%20%20%20%20%20%20%EC%9D%B4%EB%A9%94%EC%9D%BC%2C%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%20%ED%95%B4%EC%8B%9C%2C%20%EC%83%9D%EC%84%B1%EC%9D%BC%EC%8B%9C%2C%20%EC%88%98%EC%A0%95%EC%9D%BC%EC%8B%9C%20%ED%95%84%EB%93%9C%20%ED%8F%AC%ED%95%A8.%22%0A%E2%86%92%20%EA%B2%80%EC%A6%9D%20%ED%9B%84%20%EB%8B%A4%EC%9D%8C%20%EB%8B%A8%EA%B3%84%EB%A1%9C%0A%0A%EC%9A%94%EC%B2%AD%202%3A%20%22%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85%20API%20%EC%97%94%EB%93%9C%ED%8F%AC%EC%9D%B8%ED%8A%B8%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%0A%20%20%20%20%20%20%20%20%20POST%20%2Fapi%2Fauth%2Fregister%2C%20%EC%9D%B4%EB%A9%94%EC%9D%BC%EA%B3%BC%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EB%A7%8C%20%EB%B0%9B%EC%9D%8C.%22%0A%E2%86%92%20Postman%EC%9C%BC%EB%A1%9C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%ED%9B%84%20%EB%8B%A4%EC%9D%8C%20%EB%8B%A8%EA%B3%84%EB%A1%9C%0A%0A%EC%9A%94%EC%B2%AD%203%3A%20%22%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%20%ED%95%B4%EC%8B%B1%20%EB%A1%9C%EC%A7%81%20%EC%B6%94%EA%B0%80%ED%95%B4%EC%A4%98.%20bcrypt%20%EC%82%AC%EC%9A%A9.%22%0A%E2%86%92%20%EC%A0%80%EC%9E%A5%EB%90%9C%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EA%B0%80%20%ED%95%B4%EC%8B%9C%EB%90%98%EC%96%B4%20%EC%9E%88%EB%8A%94%EC%A7%80%20%ED%99%95%EC%9D%B8%20%ED%9B%84%20%EB%8B%A4%EC%9D%8C%20%EB%8B%A8%EA%B3%84%EB%A1%9C%0A%0A%EC%9A%94%EC%B2%AD%204%3A%20%22%EB%A1%9C%EA%B7%B8%EC%9D%B8%20API%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%20POST%20%2Fapi%2Fauth%2Flogin%2C%20%EC%9D%B4%EB%A9%94%EC%9D%BC%2F%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%20%EA%B2%80%EC%A6%9D.%22%0A%E2%86%92%20%EA%B2%80%EC%A6%9D%20%ED%9B%84%20%EB%8B%A4%EC%9D%8C%20%EB%8B%A8%EA%B3%84%EB%A1%9C" data-code-lang="bash">
+    <pre><code># 좋은 예 — 단계별 분해
+요청 1: &quot;User 모델 스키마 정의해줘.
+         이메일, 비밀번호 해시, 생성일시, 수정일시 필드 포함.&quot;
+→ 검증 후 다음 단계로
+
+요청 2: &quot;회원가입 API 엔드포인트 만들어줘.
+         POST /api/auth/register, 이메일과 비밀번호만 받음.&quot;
+→ Postman으로 테스트 후 다음 단계로
+
+요청 3: &quot;비밀번호 해싱 로직 추가해줘. bcrypt 사용.&quot;
+→ 저장된 비밀번호가 해시되어 있는지 확인 후 다음 단계로
+
+요청 4: &quot;로그인 API 만들어줘. POST /api/auth/login, 이메일/비밀번호 검증.&quot;
+→ 검증 후 다음 단계로</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">좋은 예 — 단계별 분해</span>
+    <span class="slide-footer-right" data-slot="page-num">10</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.2 GRANULARITY</div>
+    <div class="t-title" data-slot="title">2.2.2 작업 분해의 기준과 단위</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">적절한 작업 크기의 4가지 기준</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>단일 책임 원칙<span class="sub">하나의 요청은 하나의 책임만 — &#39;사용자 생성&#39;과 &#39;이메일 발송&#39;은 별개</span></div></li>
+      <li><div>테스트 가능한 단위<span class="sub">예/아니오로 답할 수 있는 크기</span></div></li>
+      <li><div>10분 내 검증 가능한 크기<span class="sub">AI 출력 → 코드 훑기 → 테스트가 10분 넘으면 더 쪼갠다</span></div></li>
+      <li><div>파일·기능 단위 경계<span class="sub">회원가입·수정과 로그인·로그아웃은 별도 파일로 분리</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.2.2 작업 분해의 기준과 단위</span>
+    <span class="slide-footer-right" data-slot="page-num">11</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.2 PROGRESSIVE DESIGN</div>
+    <div class="t-title" data-slot="title">점진적 설계 — 처음부터 완벽할 필요 없다</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">1차 결정은 바꾸기 어렵고 · 2~3차는 구현 중 조정 가능</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-f96c741f" data-code-source="%23%23%201%EC%B0%A8%20%EC%84%A4%EA%B3%84%20(%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%8B%9C%EC%9E%91%20%EC%A0%84%20%E2%80%94%20%ED%95%84%EC%88%98)%0A-%20%EB%B0%B0%ED%8F%AC%20%ED%98%95%ED%83%9C%3A%20%EC%98%A8%ED%94%84%EB%A0%88%EB%AF%B8%EC%8A%A4%0A-%20%EA%B8%B0%EC%88%A0%20%EC%8A%A4%ED%83%9D%3A%20Node.js%20%2B%20PostgreSQL%0A-%20%EC%9D%B8%EC%A6%9D%20%EB%B0%A9%EC%8B%9D%3A%20Google%20OAuth%20%2B%20%EC%9E%90%EC%B2%B4%20%EC%9D%B8%EC%A6%9D%0A%0A%23%23%202%EC%B0%A8%20%EC%84%A4%EA%B3%84%20(1%EC%A3%BC%EC%B0%A8%20%E2%80%94%20%EA%B5%AC%ED%98%84%20%EC%A4%91)%0A-%20API%20%EC%97%94%EB%93%9C%ED%8F%AC%EC%9D%B8%ED%8A%B8%20%EC%83%81%EC%84%B8%20%EC%A0%95%EC%9D%98%0A-%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4%20%EC%8A%A4%ED%82%A4%EB%A7%88%20%ED%99%95%EC%A0%95%0A-%20%EC%97%90%EB%9F%AC%20%EC%BD%94%EB%93%9C%20%EC%B2%B4%EA%B3%84%20%EC%A0%95%EC%9D%98%0A%0A%23%23%203%EC%B0%A8%20%EC%84%A4%EA%B3%84%20(2%EC%A3%BC%EC%B0%A8%20%E2%80%94%20%ED%86%B5%ED%95%A9%20%EC%A0%84)%0A-%20%ED%94%84%EB%9F%B0%ED%8A%B8%EC%97%94%EB%93%9C%20%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8%20%EA%B5%AC%EC%A1%B0%0A-%20%EC%83%81%ED%83%9C%20%EA%B4%80%EB%A6%AC%20%EC%A0%84%EB%9E%B5%0A-%20API%20%EC%9D%91%EB%8B%B5%20%ED%98%95%EC%8B%9D%20%ED%91%9C%EC%A4%80%ED%99%94" data-code-lang="markdown">
+    <pre><code>## 1차 설계 (프로젝트 시작 전 — 필수)
+- 배포 형태: 온프레미스
+- 기술 스택: Node.js + PostgreSQL
+- 인증 방식: Google OAuth + 자체 인증
+
+## 2차 설계 (1주차 — 구현 중)
+- API 엔드포인트 상세 정의
+- 데이터베이스 스키마 확정
+- 에러 코드 체계 정의
+
+## 3차 설계 (2주차 — 통합 전)
+- 프런트엔드 컴포넌트 구조
+- 상태 관리 전략
+- API 응답 형식 표준화</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">점진적 설계 — 처음부터 완벽할 필요 없다</span>
+    <span class="slide-footer-right" data-slot="page-num">12</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.2.2 MULTI-AGENT</div>
+    <div class="t-title" data-slot="title">다중 AI 에이전트 활용 워크플로</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">교차 검증 — 학습 데이터 편향과 컨텍스트 고착 방지</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-41e3404" data-code-source="1%EB%8B%A8%EA%B3%84%3A%20%EC%95%84%EC%9D%B4%EB%94%94%EC%96%B4%20%EC%A0%95%EB%A6%AC%20(Gemini%20%E2%80%94%20%EB%AC%B4%EB%A3%8C)%0A%22%EC%98%A8%ED%94%84%EB%A0%88%EB%AF%B8%EC%8A%A4%20TODO%20%EC%95%B1%EC%9D%84%20%EB%A7%8C%EB%93%A4%EB%A0%A4%EA%B3%A0%20%ED%95%B4.%20%EC%96%B4%EB%96%A4%20%EC%9A%94%EC%86%8C%EB%93%A4%EC%9D%84%20%EA%B3%A0%EB%A0%A4%ED%95%B4%EC%95%BC%20%ED%95%A0%EA%B9%8C%3F%22%0A%0A2%EB%8B%A8%EA%B3%84%3A%20%EC%84%A4%EA%B3%84%20%EB%AC%B8%EC%84%9C%20%EC%B4%88%EC%95%88%20(Gemini%20%E2%80%94%20%EB%AC%B4%EB%A3%8C)%0A%22%EC%9C%84%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%EC%9C%BC%EB%A1%9C%20REQUIREMENTS.md%20%EC%B4%88%EC%95%88%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98%22%0A%0A3%EB%8B%A8%EA%B3%84%3A%20%EC%84%A4%EA%B3%84%20%EA%B2%80%ED%86%A0%20%EB%B0%8F%20%ED%99%95%EC%A0%95%20(Claude%20%E2%80%94%20%EC%B5%9C%EC%86%8C%20%ED%86%A0%ED%81%B0)%0A%22%EC%9D%B4%20%EC%84%A4%EA%B3%84%20%EB%AC%B8%EC%84%9C%20%EA%B2%80%ED%86%A0%ED%95%B4%EC%84%9C%20%EB%88%84%EB%9D%BD%EB%90%9C%20%EB%B6%80%EB%B6%84%20%EC%95%8C%EB%A0%A4%EC%A4%98%22%0A%0A4%EB%8B%A8%EA%B3%84%3A%20%EA%B5%AC%ED%98%84%20(Claude%20Code%20%E2%80%94%20%EC%A3%BC%20%EB%B9%84%EC%9A%A9)%0A%22REQUIREMENTS.md%EC%97%90%20%EB%94%B0%EB%9D%BC%20%EB%B0%B1%EC%97%94%EB%93%9C%20%EA%B5%AC%ED%98%84%ED%95%B4%EC%A4%98%22" data-code-lang="plaintext">
+    <pre><code>1단계: 아이디어 정리 (Gemini — 무료)
+&quot;온프레미스 TODO 앱을 만들려고 해. 어떤 요소들을 고려해야 할까?&quot;
+
+2단계: 설계 문서 초안 (Gemini — 무료)
+&quot;위 요구사항으로 REQUIREMENTS.md 초안 만들어줘&quot;
+
+3단계: 설계 검토 및 확정 (Claude — 최소 토큰)
+&quot;이 설계 문서 검토해서 누락된 부분 알려줘&quot;
+
+4단계: 구현 (Claude Code — 주 비용)
+&quot;REQUIREMENTS.md에 따라 백엔드 구현해줘&quot;</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🔍</div>
+      <div class="callout-body"><strong>왜 교차 검증인가</strong> 하나의 에이전트에만 의존하면 학습 데이터 편향이나 맥락 고착(Context Lock-in)에 갇힌다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">다중 AI 에이전트 활용 워크플로</span>
+    <span class="slide-footer-right" data-slot="page-num">13</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">03</div>
+    <div class="t-chapter" data-slot="label">PART 03</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">명확한 지시의 기술</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">컨텍스트 제한 · 완료 조건 · 부정형 제약</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">03 · 명확한 지시의 기술</span>
+    <span class="slide-footer-right" data-slot="page-num">2.3</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.3.1 5 ELEMENTS</div>
+    <div class="t-title" data-slot="title">2.3.1 명확한 지시의 5요소</div>
+    <div class="t-body" data-slot="body">필요한 정보만 정확하게 — 너무 많아도 너무 적어도 안 된다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>요소</th><th>질문</th><th>역할</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>목표 (What)</td><td>무엇을 달성해야 하는가?</td><td>작업의 방향 설정</td></tr>
+              <tr><td>맥락 (Context)</td><td>현재 상황과 배경은?</td><td>AI가 올바른 가정을 하도록 유도</td></tr>
+              <tr><td>제약 조건 (Constraints)</td><td>지켜야 할 규칙은?</td><td>범위를 제한하여 일탈 방지</td></tr>
+              <tr><td>완료 조건 (Done)</td><td>성공을 어떻게 판단하는가?</td><td>명확한 종료 지점 제시</td></tr>
+              <tr><td>예시 (Examples)</td><td>기대하는 결과의 구체적 모습은?</td><td>모호함을 제거</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.3.1 명확한 지시의 5요소</span>
+    <span class="slide-footer-right" data-slot="page-num">14</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.3.1 PROMPT TEMPLATE</div>
+    <div class="t-title" data-slot="title">명확한 지시 예시 — 프로필 페이지 수정</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">목표 · 맥락 · 제약 · 완료 · 예시 5블록 구조</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-46af5612" data-code-source="%23%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%0A%5B%EB%AA%A9%ED%91%9C%5D%0A%40profile.html%20%ED%8C%8C%EC%9D%BC%EC%9D%98%20%EB%A0%88%EC%9D%B4%EC%95%84%EC%9B%83%EC%9D%84%20%EC%B0%B8%EA%B3%A0%ED%95%B4%EC%84%9C%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%ED%94%84%EB%A1%9C%ED%95%84%20%ED%8E%98%EC%9D%B4%EC%A7%80%EB%A5%BC%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%0A%EC%88%98%EC%A0%95%20%EB%B2%84%ED%8A%BC%EC%9D%84%20%ED%86%B5%ED%95%B4%20%EC%9D%B4%EB%A9%94%EC%9D%BC%EA%B3%BC%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EB%A5%BC%20%EC%A0%9C%EC%99%B8%ED%95%9C%20%EB%82%98%EB%A8%B8%EC%A7%80%20%ED%95%AD%EB%AA%A9%EC%9D%84%20%EC%88%98%EC%A0%95%ED%95%A0%20%EC%88%98%20%EC%9E%88%EC%96%B4%EC%95%BC%20%ED%95%B4.%0A%0A%5B%EB%A7%A5%EB%9D%BD%5D%0A-%20%ED%98%84%EC%9E%AC%20User%20%EB%AA%A8%EB%8D%B8%EC%97%90%EB%8A%94%20name%2C%20email%2C%20avatar_url%20%ED%95%84%EB%93%9C%EA%B0%80%20%EC%9E%88%EC%9D%8C%0A-%20PATCH%20%2Fapi%2Fusers%2F%3Aid%20%EC%97%94%EB%93%9C%ED%8F%AC%EC%9D%B8%ED%8A%B8%EB%A1%9C%20%EA%B5%AC%ED%98%84%0A-%20%ED%94%84%EB%9F%B0%ED%8A%B8%EC%97%94%EB%93%9C%EB%8A%94%20React%20%2B%20TypeScript%20%EC%82%AC%EC%9A%A9%20%EC%A4%91%0A%0A%5B%EC%A0%9C%EC%95%BD%20%EC%A1%B0%EA%B1%B4%5D%0A-%20%EB%B3%B8%EC%9D%B8%EC%9D%98%20%ED%94%84%EB%A1%9C%ED%95%84%EB%A7%8C%20%EC%88%98%EC%A0%95%20%EA%B0%80%EB%8A%A5%20(%EC%9D%B8%EC%A6%9D%20%EB%AF%B8%EB%93%A4%EC%9B%A8%EC%96%B4%20%EC%82%AC%EC%9A%A9)%0A-%20email%20%EB%B0%8F%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EB%8A%94%20%EC%88%98%EC%A0%95%20%EB%B6%88%EA%B0%80%0A-%20avatar_url%EC%9D%80%20URL%20%ED%98%95%EC%8B%9D%20%EA%B2%80%EC%A6%9D%20%ED%95%84%EC%9A%94%0A%0A%5B%EC%99%84%EB%A3%8C%20%EC%A1%B0%EA%B1%B4%5D%0A-%20%EC%9C%A0%ED%9A%A8%ED%95%9C%20%EC%9A%94%EC%B2%AD%20%EC%8B%9C%20%EC%88%98%EC%A0%95%EB%90%9C%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%A0%95%EB%B3%B4%20%EB%B0%98%ED%99%98%0A-%20%EA%B6%8C%ED%95%9C%20%EC%97%86%EB%8A%94%20%EC%9A%94%EC%B2%AD%20%EC%8B%9C%20403%20%EC%9D%91%EB%8B%B5%0A-%20%EC%9E%98%EB%AA%BB%EB%90%9C%20URL%20%ED%98%95%EC%8B%9D%20%EC%8B%9C%20400%20%EC%9D%91%EB%8B%B5%EA%B3%BC%20%EC%97%90%EB%9F%AC%20%EB%A9%94%EC%8B%9C%EC%A7%80%0A%0A%5B%EC%98%88%EC%8B%9C%5D%0A%EC%9A%94%EC%B2%AD%3A%20PATCH%20%2Fapi%2Fusers%2F123%20%7B%20%22name%22%3A%20%22%EC%83%88%EC%9D%B4%EB%A6%84%22%20%7D%0A%EC%9D%91%EB%8B%B5%3A%20%7B%20%22id%22%3A%20123%2C%20%22name%22%3A%20%22%EC%83%88%EC%9D%B4%EB%A6%84%22%2C%20%22email%22%3A%20%22user%40example.com%22%20%7D%20200%20OK" data-code-lang="bash">
+    <pre><code># 프롬프트
+[목표]
+@profile.html 파일의 레이아웃을 참고해서 사용자 프로필 페이지를 만들어줘.
+수정 버튼을 통해 이메일과 비밀번호를 제외한 나머지 항목을 수정할 수 있어야 해.
+
+[맥락]
+- 현재 User 모델에는 name, email, avatar_url 필드가 있음
+- PATCH /api/users/:id 엔드포인트로 구현
+- 프런트엔드는 React + TypeScript 사용 중
+
+[제약 조건]
+- 본인의 프로필만 수정 가능 (인증 미들웨어 사용)
+- email 및 비밀번호는 수정 불가
+- avatar_url은 URL 형식 검증 필요
+
+[완료 조건]
+- 유효한 요청 시 수정된 사용자 정보 반환
+- 권한 없는 요청 시 403 응답
+- 잘못된 URL 형식 시 400 응답과 에러 메시지
+
+[예시]
+요청: PATCH /api/users/123 { &quot;name&quot;: &quot;새이름&quot; }
+응답: { &quot;id&quot;: 123, &quot;name&quot;: &quot;새이름&quot;, &quot;email&quot;: &quot;user@example.com&quot; } 200 OK</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">명확한 지시 예시 — 프로필 페이지 수정</span>
+    <span class="slide-footer-right" data-slot="page-num">15</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.3.2 DONE CRITERIA</div>
+    <div class="t-title" data-slot="title">2.3.2 검증 가능한 완료 조건 예시</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">구체적 · 측정 가능 · 검증 가능</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-1e1c6a16" data-code-source="%23%20%EA%B2%80%EC%A6%9D%20%EA%B0%80%EB%8A%A5%ED%95%9C%20%EC%99%84%EB%A3%8C%20%EC%A1%B0%EA%B1%B4%20%EC%98%88%EC%8B%9C%0A%EB%8B%A4%EC%9D%8C%20%EC%A1%B0%EA%B1%B4%EC%9D%84%20%EB%AA%A8%EB%91%90%20%EB%A7%8C%EC%A1%B1%ED%95%98%EB%A9%B4%20%EC%99%84%EB%A3%8C%0A1.%20%EC%98%AC%EB%B0%94%EB%A5%B8%20%EC%9D%B4%EB%A9%94%EC%9D%BC%2F%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EB%A1%9C%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%EC%8B%9C%20JWT%20%ED%86%A0%ED%81%B0%20%EB%B0%98%ED%99%98%0A2.%20%EC%9E%98%EB%AA%BB%EB%90%9C%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EB%A1%9C%205%ED%9A%8C%20%EC%8B%A4%ED%8C%A8%20%EC%8B%9C%20%EA%B3%84%EC%A0%95%20%EC%9E%A0%EA%B8%88%20(30%EB%B6%84)%0A3.%20%EC%9E%A0%EA%B8%B4%20%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%EC%8B%9C%EB%8F%84%20%EC%8B%9C%20423%20%EC%9D%91%EB%8B%B5%EA%B3%BC%20%EB%82%A8%EC%9D%80%20%EC%8B%9C%EA%B0%84%20%ED%91%9C%EC%8B%9C%0A4.%20%EB%AA%A8%EB%93%A0%20%EC%BC%80%EC%9D%B4%EC%8A%A4%EC%97%90%20%EB%8C%80%ED%95%9C%20%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%ED%86%B5%EA%B3%BC%0A5.%20TypeScript%20%EC%BB%B4%ED%8C%8C%EC%9D%BC%20%EC%97%90%EB%9F%AC%20%EC%97%86%EC%9D%8C" data-code-lang="bash">
+    <pre><code># 검증 가능한 완료 조건 예시
+다음 조건을 모두 만족하면 완료
+1. 올바른 이메일/비밀번호로 로그인 시 JWT 토큰 반환
+2. 잘못된 비밀번호로 5회 실패 시 계정 잠금 (30분)
+3. 잠긴 계정으로 로그인 시도 시 423 응답과 남은 시간 표시
+4. 모든 케이스에 대한 단위 테스트 통과
+5. TypeScript 컴파일 에러 없음</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.3.2 검증 가능한 완료 조건 예시</span>
+    <span class="slide-footer-right" data-slot="page-num">16</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.3.2 GOOD vs BAD</div>
+    <div class="t-title" data-slot="title">나쁜 완료 조건 vs 좋은 완료 조건</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>나쁜 조건</th><th>문제점</th><th>좋은 조건</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>빠르게 동작해야 함</td><td>기준 불명확</td><td>API 응답 300ms 이내</td></tr>
+              <tr><td>에러 처리가 잘 되어야 함</td><td>기준 불명확</td><td>에러 시 재시도 3회 후 메시지 표시</td></tr>
+              <tr><td>코드가 깔끔해야 함</td><td>주관적</td><td>함수당 30줄 이내, 중복 코드 없음</td></tr>
+              <tr><td>테스트가 필요함</td><td>어떤 테스트?</td><td>정상/실패/경계 케이스 각 1개 이상</td></tr>
+              <tr><td>잘 동작해야 함</td><td>완전히 모호함</td><td>명세의 모든 시나리오 통과</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">나쁜 완료 조건 vs 좋은 완료 조건</span>
+    <span class="slide-footer-right" data-slot="page-num">17</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.3.3 CONSTRAINTS</div>
+    <div class="t-title" data-slot="title">2.3.3 부정형 제약 — CLAUDE.md 또는 프롬프트에 명시</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">특정 패턴을 사용하지 않게 하려면 명시적으로 금지</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-c7c7bd8" data-code-source="%23%23%20%EA%B8%88%EC%A7%80%20%EC%82%AC%ED%95%AD%0A%0A%23%23%23%20%EC%A0%88%EB%8C%80%20%EC%82%AC%EC%9A%A9%20%EA%B8%88%EC%A7%80%0A-%20%60any%60%20%ED%83%80%EC%9E%85%20%EC%82%AC%EC%9A%A9%20%EA%B8%88%EC%A7%80%20(unknown%20%EB%98%90%EB%8A%94%20%EA%B5%AC%EC%B2%B4%EC%A0%81%20%ED%83%80%EC%9E%85%20%EC%82%AC%EC%9A%A9)%0A-%20console.log%20%ED%94%84%EB%A1%9C%EB%8D%95%EC%85%98%20%EC%BD%94%EB%93%9C%EC%97%90%20%EB%82%A8%EA%B8%B0%EC%A7%80%20%EC%95%8A%EC%9D%8C%0A-%20%EC%9D%B8%EB%9D%BC%EC%9D%B8%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EC%82%AC%EC%9A%A9%20%EA%B8%88%EC%A7%80%20(Tailwind%20%ED%81%B4%EB%9E%98%EC%8A%A4%20%EC%82%AC%EC%9A%A9)%0A%0A%23%23%23%20%ED%94%BC%ED%95%B4%EC%95%BC%20%ED%95%A0%20%ED%8C%A8%ED%84%B4%0A-%20%EC%A4%91%EC%B2%A9%20%EC%82%BC%ED%95%AD%20%EC%97%B0%EC%82%B0%EC%9E%90%20(if-else%EB%82%98%20early%20return%20%EC%82%AC%EC%9A%A9)%0A-%20%EB%A7%A4%EC%A7%81%20%EB%84%98%EB%B2%84%20(%EC%83%81%EC%88%98%EB%A1%9C%20%EC%A0%95%EC%9D%98)%0A-%20God%20%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8%20(500%EC%A4%84%20%EC%9D%B4%EC%83%81%EC%9D%B4%EB%A9%B4%20%EB%B6%84%EB%A6%AC)%0A%0A%23%23%23%20Import%20%EA%B7%9C%EC%B9%99%0A-%20require()%20%EA%B8%88%EC%A7%80%2C%20ES%20modules%EB%A7%8C%20%EC%82%AC%EC%9A%A9%0A-%20%EC%83%81%EB%8C%80%20%EA%B2%BD%EB%A1%9C%20%60..%2F..%2F..%2F%60%203%EB%8B%A8%EA%B3%84%20%EC%9D%B4%EC%83%81%20%EA%B8%88%EC%A7%80%20(%EA%B2%BD%EB%A1%9C%20%EB%B3%84%EC%B9%AD%20%EC%82%AC%EC%9A%A9)" data-code-lang="markdown">
+    <pre><code>## 금지 사항
+
+### 절대 사용 금지
+- `any` 타입 사용 금지 (unknown 또는 구체적 타입 사용)
+- console.log 프로덕션 코드에 남기지 않음
+- 인라인 스타일 사용 금지 (Tailwind 클래스 사용)
+
+### 피해야 할 패턴
+- 중첩 삼항 연산자 (if-else나 early return 사용)
+- 매직 넘버 (상수로 정의)
+- God 컴포넌트 (500줄 이상이면 분리)
+
+### Import 규칙
+- require() 금지, ES modules만 사용
+- 상대 경로 `../../../` 3단계 이상 금지 (경로 별칭 사용)</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.3.3 부정형 제약 — CLAUDE.md 또는 프롬프트에 명시</span>
+    <span class="slide-footer-right" data-slot="page-num">18</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">04</div>
+    <div class="t-chapter" data-slot="label">PART 04</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">매 단계 리뷰하기</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">리뷰 항목 · 단계별 습관 · 되돌리기 전략</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">04 · 매 단계 리뷰하기</span>
+    <span class="slide-footer-right" data-slot="page-num">2.4</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.1 REVIEW SCOPE</div>
+    <div class="t-title" data-slot="title">2.4.1 리뷰해야 할 것들</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">표면적으로는 완벽해 보이는 AI 코드 — 미묘한 버그가 쌓인다</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>요구사항 충족 여부<span class="sub">요청 기능 포함 여부 · 요청하지 않은 기능 추가 여부 · 엣지케이스 처리</span></div></li>
+      <li><div>코드 품질<span class="sub">가독성 · 일관성 · 효율성 · 보안 (특히 보안은 AI 취약점이 많다)</span></div></li>
+      <li><div>의도치 않은 변경<span class="sub">기존 테스트의 삭제·비활성화 · 설정 파일·의존성 변경</span></div></li>
+    </ul>
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="callout-icon">📊</div>
+      <div class="callout-body"><strong>CodeRabbit 연구 (2025)</strong> AI가 작성한 코드가 포함된 PR은 인간 작성 코드보다 1.4~1.7배 더 많은 심각한 문제 포함.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.4.1 리뷰해야 할 것들</span>
+    <span class="slide-footer-right" data-slot="page-num">19</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.1 COMMANDS</div>
+    <div class="t-title" data-slot="title">리뷰에 유용한 슬래시 커맨드</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>명령어</th><th>설명</th><th>언제 쓰는가</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>/review</td><td>최근 변경 코드를 PR 리뷰 수준으로 점검</td><td>커밋, PR 전</td></tr>
+              <tr><td>/simplify</td><td>코드 재사용, 품질 측면 검토</td><td>기능 구현 및 버그 수정 후</td></tr>
+              <tr><td>/security-review</td><td>변경사항 대상 보안 취약점 분석</td><td>보안 민감 코드 작업 후, PR 전</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">리뷰에 유용한 슬래시 커맨드</span>
+    <span class="slide-footer-right" data-slot="page-num">20</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.2 HABITS</div>
+    <div class="t-title" data-slot="title">2.4.2 단계별 리뷰 습관 만들기</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">작은 작업 = 작은 리뷰 — 50줄씩 10번이 500줄 1번보다 효과적</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>작은 작업 = 작은 리뷰<span class="sub">맥락 파악 쉽고 문제 발견도 쉬움</span></div></li>
+      <li><div>승인 전 실행<span class="sub">문법적으로 올바르더라도 논리적으로 틀릴 수 있음</span></div></li>
+      <li><div>테스트 먼저<span class="sub">기존 테스트 통과 + 신규 테스트 동작 모두 확인</span></div></li>
+      <li><div>질문하기<span class="sub">이해 안 되는 부분은 AI에게 직접 설명 요청</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.4.2 단계별 리뷰 습관 만들기</span>
+    <span class="slide-footer-right" data-slot="page-num">21</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.3 WORKFLOW</div>
+    <div class="t-title" data-slot="title">2.4.3 리뷰 워크플로</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">문제 발생 시 수정 또는 되돌리기 — 통과해야 커밋</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-58cff9c1" data-code-source="%EC%9A%94%EC%B2%AD%20%EC%9E%91%EC%84%B1%20%E2%86%92%20AI%20%EC%BD%94%EB%93%9C%20%EC%83%9D%EC%84%B1%20%E2%86%92%20%EC%BD%94%EB%93%9C%20%EB%A6%AC%EB%B7%B0%20%E2%86%92%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%8B%A4%ED%96%89%0A%20%20%20%20%20%E2%86%91%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%20%20%20%20%20%7C%20%20%20%20%20%20%20%20%20%20%20%20%EB%AC%B8%EC%A0%9C%20%EB%B0%9C%EC%83%9D%20%EC%8B%9C%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%0A%20%20%20%20%20%E2%94%94%E2%94%80%E2%94%80%20%EC%88%98%EC%A0%95%20%EC%9A%94%EC%B2%AD%20or%20%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0%20%E2%86%90%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%80%E2%94%98%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%EB%AC%B8%EC%A0%9C%20%EC%97%86%EC%9C%BC%EB%A9%B4%20%EC%BB%A4%EB%B0%8B" data-code-lang="plaintext">
+    <pre><code>요청 작성 → AI 코드 생성 → 코드 리뷰 → 테스트 실행
+     ↑                                        |
+     |            문제 발생 시                 |
+     └── 수정 요청 or 되돌리기 ←──────────────┘
+                                     문제 없으면 커밋</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">↩️</div>
+      <div class="callout-body"><strong>되돌리기는 패배가 아니라 전략</strong> /rewind 커맨드는 컨텍스트와 대화까지 함께 롤백한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.4.3 리뷰 워크플로</span>
+    <span class="slide-footer-right" data-slot="page-num">22</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.3 GIT STRATEGY</div>
+    <div class="t-title" data-slot="title">되돌리기 전략 — 작업 단위로 자주 커밋</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">실험은 별도 브랜치 · 직전 커밋으로 즉시 복귀</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-70ebacd1" data-code-source="%23%20%E2%91%A0%20%EC%9E%91%EC%97%85%20%EB%8B%A8%EC%9C%84%EB%A1%9C%20%EC%9E%90%EC%A3%BC%20%EC%BB%A4%EB%B0%8B%0Agit%20add%20.%0Agit%20commit%20-m%20%22feat%3A%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%9E%85%EB%A0%A5%20%EA%B2%80%EC%A6%9D%20%ED%95%A8%EC%88%98%20%EC%B6%94%EA%B0%80%22%0A%0A%23%20%E2%91%A1%20%EB%AC%B8%EC%A0%9C%20%EB%B0%9C%EC%83%9D%20%EC%8B%9C%20%EC%A7%81%EC%A0%84%20%EC%BB%A4%EB%B0%8B%EC%9C%BC%EB%A1%9C%20%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0%0Agit%20reset%20--hard%20HEAD~1%0A%0A%23%20%E2%91%A2%20%EC%8B%A4%ED%97%98%EC%A0%81%20%EC%9E%91%EC%97%85%EC%9D%80%20%EB%B3%84%EB%8F%84%20%EB%B8%8C%EB%9E%9C%EC%B9%98%EC%97%90%EC%84%9C%0Agit%20checkout%20-b%20feature%2Ftry-new-approach" data-code-lang="bash">
+    <pre><code># ① 작업 단위로 자주 커밋
+git add .
+git commit -m &quot;feat: 사용자 입력 검증 함수 추가&quot;
+
+# ② 문제 발생 시 직전 커밋으로 되돌리기
+git reset --hard HEAD~1
+
+# ③ 실험적 작업은 별도 브랜치에서
+git checkout -b feature/try-new-approach</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">되돌리기 전략 — 작업 단위로 자주 커밋</span>
+    <span class="slide-footer-right" data-slot="page-num">23</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.4.3 COMMIT PREFIX</div>
+    <div class="t-title" data-slot="title">커밋 메시지 prefix 규칙</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>타입</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>feat</td><td>새 기능 추가</td></tr>
+              <tr><td>fix</td><td>버그 수정</td></tr>
+              <tr><td>refactor</td><td>기능 변경 없이 코드 개선</td></tr>
+              <tr><td>db</td><td>스키마, 마이그레이션, 쿼리 변경</td></tr>
+              <tr><td>api</td><td>API 엔드포인트 추가/수정</td></tr>
+              <tr><td>ui</td><td>프런트엔드 UI 변경</td></tr>
+              <tr><td>test</td><td>테스트 코드 추가/수정</td></tr>
+              <tr><td>docs</td><td>문서, 주석 추가/수정</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>Tip</strong> 깃 커밋 전 명령어와 프로세스를 본인에게 맞게 조정하고 커밋 전 리뷰 습관을 들여야 AI가 작성한 코드 오류를 줄일 수 있다. Claude Code에게 커밋 메시지 생성 스크립트를 작성하게 하면 반자동화도 가능하다(검토 단계는 반드시 거쳐야 하므로 반자동화 권장).</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">커밋 메시지 prefix 규칙</span>
+    <span class="slide-footer-right" data-slot="page-num">24</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">05</div>
+    <div class="t-chapter" data-slot="label">PART 05</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">2.5 개발 방법론 비교와 프로젝트 구조 설정</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">/init · 증강코딩 · TDD · SDD · 프로젝트 구조</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">05 · 2.5 개발 방법론 비교와 프로젝트 구조 설정</span>
+    <span class="slide-footer-right" data-slot="page-num">2.5</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 /INIT</div>
+    <div class="t-title" data-slot="title">2.5.1 /init 으로 CLAUDE.md 자동 생성</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">새 프로젝트를 시작할 때 가장 먼저 실행해야 하는 명령어</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-afaad235" data-code-source="%3E%20%2Finit" data-code-lang="bash">
+    <pre><code>&gt; /init</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>CLAUDE.md의 역할</strong> 새 동료가 합류했을 때 프로젝트 구조·컨벤션·배포 방법을 설명하듯, Claude에게 온보딩 문서를 제공한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.1 /init 으로 CLAUDE.md 자동 생성</span>
+    <span class="slide-footer-right" data-slot="page-num">25</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 CLAUDE.md</div>
+    <div class="t-title" data-slot="title">CLAUDE.md 예시 — TaskFlow API</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Express + TypeScript + PostgreSQL 기반 REST API</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-1f6d6416" data-code-source="%23%20TaskFlow%20API%0A%EC%82%AC%EC%9A%A9%EC%9E%90%20%ED%83%9C%EC%8A%A4%ED%81%AC%20%EA%B4%80%EB%A6%AC%EB%A5%BC%20%EC%9C%84%ED%95%9C%20REST%20API%20%EB%B0%B1%EC%97%94%EB%93%9C.%20Express%20%2B%20TypeScript%20%2B%20PostgreSQL%20%EA%B8%B0%EB%B0%98.%0A%0A%23%23%20%ED%95%B5%EC%8B%AC%20%EB%AA%85%EB%A0%B9%EC%96%B4%0Anpm%20run%20dev%20%20%20%20%20%20%20%20%20%20%23%20%EA%B0%9C%EB%B0%9C%20%EC%84%9C%EB%B2%84%20(%ED%8F%AC%ED%8A%B8%203000)%0Anpm%20run%20test%20%20%20%20%20%20%20%20%20%23%20Jest%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%A0%84%EC%B2%B4%20%EC%8B%A4%ED%96%89%0Anpm%20run%20lint%20%20%20%20%20%20%20%20%20%23%20ESLint%20%EA%B2%80%EC%82%AC%0Anpm%20run%20typecheck%20%20%20%20%23%20TypeScript%20%ED%83%80%EC%9E%85%20%EA%B2%80%EC%82%AC%0A%0A%23%23%20%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC%20%EA%B5%AC%EC%A1%B0%0A-%20%60src%2Froutes%2F%60%20-%20Express%20%EB%9D%BC%EC%9A%B0%ED%84%B0%0A-%20%60src%2Fservices%2F%60%20-%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%0A-%20%60src%2Fmodels%2F%60%20-%20Prisma%20%EB%AA%A8%EB%8D%B8%0A%0A%23%23%20%EC%BD%94%EB%94%A9%20%EA%B7%9C%EC%B9%99%0A-%20%EB%AA%A8%EB%93%A0%20%ED%95%A8%EC%88%98%EC%97%90%20TypeScript%20%ED%83%80%EC%9E%85%20%EB%AA%85%EC%8B%9C%0A-%20%EC%83%88%20%EA%B8%B0%EB%8A%A5%EC%9D%80%20%EB%B0%98%EB%93%9C%EC%8B%9C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%9E%91%EC%84%B1%0A-%20API%20%EC%9D%91%EB%8B%B5%EC%9D%80%20%ED%91%9C%EC%A4%80%20%ED%98%95%EC%8B%9D%3A%20%60%7B%20success%2C%20data%2C%20error%20%7D%60%0A%0A%23%23%20%EA%B8%88%EC%A7%80%0A-%20any%20%ED%83%80%EC%9E%85%20%EC%82%AC%EC%9A%A9%20%EA%B8%88%EC%A7%80%0A-%20console.log%20%EC%BB%A4%EB%B0%8B%20%EA%B8%88%EC%A7%80%20(logger%20%EC%82%AC%EC%9A%A9)%0A-%20%EB%8F%99%EA%B8%B0%20%ED%8C%8C%EC%9D%BC%20I%2FO%20%EA%B8%88%EC%A7%80" data-code-lang="markdown">
+    <pre><code># TaskFlow API
+사용자 태스크 관리를 위한 REST API 백엔드. Express + TypeScript + PostgreSQL 기반.
+
+## 핵심 명령어
+npm run dev          # 개발 서버 (포트 3000)
+npm run test         # Jest 테스트 전체 실행
+npm run lint         # ESLint 검사
+npm run typecheck    # TypeScript 타입 검사
+
+## 디렉터리 구조
+- `src/routes/` - Express 라우터
+- `src/services/` - 비즈니스 로직
+- `src/models/` - Prisma 모델
+
+## 코딩 규칙
+- 모든 함수에 TypeScript 타입 명시
+- 새 기능은 반드시 테스트 작성
+- API 응답은 표준 형식: `{ success, data, error }`
+
+## 금지
+- any 타입 사용 금지
+- console.log 커밋 금지 (logger 사용)
+- 동기 파일 I/O 금지</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CLAUDE.md 예시 — TaskFlow API</span>
+    <span class="slide-footer-right" data-slot="page-num">26</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 SCOPE</div>
+    <div class="t-title" data-slot="title">CLAUDE.md 파일 위치별 공유 범위</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>유형</th><th>위치</th><th>공유 범위</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>프로젝트 메모리</td><td>[프로젝트]/CLAUDE.md</td><td>팀 (Git 커밋)</td></tr>
+              <tr><td>사용자 메모리</td><td>~/.claude/CLAUDE.md</td><td>본인만</td></tr>
+              <tr><td>프로젝트 로컬</td><td>[프로젝트]/CLAUDE.local.md</td><td>본인만 (.gitignore)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CLAUDE.md 파일 위치별 공유 범위</span>
+    <span class="slide-footer-right" data-slot="page-num">27</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 LOAD ORDER</div>
+    <div class="t-title" data-slot="title">CLAUDE.md 로드 순서 (우선순위)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">나중에 로드된 설정이 이전 설정을 덮어쓴다</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-f949845c" data-code-source="%5B%EC%84%B8%EC%85%98%20%EC%8B%9C%EC%9E%91%20%EC%8B%9C%20%EC%9E%90%EB%8F%99%20%EB%A1%9C%EB%93%9C%5D%0A1.%20~%2F.claude%2FCLAUDE.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%E2%86%90%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%A0%84%EC%97%AD%20%EC%84%A4%EC%A0%95%0A2.%20%2Fhome%2Fuser%2Fmyproject%2FCLAUDE.md%20%20%20%20%20%20%20%20%E2%86%90%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%84%A4%EC%A0%95%0A3.%20%2Fhome%2Fuser%2Fmyproject%2FCLAUDE.local.md%20%20%E2%86%90%20%EA%B0%9C%EC%9D%B8%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%84%A4%EC%A0%95%0A%0A%5B%ED%8C%8C%EC%9D%BC%20%EC%9E%91%EC%97%85%20%EC%8B%9C%20%EC%A1%B0%EA%B1%B4%EB%B6%80%20%EB%A1%9C%EB%93%9C%5D%0A4.%20.claude%2Frules%2F*.md%20%20%E2%86%90%20paths%20%ED%8C%A8%ED%84%B4%EA%B3%BC%20%EC%9D%BC%EC%B9%98%ED%95%98%EB%8A%94%20%ED%8C%8C%EC%9D%BC%20%EC%9E%91%EC%97%85%20%EC%8B%9C" data-code-lang="plaintext">
+    <pre><code>[세션 시작 시 자동 로드]
+1. ~/.claude/CLAUDE.md                   ← 사용자 전역 설정
+2. /home/user/myproject/CLAUDE.md        ← 프로젝트 설정
+3. /home/user/myproject/CLAUDE.local.md  ← 개인 프로젝트 설정
+
+[파일 작업 시 조건부 로드]
+4. .claude/rules/*.md  ← paths 패턴과 일치하는 파일 작업 시</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>context, not enforcement</strong> Anthropic 공식 문서: 중요한 규칙은 CLAUDE.md에만 의존하지 말고 Hook으로 강제하는 것이 권장된다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CLAUDE.md 로드 순서 (우선순위)</span>
+    <span class="slide-footer-right" data-slot="page-num">28</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 RULES</div>
+    <div class="t-title" data-slot="title">.claude/rules/ — 경로 기반 자동 컨텍스트 주입</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">특정 파일·디렉터리에서 작업할 때만 자동 활성화</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-a6d20e55" data-code-source="%23%20.claude%2Frules%2Fapi-routes.md%0A---%0Apaths%3A%0A%20%20-%20%22src%2Fapi%2F**%2F*.ts%22%0A---%0A%0A%23%20API%20%EA%B0%9C%EB%B0%9C%20%EA%B7%9C%EC%B9%99%0A%0A%23%23%20%EC%9D%91%EB%8B%B5%20%ED%98%95%EC%8B%9D%0A%EB%AA%A8%EB%93%A0%20API%EB%8A%94%20%EB%8B%A4%EC%9D%8C%20%ED%98%95%EC%8B%9D%EC%9C%BC%EB%A1%9C%20%EC%9D%91%EB%8B%B5%ED%95%9C%EB%8B%A4%3A%0A%7B%20%22success%22%3A%20boolean%2C%20%22data%22%3A%20any%20%7C%20null%2C%20%22error%22%3A%20string%20%7C%20null%20%7D%0A%0A%23%23%20%EC%97%90%EB%9F%AC%20%EC%B2%98%EB%A6%AC%0A-%20%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4%20%EB%A1%9C%EC%A7%81%20%EC%97%90%EB%9F%AC%3A%20400%EB%B2%88%EB%8C%80%0A-%20%EC%84%9C%EB%B2%84%20%EC%97%90%EB%9F%AC%3A%20500%EB%B2%88%EB%8C%80%0A%0A%23%23%20%EC%9C%A0%ED%9A%A8%EC%84%B1%20%EA%B2%80%EC%82%AC%0A-%20%EB%AA%A8%EB%93%A0%20%EC%9E%85%EB%A0%A5%EC%9D%80%20zod%20%EC%8A%A4%ED%82%A4%EB%A7%88%EB%A1%9C%20%EA%B2%80%EC%A6%9D%0A-%20%EC%8A%A4%ED%82%A4%EB%A7%88%20%ED%8C%8C%EC%9D%BC%EC%9D%80%20src%2Fschemas%2F%EC%97%90%20%EC%9C%84%EC%B9%98" data-code-lang="yaml">
+    <pre><code># .claude/rules/api-routes.md
+---
+paths:
+  - &quot;src/api/**/*.ts&quot;
+---
+
+# API 개발 규칙
+
+## 응답 형식
+모든 API는 다음 형식으로 응답한다:
+{ &quot;success&quot;: boolean, &quot;data&quot;: any | null, &quot;error&quot;: string | null }
+
+## 에러 처리
+- 비즈니스 로직 에러: 400번대
+- 서버 에러: 500번대
+
+## 유효성 검사
+- 모든 입력은 zod 스키마로 검증
+- 스키마 파일은 src/schemas/에 위치</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">.claude/rules/ — 경로 기반 자동 컨텍스트 주입</span>
+    <span class="slide-footer-right" data-slot="page-num">29</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.1 GLOB</div>
+    <div class="t-title" data-slot="title">Glob 패턴 기본 문법</div>
+    <div class="t-body" data-slot="body">권장 분량 50~200 라인. 길어지면 @import로 분리하거나 .claude/rules/ 활용.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>패턴</th><th>설명</th><th>예시</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>*</td><td>파일명의 모든 문자</td><td>*.ts → 모든 .ts 파일</td></tr>
+              <tr><td>**</td><td>모든 디렉터리 (재귀)</td><td>src/**/*.ts → src 하위 모든 .ts</td></tr>
+              <tr><td>{a,b}</td><td>OR 패턴</td><td>*.{ts,tsx} → .ts 또는 .tsx</td></tr>
+              <tr><td>!</td><td>제외</td><td>!*.test.ts → 테스트 파일 제외</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Glob 패턴 기본 문법</span>
+    <span class="slide-footer-right" data-slot="page-num">30</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.2 AUGMENTED CODING</div>
+    <div class="t-title" data-slot="title">2.5.2 Kent Beck의 증강코딩 (Augmented Coding)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">TDD 창시자가 제시한 AI 시대의 코딩 방법론 (2025)</div>
+    <div class="t-body" data-slot="body">BPlusTree3 프로젝트(B+ Tree 라이브러리를 Rust·Python으로 구현)를 통해 Kent Beck이 실제로 탐구하고 문서화한 개념이다.</div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">💬</div>
+      <div class="callout-body"><strong>Kent Beck, 2025-06-25</strong> 증강코딩에서는 코드의 품질, 복잡도, 테스트, 커버리지까지 신경 쓴다. 손으로 직접 코드를 작성할 때와 동일한 가치 체계를 유지하면서, 타이핑을 AI가 대신해줄 뿐이다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.2 Kent Beck의 증강코딩 (Augmented Coding)</span>
+    <span class="slide-footer-right" data-slot="page-num">31</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.2 COMPARISON</div>
+    <div class="t-title" data-slot="title">바이브 코딩 vs 증강코딩</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>항목</th><th>바이브 코딩</th><th>증강코딩</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>코드 관심</td><td>동작에만 집중</td><td>품질·복잡도·테스트까지</td></tr>
+              <tr><td>에러 대응</td><td>에러 메시지를 AI에게 그냥 던짐</td><td>원인 분석 후 명확하게 지시</td></tr>
+              <tr><td>기준</td><td>어떻게든 동작하면 그만</td><td>손으로 쓸 때와 동일한 가치 체계</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">바이브 코딩 vs 증강코딩</span>
+    <span class="slide-footer-right" data-slot="page-num">32</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.2 WARNING SIGNS</div>
+    <div class="t-title" data-slot="title">AI가 궤도를 이탈하는 3가지 경고 신호</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Kent Beck이 BPlusTree3 프로젝트를 통해 발견한 패턴</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>루프(Loops)<span class="sub">비슷한 작업을 반복하면서 실질적 진전이 없는 현상</span></div></li>
+      <li><div>요청하지 않은 기능 추가<span class="sub">지시하지 않은 영역까지 과도한 코드 추가 → 복잡성 폭발</span></div></li>
+      <li><div>치팅 징후 (가장 위험)<span class="sub">테스트를 통과시키기 위해 테스트 자체를 비활성화·삭제</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">AI가 궤도를 이탈하는 3가지 경고 신호</span>
+    <span class="slide-footer-right" data-slot="page-num">33</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.2 PRINCIPLE</div>
+    <div class="t-title" data-slot="title">Make it work, Make it right, Make it fast</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Kent Beck의 원칙은 AI 시대에도 여전히 유효</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>Make it work<span class="sub">작은 범위에서 일단 동작하게 만든다</span></div></li>
+      <li><div>Make it right<span class="sub">리뷰를 통해 제대로 정리한다 (리팩터링)</span></div></li>
+      <li><div>Make it fast<span class="sub">필요시 최적화한다</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:20px;">
+      <div class="callout-icon">🪜</div>
+      <div class="callout-body"><strong>Small, Safe Steps</strong> 한 번에 폭발적 복잡성을 키우지 말고 작고 안전한 단계로 — 어디서 문제가 났는지 파악하기 쉽고 되돌리기도 쉽다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Make it work, Make it right, Make it fast</span>
+    <span class="slide-footer-right" data-slot="page-num">34</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.2 STEPS</div>
+    <div class="t-title" data-slot="title">Small Safe Steps — 좋은 예 vs 나쁜 예</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">좋은 예 — 작고 안전한 단계</div>
+        <div class="terminal" data-slot="code" data-block-id="tb-f3d5c480" data-code-source="%23%20%EC%A2%8B%EC%9D%80%20%EC%98%88%3A%20%EC%9E%91%EA%B3%A0%20%EC%95%88%EC%A0%84%ED%95%9C%20%EB%8B%A8%EA%B3%84%0A1%EB%8B%A8%EA%B3%84%3A%20%22%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%9E%85%EB%A0%A5%EC%9D%84%20%EB%B0%9B%EB%8A%94%20%ED%95%A8%EC%88%98%EB%A5%BC%20%EC%9E%91%EC%84%B1%ED%95%B4%EC%A4%98.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EB%A8%BC%EC%A0%80.%22%0A%20%20%20%20%20%20%20%E2%86%92%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%9E%91%EC%84%B1%20%E2%86%92%20%EA%B5%AC%ED%98%84%20%E2%86%92%20%EA%B2%80%EC%A6%9D%0A%0A2%EB%8B%A8%EA%B3%84%3A%20%22%EC%9E%85%EB%A0%A5%EA%B0%92%EC%9D%84%20%EA%B2%80%EC%A6%9D%ED%95%98%EB%8A%94%20%EB%A1%9C%EC%A7%81%EC%9D%84%20%EC%B6%94%EA%B0%80%ED%95%B4%EC%A4%98.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EB%A8%BC%EC%A0%80.%22%0A%20%20%20%20%20%20%20%E2%86%92%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%9E%91%EC%84%B1%20%E2%86%92%20%EA%B5%AC%ED%98%84%20%E2%86%92%20%EA%B2%80%EC%A6%9D" data-code-lang="bash">
+        <pre><code># 좋은 예: 작고 안전한 단계
+1단계: &quot;사용자 입력을 받는 함수를 작성해줘. 테스트 먼저.&quot;
+       → 테스트 작성 → 구현 → 검증
+
+2단계: &quot;입력값을 검증하는 로직을 추가해줘. 테스트 먼저.&quot;
+       → 테스트 작성 → 구현 → 검증</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">나쁜 예 — 크고 위험한 단계</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-13e0e83e" data-code-source="%23%20%ED%8C%A8%ED%84%B4%201%3A%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%97%86%EC%9D%B4%20%EA%B5%AC%ED%98%84%20%EB%A8%BC%EC%A0%80%0A%22%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%9E%85%EB%A0%A5%EC%9D%84%20%EB%B0%9B%EC%95%84%EC%84%9C%20%EA%B2%80%EC%A6%9D%ED%95%98%EA%B3%A0%2C%20DB%EC%97%90%20%EC%A0%80%EC%9E%A5%ED%95%98%EA%B3%A0%2C%0A%20%EC%84%B1%EA%B3%B5%ED%95%98%EB%A9%B4%20%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%9D%84%20%EB%B3%B4%EB%82%B4%EA%B3%A0%2C%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%A9%B4%20%EB%A1%9C%EA%B7%B8%EB%A5%BC%20%EB%82%A8%EA%B8%B0%EB%8A%94%0A%20%EA%B8%B0%EB%8A%A5%EC%9D%84%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%22%0A%E2%86%92%20%EC%96%B4%EB%94%94%EC%84%9C%20%EB%AC%B8%EC%A0%9C%EA%B0%80%20%EC%83%9D%EA%B2%BC%EB%8A%94%EC%A7%80%20%ED%8C%8C%EC%95%85%ED%95%98%EA%B8%B0%20%EC%96%B4%EB%A0%A4%EC%9B%80%0A%E2%86%92%20%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0%20%EC%96%B4%EB%A0%A4%EC%9B%80%0A%E2%86%92%20%EB%B3%B5%EC%9E%A1%EC%84%B1%EC%9D%B4%20%ED%95%9C%20%EB%B2%88%EC%97%90%20%ED%8F%AD%EB%B0%9C" data-code-lang="plaintext">
+        <pre><code># 패턴 1: 테스트 없이 구현 먼저
+&quot;사용자 입력을 받아서 검증하고, DB에 저장하고,
+ 성공하면 이메일을 보내고, 실패하면 로그를 남기는
+ 기능을 만들어줘.&quot;
+→ 어디서 문제가 생겼는지 파악하기 어려움
+→ 되돌리기 어려움
+→ 복잡성이 한 번에 폭발</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Small Safe Steps — 좋은 예 vs 나쁜 예</span>
+    <span class="slide-footer-right" data-slot="page-num">35</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 TDD</div>
+    <div class="t-title" data-slot="title">2.5.3 AI는 왜 TDD를 무시하는가</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">벤치마크 최적화로 &#39;완성된 코드&#39;를 한 번에 생성하도록 학습됨</div>
+    <div class="t-body" data-slot="body">AI 코딩 도구들은 TDD 사이클(Red → Green → Refactor)을 지키도록 훈련되어 있지 않다.</div>
+    <div class="t-h3">AI가 TDD를 무시하는 대표 패턴</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>패턴 1 — 테스트 없이 구현 먼저<span class="sub">AuthService.ts·UserRepository.ts 한 번에 생성, &#39;테스트는 나중에&#39;로 마무리</span></div></li>
+      <li><div>패턴 2 — 테스트와 구현 동시 생성<span class="sub">Red 단계가 없으므로 테스트의 유효성 검증 불가</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.3 AI는 왜 TDD를 무시하는가</span>
+    <span class="slide-footer-right" data-slot="page-num">36</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 RED-GREEN-REFACTOR</div>
+    <div class="t-title" data-slot="title">명시적으로 TDD 사이클 요청하기</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">1) 실패하는 테스트만 → 2) 최소 구현 → 3) 리팩터링</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-d16210ae" data-code-source="%23%201%EB%8B%A8%EA%B3%84%3A%20Red%20%E2%80%94%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A7%8C%20%EC%9E%91%EC%84%B1%0A%22createUser%20%ED%95%A8%EC%88%98%EC%97%90%20%EB%8C%80%ED%95%9C%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%EB%A8%BC%EC%A0%80%20%EC%9E%91%EC%84%B1%ED%95%B4%EC%A4%98.%0A%20%EA%B5%AC%ED%98%84%EC%9D%80%20%ED%95%98%EC%A7%80%20%EB%A7%88.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A7%8C%20%EC%9E%91%EC%84%B1%ED%95%B4.%22%0A%0A%23%202%EB%8B%A8%EA%B3%84%3A%20Green%20%E2%80%94%20%EC%B5%9C%EC%86%8C%20%EA%B5%AC%ED%98%84%0A%22%EB%B0%A9%EA%B8%88%20%EC%9E%91%EC%84%B1%ED%95%9C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%ED%86%B5%EA%B3%BC%EC%8B%9C%ED%82%A4%EB%8A%94%20%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98%20%EC%BD%94%EB%93%9C%EB%A5%BC%20%EC%9E%91%EC%84%B1%ED%95%B4%EC%A4%98.%0A%20%EC%B6%94%EA%B0%80%20%EA%B8%B0%EB%8A%A5%EC%9D%80%20%EB%84%A3%EC%A7%80%20%EB%A7%88.%22%0A%0A%23%203%EB%8B%A8%EA%B3%84%3A%20Refactor%20%E2%80%94%20%EC%A0%95%EB%A6%AC%0A%22%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%ED%86%B5%EA%B3%BC%ED%95%98%EB%8A%94%20%EC%83%81%ED%83%9C%EB%A5%BC%20%EC%9C%A0%EC%A7%80%ED%95%98%EB%A9%B4%EC%84%9C%20%EC%BD%94%EB%93%9C%EB%A5%BC%20%EB%A6%AC%ED%8C%A9%ED%84%B0%EB%A7%81%20%ED%95%B4%EC%A4%98.%0A%20%EC%83%88%EB%A1%9C%EC%9A%B4%20%EA%B8%B0%EB%8A%A5%EC%9D%80%20%EC%B6%94%EA%B0%80%ED%95%98%EC%A7%80%20%EB%A7%88.%22" data-code-lang="bash">
+    <pre><code># 1단계: Red — 실패하는 테스트만 작성
+&quot;createUser 함수에 대한 실패하는 테스트를 먼저 작성해줘.
+ 구현은 하지 마. 테스트만 작성해.&quot;
+
+# 2단계: Green — 최소 구현
+&quot;방금 작성한 테스트를 통과시키는 최소한의 코드를 작성해줘.
+ 추가 기능은 넣지 마.&quot;
+
+# 3단계: Refactor — 정리
+&quot;테스트가 통과하는 상태를 유지하면서 코드를 리팩터링 해줘.
+ 새로운 기능은 추가하지 마.&quot;</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">명시적으로 TDD 사이클 요청하기</span>
+    <span class="slide-footer-right" data-slot="page-num">37</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 CLAUDE.md TDD</div>
+    <div class="t-title" data-slot="title">TDD 강제하는 CLAUDE.md 규칙</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Red-Green-Refactor 사이클 + 금지 사항 명시</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-97097f56" data-code-source="%23%23%20TDD%20%ED%95%84%EC%88%98%20%EA%B7%9C%EC%B9%99%0A%0A%23%23%23%20Red-Green-Refactor%20%EC%82%AC%EC%9D%B4%ED%81%B4%0A1.%20**Red**%3A%20%EB%A8%BC%EC%A0%80%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%EC%9E%91%EC%84%B1%ED%95%9C%EB%8B%A4%0A%20%20%20-%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%EC%8B%A4%EC%A0%9C%EB%A1%9C%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%EC%A7%80%20%ED%99%95%EC%9D%B8%0A2.%20**Green**%3A%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%ED%86%B5%EA%B3%BC%EC%8B%9C%ED%82%A4%EB%8A%94%20%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98%20%EC%BD%94%EB%93%9C%20%EC%9E%91%EC%84%B1%0A%20%20%20-%20%ED%95%98%EB%93%9C%EC%BD%94%EB%94%A9%EB%8F%84%20%ED%97%88%EC%9A%A9%20(%EB%8B%A4%EC%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%EC%9D%BC%EB%B0%98%ED%99%94%EB%A5%BC%20%EA%B0%95%EC%A0%9C)%0A3.%20**Refactor**%3A%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%ED%86%B5%EA%B3%BC%ED%95%98%EB%8A%94%20%EC%83%81%ED%83%9C%EC%97%90%EC%84%9C%20%EC%BD%94%EB%93%9C%20%EA%B0%9C%EC%84%A0%0A%20%20%20-%20%EC%A4%91%EB%B3%B5%20%EC%A0%9C%EA%B1%B0%2C%20%EB%AA%85%ED%99%95%ED%95%9C%20%EC%9D%B4%EB%A6%84%20%EC%82%AC%EC%9A%A9%0A%0A%23%23%23%20%EA%B8%88%EC%A7%80%20%EC%82%AC%ED%95%AD%0A-%20%E2%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%97%86%EC%9D%B4%20%EA%B5%AC%ED%98%84%20%EC%BD%94%EB%93%9C%20%EC%9E%91%EC%84%B1%0A-%20%E2%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%99%80%20%EA%B5%AC%ED%98%84%EC%9D%84%20%EB%8F%99%EC%8B%9C%EC%97%90%20%EC%9E%91%EC%84%B1%0A-%20%E2%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20skip%20%EB%98%90%EB%8A%94%20%EC%A3%BC%EC%84%9D%20%EC%B2%98%EB%A6%AC%0A-%20%E2%9D%8C%20%EC%8B%A4%ED%8C%A8%20%EC%9B%90%EC%9D%B8%20%EB%B6%84%EC%84%9D%20%EC%97%86%EC%9D%B4%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%88%98%EC%A0%95" data-code-lang="markdown">
+    <pre><code>## TDD 필수 규칙
+
+### Red-Green-Refactor 사이클
+1. **Red**: 먼저 실패하는 테스트를 작성한다
+   - 테스트가 실제로 실패하는지 확인
+2. **Green**: 테스트를 통과시키는 최소한의 코드 작성
+   - 하드코딩도 허용 (다음 테스트가 일반화를 강제)
+3. **Refactor**: 테스트가 통과하는 상태에서 코드 개선
+   - 중복 제거, 명확한 이름 사용
+
+### 금지 사항
+- ❌ 테스트 없이 구현 코드 작성
+- ❌ 테스트와 구현을 동시에 작성
+- ❌ 테스트 skip 또는 주석 처리
+- ❌ 실패 원인 분석 없이 테스트 수정</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">TDD 강제하는 CLAUDE.md 규칙</span>
+    <span class="slide-footer-right" data-slot="page-num">38</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 /tdd-red</div>
+    <div class="t-title" data-slot="title">슬래시 커맨드로 TDD 워크플로 자동화 — Red</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">.claude/commands/tdd-red.md</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-d32845d4" data-code-source="%3C!--%20.claude%2Fcommands%2Ftdd-red.md%20--%3E%0A%23%20TDD%20Red%20Phase%0A%0A%EB%8B%A4%EC%9D%8C%20%EA%B8%B0%EB%8A%A5%EC%97%90%20%EB%8C%80%ED%95%9C%20**%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A7%8C**%20%EC%9E%91%EC%84%B1%ED%95%B4%EC%A3%BC%EC%84%B8%EC%9A%94%3A%20%24ARGUMENTS%0A%0A%23%23%20%EA%B7%9C%EC%B9%99%0A1.%20%EA%B5%AC%ED%98%84%20%EC%BD%94%EB%93%9C%EB%8A%94%20%EC%A0%88%EB%8C%80%20%EC%9E%91%EC%84%B1%ED%95%98%EC%A7%80%20%EC%95%8A%EC%9D%8C%0A2.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%ED%8C%8C%EC%9D%BC%EB%A7%8C%20%EC%83%9D%EC%84%B1%20%EB%98%90%EB%8A%94%20%EC%88%98%EC%A0%95%0A3.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%EC%9D%B4%EC%9C%A0%EB%A5%BC%20%EC%84%A4%EB%AA%85%0A4.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%8B%A4%ED%96%89%ED%95%98%EC%97%AC%20%EC%8B%A4%ED%8C%A8%20%ED%99%95%EC%9D%B8" data-code-lang="markdown">
+    <pre><code>&lt;!-- .claude/commands/tdd-red.md --&gt;
+# TDD Red Phase
+
+다음 기능에 대한 **실패하는 테스트만** 작성해주세요: $ARGUMENTS
+
+## 규칙
+1. 구현 코드는 절대 작성하지 않음
+2. 테스트 파일만 생성 또는 수정
+3. 테스트가 실패하는 이유를 설명
+4. 테스트 실행하여 실패 확인</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">슬래시 커맨드로 TDD 워크플로 자동화 — Red</span>
+    <span class="slide-footer-right" data-slot="page-num">39</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 /tdd-green</div>
+    <div class="t-title" data-slot="title">슬래시 커맨드로 TDD 워크플로 자동화 — Green</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">.claude/commands/tdd-green.md</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-bba303eb" data-code-source="%3C!--%20.claude%2Fcommands%2Ftdd-green.md%20--%3E%0A%23%20TDD%20Green%20Phase%0A%0A%EA%B0%80%EC%9E%A5%20%EC%B5%9C%EA%B7%BC%EC%97%90%20%EC%9E%91%EC%84%B1%ED%95%9C%20%EC%8B%A4%ED%8C%A8%ED%95%98%EB%8A%94%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20**%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98%20%EC%BD%94%EB%93%9C%EB%A1%9C**%20%ED%86%B5%EA%B3%BC%EC%8B%9C%EC%BC%9C%EC%A3%BC%EC%84%B8%EC%9A%94.%0A%0A%23%23%20%EA%B7%9C%EC%B9%99%0A1.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%ED%86%B5%EA%B3%BC%EC%8B%9C%ED%82%A4%EB%8A%94%20%EC%B5%9C%EC%86%8C%ED%95%9C%EC%9D%98%20%EC%BD%94%EB%93%9C%EB%A7%8C%20%EC%9E%91%EC%84%B1%0A2.%20%ED%95%98%EB%93%9C%EC%BD%94%EB%94%A9%EB%8F%84%20%ED%97%88%EC%9A%A9%20(%EB%8B%A4%EC%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%EC%9D%BC%EB%B0%98%ED%99%94%EB%A5%BC%20%EA%B0%95%EC%A0%9C)%0A3.%20%EC%B6%94%EA%B0%80%20%EA%B8%B0%EB%8A%A5%EC%9D%B4%EB%82%98%20%22%EB%AF%B8%EB%9E%98%EB%A5%BC%20%EC%9C%84%ED%95%9C%22%20%EC%BD%94%EB%93%9C%20%EA%B8%88%EC%A7%80" data-code-lang="markdown">
+    <pre><code>&lt;!-- .claude/commands/tdd-green.md --&gt;
+# TDD Green Phase
+
+가장 최근에 작성한 실패하는 테스트를 **최소한의 코드로** 통과시켜주세요.
+
+## 규칙
+1. 테스트를 통과시키는 최소한의 코드만 작성
+2. 하드코딩도 허용 (다음 테스트가 일반화를 강제)
+3. 추가 기능이나 &quot;미래를 위한&quot; 코드 금지</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🚀</div>
+      <div class="callout-body"><strong>사용 예</strong> /tdd-red 이메일 검증 함수 → /tdd-green → /tdd-refactor</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">슬래시 커맨드로 TDD 워크플로 자동화 — Green</span>
+    <span class="slide-footer-right" data-slot="page-num">40</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 HOOKS</div>
+    <div class="t-title" data-slot="title">Hook을 활용한 자동 테스트 실행</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Edit/Write 후 관련 테스트 자동 실행 — AI 비결정성 안전망</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-fe359739" data-code-source="%2F%2F%20.claude%2Fsettings.json%0A%7B%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22PostToolUse%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22matcher%22%3A%20%22Edit%7CWrite%22%2C%0A%20%20%20%20%20%20%20%20%22hooks%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22type%22%3A%20%22command%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22command%22%3A%20%22npm%20test%20--%20--findRelatedTests%20%24CLAUDE_FILE_PATH%20--passWithNoTests%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22timeout%22%3A%2060%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D" data-code-lang="json">
+    <pre><code>// .claude/settings.json
+{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;npm test -- --findRelatedTests $CLAUDE_FILE_PATH --passWithNoTests&quot;,
+            &quot;timeout&quot;: 60
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Hook을 활용한 자동 테스트 실행</span>
+    <span class="slide-footer-right" data-slot="page-num">41</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 USAGE</div>
+    <div class="t-title" data-slot="title">TDD 슬래시 커맨드 — 사용 예</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Red → Green → Refactor 체인 호출</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-8682c2cd" data-code-source="%23%20%EC%82%AC%EC%9A%A9%20%EC%98%88%0A%2Ftdd-red%20%EC%9D%B4%EB%A9%94%EC%9D%BC%20%EA%B2%80%EC%A6%9D%20%ED%95%A8%EC%88%98%0A%2Ftdd-green%0A%2Ftdd-refactor" data-code-lang="bash">
+    <pre><code># 사용 예
+/tdd-red 이메일 검증 함수
+/tdd-green
+/tdd-refactor</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">TDD 슬래시 커맨드 — 사용 예</span>
+    <span class="slide-footer-right" data-slot="page-num">42</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.3 TEST AS SPEC</div>
+    <div class="t-title" data-slot="title">명세 역할을 하는 테스트</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">테스트는 단순 검증 도구가 아닌 명세(Specification)</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-3e8b7750" data-code-source="%2F%2F%20%EC%A2%8B%EC%9D%80%20%EC%9A%94%EC%B2%AD%20(%ED%85%8C%EC%8A%A4%ED%8A%B8%EA%B0%80%20%EB%AA%85%EC%84%B8%20%EC%97%AD%ED%95%A0)%0A%2F%2F%20%22%EB%8B%A4%EC%9D%8C%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%ED%86%B5%EA%B3%BC%ED%95%98%EB%8A%94%20TodoList%20%ED%81%B4%EB%9E%98%EC%8A%A4%EB%A5%BC%20%EA%B5%AC%ED%98%84%ED%95%B4%EC%A4%98%22%0A%0Adescribe('TodoList'%2C%20()%20%3D%3E%20%7B%0A%20%20it('%EC%83%88%EB%A1%9C%EC%9A%B4%20%ED%95%A0%20%EC%9D%BC%EC%9D%84%20%EC%B6%94%EA%B0%80%ED%95%98%EB%A9%B4%20%EB%AA%A9%EB%A1%9D%EC%97%90%20%EB%82%98%ED%83%80%EB%82%9C%EB%8B%A4'%2C%20()%20%3D%3E%20%7B%0A%20%20%20%20const%20todoList%20%3D%20new%20TodoList()%3B%0A%20%20%20%20todoList.addTodo(%7B%20title%3A%20'%EC%9A%B0%EC%9C%A0%20%EC%82%AC%EA%B8%B0'%2C%20priority%3A%20'high'%20%7D)%3B%0A%0A%20%20%20%20expect(todoList.items).toHaveLength(1)%3B%0A%20%20%20%20expect(todoList.items%5B0%5D.title).toBe('%EC%9A%B0%EC%9C%A0%20%EC%82%AC%EA%B8%B0')%3B%0A%20%20%20%20expect(todoList.items%5B0%5D.completed).toBe(false)%3B%0A%20%20%7D)%3B%0A%7D)%3B" data-code-lang="typescript">
+    <pre><code>// 좋은 요청 (테스트가 명세 역할)
+// &quot;다음 테스트를 통과하는 TodoList 클래스를 구현해줘&quot;
+
+describe(&#39;TodoList&#39;, () =&gt; {
+  it(&#39;새로운 할 일을 추가하면 목록에 나타난다&#39;, () =&gt; {
+    const todoList = new TodoList();
+    todoList.addTodo({ title: &#39;우유 사기&#39;, priority: &#39;high&#39; });
+
+    expect(todoList.items).toHaveLength(1);
+    expect(todoList.items[0].title).toBe(&#39;우유 사기&#39;);
+    expect(todoList.items[0].completed).toBe(false);
+  });
+});</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">명세 역할을 하는 테스트</span>
+    <span class="slide-footer-right" data-slot="page-num">43</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 SDD</div>
+    <div class="t-title" data-slot="title">2.5.4 SDD: Spec-Driven Development</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">설계를 구현과 분리하는 워크플로</div>
+    <div class="t-body" data-slot="body">코드를 바로 생성하는 대신, 명세(Specification) 문서를 먼저 작성하고 검토·승인한 후 구현 단계로 넘어간다.</div>
+    <div class="t-h3">SDD 사이클</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-ef1c5f61" data-code-source="Specify%20%E2%86%92%20Plan%20%E2%86%92%20Implement%20%E2%86%92%20Validate%0A(%EB%AA%85%EC%84%B8)%20%20%20(%EA%B3%84%ED%9A%8D)%20%20(%EA%B5%AC%ED%98%84)%20%20%20%20%20%20(%EA%B2%80%EC%A6%9D)" data-code-lang="plaintext">
+    <pre><code>Specify → Plan → Implement → Validate
+(명세)   (계획)  (구현)      (검증)</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🛠</div>
+      <div class="callout-body"><strong>SpecKit — GitHub 공식 SDD 도구</strong> GitHub이 2025년 9월 2일 공식 오픈소스로 공개한 SDD 툴킷. PyPI 동일 이름 패키지는 비공식이므로 GitHub에서 직접 설치.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.4 SDD: Spec-Driven Development</span>
+    <span class="slide-footer-right" data-slot="page-num">44</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 INSTALL</div>
+    <div class="t-title" data-slot="title">SpecKit 설치 및 초기화</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">uv tool install — GitHub 공식 설치 방법</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-99de21c0" data-code-source="%23%20SpecKit%20%EC%84%A4%EC%B9%98%20(GitHub%20%EA%B3%B5%EC%8B%9D%20%EC%84%A4%EC%B9%98%20%EB%B0%A9%EB%B2%95)%0Auv%20tool%20install%20specify-cli%20--from%20git%2Bhttps%3A%2F%2Fgithub.com%2Fgithub%2Fspec-kit.git%0A%0A%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%B4%88%EA%B8%B0%ED%99%94%0Aspecify%20init%20my-app%20--ai%20claude" data-code-lang="bash">
+    <pre><code># SpecKit 설치 (GitHub 공식 설치 방법)
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# 프로젝트 초기화
+specify init my-app --ai claude</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SpecKit 설치 및 초기화</span>
+    <span class="slide-footer-right" data-slot="page-num">45</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 COMMANDS</div>
+    <div class="t-title" data-slot="title">SpecKit 슬래시 커맨드 체인</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">각 문서는 다음 문서를 참조 — plan은 spec 참조, tasks는 spec+plan 참조</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-37e20113" data-code-source="%2Fspeckit.constitution%20%20%20%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%9B%90%EC%B9%99%20%EC%88%98%EB%A6%BD%20(constitution.md)%20%E2%80%94%20%EB%B6%88%EB%B3%80%20%EC%9B%90%EC%B9%99%0A%2Fspeckit.specify%20%20%20%20%20%20%20%20%23%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EB%AA%85%EC%84%B8%20(spec.md)%0A%2Fspeckit.clarify%20%20%20%20%20%20%20%20%23%20%EB%AA%A8%ED%98%B8%ED%95%9C%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%EB%AA%85%ED%99%95%ED%99%94%0A%2Fspeckit.plan%20%20%20%20%20%20%20%20%20%20%20%23%20%EA%B8%B0%EC%88%A0%20%EA%B5%AC%ED%98%84%20%EA%B3%84%ED%9A%8D%20(plan.md)%0A%2Fspeckit.tasks%20%20%20%20%20%20%20%20%20%20%23%20%ED%83%9C%EC%8A%A4%ED%81%AC%20%EB%B6%84%ED%95%B4%20(tasks.md)%0A%2Fspeckit.implement%20%20%20%20%20%20%23%20%ED%83%9C%EC%8A%A4%ED%81%AC%EB%B3%84%20%EA%B5%AC%ED%98%84" data-code-lang="bash">
+    <pre><code>/speckit.constitution   # 프로젝트 원칙 수립 (constitution.md) — 불변 원칙
+/speckit.specify        # 요구사항 명세 (spec.md)
+/speckit.clarify        # 모호한 요구사항 명확화
+/speckit.plan           # 기술 구현 계획 (plan.md)
+/speckit.tasks          # 태스크 분해 (tasks.md)
+/speckit.implement      # 태스크별 구현</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SpecKit 슬래시 커맨드 체인</span>
+    <span class="slide-footer-right" data-slot="page-num">46</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 SDD CONTRAST</div>
+    <div class="t-title" data-slot="title">SDD 적용 — 좋은 요청 vs 나쁜 요청</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">명세를 먼저 — 모호함이 오류의 출발</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-a6127e54" data-code-source="%23%20%EB%82%98%EC%81%9C%20%EC%9A%94%EC%B2%AD%20(%EB%AA%A8%ED%98%B8%ED%95%A8)%0A%22%EC%82%AC%EC%9A%A9%EC%9E%90%20%EC%9D%B8%EC%A6%9D%20%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A4%98.%22%0A%E2%86%92%20AI%EA%B0%80%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%C2%B7%EA%B8%B0%EC%88%A0%20%EC%8A%A4%ED%83%9D%C2%B7%EC%A0%9C%EC%95%BD%EC%9D%84%20%EC%9E%84%EC%9D%98%EB%A1%9C%20%EA%B2%B0%EC%A0%95%0A%0A%23%20%EC%A2%8B%EC%9D%80%20%EC%9A%94%EC%B2%AD%20(%EB%AA%85%EC%84%B8%20%EB%A8%BC%EC%A0%80)%0A%22%EB%A8%BC%EC%A0%80%20.speckit%2Ffeatures%2Fauth%2Fspec.md%EB%A5%BC%20%EC%9E%91%EC%84%B1%ED%95%98%EC%9E%90.%0A%20%EB%8B%A4%EC%9D%8C%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%EC%9D%84%20%EC%A0%95%EB%A6%AC%ED%95%B4%EC%A4%98%3A%0A%20-%20%EC%9D%B4%EB%A9%94%EC%9D%BC%2F%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%0A%20-%20JWT%20%ED%86%A0%ED%81%B0%20(24%EC%8B%9C%EA%B0%84)%0A%20-%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%205%ED%9A%8C%20%EC%8B%A4%ED%8C%A8%20%EC%8B%9C%2030%EB%B6%84%20%EC%9E%A0%EA%B8%88%0A%E2%86%92%20spec%20%EA%B2%80%ED%86%A0%C2%B7%EC%8A%B9%EC%9D%B8%20%ED%9B%84%20plan.md%20%E2%86%92%20tasks.md%20%E2%86%92%20implement%22" data-code-lang="bash">
+    <pre><code># 나쁜 요청 (모호함)
+&quot;사용자 인증 시스템 만들어줘.&quot;
+→ AI가 요구사항·기술 스택·제약을 임의로 결정
+
+# 좋은 요청 (명세 먼저)
+&quot;먼저 .speckit/features/auth/spec.md를 작성하자.
+ 다음 요구사항을 정리해줘:
+ - 이메일/비밀번호 로그인
+ - JWT 토큰 (24시간)
+ - 비밀번호 5회 실패 시 30분 잠금
+→ spec 검토·승인 후 plan.md → tasks.md → implement&quot;</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SDD 적용 — 좋은 요청 vs 나쁜 요청</span>
+    <span class="slide-footer-right" data-slot="page-num">47</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 STRUCTURE</div>
+    <div class="t-title" data-slot="title">SpecKit 디렉터리 구조</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">.speckit/ 아래에 constitution + features 트리</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-d493bce3" data-code-source="project-name%2F%0A%E2%94%9C%E2%94%80%E2%94%80%20.speckit%2F%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20constitution.md%20%20%20%20%20%20%20%20%20%20%20%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%9B%90%EC%B9%99%20(%EB%B6%88%EB%B3%80)%0A%E2%94%82%20%20%20%E2%94%94%E2%94%80%E2%94%80%20features%2F%0A%E2%94%82%20%20%20%20%20%20%20%E2%94%94%E2%94%80%E2%94%80%20001-feature-name%2F%0A%E2%94%82%20%20%20%20%20%20%20%20%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20specify.md%20%20%20%20%20%20%20%20%23%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%0A%E2%94%82%20%20%20%20%20%20%20%20%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20plan.md%20%20%20%20%20%20%20%20%20%20%20%23%20%EA%B8%B0%EC%88%A0%20%EA%B3%84%ED%9A%8D%0A%E2%94%82%20%20%20%20%20%20%20%20%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20tasks.md%20%20%20%20%20%20%20%20%20%20%23%20%ED%83%9C%EC%8A%A4%ED%81%AC%20%EB%B6%84%ED%95%B4%0A%E2%94%82%20%20%20%20%20%20%20%20%20%20%20%E2%94%94%E2%94%80%E2%94%80%20checklist.md%20%20%20%20%20%20%23%20%ED%92%88%EC%A7%88%20%EA%B2%8C%EC%9D%B4%ED%8A%B8%0A%E2%94%94%E2%94%80%E2%94%80%20%5Bapplication%20code%5D" data-code-lang="plaintext">
+    <pre><code>project-name/
+├── .speckit/
+│   ├── constitution.md           # 프로젝트 원칙 (불변)
+│   └── features/
+│       └── 001-feature-name/
+│           ├── specify.md        # 요구사항
+│           ├── plan.md           # 기술 계획
+│           ├── tasks.md          # 태스크 분해
+│           └── checklist.md      # 품질 게이트
+└── [application code]</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SpecKit 디렉터리 구조</span>
+    <span class="slide-footer-right" data-slot="page-num">48</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 INTEGRATION</div>
+    <div class="t-title" data-slot="title">CLAUDE.md와 SpecKit 연동</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">자동 연결되지 않으므로 직접 어휘·구조 명시 필요</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-daa6744c" data-code-source="%3C!--%20CLAUDE.md%20--%3E%0A%23%23%20SpecKit%20%EC%9B%8C%ED%81%AC%ED%94%8C%EB%A1%9C%0A%EC%9D%B4%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%EB%8A%94%20SpecKit%20SDD%20%EB%B0%A9%EB%B2%95%EB%A1%A0%EC%9D%84%20%EB%94%B0%EB%A5%B8%EB%8B%A4.%0A-%20constitution%3A%20%60.speckit%2Fconstitution.md%60%20%E2%80%94%20%EB%AA%A8%EB%93%A0%20%EA%B5%AC%ED%98%84%EC%97%90%20%EC%A0%81%EC%9A%A9%ED%95%A0%20%EC%9B%90%EC%B9%99%0A-%20%EA%B8%B0%EB%8A%A5%20%EB%AA%85%EC%84%B8%3A%20%60.speckit%2Ffeatures%2F%5B%EB%B2%88%ED%98%B8%5D-%5B%EA%B8%B0%EB%8A%A5%EB%AA%85%5D%2F%60%0A-%20%EA%B5%AC%ED%98%84%20%EC%A0%84%20%EB%B0%98%EB%93%9C%EC%8B%9C%20specify.md%20%E2%86%92%20plan.md%20%E2%86%92%20tasks.md%20%EC%88%9C%EC%84%9C%EB%A1%9C%20%EA%B2%80%ED%86%A0%0A%0A%23%23%20%EC%99%84%EB%A3%8C%20%EC%A1%B0%EA%B1%B4%0A-%20%EB%AA%A8%EB%93%A0%20acceptance%20criteria%20%EC%B6%A9%EC%A1%B1%0A-%20%EA%B4%80%EB%A0%A8%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%ED%86%B5%EA%B3%BC%0A-%20constitution.md%20%EC%9B%90%EC%B9%99%20%EC%9C%84%EB%B0%98%20%EC%97%86%EC%9D%8C" data-code-lang="markdown">
+    <pre><code>&lt;!-- CLAUDE.md --&gt;
+## SpecKit 워크플로
+이 프로젝트는 SpecKit SDD 방법론을 따른다.
+- constitution: `.speckit/constitution.md` — 모든 구현에 적용할 원칙
+- 기능 명세: `.speckit/features/[번호]-[기능명]/`
+- 구현 전 반드시 specify.md → plan.md → tasks.md 순서로 검토
+
+## 완료 조건
+- 모든 acceptance criteria 충족
+- 관련 테스트 통과
+- constitution.md 원칙 위반 없음</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CLAUDE.md와 SpecKit 연동</span>
+    <span class="slide-footer-right" data-slot="page-num">49</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.4 WHEN TO USE</div>
+    <div class="t-title" data-slot="title">SDD를 사용 / 건너뛰는 상황</div>
+    <div class="t-body" data-slot="body">SDD는 단기 속도가 아닌 예측 가능성을 높인다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>사용하면 좋은 상황</th><th>건너뛰어도 되는 상황</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>여러 파일에 걸친 멀티세션 기능 개발</td><td>단일 파일 버그 수정</td></tr>
+              <tr><td>팀 전원이 동일한 AI 행동 기준이 필요할 때</td><td>포맷팅 변경</td></tr>
+              <tr><td>범위를 코드 작성 전에 확정해야 할 때</td><td>한 번의 프롬프트로 처리 가능한 CRUD 작업</td></tr>
+              <tr><td>레거시 시스템 현대화 (원래 의도를 spec으로 포착)</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SDD를 사용 / 건너뛰는 상황</span>
+    <span class="slide-footer-right" data-slot="page-num">50</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.5 PROJECT LAYOUT</div>
+    <div class="t-title" data-slot="title">2.5.5 프로젝트 구조 — brewnet 기준 전체 트리</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Next.js + Drizzle ORM 기반 실습 프로젝트</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-f16770ac" data-code-source="my-project%2F%0A%E2%94%9C%E2%94%80%E2%94%80%20CLAUDE.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B0%9C%EC%9A%94%20(%EA%B8%B0%EC%88%A0%EC%8A%A4%ED%83%9D%2C%20API%20%EB%AA%85%EC%84%B8)%0A%E2%94%9C%E2%94%80%E2%94%80%20AGENTS.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%EC%97%90%EC%9D%B4%EC%A0%84%ED%8A%B8%20%EA%B3%B5%EC%9A%A9%20%EC%A7%80%EC%B9%A8%20(%EC%84%A0%ED%83%9D)%0A%E2%94%9C%E2%94%80%E2%94%80%20CLAUDE.local.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%EA%B0%9C%EC%9D%B8%20%EC%84%A4%EC%A0%95%20(.gitignore%EC%97%90%20%EC%B6%94%EA%B0%80)%0A%E2%94%82%0A%E2%94%9C%E2%94%80%E2%94%80%20.claude%2F%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20CLAUDE.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%EC%83%81%EC%84%B8%20%EC%BD%94%EB%94%A9%20%EC%BB%A8%EB%B2%A4%EC%85%98%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20settings.json%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%ED%8C%80%20%EA%B3%B5%EC%9C%A0%20%EC%84%A4%EC%A0%95%20%E2%9C%85%20Git%20%EC%BB%A4%EB%B0%8B%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20settings.local.json%20%20%20%20%20%20%20%20%20%20%20%20%23%20%EA%B0%9C%EC%9D%B8%20%EC%84%A4%EC%A0%95%20%E2%9D%8C%20Git%20%EC%A0%9C%EC%99%B8%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20commands%2F%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20agents%2F%0A%E2%94%82%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20skills%2F%0A%E2%94%82%20%20%20%E2%94%94%E2%94%80%E2%94%80%20rules%2F%0A%E2%94%82%20%20%20%20%20%20%20%E2%94%9C%E2%94%80%E2%94%80%20api-routes.md%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20src%2Fapi%2F**%2F*.ts%20%EC%9E%91%EC%97%85%20%EC%8B%9C%20%EC%9E%90%EB%8F%99%20%EC%A0%81%EC%9A%A9%0A%E2%94%82%20%20%20%20%20%20%20%E2%94%94%E2%94%80%E2%94%80%20component-rules.md%0A%E2%94%82%0A%E2%94%9C%E2%94%80%E2%94%80%20frontend%2Fsrc%2Fcomponents%2F%0A%E2%94%9C%E2%94%80%E2%94%80%20backend%2Fsrc%2F%7Bcontrollers%2Croutes%2Cmodels%7D%2F%0A%E2%94%94%E2%94%80%E2%94%80%20package.json" data-code-lang="plaintext">
+    <pre><code>my-project/
+├── CLAUDE.md                          # 프로젝트 개요 (기술스택, API 명세)
+├── AGENTS.md                          # 에이전트 공용 지침 (선택)
+├── CLAUDE.local.md                    # 개인 설정 (.gitignore에 추가)
+│
+├── .claude/
+│   ├── CLAUDE.md                      # 상세 코딩 컨벤션
+│   ├── settings.json                  # 팀 공유 설정 ✅ Git 커밋
+│   ├── settings.local.json            # 개인 설정 ❌ Git 제외
+│   ├── commands/
+│   ├── agents/
+│   ├── skills/
+│   └── rules/
+│       ├── api-routes.md              # src/api/**/*.ts 작업 시 자동 적용
+│       └── component-rules.md
+│
+├── frontend/src/components/
+├── backend/src/{controllers,routes,models}/
+└── package.json</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.5 프로젝트 구조 — brewnet 기준 전체 트리</span>
+    <span class="slide-footer-right" data-slot="page-num">51</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.5 FILE ROLES</div>
+    <div class="t-title" data-slot="title">파일별 역할 요약</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>파일</th><th>Git</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CLAUDE.md (루트)</td><td>✅</td><td>프로젝트 개요, 도메인 모델, API 명세</td></tr>
+              <tr><td>.claude/CLAUDE.md</td><td>✅</td><td>코딩 컨벤션, 네이밍 규칙, 금지 사항</td></tr>
+              <tr><td>settings.json</td><td>✅</td><td>TS 설정, 린트 규칙, 공유 Hook</td></tr>
+              <tr><td>settings.local.json</td><td>❌</td><td>로컬 DB URL, 개인 환경설정</td></tr>
+              <tr><td>rules/api-routes.md</td><td>✅</td><td>src/api/** 작업 시 자동 적용</td></tr>
+              <tr><td>CLAUDE.local.md</td><td>❌</td><td>개인 테스트 URL, 샌드박스 설정</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">파일별 역할 요약</span>
+    <span class="slide-footer-right" data-slot="page-num">52</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.5 AGENTS.md</div>
+    <div class="t-title" data-slot="title">AGENTS.md — 모든 에이전트를 위한 표준 문서</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">OpenAI 주도 오픈 표준 (60,000+ 프로젝트, Linux Foundation 산하)</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-9985d2d7" data-code-source="%3C!--%20CLAUDE.md%20%E2%80%94%20AGENTS.md%20%EC%B0%B8%EC%A1%B0%20%EB%B0%A9%EC%8B%9D%20(%EA%B6%8C%EC%9E%A5)%20--%3E%0A%23%20CLAUDE.md%0A%0A%23%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%A7%80%EC%B9%A8%0A%40AGENTS.md%20%EB%A5%BC%20%EB%B0%98%EB%93%9C%EC%8B%9C%20%EC%9D%BD%EA%B3%A0%20%EC%A7%80%EC%B9%A8%EC%9D%84%20%EB%94%B0%EB%A5%BC%20%EA%B2%83.%0A%0A%23%23%20Claude%20Code%20%EC%A0%84%EC%9A%A9%20%EC%84%A4%EC%A0%95%0A-%20%EC%BD%94%EB%93%9C%20%EC%88%98%EC%A0%95%20%EC%A0%84%20%EB%B0%98%EB%93%9C%EC%8B%9C%20%EA%B4%80%EB%A0%A8%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%A5%BC%20%EB%A8%BC%EC%A0%80%20%EC%8B%A4%ED%96%89%ED%95%A0%20%EA%B2%83%0A-%20%EB%8C%80%EA%B7%9C%EB%AA%A8%20%EB%B3%80%EA%B2%BD%EC%9D%80%20%EC%84%9C%EB%B8%8C%EC%97%90%EC%9D%B4%EC%A0%84%ED%8A%B8%EB%A5%BC%20%ED%99%9C%EC%9A%A9%ED%95%A0%20%EA%B2%83" data-code-lang="markdown">
+    <pre><code>&lt;!-- CLAUDE.md — AGENTS.md 참조 방식 (권장) --&gt;
+# CLAUDE.md
+
+## 프로젝트 지침
+@AGENTS.md 를 반드시 읽고 지침을 따를 것.
+
+## Claude Code 전용 설정
+- 코드 수정 전 반드시 관련 테스트를 먼저 실행할 것
+- 대규모 변경은 서브에이전트를 활용할 것</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🌐</div>
+      <div class="callout-body"><strong>언제 AGENTS.md를 쓰는가</strong> 혼자/소규모는 CLAUDE.md로 충분. 모노레포·여러 AI 도구 혼용은 AGENTS.md 먼저 작성 후 CLAUDE.md에서 참조.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">AGENTS.md — 모든 에이전트를 위한 표준 문서</span>
+    <span class="slide-footer-right" data-slot="page-num">53</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.6 GIT</div>
+    <div class="t-title" data-slot="title">2.5.6 Git 설정 — 브랜치 전략</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">feature/* · fix/* — PR 전 lint + test 통과 필수</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-b91c90f9" data-code-source="%23%20%EB%B8%8C%EB%9E%9C%EC%B9%98%20%EC%A0%84%EB%9E%B5%0Agit%20checkout%20-b%20feature%2F%EA%B8%B0%EB%8A%A5%EB%AA%85%20%20%20%23%20%EA%B8%B0%EB%8A%A5%20%EA%B0%9C%EB%B0%9C%0Agit%20checkout%20-b%20fix%2F%EB%B2%84%EA%B7%B8%EB%AA%85%20%20%20%20%20%20%20%23%20%EB%B2%84%EA%B7%B8%20%EC%88%98%EC%A0%95%0A%0A%23%20PR%20%EC%A0%84%20%ED%95%84%EC%88%98%20%ED%86%B5%EA%B3%BC%0Anpm%20run%20lint%20%26%26%20npm%20run%20test" data-code-lang="bash">
+    <pre><code># 브랜치 전략
+git checkout -b feature/기능명   # 기능 개발
+git checkout -b fix/버그명       # 버그 수정
+
+# PR 전 필수 통과
+npm run lint &amp;&amp; npm run test</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">2.5.6 Git 설정 — 브랜치 전략</span>
+    <span class="slide-footer-right" data-slot="page-num">54</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.6 ESLINT</div>
+    <div class="t-title" data-slot="title">린트 설정 (.eslintrc.json) — TypeScript + React</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">any 타입 error · console 경고</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-cccc2e91" data-code-source="%2F%2F%20.eslintrc.json%0A%7B%0A%20%20%22extends%22%3A%20%5B%22next%2Fcore-web-vitals%22%2C%20%22prettier%22%5D%2C%0A%20%20%22rules%22%3A%20%7B%0A%20%20%20%20%22%40typescript-eslint%2Fno-explicit-any%22%3A%20%22error%22%2C%0A%20%20%20%20%22no-console%22%3A%20%22warn%22%0A%20%20%7D%0A%7D" data-code-lang="json">
+    <pre><code>// .eslintrc.json
+{
+  &quot;extends&quot;: [&quot;next/core-web-vitals&quot;, &quot;prettier&quot;],
+  &quot;rules&quot;: {
+    &quot;@typescript-eslint/no-explicit-any&quot;: &quot;error&quot;,
+    &quot;no-console&quot;: &quot;warn&quot;
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">린트 설정 (.eslintrc.json) — TypeScript + React</span>
+    <span class="slide-footer-right" data-slot="page-num">55</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.6 PRETTIER</div>
+    <div class="t-title" data-slot="title">포맷터 설정 (.prettierrc)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">세미콜론 + 싱글쿼트 + 100자</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-20d91527" data-code-source="%2F%2F%20.prettierrc%0A%7B%0A%20%20%22semi%22%3A%20true%2C%0A%20%20%22singleQuote%22%3A%20true%2C%0A%20%20%22tabWidth%22%3A%202%2C%0A%20%20%22printWidth%22%3A%20100%0A%7D" data-code-lang="json">
+    <pre><code>// .prettierrc
+{
+  &quot;semi&quot;: true,
+  &quot;singleQuote&quot;: true,
+  &quot;tabWidth&quot;: 2,
+  &quot;printWidth&quot;: 100
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">포맷터 설정 (.prettierrc)</span>
+    <span class="slide-footer-right" data-slot="page-num">56</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">2.5.6 AUTOMATION</div>
+    <div class="t-title" data-slot="title">Claude Code Hook으로 포맷·린트 자동화</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Edit/Write 후 prettier + eslint 자동 실행</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-e7765e5a" data-code-source="%2F%2F%20.claude%2Fsettings.json%0A%7B%0A%20%20%22hooks%22%3A%20%7B%0A%20%20%20%20%22PostToolUse%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22matcher%22%3A%20%22Edit%7CWrite%22%2C%0A%20%20%20%20%20%20%20%20%22hooks%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22type%22%3A%20%22command%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22command%22%3A%20%22npx%20prettier%20--write%20%24CLAUDE_FILE_PATH%202%3E%2Fdev%2Fnull%20%7C%7C%20true%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22timeout%22%3A%2030%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22type%22%3A%20%22command%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22command%22%3A%20%22npx%20eslint%20--fix%20%24CLAUDE_FILE_PATH%202%3E%2Fdev%2Fnull%20%7C%7C%20true%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22timeout%22%3A%2030%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%0A%7D" data-code-lang="json">
+    <pre><code>// .claude/settings.json
+{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;npx prettier --write $CLAUDE_FILE_PATH 2&gt;/dev/null || true&quot;,
+            &quot;timeout&quot;: 30
+          },
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;npx eslint --fix $CLAUDE_FILE_PATH 2&gt;/dev/null || true&quot;,
+            &quot;timeout&quot;: 30
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Claude Code Hook으로 포맷·린트 자동화</span>
+    <span class="slide-footer-right" data-slot="page-num">57</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">SUMMARY 1/2</div>
+    <div class="t-title" data-slot="title">LEVEL 2 핵심 요약 ①</div>
+    <div class="t-body" data-slot="body">원칙 · 분해 · 지시 · 리뷰</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">🧭</div>
+      <div class="callout-body"><strong>설계의 중요성</strong> AI가 빠를수록 방향 수정 비용이 커진다. 요구사항→아키텍처→인터페이스를 먼저 정의한다.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body"><strong>Taste · 비결정성</strong> AI는 작동하는 코드를 만들고, 개발자는 좋은 코드를 판단한다. 테스트가 비결정성의 결정적 검문소.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✂️</div>
+      <div class="callout-body"><strong>작업 단위</strong> 10분 내 검증 가능한 크기. 단일 책임 원칙. 명확한 지시 5요소(목표·맥락·제약·완료·예시).</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">LEVEL 2 핵심 요약 ①</span>
+    <span class="slide-footer-right" data-slot="page-num">58</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">SUMMARY 2/2</div>
+    <div class="t-title" data-slot="title">LEVEL 2 핵심 요약 ②</div>
+    <div class="t-body" data-slot="body">방법론 · 구조 · 자동화</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>CLAUDE.md</strong> /init 자동 생성 후 점진적 발전. .claude/rules/로 경로 기반 분리. context, not enforcement.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🧪</div>
+      <div class="callout-body"><strong>증강코딩 + TDD</strong> Kent Beck 원칙 — Small Safe Steps + Red·Green·Refactor. /tdd-red·/tdd-green·/tdd-refactor 사이클 강제.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">🏗️</div>
+      <div class="callout-body"><strong>SDD · SpecKit</strong> Specify → Plan → Implement → Validate. SpecKit으로 자동화.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">LEVEL 2 핵심 요약 ②</span>
+    <span class="slide-footer-right" data-slot="page-num">59</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">REFERENCES</div>
+    <div class="t-title" data-slot="title">참고 자료 (검증 완료 2026-04-29)</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>Kent Beck — Augmented Coding 원문<span class="sub"><a class="link" href="https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes">https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes</a> — Beyond the vibes (2025-06-25)</span></div></li>
+      <li><div>BPlusTree3 CLAUDE.md<span class="sub"><a class="link" href="https://github.com/KentBeck/BPlusTree3/blob/main/rust/docs/CLAUDE.md">https://github.com/KentBeck/BPlusTree3/blob/main/rust/docs/CLAUDE.md</a> — Kent Beck의 실제 CLAUDE.md 사례</span></div></li>
+      <li><div>SpecKit 공식 GitHub<span class="sub"><a class="link" href="https://github.com/github/spec-kit">https://github.com/github/spec-kit</a> — GitHub 공식 SDD 툴킷</span></div></li>
+      <li><div>GitHub Blog — SpecKit 발표<span class="sub"><a class="link" href="https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/">https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/</a> — 오픈소스 발표 (2025-09-02)</span></div></li>
+      <li><div>Martin Fowler — SDD 3 Tools<span class="sub"><a class="link" href="https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html">https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html</a> — SDD 분석</span></div></li>
+      <li><div>AGENTS.md 공식 사이트<span class="sub"><a class="link" href="https://agents.md">https://agents.md</a> — 에이전트 공용 표준</span></div></li>
+      <li><div>AGENTS.md GitHub<span class="sub"><a class="link" href="https://github.com/agentsmd/agents.md">https://github.com/agentsmd/agents.md</a> — Linux Foundation 산하 Agentic AI Foundation</span></div></li>
+      <li><div>지시 준수 연구 (arxiv)<span class="sub"><a class="link" href="https://arxiv.org/abs/2505.06120">https://arxiv.org/abs/2505.06120</a> — 지시 준수 신뢰성 저하 논문</span></div></li>
+      <li><div>바이브 코딩 숙취<span class="sub"><a class="link" href="https://hackernoon.com/the-vibe-coding-hangover-what-happens-when-ai-writes-95percent-of-your-code">https://hackernoon.com/the-vibe-coding-hangover-what-happens-when-ai-writes-95percent-of-your-code</a> — Vibe Coding Hangover</span></div></li>
+    </ul>
+    <div class="callout callout-amber" style="margin-top:24px;">
+      <div class="callout-icon">🔎</div>
+      <div class="callout-body"><strong>할루시네이션 검증 노트 (2026-04-29)</strong> Kent Beck 증강코딩: 2025년 6월 25일 게시물 ✅ 실제 확인. SpecKit: 2025년 9월 2일 출시 ✅ 확인. AGENTS.md: agents.md 공식 사이트 ✅ 60,000개 이상 수치 확인. CodeRabbit 1.4~1.7배 수치: 2025년 연구 기반(원본 보고서 직접 링크가 없으므로 인용 시 &#39;CodeRabbit 연구 기준&#39; 명시 권장). claude-code-expert GitHub 링크: 강의 저자 운영 저장소. 실제 접근 가능 여부는 강의 제작 시 확인 필요 arxiv 2505.06120: 지시 준수 신뢰성 저하 논문. 섹션2 원본 문서에 기재된 출처. 논문 번호 형식 정상.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">참고 자료 (검증 완료 2026-04-29)</span>
+    <span class="slide-footer-right" data-slot="page-num">60</span>
+  </div>
+</div>
+</body>
+</html>

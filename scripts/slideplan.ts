@@ -18,6 +18,7 @@
 // where the registry's import.meta.glob picks it up on next dev-server boot.
 // The deck id becomes the localStorage key, so it should be stable and unique.
 
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,22 +68,35 @@ function escapeText(v: string): string {
   return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Stable identity for the deck's source content. Used by the editor to detect
+// when a built-in deck's HTML on disk has been re-published since the user's
+// IndexedDB cache was written. Only the slide markup contributes — wrapper
+// chrome (font links, subtitle meta, CSS) is excluded so cosmetic boilerplate
+// changes don't churn the hash.
+function computeDeckSourceHash(slidesHtml: string): string {
+  return createHash('sha256').update(slidesHtml, 'utf8').digest('hex').slice(0, 32);
+}
+
 function wrapDeck(
   title: string,
   css: string,
   slidesHtml: string,
-  opts?: { subtitle?: string },
+  opts?: { subtitle?: string; sourceHash?: string },
 ): string {
   const subtitleMeta =
     opts?.subtitle && opts.subtitle.trim().length > 0
       ? `\n<meta name="subtitle" content="${escapeAttr(opts.subtitle.trim())}">`
+      : '';
+  const sourceHashMeta =
+    opts?.sourceHash && opts.sourceHash.length > 0
+      ? `\n<meta name="deck-source-hash" content="${escapeAttr(opts.sourceHash)}">`
       : '';
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeText(title)}</title>${subtitleMeta}
+<title>${escapeText(title)}</title>${subtitleMeta}${sourceHashMeta}
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
 <style>
@@ -273,8 +287,11 @@ function cmdPublish(planPath: string, deckId: string, opts: PublishOpts): never 
   const slides = renderPlan(plan);
   const css = loadInlineCss();
   const subtitle = opts.subtitle ?? plan.meta.subtitle;
-  const html = wrapDeck(plan.meta.title, css, slides.map((s) => s.html).join('\n\n'), {
+  const slidesHtml = slides.map((s) => s.html).join('\n\n');
+  const sourceHash = computeDeckSourceHash(slidesHtml);
+  const html = wrapDeck(plan.meta.title, css, slidesHtml, {
     subtitle,
+    sourceHash,
   });
 
   mkdirSync(outDir, { recursive: true });
@@ -283,6 +300,7 @@ function cmdPublish(planPath: string, deckId: string, opts: PublishOpts): never 
   console.log(`  template: ${plan.template}`);
   console.log(`  title:    ${plan.meta.title}`);
   if (subtitle) console.log(`  subtitle: ${subtitle}`);
+  console.log(`  src hash: ${sourceHash}`);
   console.log(`  deck id:  ${deckId}`);
   console.log('');
   console.log('Next: restart `npm run dev` and the library will list the new deck.');
