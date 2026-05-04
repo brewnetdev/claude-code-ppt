@@ -71,6 +71,11 @@ describe('standalone HTML — report sample', () => {
     const matches = html.match(/data-template="report"/g) ?? [];
     expect(matches.length).toBeGreaterThan(0);
   });
+
+  it('inlines code-blocks.css (.code-block / .terminal class definitions)', () => {
+    expect(css).toMatch(/\.code-block/);
+    expect(css).toMatch(/\.terminal/);
+  });
 });
 
 describe('standalone HTML — presentation sample', () => {
@@ -85,5 +90,10 @@ describe('standalone HTML — presentation sample', () => {
   it('every slide carries data-template="presentation"', () => {
     const matches = html.match(/data-template="presentation"/g) ?? [];
     expect(matches.length).toBeGreaterThan(0);
+  });
+
+  it('inlines code-blocks.css (.code-block / .terminal class definitions)', () => {
+    expect(css).toMatch(/\.code-block/);
+    expect(css).toMatch(/\.terminal/);
   });
 });
