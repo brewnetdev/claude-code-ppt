@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 한방에 해결하기 — 챕터 목차 (v1.0)</title>
+<meta name="subtitle" content="실전 Production 급 예제 만들기와 클로드 코드의 동작 원리까지 완벽하게 마스터하기">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* === src/canvas/themes/brewnet-dark.css === */
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+/* === src/canvas/themes/code-blocks.css === */
+/* Code-block / terminal chrome. brewnet-dark.css already defines `.code-block`
+   so we only fill in `.terminal` + cross-cutting `.code-dots` and tighten
+   `<pre><code>` so shiki output sits flush with the existing dark cards. */
+
+.slide-canvas-host .code-dots {
+  display: flex;
+  gap: 5px;
+}
+.slide-canvas-host .code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.slide-canvas-host .code-dots .dot-r { background: #ef4444; }
+.slide-canvas-host .code-dots .dot-y { background: #f59e0b; }
+.slide-canvas-host .code-dots .dot-g { background: #10b981; }
+
+.slide-canvas-host .terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.slide-canvas-host .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0b1220;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.slide-canvas-host .terminal-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.slide-canvas-host .terminal pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  color: #cbd5e1;
+  padding: 16px 20px;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* shiki injects inline-styled <span>s, but their wrapper <pre class="shiki">
+   would carry shiki's own bg color. We re-host the highlighted code inside
+   our own .code-block / .terminal pre so the outer chrome wins, and tighten
+   the inner <code> reset accordingly. */
+.slide-canvas-host .code-block pre,
+.slide-canvas-host .terminal pre {
+  background: transparent;
+}
+.slide-canvas-host .code-block pre code,
+.slide-canvas-host .terminal pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  display: block;
+}
+
+
+/* === src/canvas/themes/portfolio.css === */
+/* ─────────────────────────────────────────────────────────────
+   Portfolio template — sibling theme to brewnet-dark.
+   Strategy: re-declare the design tokens under
+   [data-template="portfolio"] and patch only the components
+   whose dark→light conversion is non-trivial (code blocks,
+   tables, cover, callouts). Markup is identical to the
+   presentation template; planRenderer only flips the
+   data-template attribute.
+
+   Reference design: docs/html/portfolio/portfolio.html
+   (white background, blue accent #3D5AF1, dark text on white).
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="portfolio"] {
+  --bg:            #FFFFFF;
+  --text:          #111111;
+  --muted:         #888888;
+  --border:        #DDDDDD;
+  --amber:         #3D5AF1;   /* portfolio brand blue, reused via brewnet's --amber slot */
+  --amber-d:       #2A3EC9;
+  --blue:          #3D5AF1;
+  --cyan:          #0891B2;
+  --green:         #047857;
+  --code-bg:       #F8F9FB;
+  --prompt-bg:     #F0F2F5;
+  --prompt-border: #3D5AF1;
+  --link:          #3D5AF1;
+}
+
+/* Slide shell: white card on neutral page background */
+[data-template="portfolio"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: blue gradient instead of amber */
+[data-template="portfolio"] .slide-topbar {
+  background: linear-gradient(90deg, #3D5AF1 0%, #2A3EC9 50%, transparent 100%);
+}
+
+/* Footer: light border + softer caption color */
+[data-template="portfolio"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="portfolio"] .slide-footer-left,
+[data-template="portfolio"] .slide-footer-right {
+  color: #888888;
+}
+
+/* ── Typography ── */
+[data-template="portfolio"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="portfolio"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="portfolio"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .bullet-list li::before {
+  color: var(--blue);
+}
+[data-template="portfolio"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="portfolio"] .num-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .num-list li::before {
+  background: var(--blue);
+  color: #FFFFFF;
+}
+
+/* ── Tables ── */
+[data-template="portfolio"] .tbl th {
+  background: #F0F2F5;
+  border-bottom: 2px solid var(--blue);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl tr:hover td {
+  background: #F7F8FB;
+}
+
+/* ── Callouts: lighter tint on white BG ── */
+[data-template="portfolio"] .callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+[data-template="portfolio"] .callout-blue {
+  background: rgba(61, 90, 241, 0.06);
+  border: 1px solid rgba(61, 90, 241, 0.30);
+}
+[data-template="portfolio"] .callout-green {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+[data-template="portfolio"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (keeps shiki output readable) ──
+   Code chrome (.code-dots / terminal-header) is stamped by
+   upgradeSlideCodeBlocks — the dark surface contrasts well
+   against the white slide and matches the editor's existing
+   experience. Only adjust the surface so it doesn't bleed
+   into the white card. */
+[data-template="portfolio"] .code-block {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+[data-template="portfolio"] .terminal {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+
+/* ── Badges: solid pill on white BG ── */
+[data-template="portfolio"] .badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #B45309;
+}
+[data-template="portfolio"] .badge-blue {
+  background: rgba(61, 90, 241, 0.12);
+  color: #2A3EC9;
+}
+[data-template="portfolio"] .badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+[data-template="portfolio"] .badge-red {
+  background: rgba(239, 68, 68, 0.10);
+  color: #B91C1C;
+}
+[data-template="portfolio"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="portfolio"] .hl-amber { color: #B45309; font-weight: 700; }
+[data-template="portfolio"] .hl-blue  { color: #2A3EC9; font-weight: 700; }
+[data-template="portfolio"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="portfolio"] .hl-cyan  { color: #0891B2; font-weight: 700; }
+
+/* ── Cover slide: blue background, white type ── */
+[data-template="portfolio"].slide-cover {
+  background: #3D5AF1;
+}
+[data-template="portfolio"].slide-cover::before {
+  background: none;
+}
+[data-template="portfolio"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 4px;
+}
+[data-template="portfolio"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item strong {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .cover-deco {
+  color: rgba(255, 255, 255, 0.18);
+}
+[data-template="portfolio"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="portfolio"].slide-cover .slide-footer-left,
+[data-template="portfolio"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: white bg, large light blue numeral ── */
+[data-template="portfolio"] .slide-section .section-num {
+  color: #E8EAF0;
+}
+
+/* ── Architecture / Step flow nodes (used rarely but covered) ── */
+[data-template="portfolio"] .step-circle {
+  background: var(--blue);
+}
+[data-template="portfolio"] .step-arrow {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-box {
+  background: #F8F9FB;
+  border-color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-line {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="portfolio"] .link {
+  color: var(--link);
+}
+[data-template="portfolio"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: light surface ── */
+[data-template="portfolio"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="portfolio"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="portfolio"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="portfolio"] .divider {
+  background: var(--border);
+}
+
+
+/* === src/canvas/themes/report.css === */
+/* ─────────────────────────────────────────────────────────────
+   Report template — sibling theme to brewnet-dark + portfolio.
+   Strategy: re-declare the design tokens under
+   [data-template="report"] and patch only the components whose
+   business-report intent is non-trivial (tables, callouts,
+   cover, code blocks).
+
+   Reference designs: docs/html/report/{biz,biz-strategy,marketing}-report.html
+   Tone: warm off-white BG (#FAFAF8) with teal accent (#0F766E)
+   for the brewnet "amber" slot. Tables get extra weight (zebra
+   rows, 2px header underline) since report decks are
+   data-centric. Code blocks stay dark for shiki readability —
+   identical to portfolio's strategy.
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="report"] {
+  --bg:            #FAFAF8;
+  --text:          #1A1A18;
+  --muted:         #6B6560;
+  --border:        #D4D0C8;
+  --amber:         #0F766E;   /* report accent: teal-700 in brewnet's --amber slot */
+  --amber-d:       #115E59;
+  --blue:          #1E40AF;
+  --cyan:          #0E7490;
+  --green:         #059669;
+  --code-bg:       #F5F3F0;
+  --prompt-bg:     #EFEDE8;
+  --prompt-border: #0F766E;
+  --link:          #0F766E;
+}
+
+/* Slide shell: cream card on neutral page background */
+[data-template="report"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: teal gradient instead of amber */
+[data-template="report"] .slide-topbar {
+  background: linear-gradient(90deg, #0F766E 0%, #115E59 50%, transparent 100%);
+}
+
+/* Footer: warm border + softer caption color */
+[data-template="report"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="report"] .slide-footer-left,
+[data-template="report"] .slide-footer-right {
+  color: var(--muted);
+}
+
+/* ── Typography ── */
+[data-template="report"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="report"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="report"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="report"] .bullet-list li::before {
+  color: var(--amber);
+}
+[data-template="report"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="report"] .num-list li {
+  color: var(--text);
+}
+[data-template="report"] .num-list li::before {
+  background: var(--amber);
+  color: #FFFFFF;
+}
+
+/* ── Tables (report-grade emphasis) ── */
+[data-template="report"] .tbl th {
+  background: #F0EDE8;
+  border-bottom: 2px solid var(--amber);
+  color: var(--text);
+  font-weight: 700;
+}
+[data-template="report"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="report"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.04);
+}
+[data-template="report"] .tbl tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* ── Callouts: lighter tint on cream BG ── */
+[data-template="report"] .callout-amber {
+  background: rgba(15, 118, 110, 0.06);
+  border: 1px solid rgba(15, 118, 110, 0.40);
+}
+[data-template="report"] .callout-blue {
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.30);
+}
+[data-template="report"] .callout-green {
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.40);
+}
+[data-template="report"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (matches portfolio strategy) ──
+   shiki output reads best on dark surface; we border with the
+   warm card color so the dark block doesn't feel grafted on. */
+[data-template="report"] .code-block {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+[data-template="report"] .terminal {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+
+/* ── Badges: solid pill on cream BG ── */
+[data-template="report"] .badge-amber {
+  background: rgba(15, 118, 110, 0.14);
+  color: #115E59;
+}
+[data-template="report"] .badge-blue {
+  background: rgba(30, 64, 175, 0.12);
+  color: #1E3A8A;
+}
+[data-template="report"] .badge-green {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+[data-template="report"] .badge-red {
+  background: rgba(220, 38, 38, 0.10);
+  color: #B91C1C;
+}
+[data-template="report"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="report"] .hl-amber { color: #115E59; font-weight: 700; }
+[data-template="report"] .hl-blue  { color: #1E3A8A; font-weight: 700; }
+[data-template="report"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="report"] .hl-cyan  { color: #0E7490; font-weight: 700; }
+
+/* ── Cover slide: deep slate BG with teal underline accent ── */
+[data-template="report"].slide-cover {
+  background: #0F172A;
+}
+[data-template="report"].slide-cover::before {
+  background: none;
+}
+[data-template="report"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="report"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 4px;
+}
+[data-template="report"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="report"].slide-cover .cover-meta-item strong {
+  color: #0F766E;
+}
+[data-template="report"].slide-cover .cover-deco {
+  color: rgba(15, 118, 110, 0.25);
+}
+[data-template="report"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="report"].slide-cover .slide-footer-left,
+[data-template="report"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: warm cream with large faded teal numeral ── */
+[data-template="report"] .slide-section .section-num {
+  color: rgba(15, 118, 110, 0.10);
+}
+
+/* ── Architecture / Step flow nodes ── */
+[data-template="report"] .step-circle {
+  background: var(--amber);
+}
+[data-template="report"] .step-arrow {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-box {
+  background: #F5F3F0;
+  border-color: #C5C2BC;
+}
+[data-template="report"] .arch-line {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="report"] .link {
+  color: var(--link);
+}
+[data-template="report"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: warm light surface ── */
+[data-template="report"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="report"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="report"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="report"] .divider {
+  background: var(--border);
+}
+
+</style>
+</head>
+<body>
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="cover-deco" data-slot="number">v1.0</div>
+    <div class="cover-level" data-slot="label">CLAUDE CODE MASTER · CURRICULUM REPORT</div>
+    <div class="t-hero" data-slot="title">📘 Claude Code 한방에 해결하기 — 챕터 목차 (v1.0)</div>
+    <div class="cover-subtitle" data-slot="subtitle">실전 Production 급 예제 만들기와 클로드 코드의 동작 원리까지 완벽하게 마스터하기</div>
+    <div class="cover-meta" data-slot="body">
+      <div class="cover-meta-item"><strong>버전</strong> v.1.0 · 2026 Q1~Q2 최신 출시 기능 반영</div>
+      <div class="cover-meta-item"><strong>구성</strong> 10 레벨 · 50+ 챕터</div>
+      <div class="cover-meta-item"><strong>분량</strong> 약 10~12시간 (지속 업데이트)</div>
+      <div class="cover-meta-item"><strong>대상</strong> 개발자 과정 (입문 ~ 시니어)</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CURRICULUM REPORT v1.0</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">OVERVIEW</div>
+    <div class="t-title" data-slot="title">강의 개요</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">📌 버전 v.1.0 — 4단계 학습 흐름 · 점진적 업데이트</div>
+    <div class="t-body" data-slot="body">📌 버전 v.1.0 — 2026 Q1~Q2 최신 출시 기능 반영 (Agent Skills, Plugins Marketplace, Dispatch, Channels, Remote Control, Computer Use, Auto Mode, Memory, 1M context)</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>4단계 흐름<span class="sub">기본 설정 → 기초 개념과 활용 → 서비스 및 CLI 개발 → 고급 프로젝트 개발 및 활용, 클로드 코드의 동작 방식 이해하기</span></div></li>
+      <li><div>10 레벨 50+ 챕터<span class="sub">점진적 업데이트 예정으로 목차는 변경될 수 있습니다</span></div></li>
+      <li><div>비 개발자 강의는 별도 과정으로 개설 예정<span class="sub">본 과정은 개발자 (입문 ~ 시니어) 대상</span></div></li>
+      <li><div>참고 리포지토리<span class="sub">github.com/claude-code-expert/inflearn-docs</span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📚</div>
+      <div class="callout-body"><strong>교육 자료 안내</strong> 개발툴 설치·Git·Terminal 등의 기본 사용법은 별도 교육자료로 대체 제공 — 동영상 시간을 줄이기 위해 핵심만 강의하고 부가 자료를 배포합니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">강의 개요</span>
+    <span class="slide-footer-right" data-slot="page-num">01</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">ROADMAP · STAGES</div>
+    <div class="t-title" data-slot="title">🗺 강의 흐름 — 5단계 학습 여정</div>
+    <div class="t-body" data-slot="body">각 단계별 프로젝트 진행을 통해 이론과 활용 방법을 마스터합니다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>구분</th><th>① 설치</th><th>② 기초 개념</th><th>③ 개발</th><th>④ 활용</th><th>⑤ 배포·운영</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>레벨</strong></td><td>Lv.1</td><td>Lv.2 ~ Lv.3</td><td>Lv.4 ~ Lv.5</td><td>Lv.6 ~ Lv.7</td><td>Lv.8 ~ Lv.10</td></tr>
+              <tr><td><strong>핵심 주제</strong></td><td>설치·개발 환경설정<br>인터페이스의 이해</td><td>기본프로젝트 세팅<br>프롬프팅·컨텍스트의 이해</td><td>TDD · SDD<br>실전 워크플로우</td><td>자동화·배포<br>클로드코드 동작 방식 이해</td><td>로컬 코딩 에이전트 세팅<br>클로드 코드 딥 다이브</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>강의 자료 사이트</strong> run-ai.kr · HTML PPT Mode (강의 레벨 시작마다 첨부) 혹은 PDF 변환 · github.com/claude-code-expert/inflearn-docs</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🗺 강의 흐름 — 5단계 학습 여정</span>
+    <span class="slide-footer-right" data-slot="page-num">02</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">PROJECTS · LV1~LV9</div>
+    <div class="t-title" data-slot="title">📊 세부 주제와 프로젝트 설명</div>
+    <div class="t-body" data-slot="body">각 레벨별 학습 주제와 실습 프로젝트 매핑 (LEVEL 10 은 추후 공개)</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>레벨</th><th>주제</th><th>예제와 프로젝트</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🟢 <strong>LEVEL 1</strong></td><td>Claude Code 개요와 개발 환경 설정</td><td>설정 문서 제공 (windows · mac)</td></tr>
+              <tr><td>🔵 <strong>LEVEL 2</strong></td><td>AI 시대 개발 방법론</td><td>프로젝트용 UI 컴포넌트 개발</td></tr>
+              <tr><td>🟣 <strong>LEVEL 3</strong></td><td>스킬·커맨드·Hook·프롬프트·컨텍스트</td><td>나만의 스킬 및 커맨드 제작과 활용, 가드레일 훅</td></tr>
+              <tr><td>🟡 <strong>LEVEL 4</strong></td><td>실전 코딩 워크플로우 (켄트 벡 증강코딩·TDD·SDD) · MCP·플러그인</td><td>Markdown 에디터 기반 문서 관리 시스템 — SaaS 프로젝트</td></tr>
+              <tr><td>🟠 <strong>LEVEL 5</strong></td><td>프론트엔드 고도화</td><td>디자인 시스템 활용과 고도화</td></tr>
+              <tr><td>🔴 <strong>LEVEL 6</strong></td><td>토큰 절약과 보안</td><td>토큰 제어와 출력 비용 실험, 보안 점검 및 SEO 처리</td></tr>
+              <tr><td>🟤 <strong>LEVEL 7</strong></td><td>하네스 엔지니어링·베스트 프렉티스</td><td>나만의 하네스 엔지니어링 with SubAgent</td></tr>
+              <tr><td>🚀 <strong>LEVEL 8</strong></td><td>빌드와 배포 호스팅 (Vercel·Railway·Cloudflare·Resend)</td><td>실제 서비스 론칭 노하우</td></tr>
+              <tr><td>🪐 <strong>LEVEL 9</strong></td><td>로컬 LLM &amp; 코딩 에이전트</td><td>온프레미스 환경에서의 LLM 에이전트 활용</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">📊 세부 주제와 프로젝트 설명</span>
+    <span class="slide-footer-right" data-slot="page-num">03</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">TOOLING</div>
+    <div class="t-title" data-slot="title">강의 자료 사이트 · 개발툴</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">강의 자료 참고 사이트 + 사용 개발툴 안내</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>강의 자료 사이트<span class="sub">run-ai.kr · HTML PPT Mode (각 레벨 시작마다 자료 첨부 또는 PDF 변환) · github.com/claude-code-expert/inflearn-docs</span></div></li>
+      <li><div>터미널<span class="sub">iTerm · cmux · tmux — 과정별 사용법은 별도 안내</span></div></li>
+      <li><div>에디터<span class="sub">VSCode (무료) · IntelliJ Community (무료) · Datagrip (무료)</span></div></li>
+      <li><div>버전 관리<span class="sub">Github</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">강의 자료 사이트 · 개발툴</span>
+    <span class="slide-footer-right" data-slot="page-num">04</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">01</div>
+    <div class="t-chapter" data-slot="label">PHASE 01</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">① 설치 — 환경 구축</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">🟢 LEVEL 1 — 환경 구축과 클로드 코드 기본 설정</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">01 · ① 설치 — 환경 구축</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 1 · 4 SECTIONS</div>
+    <div class="t-title" data-slot="title">🟢 LEVEL 1 — 환경 구축과 클로드 코드 기본 설정</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">설치 → 개발환경 → 핵심 설정 파일 → 첫 세션</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>1.1 Claude Code 개요<span class="sub">macOS (npm·Homebrew) / Windows (WinGet·PowerShell) 설치, Opus 4.7·Sonnet 4.6·Haiku 4.5 모델 비교, Extended Thinking (/effort), 200K vs 1M 컨텍스트 윈도우</span></div></li>
+      <li><div>1.2 개발환경 설정<span class="sub">터미널 CLI (iTerm·cmux), VS Code·IntelliJ 플러그인, 터미널 줄바꿈, Claude Code on the Web, Mobile Dispatch (실제 활용은 7.6 절로 연결)</span></div></li>
+      <li><div>1.3 핵심 설정 파일<span class="sub">~/.claude 디렉토리 구조, settings.json vs settings.local.json, 환경 변수, 권한 모드 4종 (default·acceptEdits·dontAsk·bypassPermissions)</span></div></li>
+      <li><div>1.4 첫 세션<span class="sub">Hello World (Python·TypeScript), 대화형 vs 단일 명령 모드 (claude -p), 특수 문법 (@멘션·!·#), 자주 쓰는 단축키 (Esc·Ctrl+C·Shift+Tab)</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:20px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>학습 목표</strong> 설치부터 첫 대화까지 끊김 없이 진행할 수 있는 환경을 갖춥니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟢 LEVEL 1 — 환경 구축과 클로드 코드 기본 설정</span>
+    <span class="slide-footer-right" data-slot="page-num">05</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">02</div>
+    <div class="t-chapter" data-slot="label">PHASE 02</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">② 기초 개념</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">🔵 LEVEL 2 → 🟣 LEVEL 3 — 개발 방법론 + 핵심 기능</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">02 · ② 기초 개념</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 2 · 5 SECTIONS</div>
+    <div class="t-title" data-slot="title">🔵 LEVEL 2 — AI 시대 개발 방법론</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">UI 컴포넌트 제작하기 — 프론트엔드 요소를 통해 원칙을 익힙니다</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>2.1 AI와 함께하는 개발의 원칙<span class="sub">왜 설계가 더 중요해졌는가, AI에게 없는 판단력 (Taste), 비결정적 출력의 이해</span></div></li>
+      <li><div>2.2 작은 단위로 쪼개기의 힘<span class="sub">한 번에 하나의 작업만 요청하기, 작업 분해의 기준과 단위 — 컴포넌트 단위 설계와 기능 정의</span></div></li>
+      <li><div>2.3 명확한 지시의 기술<span class="sub">컨텍스트 제한의 원칙, 완료 조건 명시, 부정형 제약 (Constraints) 활용</span></div></li>
+      <li><div>2.4 매 단계 리뷰하기<span class="sub">타입·성능·보안·가독성·테스트 점검, 단계별 리뷰 습관, /diff·/rewind 워크플로</span></div></li>
+      <li><div>2.5 개발 방법론 비교와 프로젝트 구조<span class="sub">/init으로 CLAUDE.md 자동 생성, Kent Beck 증강코딩, TDD Red·Green·Refactor, SDD with SpecKit, Git·린트·포맷터 표준화 — [실습] UI 컴포넌트 제작</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🔵 LEVEL 2 — AI 시대 개발 방법론</span>
+    <span class="slide-footer-right" data-slot="page-num">06</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 3 · PART I</div>
+    <div class="t-title" data-slot="title">🟣 LEVEL 3 — 프롬프트·컨텍스트·CLAUDE.md (1/3)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">프롬프트와 컨텍스트 엔지니어링 → CLAUDE.md &amp; AGENTS.md</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>3.1 프롬프트와 컨텍스트 엔지니어링<span class="sub">프롬프트 vs 컨텍스트 차이, Context Rot 현상과 대응, /context 시각화 + 200K/1M 컨텍스트 활용, 사용률별 전략 (50%·70%·90%+)</span></div></li>
+      <li><div>3.2 CLAUDE.md &amp; AGENTS.md<span class="sub">4단계 계층 (전역·프로젝트·서브폴더·조직), 효과적 작성법, 코딩 컨벤션과 프로젝트 규칙 전달, .claude/rules/*.md + paths frontmatter, @path 임포트 패턴, AGENTS.md 표준 문서, 메모리 시스템 확장</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟣 LEVEL 3 — 프롬프트·컨텍스트·CLAUDE.md (1/3)</span>
+    <span class="slide-footer-right" data-slot="page-num">07</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 3 · PART II</div>
+    <div class="t-title" data-slot="title">🟣 LEVEL 3.3 — 슬래시 커맨드 분류 (2/3)</div>
+    <div class="t-body" data-slot="body">/help 로 보는 60개 명령어를 5개 그룹으로 분류 — 셋업·관리, 일일 워크플로, 커스텀, 조합, 번들 스킬</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>분류</th><th>대표 명령어</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>3.3.1 빌트인 지도</strong></td><td><code>/help</code></td><td>60개 명령어 카탈로그 한눈에 보기</td></tr>
+              <tr><td><strong>3.3.2 셋업·관리</strong></td><td><code>/init</code> · <code>/agents</code> · <code>/skills</code> · <code>/hooks</code> · <code>/mcp</code> · <code>/memory</code></td><td>환경 구축과 리소스 관리</td></tr>
+              <tr><td><strong>3.3.3 일일 워크플로우</strong></td><td><code>/plan</code> · <code>/model</code> · <code>/effort</code> · <code>/cost</code> · <code>/compact</code> · <code>/clear</code> · <code>/diff</code> · <code>/rewind</code> · <code>/security-review</code></td><td>매일 사용하는 핵심 9종</td></tr>
+              <tr><td><strong>3.3.4 ~ 3.3.5 커스텀 커맨드</strong></td><td><code>.claude/commands/*.md</code> · <code>$ARGUMENTS</code></td><td>팀 컨벤션·동적 커맨드 캡슐화</td></tr>
+              <tr><td><strong>3.3.6 실전 명령어 조합</strong></td><td>체이닝 패턴</td><td>워크플로우 자동화</td></tr>
+              <tr><td><strong>3.3.7 번들 스킬</strong></td><td><code>/batch</code> · <code>/simplify</code> · <code>/debug</code></td><td>즉시 활용 가능한 내장 도구</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟣 LEVEL 3.3 — 슬래시 커맨드 분류 (2/3)</span>
+    <span class="slide-footer-right" data-slot="page-num">08</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 3 · PART III</div>
+    <div class="t-title" data-slot="title">🟣 LEVEL 3 — Skills · Hook · MCP · 실습 (3/3)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Agent Skills → Hook 시스템 → MCP 입문 → 나만의 스킬·커맨드 제작 [실습]</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>3.4 Agent Skills 시스템<span class="sub">Skill의 정의와 작업 유형, /skills 확인, 공식 카탈로그 (frontend-design·canvas-design·pptx·docx), 활성화·비활성화, 커스텀 Skill 제작과 배포</span></div></li>
+      <li><div>3.5 Hook 시스템<span class="sub">4가지 타이밍, 신규 Hook (PreCompact·SessionStart·SessionEnd·PermissionDenied), matcher 규칙, 작업 완료 알림 (Slack), 가드레일 훅 (비밀키 차단·자동 백업·실시간 린트), Hook 사용 시 주의사항</span></div></li>
+      <li><div>3.6 MCP 입문<span class="sub">MCP 개념과 Transport 3종 (HTTP·stdio·SSE), Scope 2종 (Local·Project)와 .mcp.json, 개발 필수 MCP 서버</span></div></li>
+      <li><div>3.7 [실습] 나만의 스킬·커맨드 제작<span class="sub">프로젝트 컨벤션을 Skill로 캡슐화, 팀 코드리뷰 룰을 슬래시 커맨드로, 가드레일 훅 패키지 만들기</span></div></li>
+    </ul>
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>핵심 인사이트</strong> Skill·Command·Hook 3종 세트가 &quot;한 번 만들어두면 반복 작업이 사라진다&quot;의 출발점입니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟣 LEVEL 3 — Skills · Hook · MCP · 실습 (3/3)</span>
+    <span class="slide-footer-right" data-slot="page-num">09</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">03</div>
+    <div class="t-chapter" data-slot="label">PHASE 03</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">③ 개발 — SaaS 프로젝트</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">🟡 LEVEL 4 → 🟠 LEVEL 5 — 마크다운 에디터 기반 지식 관리 시스템</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">03 · ③ 개발 — SaaS 프로젝트</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 4 · PART I</div>
+    <div class="t-title" data-slot="title">🟡 LEVEL 4 — 실전 워크플로우 (1/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Next.js + Drizzle + PostgreSQL + Tailwind — 기획부터 SDD 워크플로우까지</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>4.1 프로젝트 기획과 요구사항 정의<span class="sub">지식관리 시스템으로 배우는 풀스택 개발, 기술 스택 선정 (React·Next.js·Drizzle·PostgreSQL), FastAPI·Spring Boot 비교, 기능·비기능 요구사항, 사용자 스토리 작성</span></div></li>
+      <li><div>4.2 개발 문서 작성<span class="sub">PRD (Product Requirements Document), TRD (Technical Requirements Document), REQUIREMENTS.md, 명세 변경 관리와 버전 추적</span></div></li>
+      <li><div>4.3 명세서 설계<span class="sub">데이터 설계 (ERD·스키마), API 설계 (엔드포인트·요청/응답), 컴포넌트 및 UseCase 설계, 테스트 케이스 정의</span></div></li>
+      <li><div>4.4 SDD 워크플로우와 풀스택 개발 실습<span class="sub">왜 AI와 SDD가 잘 맞는가, 수동 워크플로우와의 비교, GSD (Get Shit Done) 세팅과 워크플로우</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟡 LEVEL 4 — 실전 워크플로우 (1/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">10</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 4 · PART II</div>
+    <div class="t-title" data-slot="title">🟡 LEVEL 4 — handoff·디버깅·플러그인 (2/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">변경 기록 → 디버깅·리팩토링 → Plugin Marketplace</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>4.5 handoff.md &amp; changelog.md 활용<span class="sub">변경사항 기록을 통한 작업 이어가기 — 세션 간 컨텍스트 손실을 막는 패턴</span></div></li>
+      <li><div>4.6 디버깅 &amp; 리팩토링<span class="sub">에러 메시지 첨부 → 근본 원인 분석, File Checkpointing 자동 복원, 회귀 방지, 안전한 리팩토링, 테스트를 통한 안전망 구축, 셸스크립트·Playwright 자동화</span></div></li>
+      <li><div>4.7 Plugin Marketplace<span class="sub">Plugin 4가지 구성 요소 (Skills·Hooks·Commands), 공식 마켓플레이스 (claude-plugins-official), 커뮤니티 등록·설치, 유용한 도구 활용</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟡 LEVEL 4 — handoff·디버깅·플러그인 (2/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">11</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 5 · PART I</div>
+    <div class="t-title" data-slot="title">🟠 LEVEL 5 — 프론트엔드 고도화 (1/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">마크다운 에디터 핵심 기능 → 지식 관리 UI → API/상태 관리 → Tailwind v4</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>5.1 컴포넌트 단위 구축<span class="sub">Vitest + Testing Library 환경, 기본 컴포넌트 TDD, 사이드바+에디터+미리보기 3분할 레이아웃, 컨테이너 조립과 페이지 통합</span></div></li>
+      <li><div>5.2 마크다운 에디터 핵심 기능<span class="sub">CodeMirror·Monaco·TipTap 비교, 실시간 미리보기 (split view·synced scroll), remark·rehype 파이프라인, 코드 블록 신택스 하이라이팅, 표·체크박스·다이어그램, XSS sanitize</span></div></li>
+      <li><div>5.3 지식 관리 UI 패턴<span class="sub">트리 구조 사이드바, 전문 검색 + 태그 필터, Auto-save와 충돌 해결, 단축키 시스템 (Cmd+S·Cmd+K·Cmd+P), 명령 팔레트</span></div></li>
+      <li><div>5.4 API 연동과 상태 관리<span class="sub">TanStack Query 패턴, 낙관적 업데이트, 디바운스 저장과 배치 동기화, 에러 바운더리</span></div></li>
+      <li><div>5.5 Tailwind CSS 마스터<span class="sub">v4 신규 기능과 CDN 즉시 시작, 반응형·다크모드 패턴, Claude Code로 일괄 마이그레이션, 커스텀 디자인 토큰</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟠 LEVEL 5 — 프론트엔드 고도화 (1/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">12</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 5 · PART II</div>
+    <div class="t-title" data-slot="title">🟠 LEVEL 5 — 디자인 시스템·검증 (2/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">shadcn/ui → 디자인 시스템 → AI 프론트엔드 도구 비교 → 프로덕션 패턴 → 마무리</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>5.6 shadcn/ui 컴포넌트<span class="sub">CLI와 Claude Code 연동, 데이터 테이블·다이얼로그·드롭다운, 커스텀 variants, 다크 모드 토글</span></div></li>
+      <li><div>5.7 디자인 시스템 구축<span class="sub">일관성 유지 원칙, CLAUDE.md 반영, frontend-design 공식 Skill, theme-factory 적용, 스타일 수정 요청 패턴</span></div></li>
+      <li><div>5.8 AI 프론트엔드 에이전트 비교<span class="sub">Claude Code·v0·Lovable·Bolt 비교, 클로드 코드 디자인의 이해, 비용을 고려한 도구 선택 트리</span></div></li>
+      <li><div>5.9 프로덕션급 UI 패턴<span class="sub">접근성 (a11y) 자동 검증 — ARIA·키보드 네비게이션, 모바일 우선 반응형, 다국어 (i18n), 코드 분할·가상 스크롤·번들 분석</span></div></li>
+      <li><div>5.10 프론트엔드 검증과 마무리<span class="sub">컴포넌트 테스트 실행, Playwright 시각적 QA, Lighthouse 성능 점수 — [프로젝트] 지식 관리 시스템 완성 데모</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟠 LEVEL 5 — 디자인 시스템·검증 (2/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">13</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">04</div>
+    <div class="t-chapter" data-slot="label">PHASE 04</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">④ 활용 — 비용·보안·하네스</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">🔴 LEVEL 6 → 🟤 LEVEL 7 — 토큰 제어와 멀티 에이전트</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">04 · ④ 활용 — 비용·보안·하네스</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 6 · 6 SECTIONS</div>
+    <div class="t-title" data-slot="title">🔴 LEVEL 6 — 토큰 절약과 보안</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">권한·샌드박스 → 보안 위협 → 모델 비교와 비용 구조 → 토큰 제어 → 비용 최적화 → SEO</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>6.1 권한 &amp; 샌드박스<span class="sub">권한 모드 4종 비교, allowedTools/deny 설정 (Defense-in-Depth), sandbox.failIfUnavailable, disableSkillShellExec</span></div></li>
+      <li><div>6.2 보안 위협과 방어<span class="sub">프롬프트 인젝션 방어, OWASP Top 10 + LLM01~10, /security-review 자동 분석, 비밀키 자동 감지 Hook</span></div></li>
+      <li><div>6.3 모델 비교와 비용 구조<span class="sub">Opus 4.7·Sonnet 4.6·Haiku 4.5 모델 비교, 1M 컨텍스트 일반 출시 (추가 요금 없음), Message Batches API 50% 할인, Prompt Caching 활용</span></div></li>
+      <li><div>6.4 토큰 제어 기법<span class="sub">/cost 토큰 사용량 모니터링, /effort 추론 강도, /compact·/clear 압축 전략, .claudeignore, LSP·CodeSight·Claude-context 토큰 절감</span></div></li>
+      <li><div>6.5 비용 최적화 패턴<span class="sub">작업별 모델 라우팅 (Plan=Opus, Code=Sonnet, Lint=Haiku), 월 예산 설계와 알림, 캐시 적중률 측정·개선 — [실습] 토큰 제어와 출력 비용 실험실</span></div></li>
+      <li><div>6.6 SEO 설정과 검색 최적화<span class="sub">정적 메타·OG 태그·sitemap·robots 등 검색 노출 기본기</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🔴 LEVEL 6 — 토큰 절약과 보안</span>
+    <span class="slide-footer-right" data-slot="page-num">14</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 7 · PART I</div>
+    <div class="t-title" data-slot="title">🟤 LEVEL 7 — Subagent · 하네스 (1/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Subagent 구현 → 하네스 엔지니어링 정의 → 오픈소스 분석</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>7.1 Subagent의 이해와 구현<span class="sub">.claude/agents/&lt;name&gt;.md 작성법, 역할별 모델 선택 — Opus·Sonnet·Haiku 3-Tier 라우팅, 도구 권한 분리 (toolset isolation), SubAgent CLI 기능 구현 I·II 및 오픈소스 배포</span></div></li>
+      <li><div>7.2 하네스 엔지니어링<span class="sub">용어의 탄생과 정의, 단일 에이전트의 두 실패 모드 (Context Anxiety·Self-Eval Blindspot), 세 기둥 (제약·피드백 루프·상태 관리), GAN 영감 멀티 구조 (Planner→Generator⇄Evaluator), 평가 4기준 (디자인·독창성·크래프트·기능성)</span></div></li>
+      <li><div>7.3 오픈소스 하네스와 ECC 케이스 분석<span class="sub">OpenHarness 분석 I·II — 디렉토리 구조 10개 서브시스템, Agent Loop 의사 코드와 세 기둥 매핑, Everything Claude Code 분석 I·II — agents·skills·commands·rules 패키지 구성, Continuous Learning·AgentShield·/harness-audit</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟤 LEVEL 7 — Subagent · 하네스 (1/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">15</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 7 · PART II</div>
+    <div class="t-title" data-slot="title">🟤 LEVEL 7 — 나만의 하네스 만들기 (2/2)</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">STEP 0~9 자가 진단 → 멀티 에이전트 확장 → 자율 운용</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>7.4 나만의 하네스 만들기 (10 STEP)<span class="sub">Hashimoto 6단계 자가 진단 → OpenHarness 분류로 슬롯 설계 → evaluation-criteria.md → ECC 자산 선별 → brewnet 컨벤션 → Sprint Contract → Evaluator 서브에이전트 → 결정적 검증 훅 → /harness-audit + AgentShield → Evaluator 튜닝 루프</span></div></li>
+      <li><div>7.5 멀티 에이전트, 하네스 확장<span class="sub">3에이전트 병렬 패턴 (백엔드·프론트·테스트), COORDINATOR_MODE 메일박스 시스템, 결과 수렴 (Convergence)과 충돌 해소</span></div></li>
+      <li><div>7.6 자율 운용과 베스트 프렉티스<span class="sub">Headless 모드 (claude -p + CI/CD), Auto Mode (--enable-auto-mode), AutoDream 야간 메모리 통합, Agent Triggers (cron+webhook), Dispatch+Channels 비동기, Remote Control, Computer Use 시각적 자동화, Everything Claude Code 적용하기</span></div></li>
+    </ul>
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>핵심 인사이트</strong> 단일 에이전트는 &quot;Context Anxiety&quot;와 &quot;Self-Eval Blindspot&quot;으로 무너집니다. 하네스의 세 기둥(제약·피드백·상태)이 이를 막는 골격입니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🟤 LEVEL 7 — 나만의 하네스 만들기 (2/2)</span>
+    <span class="slide-footer-right" data-slot="page-num">16</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">05</div>
+    <div class="t-chapter" data-slot="label">PHASE 05</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">⑤ 배포·운영</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">🚀 LEVEL 8 → 🪐 LEVEL 9 — 배포 · 셀프호스팅 · 로컬 LLM · 내부 구조</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">05 · ⑤ 배포·운영</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 8 · 6 SECTIONS</div>
+    <div class="t-title" data-slot="title">🚀 LEVEL 8 — 배포 &amp; 셀프호스팅</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">환경 분리 → CI/CD → Vercel → Railway → Cloudflare → Resend</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>8.1 환경 관리 전략<span class="sub">개발/스테이징/운영 서버 분리, 환경 변수와 시크릿 관리, 다중 환경 도메인 구조</span></div></li>
+      <li><div>8.2 CI/CD 통합<span class="sub">claude -p + GitHub Actions, PR 자동 코드 리뷰 워크플로우, 테스트 실패 시 자동 수정 → 재푸시, Dispatch+Channels로 결과 알림</span></div></li>
+      <li><div>8.3 Vercel 배포<span class="sub">배포 전 준비 체크리스트, 계정 생성과 프로젝트 연결, 첫 배포와 Preview 자동화, Vercel Functions 활용</span></div></li>
+      <li><div>8.4 Railway 백엔드 배포<span class="sub">Docker 기반 배포 설정, 데이터베이스 프로비저닝, 헬스 체크와 재시작 정책, Vercel 프론트와 연동</span></div></li>
+      <li><div>8.5 Cloudflare 인프라 (로컬 호스팅)<span class="sub">도메인 연결과 DNS 자동화, Cloudflare Tunnel 셀프 호스팅, Pages·Workers·ObjectStorage 파일 관리</span></div></li>
+      <li><div>8.6 회원 인증과 Resend 트랜잭셔널 메일<span class="sub">GCP·GitHub OAuth, Resend API 통합, React Email 템플릿, 발송 모니터링과 도메인 인증</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🚀 LEVEL 8 — 배포 &amp; 셀프호스팅</span>
+    <span class="slide-footer-right" data-slot="page-num">17</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LEVEL 9 · 3 SECTIONS</div>
+    <div class="t-title" data-slot="title">🪐 LEVEL 9 — 로컬 LLM · 코딩 에이전트 · 내부 구조</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Claude Code 동작 방식 딥 다이브 → 로컬 LLM 환경 → 내부 구조 이해</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>9.1 Claude Code 동작 방식 딥 다이브<span class="sub">내부 아키텍처 — 에이전트 루프와 도구 호출, 컨텍스트 윈도우 관리 메커니즘</span></div></li>
+      <li><div>9.2 맥에서 로컬 LLM 환경 구축<span class="sub">Ollama + Gemma 설치, Qwen3.x 설치, 설정과 튜닝, 온프레미스 환경에서의 LLM 에이전트 활용</span></div></li>
+      <li><div>9.3 클로드 코드 내부 구조 및 동작 방식의 이해<span class="sub">실행 흐름과 명령 시스템의 이해, 프롬프트와 Agent 시스템의 이해, 고급 기능 분석</span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:20px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>온프레미스 옵션</strong> Ollama·Qwen3.x로 사내망에서도 Claude Code 와 유사한 코딩 에이전트 워크플로우를 운용할 수 있습니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">🪐 LEVEL 9 — 로컬 LLM · 코딩 에이전트 · 내부 구조</span>
+    <span class="slide-footer-right" data-slot="page-num">18</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">KEY METRICS</div>
+    <div class="t-title" data-slot="title">📈 강의 KPI 정리</div>
+    <div class="t-body" data-slot="body">이번 커리큘럼이 보장하는 정량 지표 요약</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body"><strong>10 레벨 · 50+ 챕터</strong> 설치(Lv.1) → 기초(Lv.2~3) → 개발(Lv.4~5) → 활용(Lv.6~7) → 배포·운영(Lv.8~10) 까지 점진적으로 누적되는 학습 경로.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">⏱</div>
+      <div class="callout-body"><strong>약 10~12시간 · 지속 업데이트</strong> 기본 분량은 10~12시간이며, 2026 출시 신기능(Agent Skills · Plugins · Dispatch · Channels · Remote Control · Computer Use · Auto Mode · Memory · 1M context)에 맞춰 지속 업데이트됩니다.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">🛠</div>
+      <div class="callout-body"><strong>실전 프로젝트 4종</strong> UI 컴포넌트 · 마크다운 SaaS · 하네스 SubAgent CLI · Production 서비스 배포 — 코드부터 배포까지 한 흐름으로 연결됩니다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">📈 강의 KPI 정리</span>
+    <span class="slide-footer-right" data-slot="page-num">19</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">REFERENCES · PART I</div>
+    <div class="t-title" data-slot="title">📚 핵심 참고 자료 — Anthropic 공식 · 방법론</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>Claude Code 제품 페이지<span class="sub"><a class="link" href="https://www.anthropic.com/product/claude-code">https://www.anthropic.com/product/claude-code</a> — Anthropic 공식 — 제품 개요</span></div></li>
+      <li><div>Claude Code 공식 문서<span class="sub"><a class="link" href="https://code.claude.com/docs/en/overview">https://code.claude.com/docs/en/overview</a> — Anthropic 공식 — 사용 가이드</span></div></li>
+      <li><div>API 플랫폼 릴리즈 노트<span class="sub"><a class="link" href="https://platform.claude.com/docs/en/release-notes/overview">https://platform.claude.com/docs/en/release-notes/overview</a> — Anthropic 공식 — API/SDK 변경 이력</span></div></li>
+      <li><div>프롬프트 엔지니어링 가이드<span class="sub"><a class="link" href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview">https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview</a> — Anthropic 공식 — 프롬프트 모범 사례</span></div></li>
+      <li><div>하네스 디자인<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/harness-design-long-running-apps">https://www.anthropic.com/engineering/harness-design-long-running-apps</a> — Anthropic Engineering — 장기 실행 앱 설계</span></div></li>
+      <li><div>효과적 컨텍스트 엔지니어링<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> — Anthropic Engineering — 에이전트 컨텍스트</span></div></li>
+      <li><div>Kent Beck — Augmented Coding<span class="sub"><a class="link" href="https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes">https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes</a> — 방법론 — 증강 코딩의 정의</span></div></li>
+      <li><div>Thoughtworks — Spec-Driven Development<span class="sub"><a class="link" href="https://www.thoughtworks.com/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices">https://www.thoughtworks.com/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices</a> — 방법론 — SDD 해설</span></div></li>
+      <li><div>Chroma — Context Rot<span class="sub"><a class="link" href="https://research.trychroma.com/context-rot">https://research.trychroma.com/context-rot</a> — 방법론 — 컨텍스트 부패 현상</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">📚 핵심 참고 자료 — Anthropic 공식 · 방법론</span>
+    <span class="slide-footer-right" data-slot="page-num">20</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">REFERENCES · PART II</div>
+    <div class="t-title" data-slot="title">📚 핵심 참고 자료 — 플러그인 · 2026 동향</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>공식 마켓플레이스<span class="sub"><a class="link" href="https://github.com/anthropics/claude-plugins-official">https://github.com/anthropics/claude-plugins-official</a> — 플러그인 — Anthropic 공식 저장소</span></div></li>
+      <li><div>플러그인 발견 가이드<span class="sub"><a class="link" href="https://code.claude.com/docs/en/discover-plugins">https://code.claude.com/docs/en/discover-plugins</a> — 플러그인 — 설치와 탐색 방법</span></div></li>
+      <li><div>커뮤니티 디렉토리<span class="sub"><a class="link" href="https://claudemarketplaces.com/">https://claudemarketplaces.com/</a> — 플러그인 — 커뮤니티 마켓플레이스 모음</span></div></li>
+      <li><div>Build with Claude<span class="sub"><a class="link" href="https://buildwithclaude.com/">https://buildwithclaude.com/</a> — 플러그인 — 활용 사례 모음</span></div></li>
+      <li><div>Q1 2026 업데이트 정리<span class="sub"><a class="link" href="https://www.mindstudio.ai/blog/claude-code-q1-2026-update-roundup">https://www.mindstudio.ai/blog/claude-code-q1-2026-update-roundup</a> — 2026 동향 — Q1 업데이트 라운드업</span></div></li>
+      <li><div>2026 종합 가이드<span class="sub"><a class="link" href="https://www.the-ai-corner.com/p/everything-claude-shipped-2026-complete-guide">https://www.the-ai-corner.com/p/everything-claude-shipped-2026-complete-guide</a> — 2026 동향 — 종합 출시 정리</span></div></li>
+      <li><div>자율 에이전트 워크플로우<span class="sub"><a class="link" href="https://www.sitepoint.com/claude-code-as-an-autonomous-agent-advanced-workflows-2026/">https://www.sitepoint.com/claude-code-as-an-autonomous-agent-advanced-workflows-2026/</a> — 2026 동향 — Autonomous Agent</span></div></li>
+      <li><div>Claude Code 변경 로그<span class="sub"><a class="link" href="https://claudefa.st/blog/guide/changelog">https://claudefa.st/blog/guide/changelog</a> — 2026 동향 — Changelog</span></div></li>
+      <li><div>플러그인 실전 리뷰<span class="sub"><a class="link" href="https://buildtolaunch.substack.com/p/best-claude-code-plugins-tested-review">https://buildtolaunch.substack.com/p/best-claude-code-plugins-tested-review</a> — 2026 동향 — Plugin 실전 리뷰</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">📚 핵심 참고 자료 — 플러그인 · 2026 동향</span>
+    <span class="slide-footer-right" data-slot="page-num">21</span>
+  </div>
+</div>
+</body>
+</html>
