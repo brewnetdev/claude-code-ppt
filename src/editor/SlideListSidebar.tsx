@@ -175,7 +175,42 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
                   }`}
                 >
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="shrink-0 font-mono text-[10px] text-editor-accent">{num}</span>
+                    {/* Position input — click + type N + Enter to jump the slide
+                        to position N. Complements the ⋮⋮ drag handle for users
+                        who want to move a slide to a far-away page without
+                        scrolling-while-dragging. `key` includes idx so the
+                        input remounts (and defaultValue resyncs) after each
+                        successful reorder. */}
+                    <input
+                      key={`pos-${slide.id}-${idx}`}
+                      type="number"
+                      min={1}
+                      max={slides.length}
+                      defaultValue={num}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onFocus={(e) => e.target.select()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const n = Number((e.target as HTMLInputElement).value);
+                          if (
+                            Number.isFinite(n) &&
+                            n >= 1 &&
+                            n <= slides.length &&
+                            n - 1 !== idx
+                          ) {
+                            reorderSlide(idx, n - 1);
+                          }
+                          (e.target as HTMLInputElement).blur();
+                        } else if (e.key === 'Escape') {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      title="번호 입력 후 Enter — 해당 페이지로 이동"
+                      aria-label={`Move slide to position (currently ${num})`}
+                      className="w-7 shrink-0 rounded border border-transparent bg-transparent text-center font-mono text-[10px] text-editor-accent outline-none hover:border-editor-border focus:border-editor-accent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
                     <span className="min-w-0 flex-1 truncate text-[11px]" title={slide.title}>
                       {slide.title}
                     </span>

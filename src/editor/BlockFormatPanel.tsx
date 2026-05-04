@@ -2,6 +2,57 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DATA_BLOCK_ID } from '../scene/blockId';
 import { SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
+import { FONT_GROUPS, loadGoogleFont } from './fontList';
+
+// Block-level font/case targeting.
+//
+// font-family: code/terminal blocks have a `.code-block pre` / `.terminal pre`
+// theme rule (specificity 0,1,1 + 0,2,1) that beats any inline style on the
+// outer block via the descendant-rule-vs-inheritance cascade — setting
+// fontFamily on the parent .code-block silently does nothing. Target the
+// inner <pre> directly so the inline style wins by specificity tie-break.
+// Other blocks (.t-title, .t-body, …) carry their font rule on the block
+// element itself; inline style there overrides via specificity tie-break.
+//
+// text-transform: inherited; setting on the block propagates to descendants
+// (including shiki's color-coded spans inside code blocks) without overriding
+// per-token color, so we always target the block itself.
+function firstFontFamilyName(stack: string): string {
+  const first = stack.split(',')[0]?.trim() ?? '';
+  return first.replace(/^["']|["']$/g, '').toLowerCase();
+}
+
+function findFontTarget(block: HTMLElement): HTMLElement {
+  if (block.matches('.code-block, .terminal')) {
+    const pre = block.querySelector(':scope > pre') as HTMLElement | null;
+    if (pre) return pre;
+  }
+  return block;
+}
+
+function readBlockFontKey(block: HTMLElement | null): string {
+  if (!block) return '';
+  const target = findFontTarget(block);
+  const cs = getComputedStyle(target).fontFamily;
+  if (!cs) return '';
+  const tgt = firstFontFamilyName(cs);
+  for (const g of FONT_GROUPS) {
+    for (const f of g.entries) {
+      if (firstFontFamilyName(f.cssStack) === tgt) {
+        return `${f.cssStack}||${f.google ?? ''}`;
+      }
+    }
+  }
+  return '';
+}
+
+type CaseValue = 'none' | 'lowercase' | 'uppercase';
+function readBlockCase(block: HTMLElement | null): CaseValue {
+  if (!block) return 'none';
+  const tt = block.style.textTransform;
+  if (tt === 'lowercase' || tt === 'uppercase') return tt;
+  return 'none';
+}
 
 // Scope to the main canvas only. Sidebar thumbnails reuse `.slide-canvas-host`
 // with the same data-block-id values, and they appear earlier in DOM order;
@@ -192,6 +243,43 @@ export function BlockFormatPanel({ blockId }: Props) {
   const setW = (next: number) => applyDimension('width', next);
   const setH = (next: number) => applyDimension('height', next);
 
+  const applyBlockFont = (value: string) => {
+    if (!el) return;
+    const target = findFontTarget(el);
+    if (value === '') {
+      target.style.fontFamily = '';
+    } else {
+      const [stack, google] = value.split('||');
+      if (google) loadGoogleFont(google);
+      target.style.fontFamily = stack;
+    }
+    notifyInput(el);
+    refresh();
+  };
+
+  const applyBlockCase = (next: CaseValue) => {
+    if (!el) return;
+    // CSS text-transform handles the visual layer (inherits to descendants —
+    // including text typed AFTER the toggle was set). The data-force-case
+    // attribute marks the block for the beforeinput interceptor in
+    // useSlideEditing, which substitutes the data on every `insertText` so
+    // the underlying source text actually matches what the user sees. Two
+    // layers guard against the "I typed a capital letter and it stayed
+    // capital" bug that users hit when only the visual transform is in place.
+    if (next === 'none') {
+      el.style.textTransform = '';
+      el.removeAttribute('data-force-case');
+    } else {
+      el.style.textTransform = next;
+      el.setAttribute('data-force-case', next);
+    }
+    notifyInput(el);
+    refresh();
+  };
+
+  const fontKey = readBlockFontKey(el);
+  const caseValue = readBlockCase(el);
+
   const disabled = !el;
 
   return (
@@ -255,6 +343,68 @@ export function BlockFormatPanel({ blockId }: Props) {
           />
         </div>
         <p className="mt-1 text-[10px] text-editor-dim">0 = 자동 (인라인 스타일 제거).</p>
+      </div>
+
+      <div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+          Font
+        </div>
+        <select
+          data-testid="block-format-font"
+          value={fontKey}
+          disabled={disabled}
+          onChange={(e) => applyBlockFont(e.target.value)}
+          className="w-full rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs text-editor-text outline-none focus:border-editor-accent disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">기본 (해제)</option>
+          {FONT_GROUPS.map((g) => (
+            <optgroup key={g.label} label={g.label}>
+              {g.entries.map((f) => {
+                const v = `${f.cssStack}||${f.google ?? ''}`;
+                return (
+                  <option key={v} value={v}>
+                    {f.name}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ))}
+        </select>
+        <p className="mt-1 text-[10px] leading-relaxed text-editor-dim">
+          선택한 블록 전체에 폰트 적용. 코드/터미널은 내부 <code>&lt;pre&gt;</code>에 적용해 테마 규칙을 덮어씁니다.
+        </p>
+      </div>
+
+      <div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+          Case · 대소문자
+        </div>
+        <div className="grid grid-cols-3 gap-1">
+          {([
+            { v: 'none', label: 'Aa', title: '원본 유지' },
+            { v: 'lowercase', label: 'a', title: '모두 소문자' },
+            { v: 'uppercase', label: 'A', title: '모두 대문자' },
+          ] as const).map(({ v, label, title }) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => applyBlockCase(v)}
+              disabled={disabled}
+              title={title}
+              data-testid={`block-format-case-${v}`}
+              className={`rounded border px-1 py-1.5 text-[12px] transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                caseValue === v
+                  ? 'border-editor-accent bg-editor-accent/15 text-editor-accent'
+                  : 'border-editor-border text-editor-text hover:border-editor-accent hover:bg-editor-accent/10'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-[10px] leading-relaxed text-editor-dim">
+          CSS <code>text-transform</code> 으로 시각 변환. 원문 텍스트와 코드 토큰 색상은 그대로 보존됩니다.
+        </p>
       </div>
 
       <div>

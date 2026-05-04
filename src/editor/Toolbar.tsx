@@ -101,10 +101,15 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
   const handleExportHtml = () =>
     withBusy('html', async () => {
       const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
+      // Deck-level title is stable across edit sessions (registry reads it
+      // from the HTML <title> tag). Falling back to slides[0].title here
+      // would hijack the deck title with whatever the cover happens to call
+      // itself — the L3 cover has no [data-slot="title"], so parser yields
+      // "Slide 1" and the next round-trip writes <title>Slide 1</title>.
       const html = await buildHtmlBundle({
         slides: latestSlides,
         overlaysBySlide,
-        title: latestSlides[0]?.title ?? 'Presentation',
+        title: activeDeck?.title ?? latestSlides[0]?.title ?? 'Presentation',
       });
 
       // Preferred path: write straight back into docs/html/<template>/<id>.html
@@ -150,7 +155,7 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
       const html = await buildHtmlBundle({
         slides: latestSlides,
         overlaysBySlide,
-        title: latestSlides[0]?.title ?? 'Presentation',
+        title: activeDeck?.title ?? latestSlides[0]?.title ?? 'Presentation',
       });
       openPrintablePreview(html);
     });

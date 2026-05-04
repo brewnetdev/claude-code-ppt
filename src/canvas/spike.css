@@ -194,15 +194,62 @@
   z-index: 1000;
 }
 
+/* Table column resize handles — injected by useSlideEditing on every first-row
+   <th>/<td>. The cell itself becomes a positioning context (see rule above)
+   and the handle sits on the cell's right edge, straddling the border so it
+   visually reads as the divider between columns. Hidden until the user
+   hovers the table; full opacity while actively dragging. */
+.slide-canvas-host[data-canvas-role="main"] table .col-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  background: transparent;
+  z-index: 30;
+  pointer-events: auto;
+  transition: background-color 120ms ease;
+}
+
+.slide-canvas-host[data-canvas-role="main"] table:hover .col-resize-handle {
+  background: rgba(96, 165, 250, 0.18);
+}
+
+.slide-canvas-host[data-canvas-role="main"] table .col-resize-handle:hover,
+.slide-canvas-host[data-canvas-role="main"] table .col-resize-handle.dragging {
+  background: rgba(96, 165, 250, 0.65);
+}
+
+/* While a column resize is in progress, freeze the cursor globally so the
+   col-resize affordance doesn't flicker back to text/I-beam when the mouse
+   strays off the handle into the table cell during fast drags. */
+body.col-resizing,
+body.col-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
 /* Hand-authored .export-overlay images embedded directly in slide HTML
    (legacy infographic slides where the asset is positioned inline rather
    than registered in overlaysBySlide). The export bundle's <style> defines
    this class for the standalone HTML; mirror it here so the same markup
-   renders identically inside the editor. */
+   renders identically inside the editor.
+   Editor lifts pointer-events to `auto` so users can click through to a
+   "promote to overlay" handler in useSlideEditing — that path moves the
+   inline geometry (left/top/width/height) into a real overlay entry so the
+   image becomes draggable/resizable. */
 .slide-canvas-host .export-overlay {
   position: absolute;
   user-select: none;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   opacity: 1;
   z-index: 100;
+}
+
+.slide-canvas-host .export-overlay:hover {
+  outline: 2px dashed rgba(96, 165, 250, 0.55);
+  outline-offset: 2px;
 }

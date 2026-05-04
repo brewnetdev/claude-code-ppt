@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide, SlideBackground } from '../importer/parsePresentation';
+import { deriveSlideTitleFromHtml } from '../importer/parsePresentation';
 import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
 
@@ -14,6 +15,13 @@ const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
 // html and copies live DOM block-ids onto the parsed copy so subsequent
 // querySelector by id succeeds. Positional sync (children index) is safe
 // because edits only commit through this same store path.
+//
+// useSlideEditing stamps ids on direct children of .slide-inner *and* on
+// deeply-nested .code-block / .terminal elements, so we walk the live DOM
+// and replay each id at its child-index path inside doc. A direct-children-
+// only loop would miss the nested cases and Copy/Paste/Delete on those
+// blocks would silently no-op until the first debounced commit landed the
+// runtime ids in slide.html.
 function parseSlideWithLiveIds(slideHtml: string): Document {
   const doc = new DOMParser().parseFromString(slideHtml, 'text/html');
   if (typeof document === 'undefined') return doc;
@@ -21,16 +29,41 @@ function parseSlideWithLiveIds(slideHtml: string): Document {
     '[data-canvas-role="main"] div.slide',
   );
   if (!liveSlide) return doc;
+  const docSlide = doc.querySelector<HTMLElement>('div.slide');
+  if (!docSlide) return doc;
   const innerLive = liveSlide.querySelector('.slide-inner');
   const innerDoc = doc.querySelector('.slide-inner');
   if (!innerLive || !innerDoc) return doc;
-  const liveKids = Array.from(innerLive.children);
-  const docKids = Array.from(innerDoc.children);
-  if (liveKids.length !== docKids.length) return doc;
-  liveKids.forEach((live, i) => {
-    const id = (live as HTMLElement).getAttribute(DATA_BLOCK_ID);
-    if (id && !docKids[i].getAttribute(DATA_BLOCK_ID)) {
-      docKids[i].setAttribute(DATA_BLOCK_ID, id);
+  // Pessimistic guard: if direct-children counts diverge between live and
+  // stored, index-based path alignment can't be trusted (Sortable mid-flight,
+  // out-of-band insertion). Bail here so we don't stamp ids onto the wrong
+  // structurally-matched elements. In practice this rarely trips because
+  // every reorder/insert path commits or bumps revision before the next
+  // store action runs.
+  if (innerLive.children.length !== innerDoc.children.length) return doc;
+
+  const liveBlocks = liveSlide.querySelectorAll<HTMLElement>(`[${DATA_BLOCK_ID}]`);
+  liveBlocks.forEach((live) => {
+    const id = live.getAttribute(DATA_BLOCK_ID);
+    if (!id) return;
+    const path: number[] = [];
+    let cursor: Element | null = live;
+    while (cursor && cursor !== liveSlide) {
+      const parent: HTMLElement | null = cursor.parentElement;
+      if (!parent) return;
+      const idx = Array.prototype.indexOf.call(parent.children, cursor);
+      if (idx < 0) return;
+      path.unshift(idx);
+      cursor = parent;
+    }
+    if (cursor !== liveSlide) return;
+    let target: Element | null = docSlide;
+    for (const step of path) {
+      target = target?.children[step] ?? null;
+      if (!target) return;
+    }
+    if (!target.getAttribute(DATA_BLOCK_ID)) {
+      target.setAttribute(DATA_BLOCK_ID, id);
     }
   });
   return doc;
@@ -201,10 +234,20 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     set((state) => {
       const current = state.slides.find((s) => s.id === id);
       if (!current || current.html === html) return state;
+      // Re-extract the sidebar title from the freshly committed html so the
+      // slide list reflects edits to [data-slot="title|label|subtitle"]
+      // immediately. parsePresentation runs the same logic at import time;
+      // mirroring it here keeps the sidebar in sync with what the user is
+      // actually seeing on the canvas. When a slide has no title slot at
+      // all, we keep `current.title` so an explicit "Slide N (copy)" set
+      // by duplicateSlide isn't clobbered with a generic fallback.
+      const nextTitle = deriveSlideTitleFromHtml(html, current.title);
       return {
         past: pushPast(state.past, snap(state)),
         future: [],
-        slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
+        slides: state.slides.map((s) =>
+          s.id === id ? { ...s, html, title: nextTitle } : s,
+        ),
       };
     }),
 
