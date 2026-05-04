@@ -1,0 +1,3277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LEVEL 3 — 프롬프트·컨텍스트 엔지니어링 &amp; 스킬·커맨드·Hook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
+<style>
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+
+
+html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
+body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+.export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
+.export-slide:last-child { border-bottom: 0; }
+.export-stage { position: relative; width: 1280px; height: 720px; transform-origin: center center; }
+/* Overlays must paint above every in-slide layer, including .slide-logo (z-index: 10) */
+.export-overlay { position: absolute; user-select: none; pointer-events: none; opacity: 1 !important; z-index: 100; }
+.export-nav {
+  position: fixed; right: 20px; bottom: 16px; z-index: 1000;
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #94a3b8;
+  background: rgba(15,23,42,0.8); padding: 8px 12px;
+  border: 1px solid #1e293b; border-radius: 6px; user-select: none;
+}
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { overflow: visible !important; background: var(--bg) !important; scroll-snap-type: none !important; }
+  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; border: 0 !important; }
+  .export-slide:last-child { page-break-after: auto; break-after: auto; }
+  .export-stage { transform: scale(1.5) !important; }
+  .export-nav { display: none !important; }
+}
+</style>
+</head>
+<body>
+<section class="export-slide" data-index="0">
+<div class="export-stage">
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="cover-deco" data-block-id="b4Qy7hdVx">L3</div>
+    <div class="cover-level" data-block-id="bOH7gQ7Ek">LEVEL 03 · ADVANCED CONCEPTS</div>
+    <div class="t-hero" data-block-id="bNNOH56xu">LEVEL 3 — <em>Claude Code 심화</em></div>
+    <div class="cover-subtitle" data-block-id="bFsN9SxPF">③&nbsp;<span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">Prompt · Context Engineering,&nbsp;</span><span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">Skill · Command · Hook&nbsp; — markflow 지식 관리 시스템 오픈소스 사례 기반 실습</span></div><div class="cover-subtitle" data-block-id="bFsN9SxPF"></div>
+    <div class="cover-meta" data-block-id="bbFW2vLxh">
+      <div class="cover-meta-item">🧭 <strong>키워드<span style="color: rgba(255, 255, 255, 0.7); font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">Skill · Slash Command · Hook · MCP · Prompt</span><span style="color: rgba(255, 255, 255, 0.7); font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">&nbsp;</span><span style="color: rgba(255, 255, 255, 0.7); font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">·</span><span style="color: rgba(255, 255, 255, 0.7); font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">&nbsp;</span><span style="color: rgba(255, 255, 255, 0.7); font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">Context Engineering</span></strong></div>
+      <div class="cover-meta-item">📚 <strong>기반 사례</strong> Anthropic Prompt<span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;"><span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">·&nbsp;</span><span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">Context Engineering · Claude Code Docs · markflow 오픈소스</span></span></div>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left">컨텍스트가 곧 능력 — 자동화·재사용·일관성을 코드로 박는 단계</span>
+    <span class="slide-footer-right">COVER</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="1">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">CONTENTS</div>
+    <div class="t-title">Level 3 목차</div>
+    <ul class="num-list" style="margin-top:18px;">
+      <li><div>3.1 Prompt &amp; Context Engineering<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">컨텍스트 본질, Context Rot, /context, 전략, 프롬프팅 6기법, JIT</span></div></li>
+      <li><div>3.2 CLAUDE.md &amp; AGENTS.md<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">계층 구조, 작성법, rules·paths, @import, 메모리 시스템</span></div></li>
+      <li><div>3.3 Slash Commands<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">기본 명령어, /effort, 커스텀 커맨드, $ARGUMENTS, 실전 패턴</span></div></li>
+      <li><div>3.4 Skills<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">Skill 개념, Reference·Action 분류, 공식 카탈로그, 커스텀 작성</span></div></li>
+      <li><div>3.5 Hooks<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">주요 이벤트, stdin JSON, exit code, 가드레일·핸드오프, 자동화 훅</span></div></li>
+      <li><div>3.6 MCP<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">Transport, scope, 필수 서버, Claude Context (의미 검색)</span></div></li>
+      <li><div>3.7 실습<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">Skill·커맨드·훅 패키지를 markflow에 적용</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">Level 3 · Claude Code 심화 — 차례</span>
+    <span class="slide-footer-right">TOC</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="2">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;" spellcheck="false">
+    <div class="section-num" style="position: absolute; inset: 160px auto auto 70px;" data-block-id="bAre0dnb4">01</div>
+    <div class="t-chapter" data-block-id="bs3akdMup" draggable="false" style="width: 98px; height: 24px; position: absolute; left: 72px; top: 260px; flex: 0 0 auto;">PART 01</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;" data-block-id="b3PiINiaM">3.1 Prompt &amp; Context Engineering</div>
+    <div style="margin-top: 20px; font-size: 20px; color: var(--muted); line-height: 1.7; width: 900px; flex: 0 0 auto;" data-block-id="bP894M2fv" class="">
+      "프롬프트 엔지니어링"에서 "컨텍스트 엔지니어링"으로 — 모델에 무엇을 주느냐가 결과물의 퀄리티를 보장한다.&nbsp;</div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left">01 · 3.1 Prompt &amp; Context Engineering</span>
+    <span class="slide-footer-right">3.1</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="3">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-block-id="b9k75EPiW">3.1.1 FOUNDATION</div>
+    <div class="t-title" data-block-id="bQcuE8cDb">프롬프트 엔지니어링 vs 컨텍스트 엔지니어링</div>
+    <div class="t-caption" style="margin-bottom:14px;" data-block-id="bcdIM3bpn">한 번 잘 묻기 vs 모델이 매 턴마다 보는 "전체 상태"를 설계하기</div>
+    <table class="tbl" data-block-id="bUc28dGVq">
+      <thead><tr><th style="width:22%;" spellcheck="false">관점</th><th style="width:39%;" spellcheck="false">프롬프트 엔지니어링</th><th style="width:39%;" spellcheck="false">컨텍스트 엔지니어링</th></tr></thead>
+      <tbody>
+        <tr><td spellcheck="false">대상</td><td spellcheck="false">한 번의 요청 문장</td><td spellcheck="false">매 턴 모델에 입력되는 전체 토큰 상태</td></tr>
+        <tr><td spellcheck="false">구성 요소</td><td spellcheck="false">지시·예시·역할</td><td spellcheck="false">System prompt · 도구 정의 · 메모리 · 검색결과 · 대화이력</td></tr>
+        <tr><td spellcheck="false">최적화</td><td spellcheck="false">표현 다듬기</td><td spellcheck="false">무엇을 넣고 무엇을 뺄지 큐레이션</td></tr>
+        <tr><td spellcheck="false">실패 신호</td><td spellcheck="false">의도 오해</td><td spellcheck="false">점진적 품질 저하 · 환각 · 일관성 붕괴</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;" data-block-id="bICylvP5p">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>Anthropic — Effective Context Engineering</strong> 컨텍스트는 유한 자원. 각 턴마다 "이 토큰이 모델의 다음 행동에 정말 영향을 주는가?"를 기준으로 선별한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left">3.1.1 프롬프트 엔지니어링 vs 컨텍스트 엔지니어링</span>
+    <span class="slide-footer-right">01</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="4">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.1 PARADIGM</div>
+    <div class="t-title">Prompt → Context → Harness — 4년의 패러다임 이동</div>
+    <table class="tbl" style="margin-top:12px;">
+      <thead><tr><th style="width:20%;">시대</th><th style="width:28%;">핵심 질문</th><th style="width:28%;">엄밀함이 사는 곳</th><th>핵심 메트릭</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">Prompt (2022–2024)</span></td><td>어떤 말을 해야 하나?</td><td>프롬프트 텍스트</td><td>응답 품질 (주관적)</td></tr>
+        <tr><td><span class="badge badge-amber">Context (2025)</span></td><td>어떤 정보를 넣어야 하나?</td><td>컨텍스트 윈도우 구성</td><td>KV-cache hit rate</td></tr>
+        <tr><td><span class="badge badge-green">Harness (2026~)</span></td><td>어떤 시스템을 만들어야 하나?</td><td>시스템 아키텍처</td><td>태스크 완료율, $/태스크</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:16px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>각 시대는 이전을 대체하지 않고 포함(subsume)한다.</strong> L3에서는 Prompt·Context까지 다룬다. <strong>하네스 엔지니어링은 Level 7(7.1 Subagent / 7.2 하네스 엔지니어링 / 7.3 오픈소스 하네스 케이스 / 7.4 나만의 하네스 만들기)</strong>에서 자세히 다룬다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.1+ Prompt → Context → Harness 패러다임 이동</span>
+    <span class="slide-footer-right">01</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="5">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.2 CONTEXT ROT</div>
+    <div class="t-title">컨텍스트가 길어질수록 품질이 떨어진다</div>
+    <div class="t-caption" style="margin-bottom:14px;">Chroma Research — Context Rot: 입력 길이에 따른 LLM 품질 저하 현상</div>
+    <div class="t-body">긴 컨텍스트는 단순한 "기억 용량"이 아니다. 모델은 입력이 길어질수록 <span class="hl-amber">정보를 균일하게 처리하지 못하고</span> 정확도가 떨어진다.</div>
+    <div class="t-h3" style="margin-top:18px;">발생 원인 4가지</div>
+    <ul class="bullet-list" style="margin-top:6px;">
+      <li><div>주의 분산 — 토큰이 많을수록 핵심 신호가 희석됨</div></li>
+      <li><div>위치 편향 — 중간에 놓인 정보를 잘 못 찾음 (Lost in the Middle)</div></li>
+      <li><div>오래된 사실 우선 — 초기 컨텍스트의 결정이 후속 정보를 덮어씀</div></li>
+      <li><div>모순 누적 — 수정·번복이 쌓이면 일관된 의도 추론 실패</div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.2 컨텍스트가 길어질수록 품질이 떨어진다</span>
+    <span class="slide-footer-right">02</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="6">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.2 COUNTERMEASURES</div>
+    <div class="t-title">대응 6원칙 — Context Rot 회피</div>
+    <ul class="num-list" style="margin-top:14px;">
+      <li><div>큐레이션 우선<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">"넣을 수 있는 것"이 아니라 "지금 결정에 필요한 것"만 적재</span></div></li>
+      <li><div>정형화된 메모리<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">CLAUDE.md · 스킬 · @import로 모델이 신뢰할 단일 출처 확보</span></div></li>
+      <li><div>도구로 외주<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">파일 읽기·검색은 in-context 첨부 대신 Read·Grep로 그때그때 가져오기</span></div></li>
+      <li><div>요약·압축<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">/compact, PreCompact 훅으로 핵심 결정만 보존</span></div></li>
+      <li><div>세션 분할<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">새 작업은 새 세션 — 70% 임계 도달 시 의도적 리셋</span></div></li>
+      <li><div>모순 즉시 정정<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">번복 시 이전 결론을 명시적으로 폐기 ("이전 X는 잊고 Y로 진행")</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.2 Context Rot 대응 6원칙</span>
+    <span class="slide-footer-right">02</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="7">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.3 /context</div>
+    <div class="t-title">/context — 200K vs 1M 윈도우</div>
+    <div class="t-caption" style="margin-bottom:10px;">현재 세션의 토큰 사용량·구성을 한눈에 — 70% 넘으면 정리 신호</div>
+    <table class="tbl">
+      <thead><tr><th>모델</th><th>기본 컨텍스트</th><th>1M 활성 조건</th></tr></thead>
+      <tbody>
+        <tr><td>Opus 4.7 / 4.6</td><td>200K</td><td>Max · Team · Enterprise는 자동 포함, <span class="hl-amber">Pro는 Extra Usage 필요</span></td></tr>
+        <tr><td>Sonnet 4.6</td><td>200K</td><td><span class="hl-amber">모든 플랜에서 Extra Usage 필요</span> (Pro 포함)</td></tr>
+        <tr><td>Haiku 4.5</td><td>200K</td><td>1M 미지원 — 200K 고정</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>1M = 무한이 아니다</strong> 컨텍스트가 커질수록 Context Rot 위험도 같이 커진다. 1M은 "필요할 때" 쓰는 도구이지 기본값으로 두는 설정이 아니다.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:10px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>/context 출력 읽기</strong> System prompt · MCP tools · CLAUDE.md · Custom agents · Messages 비중을 확인 → 비대해진 항목부터 다이어트.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.3 /context — 200K vs 1M</span>
+    <span class="slide-footer-right">03</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="8">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.4 STRATEGY</div>
+    <div class="t-title">사용률 구간별 전략</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th>사용률</th><th>상태</th><th>권장 액션</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">~50%</span></td><td>여유</td><td>현재 작업 그대로 진행</td></tr>
+        <tr><td><span class="badge badge-amber">50–70%</span></td><td>주의</td><td>큰 파일 첨부 자제, 검색은 Grep로 좁히기</td></tr>
+        <tr><td><span class="badge badge-amber">70–90%</span></td><td>경계</td><td>/compact로 정리 또는 의도적 새 세션</td></tr>
+        <tr><td><span class="badge badge-red">90%+</span></td><td>위험</td><td>즉시 핸드오프 문서 작성 → 새 세션에서 재개</td></tr>
+      </tbody>
+    </table>
+    <div class="t-h3" style="margin-top:18px;">실전 워크플로우</div>
+    <div class="t-body" style="font-size:18px;">① 작업 시작 시 /context로 베이스라인 확인 → ② 50% 도달하면 Read 횟수·범위 줄이기 → ③ 70% 도달하면 결정사항을 CLAUDE.md·메모로 외부화 → ④ 새 세션에서 핸드오프 문서로 재개.</div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>핸드오프 패턴</strong> "지금까지의 결정 + 다음 단계 + 미해결" 3섹션으로 요약 → 새 세션에 붙여넣고 시작하면 컨텍스트 누적 없이 재개 가능.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.4 사용률 구간별 전략</span>
+    <span class="slide-footer-right">04</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="9">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.4 BUDGET METRICS</div>
+    <div class="t-title">40% 룰 · KV-cache 비용 메트릭</div>
+    <div class="two-col" style="margin-top:12px;">
+      <div>
+        <div class="callout callout-amber">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>40% 룰 (HumanLayer 12-Factor Agents, 2025)</strong><br>컨텍스트가 40%를 넘기면 모델의 지시 이행 능력이 급격히 떨어지는 경험칙(직관과 정반대). 정확한 임계값은 워크로드 의존이지만, '여유 있음'의 기준선을 50%가 아닌 40%로 잡는 편이 안전하다.</div>
+        </div>
+      </div>
+      <div>
+        <div class="callout callout-green">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body"><strong>KV-cache hit rate — 진짜 비용 메트릭</strong><br>이전 요청과 컨텍스트 접두어가 동일하면 그 부분이 재계산되지 않는다. Anthropic prompt caching 가격 기준 캐시 히트 시 비용이 약 1/10(write 1.25× → hit 0.1×). <strong>접두어의 토큰 하나만 바뀌어도 캐시는 전부 무효화</strong>된다.</div>
+        </div>
+      </div>
+    </div>
+    <div class="t-h3" style="margin-top:14px;">Google ADK 컨텍스트 분할 패턴</div>
+    <table class="tbl" style="margin-top:6px;">
+      <thead><tr><th style="width:28%;">구분</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Stable Prefix</strong></td><td>시스템 프롬프트, 에이전트 정체성, 도구 정의, 장기 요약 <span class="hl-amber">(앞쪽, 자주 변하지 않음)</span></td></tr>
+        <tr><td><strong>Variable Suffix</strong></td><td>최신 사용자 입력, 새 도구 출력 <span class="hl-blue">(뒤쪽, 자주 변함)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.4+ 40% 룰 · KV-cache · Stable Prefix</span>
+    <span class="slide-footer-right">04</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="10">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 PROMPTING</div>
+    <div class="t-title">프롬프팅 기법 6선 — 정의</div>
+    <div class="t-caption" style="margin-bottom:12px;">같은 작업도 프롬프트 구조에 따라 결과 품질이 크게 달라진다.</div>
+    <table class="tbl" style="margin-top:6px;">
+      <thead><tr><th style="width:26%;">기법</th><th>정의</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">Zero-shot</span></td><td>예시 없이 지시만 전달 — 단순·표준 작업</td></tr>
+        <tr><td><span class="badge badge-blue">Few-shot</span></td><td>입출력 예시 1~5개 동봉 — 도메인 포맷·톤 학습</td></tr>
+        <tr><td><span class="badge badge-amber">Chain-of-Thought</span></td><td>"단계별로 생각해" — 추론 과정을 명시적으로 유도</td></tr>
+        <tr><td><span class="badge badge-amber">Role Prompting</span></td><td>역할 부여 ("시니어 보안 리뷰어로서 …")</td></tr>
+        <tr><td><span class="badge badge-green">Constraint</span></td><td>제약 조건 명시 (길이·언어·라이브러리)</td></tr>
+        <tr><td><span class="badge badge-green">Step-by-Step</span></td><td>큰 작업을 명시적 단계로 쪼개기</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 프롬프팅 기법 6선 (1/2)</span>
+    <span class="slide-footer-right">05</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="11">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 PROMPTING</div>
+    <div class="t-title">기법 선택 가이드 — 상황별 적용</div>
+    <table class="tbl" style="margin-top:8px;">
+      <thead><tr><th style="width:42%;">상황</th><th>권장 기법</th></tr></thead>
+      <tbody>
+        <tr><td>단순 변환 · 표준 질의</td><td><span class="badge badge-blue">Zero-shot</span></td></tr>
+        <tr><td>결과 형식이 까다로움 (도메인 포맷)</td><td><span class="badge badge-blue">Few-shot</span></td></tr>
+        <tr><td>"왜 그렇게 결정했는지"가 필요</td><td><span class="badge badge-amber">CoT + Role</span></td></tr>
+        <tr><td>출력에 강한 제약 (길이·언어·라이브러리)</td><td><span class="badge badge-green">Constraint</span></td></tr>
+        <tr><td>한 번에 다 못 풀 만큼 큰 작업</td><td><span class="badge badge-green">Step-by-Step Decomposition</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>실무 권장</strong> 작업 난이도에 맞춰 2~3개를 조합 — 무겁게 다 쓰지 말 것. 단순 작업에 6개를 모두 적용하면 오히려 노이즈가 된다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 프롬프팅 기법 6선 (2/2)</span>
+    <span class="slide-footer-right">05</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="12">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 PER-TECHNIQUE</div>
+    <div class="t-title">기법별 상세 1/2 — Zero-shot · Few-shot · Chain-of-Thought</div>
+    <div class="two-col" style="margin-top:8px;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-blue">Zero-shot</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — 작업 단순·명확, 결과 형태 분명, 표준 CRUD</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># markflow</span>
+documents 테이블에서
+deletedAt IS NULL인 문서를
+Drizzle ORM 쿼리로 작성.
+정렬: updatedAt DESC, 20개.</code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);">대상·조건·기술 모두 명시 → AI가 추측할 부분 없음</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-blue">Few-shot</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — 프로젝트 고유 톤·포맷·응답 구조 학습</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># 예시 동봉</span>
+GET /api/documents
+ → { data: [...], total }
+GET /api/tags
+ → { data: [...], total }
+
+<span class="gray"># 새 엔드포인트도 동일 형식</span>
+GET /api/search</code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);">글로벌 패턴은 CLAUDE.md로 → 매 프롬프트에 안 넣어도 자동 적용</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-amber">Chain-of-Thought</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — 복잡 비즈니스 로직, 설계 분기 결정</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># markflow</span>
+Done 칼럼 24h 자동
+숨김 로직을 단계별로:
+ 1) 서버 vs 클라이언트
+    시간 계산 결정
+ 2) DB 쿼리 vs 앱
+    레벨 필터 결정
+ 3) 결정 방식 구현</code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);">Plan 모드와의 차이 — Plan은 파일 수정 잠금 + Approve gate 포함</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 기법별 상세 1/2 (Zero·Few·CoT)</span>
+    <span class="slide-footer-right">06</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="13">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 PER-TECHNIQUE</div>
+    <div class="t-title">기법별 상세 2/2 — Role · Constraint · Step-by-Step</div>
+    <div class="two-col" style="margin-top:8px;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-amber">Role Prompting</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — 특정 관점·기준으로 깊이 필요</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># markflow</span>
+시니어 백엔드로서,
+position 컬럼 1024 간격
+정책의 동시성 문제를
+검토해줘. 두 사용자가
+같은 칼럼에 동시 추가
+하면 어떻게 되는가?</code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);"><strong>주의</strong> — 역할이 너무 좁으면 다른 관점(UX·DX) 놓침</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-green">Constraint</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — AI 과잉 행동 방지, 범위 잠금</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># markflow</span>
+PATCH /api/docs/:id
+
+[제약]
+- title·body·tags만 수정
+- status·deletedAt 금지
+- route.ts만, 다른 파일 X
+- 기존 테스트 수정 X</code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);">전역 제약(any 금지·라이브러리 동결)은 CLAUDE.md로</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;"><span class="badge badge-green">Step-by-Step</span></div>
+        <div class="t-body" style="font-size:13px;margin-bottom:6px;"><strong>언제</strong> — DB→API→UI 다층 관통, TDD</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># 6단계 분해</span>
+1) Zod 스키마
+2) POST 라우트
+3) position 자동계산
+4) 에러 핸들링
+5) 통합 테스트
+6) 프론트 연결
+<span class="gray"># 단계마다 commit</span></code></pre>
+        </div>
+        <div class="t-body" style="font-size:12px;margin-top:6px;color:var(--muted);">단계 끝마다 git commit + <code>/rewind</code> 결합 → 안전한 되돌림</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 기법별 상세 2/2 (Role·Constraint·Step)</span>
+    <span class="slide-footer-right">06</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="14">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 COMBINATION</div>
+    <div class="t-title">조합 패턴 — markflow 보안 리뷰 프롬프트</div>
+    <div class="t-caption" style="margin-bottom:10px;">한 프롬프트에 Role + Task + Step-by-Step + CoT + Constraint + Few-shot이 모두 들어간 예시.</div>
+    <div class="code-block" style="margin-top:6px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># Role + Task</span>
+당신은 시니어 프론트엔드 보안 리뷰어다.
+markflow의 마크다운 렌더링 파이프라인에서 XSS를 차단하는 sanitize 단계를 작성하라.
+
+<span class="gray"># Step-by-Step</span>
+다음 단계로 진행한다.
+1) remark-rehype 파이프라인의 현재 순서를 확인
+2) rehype-sanitize를 어디에 끼워야 안전한지 결정
+3) 허용 태그·속성 화이트리스트 작성
+4) 결정 근거를 한 문장씩 적어라  <span class="gray"># &lt;- CoT</span>
+
+<span class="gray"># Constraint</span>
+제약: TypeScript, rehype-sanitize 공식 API만 사용, 외부 라이브러리 추가 금지.
+
+<span class="gray"># Few-shot — 출력 형식</span>
+- 결정: &lt;한 줄&gt;
+- 근거: &lt;한 줄&gt;
+- 코드: &lt;블록&gt;</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 조합 패턴 — 보안 리뷰 예시</span>
+    <span class="slide-footer-right">07</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="15">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 COMBINATION 2</div>
+    <div class="t-title">조합 #2 — Few-shot + Constraint + Step + 반복 원칙</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">조합 예시 — markflow 검색 endpoint 추가</div>
+        <div class="code-block" style="font-size:13px;">
+<pre><code><span class="gray"># Few-shot: 기존 형식 학습</span>
+GET /api/documents → { data: [...], total }
+GET /api/tags      → { data: [...], total }
+
+<span class="gray"># Step-by-Step: 단계별 진행</span>
+[1단계] Zod 입력 스키마 (q: string, limit: 1–50)
+[2단계] Drizzle 쿼리 (ILIKE + cursor 페이지네이션)
+[3단계] 라우트 핸들러 + 에러 처리
+
+<span class="gray"># Constraint: 범위 잠금</span>
+- 외부 라이브러리 추가 금지
+- 응답 구조 { data, total } 변경 금지
+- 다른 endpoint 수정 금지
+- 단계별 검증 후 다음 진행</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">실전 원칙 — 프롬프트도 반복이다</div>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li>첫 결과가 부족 → <strong>부족한 부분만 다시 요청</strong> (전체 재요청 X)</li>
+          <li>"이 부분을 보안 관점에서 다시" — 작은 refine 누적</li>
+          <li>큰 프롬프트 한 번 보다 <strong>작은 프롬프트 여러 번</strong>이 토큰 효율적</li>
+          <li>각 반복은 검증·수정의 단위 — 잘못된 추측이 누적되지 않음</li>
+        </ul>
+        <div class="callout callout-blue" style="margin-top:12px;">
+          <div class="callout-icon">📘</div>
+          <div class="callout-body"><strong>관점</strong> 프롬프팅을 한 번의 "주문"이 아니라 <strong>대화 사이클</strong>로 보면 결과가 안정적이다 — Plan → Implement → Review → Refine.</div>
+        </div>
+        <div class="callout callout-green" style="margin-top:8px;">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body"><strong>도구 결합</strong> Step-by-Step 단계마다 <code>git commit</code> + 문제 시 <code>/rewind</code> → 단계 단위 안전망.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5 조합 #2 + 반복 원칙</span>
+    <span class="slide-footer-right">08</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="16">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.5 EVIDENCE &amp; 4.7</div>
+    <div class="t-title">CoT 정량 효과 · Opus 4.7 Literal Instruction</div>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;">CoT GSM8K 효과 (PaLM 540B, Wei et al. NeurIPS 2022)</div>
+        <table class="tbl" style="font-size:15px;">
+          <thead><tr><th>방법</th><th>정확도</th></tr></thead>
+          <tbody>
+            <tr><td>Zero-shot</td><td>17.9%</td></tr>
+            <tr><td><strong>Chain-of-Thought</strong><br><span style="font-size:12px;color:var(--muted);">"Let's think step by step"</span></td><td><span class="hl-amber"><strong>58.1%</strong></span></td></tr>
+          </tbody>
+        </table>
+        <div class="t-body" style="font-size:13px;margin-top:10px;color:var(--muted);">프롬프트 한 줄로 정확도 3배 도약 — 출처: arxiv.org/abs/2201.11903</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;">Opus 4.7 행동 변화 — 강조어 사용 주의</div>
+        <table class="tbl" style="font-size:14px;">
+          <thead><tr><th>Before (옛 모델)</th><th>After (4.6 / 4.7)</th></tr></thead>
+          <tbody>
+            <tr><td><code>CRITICAL: You MUST use this tool</code></td><td><code>Use this tool when…</code></td></tr>
+            <tr><td>강조어를 많이 넣을수록 정확도↑</td><td><strong>Literal instruction following</strong> — 문자 그대로 해석</td></tr>
+            <tr><td>"If in doubt, use [tool]"</td><td>"Use [tool] when it would enhance understanding"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body">출처: Anthropic <em>Prompting best practices</em>. Opus 4.7은 지시를 일반화 없이 문자 그대로 따르므로 적용 범위 명시(예: 'every section, not just the first')하고 강조어 남발 자제.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.5+ CoT 정량 효과 · Opus 4.7 행동 변화</span>
+    <span class="slide-footer-right">08</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="17">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.6 JUST-IN-TIME</div>
+    <div class="t-title">적시 컨텍스트(JIT) + <code style="font-family:'JetBrains Mono',monospace;color:#FCD34D;">.claudeignore</code></div>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;">왜 JIT 인가</div>
+        <ul class="bullet-list" style="font-size:16px;">
+          <li>전체 프로젝트 인덱싱은 비현실적 — n² 어텐션 비용</li>
+          <li>지금 작업과 무관한 파일은 노이즈 → Context Rot</li>
+          <li>모델이 직접 Glob/Grep/Read로 필요한 곳만 읽게 함</li>
+        </ul>
+        <div class="t-h3" style="margin-top:12px;margin-bottom:6px;">경로만 남기는 패턴 (CLAUDE.md)</div>
+        <div class="code-block" style="font-size:13px;">
+<pre><code><span class="gray">## 핵심 파일</span>
+- src/server/db/schema.ts — Drizzle 스키마
+- src/lib/markdown.ts — remark-rehype 파이프라인
+- src/components/editor/CodeMirror.tsx — 에디터
+- drizzle/ — 마이그레이션 메타</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;"><code style="font-family:'JetBrains Mono',monospace;color:#FCD34D;">.claudeignore</code> — 노이즈 차단</div>
+        <div class="code-block" style="font-size:13px;" data-code-source="node_modules%2F%0Adist%2F%0A.next%2F%0Acoverage%2F%0A*.min.js%0Apublic%2Fuploads%2F%0A*.csv%0Adrizzle%2Fmeta%2F_journal.json%0Asrc%2Fgenerated%2F%0A*.log" data-code-lang="plaintext" data-block-id="code-1777607137368-1" data-slot="code">
+<div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span>node_modules/</span></span>
+<span class="line"><span>dist/</span></span>
+<span class="line"><span>.next/</span></span>
+<span class="line"><span>coverage/</span></span>
+<span class="line"><span>*.min.js</span></span>
+<span class="line"><span>public/uploads/</span></span>
+<span class="line"><span>*.csv</span></span>
+<span class="line"><span>drizzle/meta/_journal.json</span></span>
+<span class="line"><span>src/generated/</span></span>
+<span class="line"><span>*.log</span></span></code></pre>
+        </div>
+        <table class="tbl" style="margin-top:10px;font-size:13px;">
+          <thead><tr><th>항목</th><th>없음</th><th>적용 후</th></tr></thead>
+          <tbody>
+            <tr><td>인덱싱 토큰</td><td>~85K</td><td><strong>~22K</strong></td></tr>
+            <tr><td>Glob 노이즈</td><td>다수</td><td>소스만</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.6 JIT 컨텍스트 / .claudeignore</span>
+    <span class="slide-footer-right">09</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="18">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.6 CONTEXT WINDOW</div>
+    <div class="t-title">200K 토큰 배분 + n² Self-Attention 비용</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">컨텍스트 윈도우 5층 구조</div>
+        <div class="code-block" style="font-size:13px;">
+<pre><code>┌──────────────────────────────┐
+│ System 프롬프트       ~15K   │
+│ 시스템 도구 정의       ~10K  │
+│ MCP 도구 정의   ~5K / 서버   │
+│ CLAUDE.md (메모리)    가변   │
+├──────────────────────────────┤
+│ <span class="cyan">대화 히스토리</span>      ← 누적 │
+│ (메시지·도구 호출·파일 결과) │
+├──────────────────────────────┤
+│ 남은 공간            ← 줄어듦│
+└──────────────────────────────┘</code></pre>
+        </div>
+        <div class="t-body" style="font-size:13px;margin-top:8px;color:var(--muted);">CLAUDE.md 500줄 = 매 턴마다 수천 토큰 낭비. 200줄 이하 권장.</div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">왜 길수록 품질이 떨어지나 — n² 비용</div>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li>Self-Attention은 <strong>모든 토큰 쌍</strong>의 관계 계산</li>
+          <li>토큰 100 → <strong>1만 쌍</strong></li>
+          <li>토큰 100K → <strong>100억 쌍</strong></li>
+          <li>주의 예산이 분산 → 핵심 식별 정확도 ↓ (Context Rot)</li>
+        </ul>
+        <div class="callout callout-amber" style="margin-top:10px;">
+          <div class="callout-icon">💬</div>
+          <div class="callout-body"><strong>"컨텍스트는 LLM의 가장 비싼 자원이다. 모든 토큰이 추론 비용을 곱한다."</strong><br><span style="color:var(--muted);font-size:12px;">— Tobi Lütke (Shopify CEO), 2025</span></div>
+        </div>
+        <div class="callout callout-blue" style="margin-top:8px;">
+          <div class="callout-icon">📘</div>
+          <div class="callout-body"><strong>좋은 컨텍스트 엔지니어링</strong> = 원하는 결과를 위한 <strong>가장 작은 고신호(High-Signal) 토큰 집합</strong>을 찾는 것. 더 넣는 게 답이 아니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.6 컨텍스트 윈도우 구조 + n²</span>
+    <span class="slide-footer-right">10</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="19">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.6 NOTE-TAKING</div>
+    <div class="t-title">구조화된 메모 — markflow 백엔드 3단계 시나리오</div>
+    <div class="t-caption" style="margin-bottom:8px;">에이전틱 메모리: 컨텍스트 외부에 메모 → 필요할 때 다시 컨텍스트로 복귀</div>
+    <div class="two-col" style="margin-top:6px;">
+      <div>
+        <div class="code-block" style="font-size:13px;">
+<pre><code><span class="cyan">[1단계: 스키마 정의 완료]</span>
+→ 구현 완료, 테스트 통과
+→ /memory: "position은 정수형 1024 간격.
+            간격이 1 이하면 칼럼 전체 재정렬"
+→ git commit -m "feat: documents schema"
+→ /compact
+
+<span class="cyan">[2단계: GET /api/documents]</span>
+→ 구현 완료, 테스트 통과
+→ /memory: "Done 칼럼은 completedAt 기준
+            24h 필터. 서버에서 필터링 후 응답"
+→ git commit -m "feat: list endpoint"
+→ /compact
+
+<span class="cyan">[3단계: POST /api/documents]</span>
+→ 1·2단계 결정사항은 CLAUDE.md에 있어
+   /compact 후에도 자동 로드됨
+→ AI는 "기억"하고 있음 — 재설명 불필요</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">왜 동작하는가</div>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li>대화 히스토리 = <strong>휘발성</strong> (compact·clear에 사라짐)</li>
+          <li>CLAUDE.md / <code>#</code> 메모 = <strong>영속성</strong> (세션 너머 보존)</li>
+          <li><code>/memory</code>로 메모는 <strong>핵심 결정만</strong> — 시행착오 X</li>
+          <li>다음 세션 시작 시 자동 로드 → 매번 "기억하고 있는 동료"</li>
+        </ul>
+        <div class="callout callout-green" style="margin-top:10px;">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body"><strong>Anthropic 정의</strong> "에이전트가 정기적으로 컨텍스트 외부에 메모를 작성하고, 나중에 필요할 때 다시 컨텍스트로 가져오는 방식 — Structured Note-Taking 또는 Agentic Memory."</div>
+        </div>
+        <div class="callout callout-blue" style="margin-top:8px;">
+          <div class="callout-icon">📘</div>
+          <div class="callout-body"><strong>실전 패턴</strong> 마일스톤마다 4-콤보: 검증 → <code>/memory</code> → <code>git commit</code> → <code>/compact</code>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.6 구조화된 메모 — 마일스톤 시나리오</span>
+    <span class="slide-footer-right">11</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="20">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.6 WORKFLOW</div>
+    <div class="t-title">컨텍스트 엔지니어링 워크플로우 — 명령어 시퀀스</div>
+    <div class="two-col" style="margin-top:8px;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">세션 시작</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code>/context   <span class="gray"># 배분 확인</span>
+/cost      <span class="gray"># 비용 기준점</span>
+/mcp       <span class="gray"># 불필요 서버 OFF</span>
+
+<span class="gray"># 작업 범위 명시</span>
+"이번 세션은 POST
+ /api/documents만.
+ 관련 파일: route.ts,
+ schema.ts.
+ 참고: docs/API.md"</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">작업 중</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code>/context  <span class="gray"># 주기적 모니터</span>
+
+<span class="gray"># 마일스톤마다</span>
+/memory   <span class="gray"># 핵심 결정 기록</span>
+git commit
+/compact  <span class="gray"># 시행착오 제거</span>
+
+/cost     <span class="gray"># 예상보다 높으면</span>
+          <span class="gray"># /compact 고려</span></code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">작업 전환</div>
+        <div class="code-block" style="font-size:12px;">
+<pre><code><span class="gray"># 다른 작업으로</span>
+/memory
+git commit
+/clear    <span class="gray"># 완전 초기화</span>
+
+<span class="gray"># 이어가는 작업</span>
+/compact 아키텍처
+  결정과 완료 작업
+  목록만 보존</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>MCP 도구 셋 — Anthropic 경고</strong> "흔한 실패 모드 — 너무 많은 기능을 커버하거나 도구 사용 결정이 모호한 비대한 도구 셋." 5개 서버 × 도구 10개 = 수천 토큰. 세션 목적에 맞는 MCP만 활성화.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.6 컨텍스트 워크플로우 — 시퀀스</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="21">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.7 4 STRATEGIES</div>
+    <div class="t-title">Anthropic 4대 컨텍스트 전략</div>
+    <div class="t-caption" style="margin-bottom:10px;">Anthropic 「Effective Context Engineering for AI Agents」 (2025.09)</div>
+    <table class="tbl" style="margin-top:8px;">
+      <thead><tr><th style="width:16%;">전략</th><th style="width:46%;">설명</th><th>L3 매핑</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-amber"><strong>Write</strong></span></td><td>시스템 프롬프트·CLAUDE.md를 명확·구조화된 형태로 작성</td><td>§3.2 CLAUDE.md</td></tr>
+        <tr><td><span class="badge badge-blue"><strong>Select</strong></span></td><td>상황에 필요한 정보만 컨텍스트에 주입</td><td>§3.1.6 JIT + <code>.claudeignore</code></td></tr>
+        <tr><td><span class="badge badge-green"><strong>Compress</strong></span></td><td>오래된 대화·도구 결과를 요약하여 토큰 절약</td><td>§3.1.4 <code>/compact</code></td></tr>
+        <tr><td><span class="badge badge-gray"><strong>Isolate</strong></span></td><td>서브에이전트로 위임하여 메인 컨텍스트 보호</td><td>§3.4 Skills, §3.7 실습</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:16px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body">4전략은 컨텍스트 엔지니어링의 전체 프레임 — L3 각 섹션(§3.1~§3.7)이 이 4전략 중 하나 이상을 구체화한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.7 Anthropic 4전략 (Write/Select/Compress/Isolate)</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="22">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.7 EFFORT DIAL</div>
+    <div class="t-title"><code style="font-family:'JetBrains Mono',monospace;color:#FCD34D;">effort</code> 파라미터 — 새 통합 다이얼</div>
+    <div class="t-caption" style="margin-bottom:10px;">verbosity · thinking · tool 사용량을 하나의 다이얼로 통합 제어</div>
+    <table class="tbl" style="margin-top:8px;">
+      <thead><tr><th style="width:14%;">레벨</th><th style="width:48%;">용도</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>max</code></td><td>인텔리전스 극한 — 어려운 작업에서만</td><td><span class="badge badge-amber">신규</span> (overthinking 위험)</td></tr>
+        <tr><td><code>xhigh</code></td><td><strong>코딩·에이전틱 기본값</strong></td><td><span class="badge badge-amber">4.7 신규</span></td></tr>
+        <tr><td><code>high</code></td><td>인텔리전스 민감 작업 최소 권장값</td><td>4.6 기본값</td></tr>
+        <tr><td><code>medium</code></td><td>비용 민감 워크로드</td><td>—</td></tr>
+        <tr><td><code>low</code></td><td>짧고 범위 좁은 작업, 레이턴시 우선</td><td>4.7는 엄격 준수 — under-thinking 주의</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">Opus 4.7은 <code>low</code>/<code>medium</code>에서 요청 범위만 처리(이전처럼 'above and beyond' 안 함). 얕은 추론이 보이면 프롬프트 우회보다 effort 상향이 우선. <code>max</code>/<code>xhigh</code>는 max_tokens 64k 이상 권장.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.7 effort 5단계 다이얼 (4.6/4.7)</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="23">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.1.7 ADAPTIVE &amp; LAYOUT</div>
+    <div class="t-title">Adaptive Thinking + 장문 컨텍스트 배치</div>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">Adaptive Thinking — <code style="font-family:'JetBrains Mono',monospace;color:#FCD34D;">extended thinking + budget_tokens</code> 대체</div>
+        <div class="code-block" style="font-size:12px;">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># Before — 4.6+ deprecated</span>
+thinking={"type": "enabled", "budget_tokens": 32000}
+
+<span class="gray"># After — 표준</span>
+thinking={"type": "adaptive"}
+output_config={"effort": "high"}</code></pre>
+        </div>
+        <ul class="bullet-list" style="font-size:14px;margin-top:8px;">
+          <li>모델이 쿼리 복잡도 + effort 기반으로 thinking 양 동적 조정. budget_tokens는 4.6에서 동작하지만 deprecated.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="callout callout-amber" style="margin-bottom:8px;">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Prefilled Response — 4.6+ deprecated</strong><br>마지막 assistant 턴 prefill 미지원. Mythos Preview는 400 에러. 대안: 시스템 프롬프트 + XML 태그(<code>&lt;documents&gt;</code>, <code>&lt;instructions&gt;</code>)로 출력 형식 제어.</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-green" style="margin-top:10px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>장문 컨텍스트(20k+ tokens) 배치 원칙</strong> — 장문 데이터는 위에, 쿼리·지시·예제는 아래에 배치 → 응답 품질 최대 30% 향상. 답변 전 인용문 추출 요청. 출처: Anthropic <em>Prompting best practices</em> (2026-05 스냅샷).</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.1.7 Adaptive Thinking · Prefill deprecated · 장문 배치</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="24">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">02</div>
+    <div class="t-chapter">PART 02</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.2 CLAUDE.md &amp; AGENTS.md</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      프로젝트 메모리의 단일 출처 — 무엇을 넣고, 어떻게 분리하고, 언제 import할 것인가
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">02 · 3.2 CLAUDE.md &amp; AGENTS.md</span>
+    <span class="slide-footer-right">3.2</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="25">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.1 HIERARCHY</div>
+    <div class="t-title">CLAUDE.md 계층 — 로딩 순서 4단계</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:12%;">순서</th><th style="width:22%;">범위</th><th style="width:36%;">위치</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-red">1</span></td><td><strong>System</strong><br>(Managed Policy)</td><td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> (macOS)<br><code>/etc/claude-code/CLAUDE.md</code> (Linux/WSL)</td><td>조직 IT가 MDM으로 배포 — <span class="hl-amber">사용자가 제외 불가</span></td></tr>
+        <tr><td><span class="badge badge-blue">2</span></td><td><strong>User</strong></td><td><code>~/.claude/CLAUDE.md</code></td><td>본인의 모든 프로젝트에 적용</td></tr>
+        <tr><td><span class="badge badge-amber">3</span></td><td><strong>Project</strong></td><td><code>./CLAUDE.md</code> 또는 <code>./.claude/CLAUDE.md</code></td><td>팀 공유 (git 커밋 대상)</td></tr>
+        <tr><td><span class="badge badge-gray">4</span></td><td><strong>Local</strong></td><td><code>./CLAUDE.local.md</code></td><td>본인 프로젝트 한정 — <code>.gitignore</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">⚖️</div>
+      <div class="callout-body"><strong>우선순위 (precedence) — 로딩 순서의 역방향</strong> 모두 concat되지만 충돌 시 더 구체적인 쪽이 이긴다 (공식: <em>"More specific locations take precedence over broader ones"</em>). <span class="hl-amber"><strong>Local &gt; Project &gt; User &gt; Managed Policy</strong></span> — Local이 가장 좁은 범위(나·이 프로젝트만) → 우선순위 최상.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">📁</div>
+      <div class="callout-body"><strong>예외 · lazy-load</strong> Managed Policy는 우선순위는 가장 낮지만 <code>claudeMdExcludes</code>로도 <span class="hl-amber">제외 불가</span> — 조직 IT 정책 강제. 또한 위 4단계는 launch 시 모두 로드되지만, 서브폴더 CLAUDE.md는 그 폴더 파일을 읽을 때만 lazy-load 된다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.1 CLAUDE.md 계층 구조</span>
+    <span class="slide-footer-right">13</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="26">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.2 ANTI-PATTERN</div>
+    <div class="t-title">CLAUDE.md 작성법 — 나쁜 예</div>
+    <div class="t-caption" style="margin-bottom:10px;">길고, 추상적이고, 강요만 있는 CLAUDE.md는 즉시 무력화된다</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># ❌ Bad — 추상적·길이만 김</span>
+<span class="red">- 코드는 항상 깔끔하고 가독성 있게 작성하라.</span>
+<span class="red">- 좋은 함수를 만들어라.</span>
+<span class="red">- 베스트 프랙티스를 따르라.</span>
+<span class="red">- 모든 엣지 케이스를 처리하라.</span>
+<span class="red">- 테스트를 충분히 작성하라.</span>
+
+<span class="gray"># 문제</span>
+<span class="gray"># 1. "깔끔"·"좋은"·"베스트"는 측정 불가 → 모델이 임의 해석</span>
+<span class="gray"># 2. 강제 명령만 있고 컨텍스트가 없어서 토큰만 소모</span>
+<span class="gray"># 3. 5줄이 50줄 되면 위치 편향으로 후반부 무시</span></code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>CLAUDE.md는 명령서가 아니라 컨텍스트</strong> "이 프로젝트는 X여서 Y한다"의 형태로 — 의도와 제약을 함께 적어야 모델이 응용한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.2 CLAUDE.md 작성법</span>
+    <span class="slide-footer-right">14</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="27">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.2 BEST PRACTICE</div>
+    <div class="t-title">CLAUDE.md 작성법 — 좋은 예</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="blue"># Project Context</span>
+markflow — 마크다운 문서 협업 SaaS. PostgreSQL · Drizzle · Next.js 15.
+
+<span class="blue">## Coding Conventions</span>
+- 신규 React 컴포넌트는 함수형 + TypeScript strict.
+- DB 스키마 변경은 drizzle-kit push 후 PR 분리.
+- 테스트는 Vitest, 파일 옆 `*.test.ts`로 둔다.
+
+<span class="blue">## What NOT to do</span>
+- src/legacy/ 안의 코드는 수정하지 말고 호출만 (별도 마이그레이션 트랙).
+- console.log 절대 커밋 — pre-commit 훅이 막는다.
+
+<span class="blue">## Detailed Guides (lazy-load)</span>
+- API 컨벤션: @docs/api-conventions.md
+- 스키마 컨벤션: @docs/schema-conventions.md</code></pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:12px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>핵심 패턴</strong> ① 한 화면에 들어갈 분량 ② "왜"가 같이 있는 규칙 ③ 디테일은 @import로 분리해, 필요할 때만 모델이 그 파일을 읽도록 경로만 남긴다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.2 CLAUDE.md 작성법</span>
+    <span class="slide-footer-right">14</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="28">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.3 CONVENTIONS</div>
+    <div class="t-title">코딩 컨벤션을 코드화 — 검증 가능한 규칙으로</div>
+    <div class="t-caption" style="margin-bottom:10px;">"좋은 코드"가 아니라 "이 프로젝트의 코드"가 무엇인지 정의</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">규칙 형태로 적기</div>
+        <ul class="bullet-list" style="margin-top:6px;">
+          <li><div>입력 검증은 zod 스키마로<span class="sub">서버 액션 진입점에서만 — 내부 함수 중복 검증 금지</span></div></li>
+          <li><div>에러는 throw 대신 Result 객체<span class="sub">try/catch는 외부 호출(fetch·DB) 경계에서만</span></div></li>
+          <li><div>로그 키는 snake_case<span class="sub">관측성 파이프라인이 키 정규화 안 하므로</span></div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="t-h3">측정 가능한 형태</div>
+        <ul class="bullet-list" style="margin-top:6px;">
+          <li><div>함수 50줄 초과 → 분리 신호<span class="sub">단순한 길이 기준이 "복잡도" 같은 모호한 표현보다 작동</span></div></li>
+          <li><div>파일 import 12개 초과 → 책임 과다<span class="sub">정량 기준이 모델의 자체 판단보다 일관성 높음</span></div></li>
+          <li><div>Cyclomatic 10 초과 → 분기 추출<span class="sub">eslint-plugin-complexity로 자동 측정</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.3 코딩 컨벤션을 코드화</span>
+    <span class="slide-footer-right">15</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="29">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.4 RULES &amp; PATHS</div>
+    <div class="t-title">.claude/rules/ — 경로 기반 규칙 분리</div>
+    <div class="t-caption" style="margin-bottom:10px;">전체 CLAUDE.md를 부풀리지 말고, 적용 범위를 좁힌 규칙 파일로 쪼갠다</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/rules/server-actions.md</span>
+<span class="yellow">---</span>
+<span class="cyan">name:</span> server-action-validation
+<span class="cyan">description:</span> 서버 액션 작성 규칙
+<span class="cyan">paths:</span>
+  - <span class="green">"src/app/**/actions.ts"</span>
+  - <span class="green">"src/server/actions/**/*.ts"</span>
+<span class="yellow">---</span>
+
+- 모든 export된 server action은 zod schema로 입력 검증.
+- 인증 미확인 시 `await requireSession()` 즉시 호출.
+- DB 트랜잭션 사용 시 `db.transaction(async (tx) =&gt; ...)` 패턴.
+- 응답은 `{ ok: true, data } | { ok: false, error }` 형태.</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.4 .claude/rules — 경로 기반 규칙</span>
+    <span class="slide-footer-right">16</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="30">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.4 GLOB PATTERNS</div>
+    <div class="t-title">paths Glob 패턴 — 자주 쓰는 형태</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:34%;">패턴</th><th>매칭 대상</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/**/page.tsx</code></td><td>App Router 페이지 컴포넌트 전체</td></tr>
+        <tr><td><code>src/db/schema/*.ts</code></td><td>schema 디렉터리 1단계 ts 파일</td></tr>
+        <tr><td><code>**/*.test.ts</code></td><td>리포 전체의 vitest 테스트 파일</td></tr>
+        <tr><td><code>!src/legacy/**</code></td><td>legacy 폴더는 제외 (negation)</td></tr>
+        <tr><td><code>src/{api,lib}/**/*.ts</code></td><td>api 또는 lib 두 디렉터리</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>설계 팁</strong> 경로별 규칙은 작게 — 한 파일에 5–8줄. 매칭이 좁을수록 모델이 그 규칙을 적용해야 할 때 토큰 손실이 적다.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>성능</strong> 너무 광범위한 글롭(<code>**/*</code>)은 Claude Code가 큰 트리를 매번 매칭하므로 시작 시간이 느려질 수 있다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.4 .claude/rules — Glob 패턴</span>
+    <span class="slide-footer-right">16</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="31">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.5 IMPORTS</div>
+    <div class="t-title">@path 임포트 — 필요할 때만 끌어오는 컨텍스트</div>
+    <div class="t-body" style="margin-top:8px;">CLAUDE.md에 적힌 <code style="font-family:'JetBrains Mono',monospace;color:#FCD34D;">@docs/api.md</code> 경로는 <span class="hl-amber">자동 펼침이 아니다</span>. 모델이 그 정보가 필요하다고 판단할 때만 Read 도구로 읽어들인다.</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># CLAUDE.md</span>
+
+<span class="blue">## Detailed References (lazy-loaded)</span>
+- API 응답 포맷·에러코드: @docs/api-conventions.md
+- DB 스키마 명명: @docs/schema-conventions.md
+- 인증 흐름: @docs/auth-flow.md
+- 배포 절차: @docs/deploy.md</code></pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:12px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>장점</strong> CLAUDE.md 자체는 작게 유지(50–80줄), 디테일은 별도 문서로 — 평소엔 토큰을 차지하지 않다가 모델이 해당 주제를 만나면 그때 읽는다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.5 @path 임포트</span>
+    <span class="slide-footer-right">17</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="32">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.6 AGENTS.md</div>
+    <div class="t-title">AGENTS.md — 도구 중립적 메모리 표준</div>
+    <div class="t-caption" style="margin-bottom:14px;">여러 코딩 에이전트가 공유하는 단일 컨텍스트 파일</div>
+    <div class="t-body">AGENTS.md는 OpenAI Codex · Amp · Google Jules · Cursor · Factory 등이 <span class="hl-amber">공동으로 만든 오픈 표준</span>이다. README가 사람용이라면 AGENTS.md는 코딩 에이전트용 지시 파일.</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:30%;">항목</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td>위치</td><td>리포 루트 (<code>./AGENTS.md</code>) — 모노레포는 패키지별로도 가능</td></tr>
+        <tr><td>형식</td><td>일반 마크다운 — Build · Test · Style · PR 가이드 섹션</td></tr>
+        <tr><td>스코프</td><td>가까운 AGENTS.md가 우선 (모노레포 패키지 &gt; 루트)</td></tr>
+        <tr><td>호환</td><td>Claude Code는 CLAUDE.md를 우선하되, AGENTS.md도 인식</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>전략</strong> 한 리포에서 여러 코딩 에이전트를 병행한다면 AGENTS.md를 정본으로, CLAUDE.md는 <code>@AGENTS.md</code>로 import 처리하면 중복 없이 운영 가능.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.6 AGENTS.md — 도구 중립 표준</span>
+    <span class="slide-footer-right">18</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="33">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.2.7 MEMORY</div>
+    <div class="t-title">메모리 시스템 — # 단축키와 /memory</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3"># 단축키 — 즉석 추가</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># 프롬프트 첫 글자에 #</span>
+<span class="green">#</span> 항상 server action에서 zod로
+입력 검증 후 처리
+
+<span class="gray"># 어디에 저장할지 묻는 메뉴</span>
+<span class="cyan">1)</span> Project (./CLAUDE.md)
+<span class="cyan">2)</span> User (~/.claude/CLAUDE.md)
+<span class="cyan">3)</span> Local (./CLAUDE.local.md)</code></pre>
+        </div>
+        <div class="t-caption" style="margin-top:10px;">대화 중 떠오른 규칙을 즉시 기록 → 다음 세션부터 적용</div>
+      </div>
+      <div>
+        <div class="t-h3">/memory — 편집 모드</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="green">$</span> /memory
+
+<span class="gray"># 적용 중인 모든 메모리 파일을</span>
+<span class="gray"># $EDITOR로 한 번에 열어서 편집</span>
+
+<span class="cyan">- ./CLAUDE.md</span>
+<span class="cyan">- ~/.claude/CLAUDE.md</span>
+<span class="cyan">- ./CLAUDE.local.md</span></code></pre>
+        </div>
+        <div class="t-caption" style="margin-top:10px;">정기적 정리 — 90일마다 메모리 다이어트로 Context Rot 예방</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.2.7 메모리 시스템</span>
+    <span class="slide-footer-right">19</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="34">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">03</div>
+    <div class="t-chapter">PART 03</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.3 Slash Commands</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      기본 명령어 · /effort · 커스텀 커맨드 · 실전 패턴 — "반복은 코드로 박는다"
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">03 · 3.3 Slash Commands</span>
+    <span class="slide-footer-right">3.3</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="35">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.1 BUILTINS</div>
+    <div class="t-title">기본 명령어 — 셋업·관리</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:24%;">커맨드</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><code>/help</code></td><td>현재 활성화된 모든 커맨드·스킬·MCP 서버 목록</td></tr>
+        <tr><td><code>/init</code></td><td>현재 리포지토리에 맞춘 CLAUDE.md 초기 생성 — 코드 스캔 후 추론</td></tr>
+        <tr><td><code>/login</code> · <code>/logout</code></td><td>Anthropic 계정 로그인·로그아웃</td></tr>
+        <tr><td><code>/config</code></td><td>모델·테마·권한·MCP 설정 한곳에서 토글</td></tr>
+        <tr><td><code>/permissions</code></td><td>도구별 허용/차단 정책 편집 (allow·ask·deny)</td></tr>
+        <tr><td><code>/memory</code></td><td>적용 중인 CLAUDE.md 파일 일괄 편집</td></tr>
+        <tr><td><code>/cost</code></td><td>현재 세션 토큰 사용량·비용</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.1 기본 명령어 — 셋업·관리</span>
+    <span class="slide-footer-right">20</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="36">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.3 WORKFLOW</div>
+    <div class="t-title">워크플로우 명령어 — 코드 작업 흐름</div>
+    <table class="tbl" style="margin-top:12px;">
+      <thead><tr><th style="width:26%;">커맨드</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><code>/clear</code></td><td>대화 컨텍스트 초기화 — 새 작업 시작 시 권장</td></tr>
+        <tr><td><code>/compact</code></td><td>대화 요약·압축 — 핵심 결정만 보존</td></tr>
+        <tr><td><code>/context</code></td><td>현재 토큰 구성·사용률 확인</td></tr>
+        <tr><td><code>/model</code></td><td>세션 모델 전환 (Opus 4.7 ↔ Sonnet 4.6 ↔ Haiku 4.5)</td></tr>
+        <tr><td><code>/effort low/medium/high/xhigh</code></td><td>추론 강도 조절 — 응답 길이·검토 깊이</td></tr>
+        <tr><td><code>/review</code></td><td>현재 변경사항 자가 코드 리뷰</td></tr>
+        <tr><td><code>/diff</code></td><td>이번 세션의 변경 diff 표시</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>/effort xhigh 가용성</strong> Opus 4.7 전용. Opus 4.6 · Sonnet 4.6에서는 high로 폴백된다. 세션 한정 <code>max</code> 레벨도 별도 존재.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.3 워크플로우 명령어</span>
+    <span class="slide-footer-right">21</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="37">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.3 COMBOS</div>
+    <div class="t-title">실전 조합 — 토큰 효율 5단계</div>
+    <ul class="num-list" style="margin-top:14px;">
+      <li><div>새 작업 진입<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;"><code>/clear</code> → <code>/context</code> 베이스라인 확인 → 작업 시작</span></div></li>
+      <li><div>중반 정리<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">사용률 70% → <code>/compact</code> → 핵심 결정만 남기고 계속</span></div></li>
+      <li><div>난이도 상승<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">설계 결정·복잡한 디버그 → <code>/effort xhigh</code>로 전환</span></div></li>
+      <li><div>마무리 검증<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;"><code>/review</code> → <code>/diff</code> → 커밋 메시지 협의</span></div></li>
+      <li><div>다음 세션 준비<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">90% 도달 시 핸드오프 작성 → <code>/clear</code> → 새 세션</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:12px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>비용 관점</strong> Opus는 비싸므로, 단순 패치는 Sonnet, 설계는 Opus로 전환하는 식으로 <code>/model</code>을 적극 사용한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.3 워크플로우 명령어 — 실전 조합</span>
+    <span class="slide-footer-right">21</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="38">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.4 CUSTOM</div>
+    <div class="t-title">커스텀 커맨드 — .claude/commands/</div>
+    <div class="t-caption" style="margin-bottom:10px;">반복되는 프롬프트를 파일로 박아두면 슬래시 한 줄로 호출</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/commands/code-review.md</span>
+<span class="yellow">---</span>
+<span class="cyan">description:</span> 현재 git diff 기준 코드 리뷰
+<span class="cyan">allowed-tools:</span> [<span class="green">"Bash(git:*)"</span>, <span class="green">"Read"</span>, <span class="green">"Grep"</span>]
+<span class="yellow">---</span>
+
+다음 절차로 코드 리뷰를 수행해줘:
+
+1. `git diff origin/main...HEAD` 결과를 읽는다.
+2. 변경된 파일별로 ① 의도 ② 위험 ③ 누락 테스트를 정리.
+3. 보안·성능·접근성 관점 위반이 있으면 명시.
+4. 최종 표 형태로 출력 — 파일 / 위험도 / 권고.</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>스코프</strong> Project: <code>.claude/commands/</code> — 팀 공유 / User: <code>~/.claude/commands/</code> — 모든 프로젝트 / 둘 다 있으면 Project 우선.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.4 커스텀 커맨드</span>
+    <span class="slide-footer-right">22</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="39">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.5 ARGUMENTS</div>
+    <div class="t-title">$ARGUMENTS — 커맨드에 인자 받기</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">/fix-issue 123</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/commands/fix-issue.md</span>
+<span class="yellow">---</span>
+<span class="cyan">description:</span> GitHub 이슈 번호로 수정안 작성
+<span class="cyan">allowed-tools:</span> [<span class="green">"Bash(gh:*)"</span>]
+<span class="yellow">---</span>
+
+이슈 #$ARGUMENTS를 처리하라:
+1. <span class="green">gh issue view $ARGUMENTS</span>
+   로 본문·코멘트 확보.
+2. 관련 파일 식별, 최소 변경안 제안.
+3. PR 본문 초안까지 작성.</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">/add-feature payment</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/commands/add-feature.md</span>
+<span class="yellow">---</span>
+<span class="cyan">description:</span> 새 기능 스캐폴딩
+<span class="yellow">---</span>
+
+기능 "$ARGUMENTS" 추가:
+1. src/features/$ARGUMENTS/ 생성
+2. 라우트·서버 액션·테스트 셋
+3. CLAUDE.md의 컨벤션 준수
+4. 마지막에 변경 요약 출력</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.5 $ARGUMENTS</span>
+    <span class="slide-footer-right">23</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="40">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.6 PATTERNS</div>
+    <div class="t-title">실전 패턴 3종</div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🧪</div>
+      <div class="callout-body"><strong>① TDD 사이클</strong> <code>/tdd-red</code>(실패 테스트) → <code>/tdd-green</code>(최소 구현) → <code>/tdd-refactor</code>(중복 제거). 각 단계가 별도 커맨드 — 모델이 단계 혼용을 못 한다.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:10px;">
+      <div class="callout-icon">⚙️</div>
+      <div class="callout-body"><strong>② 자동화 파이프라인</strong> <code>/lint-fix</code> → <code>/typecheck</code> → <code>/test-affected</code> → <code>/commit-msg</code>. CI 전 단계를 슬래시로 묶어 일관된 사전 점검.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body"><strong>③ 컨텍스트 오염 방지</strong> <code>/checkpoint</code>로 핵심 결정 dump → <code>/clear</code> → <code>/restore-checkpoint</code>로 깨끗한 상태에서 재개. 긴 디버그 세션의 누적 오류 차단.</div>
+    </div>
+    <div class="t-caption" style="margin-top:14px;">패턴의 공통점 — "한 작업 = 한 커맨드"로 행위를 명확히 끊고, 각 커맨드가 자기 책임만 갖는다.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.6 실전 패턴 3종</span>
+    <span class="slide-footer-right">24</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="41">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.3.7 BUNDLED SKILLS</div>
+    <div class="t-title">번들 스킬 — Claude Code 기본 제공</div>
+    <ul class="bullet-list" style="margin-top:12px;">
+      <li><div><code>code-reviewer</code><span class="sub">변경 diff 기반 자가 리뷰 — PR 올리기 전 1차 검수</span></div></li>
+      <li><div><code>refactor-suggest</code><span class="sub">중복·복잡도·테스트 가능성 관점에서 리팩터링 후보 제시</span></div></li>
+      <li><div><code>migration-helper</code><span class="sub">파일·심볼 이동 시 import 경로·테스트·문서 동기화</span></div></li>
+      <li><div><code>doc-writer</code><span class="sub">JSDoc·README·CHANGELOG 자동 작성·갱신</span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>Skills와 Commands는 같은 메커니즘으로 통합 운영</strong> 현재 <code>.claude/commands/</code>도 lazy-load 되며, 신규 작성은 <code>SKILL.md</code> 형식이 권장된다. 기존 커맨드는 마이그레이션 불필요 — 그대로 동작한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.3.7 번들 스킬</span>
+    <span class="slide-footer-right">25</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="42">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">04</div>
+    <div class="t-chapter">PART 04</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.4 Skills</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      Reference Skill · Action Skill — 모델이 "스스로" 호출하도록 만드는 모듈
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">04 · 3.4 Skills</span>
+    <span class="slide-footer-right">3.4</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="43">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.4.1 CONCEPT</div>
+    <div class="t-title">Skill — 모델이 자가 호출하는 절차 묶음</div>
+    <div class="t-caption" style="margin-bottom:10px;">SKILL.md 한 파일 = 이름 · 설명 · 허용 도구 · 본문 절차</div>
+    <table class="tbl" style="margin-top:8px;">
+      <thead><tr><th>관점</th><th>Slash Command</th><th>Skill</th></tr></thead>
+      <tbody>
+        <tr><td>호출</td><td>사용자가 <code>/명령</code> 입력</td><td>모델이 description 매칭으로 자동 호출</td></tr>
+        <tr><td>발견</td><td>사용자가 알아야 함</td><td>모델이 컨텍스트 보고 판단</td></tr>
+        <tr><td>본문</td><td>프롬프트 텍스트</td><td>마크다운 + frontmatter (allowed-tools 등)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>통합 메커니즘</strong> 현재 Slash Command와 Skill은 동일 lazy-load 메커니즘 위에서 동작한다. 신규는 <code>SKILL.md</code>로 작성 권장 — 모델 자가 발견·호출이 가능해서 사용자 부담이 줄어든다.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>Description이 전부</strong> 모델은 description만 보고 호출 여부를 결정한다. "언제 써야 하는지" 명확히 적지 않으면 절대 호출되지 않는다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.4.1 Skill — 자가 호출 절차</span>
+    <span class="slide-footer-right">26</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="44">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.4.2 REFERENCE SKILL</div>
+    <div class="t-title">Reference Skill — 지식·컨벤션 인용형</div>
+    <div class="t-caption" style="margin-bottom:10px;">"X 작업할 때 이 규칙을 참고해"라는 형태 — 도구 호출은 거의 없음</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/skills/drizzle-conventions/SKILL.md</span>
+<span class="yellow">---</span>
+<span class="cyan">name:</span> drizzle-conventions
+<span class="cyan">description:</span> Drizzle ORM 스키마·쿼리 작성 시 항상 참고. 컬럼 명명·인덱스·관계·트랜잭션 규칙.
+<span class="cyan">allowed-tools:</span> [<span class="green">"Read"</span>]
+<span class="yellow">---</span>
+
+# Drizzle Conventions
+
+## 컬럼 명명
+- 테이블: snake_case 단수 (`user`, `document`).
+- timestamp: `created_at`, `updated_at` 필수.
+- soft delete: `deleted_at` (nullable timestamp).
+
+## 인덱스
+- 외래키는 항상 인덱스 — `index('idx_doc_user_id').on(t.userId)`
+- 검색용 컬럼은 `index().using('gin', ...)`로 GIN.
+
+## 관계
+- 1:N — `references()` + `relations()` 양쪽 정의.
+- N:M — 별도 join 테이블 `*_to_*` 명명.</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.4.2 Reference Skill</span>
+    <span class="slide-footer-right">27</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="45">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.4.2 ACTION SKILL</div>
+    <div class="t-title">Action Skill — 절차·실행형</div>
+    <div class="t-caption" style="margin-bottom:10px;">"X 요청이 들어오면 Y 절차로 처리해" — 도구 호출까지 묶음</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/skills/db-migration/SKILL.md</span>
+<span class="yellow">---</span>
+<span class="cyan">name:</span> db-migration
+<span class="cyan">description:</span> Drizzle 스키마 변경 후 마이그레이션 생성·검증·적용 자동화.
+<span class="cyan">allowed-tools:</span>
+  - <span class="green">"Bash(pnpm:*)"</span>
+  - <span class="green">"Bash(drizzle-kit:*)"</span>
+  - <span class="green">"Read"</span>
+  - <span class="green">"Edit"</span>
+<span class="yellow">---</span>
+
+# DB Migration
+
+스키마 변경 감지 시:
+
+1. `pnpm drizzle-kit generate`로 SQL 생성.
+2. 생성된 SQL을 Read로 검토 — destructive(DROP)인지 확인.
+3. destructive면 사용자에게 확인 후 진행, 아니면 자동 진행.
+4. `pnpm drizzle-kit push` 또는 `migrate` 실행.
+5. 마지막에 변경 요약(테이블·컬럼·인덱스 diff) 출력.</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.4.2 Action Skill</span>
+    <span class="slide-footer-right">27</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="46">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.4.4 CATALOG</div>
+    <div class="t-title">공식 카탈로그 — anthropics/skills</div>
+    <div class="t-caption" style="margin-bottom:10px;">github.com/anthropics/skills — 검증된 Skill 모음, 그대로 복사 사용 가능</div>
+    <ul class="bullet-list" style="margin-top:8px;">
+      <li><div><code>document-skills/*</code><span class="sub">PDF·DOCX·XLSX·PPTX 변환 — Office 문서 처리 자동화</span></div></li>
+      <li><div><code>artifacts-builder/*</code><span class="sub">Anthropic Artifacts(SVG·HTML 산출물) 생성 패턴</span></div></li>
+      <li><div><code>markdown-security/*</code><span class="sub">마크다운 입력에서 XSS·script tag·인젝션 차단</span></div></li>
+      <li><div><code>shadcn-builder/*</code><span class="sub">shadcn/ui 컴포넌트 추가·테마 적용</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>예: markdown-security</strong> markflow처럼 마크다운 입력을 받는 서비스에서 그대로 복사해 사용 — XSS 페이로드 검출·차단 절차가 SKILL.md에 박혀 있다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.4.4 공식 Skill 카탈로그</span>
+    <span class="slide-footer-right">28</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="47">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.4.6 CUSTOM</div>
+    <div class="t-title">커스텀 Skill 디렉터리 + 팀 배포</div>
+    <div class="code-block">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># 디렉터리 구조</span>
+.claude/skills/
+├── drizzle-conventions/
+│   └── SKILL.md
+├── db-migration/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── verify-migration.sh
+└── markflow-review/
+    ├── SKILL.md
+    └── checklist.md       <span class="gray"># SKILL.md에서 @import</span></code></pre>
+    </div>
+    <div class="t-h3" style="margin-top:14px;">팀 배포 패턴</div>
+    <ul class="bullet-list" style="margin-top:6px;">
+      <li><div>Project Skill을 git에 커밋<span class="sub">팀원이 clone하면 즉시 활성화 — 별도 설치 불필요</span></div></li>
+      <li><div>변경은 PR로 리뷰<span class="sub">스킬도 코드처럼 — 무분별 추가가 모델의 자가 호출을 망가뜨림</span></div></li>
+      <li><div>plugin 형태 배포는 별도<span class="sub">조직 공용 스킬 묶음은 plugin으로 패키징해 사내 레지스트리에서 설치</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.4.6 커스텀 Skill 디렉터리</span>
+    <span class="slide-footer-right">29</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="48">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">05</div>
+    <div class="t-chapter">PART 05</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.5 Hooks</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      주요 이벤트 · stdin JSON · exit code — 모델 행동을 결정적으로 통제하는 유일한 수단
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">05 · 3.5 Hooks</span>
+    <span class="slide-footer-right">3.5</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="49">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.0 HARNESS PRIMER</div>
+    <div class="t-title">에이전트 = 모델 + 하네스</div>
+    <div class="t-caption" style="margin-bottom:12px;font-size:16px;font-style:italic;">"<strong>에이전트 = 모델 + 하네스</strong> <em>(하네스 = 에이전트에서 모델을 뺀 나머지 전부 — 컨텍스트 큐레이션, 도구 관리, 권한 제어, 에러 복구)</em> — Martin Fowler / Birgitta Böckeler (ThoughtWorks), Harness Engineering"</div>
+    <div class="t-h3" style="margin-bottom:6px;">하네스 4사분면 (개관)</div>
+    <table class="tbl" style="font-size:14px;">
+      <thead><tr><th></th><th>결정론적 (Deterministic)</th><th>비결정론적 (Non-deterministic)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>피드포워드</strong><br><span style="font-size:12px;color:var(--muted);">(사전 유도)</span></td><td><strong>Guides</strong> — AGENTS.md, CLAUDE.md, 코딩 컨벤션</td><td><strong>System Prompt</strong> — 역할 정의, 행동 제약, few-shot</td></tr>
+        <tr><td><strong>피드백</strong><br><span style="font-size:12px;color:var(--muted);">(사후 교정)</span></td><td><strong>Computational</strong> — 컴파일러, 타입 체커, 린터, <span class="hl-amber">Hook</span></td><td><strong>Inferential</strong> — LLM-as-judge, 의미 코드 리뷰</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body">Hook은 4사분면 중 <strong>Computational(결정론적 사후 교정)</strong> 계층의 핵심 도구다. ※ 하네스 엔지니어링은 <strong>Level 7(7.1~7.6)</strong>에서 자세히 다룬다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.0 에이전트 = 모델 + 하네스 (개관)</span>
+    <span class="slide-footer-right">3.5</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="50">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.0 SECURITY</div>
+    <div class="t-title">Lethal Trifecta + Rule of Two — 가드레일이 <em style="font-style:italic;">왜</em> 필요한가</div>
+    <div class="t-caption" style="margin-bottom:10px;">Simon Willison (2025-06) + Meta AI (2025)</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;">Lethal Trifecta — 셋 동시 보유 시 보안 사고는 필연</div>
+        <ol class="num-list" style="font-size:16px;">
+          <li>신뢰 불가 입력 처리 (외부 웹·이메일·사용자 입력)</li>
+          <li>민감 데이터 접근 (개인정보·내부 API·DB)</li>
+          <li>상태 변경 능력 (이메일 발송·파일 삭제·API 호출)</li>
+        </ol>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:6px;">Rule of Two — 셋 중 최대 둘만 (셋 다 필요 시 HITL 필수)</div>
+        <table class="tbl" style="font-size:13px;">
+          <thead><tr><th style="width:62%;">조합</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td>외부 입력 + 민감 정보 + 상태 변경</td><td><span class="badge badge-red">금지</span> — 사람 승인 필수</td></tr>
+            <tr><td>외부 입력 + 민감 정보 (상태 변경 X)</td><td><span class="badge badge-green">OK</span> — 읽기 전용</td></tr>
+            <tr><td>외부 입력 + 상태 변경 (민감 정보 X)</td><td><span class="badge badge-green">OK</span> — 샌드박스</td></tr>
+            <tr><td>민감 정보 + 상태 변경 (외부 입력 X)</td><td><span class="badge badge-green">OK</span> — 내부 데이터만</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.0 보안 — Lethal Trifecta + Rule of Two</span>
+    <span class="slide-footer-right">3.5</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="51">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.1 EVENTS</div>
+    <div class="t-title">Hook 주요 이벤트 — 언제 끼어들 수 있는가</div>
+    <div class="t-caption" style="margin-bottom:10px;">공식 문서 기준 <strong>총 33개 이벤트</strong> 중 실무에서 가장 자주 쓰는 8개를 정리.</div>
+    <table class="tbl">
+      <thead><tr><th style="width:24%;">이벤트</th><th>발화 시점</th></tr></thead>
+      <tbody>
+        <tr><td><code>PreToolUse</code></td><td>도구 호출 직전 — 차단·승인 게이트로 사용</td></tr>
+        <tr><td><code>PostToolUse</code></td><td>도구 호출 직후 — 결과 검증·로깅</td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td>사용자 메시지 제출 직후 — 입력 정제·라우팅</td></tr>
+        <tr><td><code>Notification</code></td><td>모델이 권한·정보를 요청할 때 — 알림 발송</td></tr>
+        <tr><td><code>Stop</code></td><td>모델 응답 종료 시</td></tr>
+        <tr><td><code>SubagentStop</code></td><td>서브 에이전트 종료 시</td></tr>
+        <tr><td><code>PreCompact</code></td><td>/compact 직전 — 압축 전 상태 dump</td></tr>
+        <tr><td><code>SessionStart</code></td><td>세션 시작 — 컨텍스트 주입 (handoff 등)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>hooks 배열</strong> settings.json의 <code>hooks</code>는 이벤트별 배열 — 같은 이벤트에 여러 훅을 매처별로 등록 가능. 매처 누락 시 모든 도구에 적용된다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.1 Hook 주요 이벤트</span>
+    <span class="slide-footer-right">30</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="52">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.2 LIFECYCLE PAIR</div>
+    <div class="t-title">PreCompact + SessionStart — 핸드오프 자동화</div>
+    <div class="t-body" style="margin-top:6px;">컨텍스트가 90%에 도달해 /compact가 호출되기 직전, PreCompact 훅이 현재 결정·미해결을 dump 한다. 새 세션에서 SessionStart 훅이 그 dump를 다시 주입한다.</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/settings.json</span>
+{
+  <span class="cyan">"hooks"</span>: {
+    <span class="cyan">"PreCompact"</span>: [
+      { <span class="cyan">"hooks"</span>: [{ <span class="cyan">"type"</span>: <span class="green">"command"</span>,
+        <span class="cyan">"command"</span>: <span class="green">"./.claude/hooks/dump-handoff.sh"</span> }] }
+    ],
+    <span class="cyan">"SessionStart"</span>: [
+      { <span class="cyan">"matcher"</span>: <span class="green">"resume"</span>,
+        <span class="cyan">"hooks"</span>: [{ <span class="cyan">"type"</span>: <span class="green">"command"</span>,
+        <span class="cyan">"command"</span>: <span class="green">"./.claude/hooks/inject-handoff.sh"</span> }] }
+    ]
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.2 PreCompact + SessionStart</span>
+    <span class="slide-footer-right">31</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="53">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.3 STDIN PAYLOAD</div>
+    <div class="t-title">Hook은 stdin으로 JSON 페이로드를 받는다</div>
+    <div class="t-caption" style="margin-bottom:10px;">환경변수가 아니라 stdin — jq로 파싱하는 것이 표준</div>
+    <table class="tbl" style="margin-top:8px;">
+      <thead><tr><th style="width:32%;">필드</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>session_id</code></td><td>현재 세션 ID</td></tr>
+        <tr><td><code>cwd</code></td><td>Claude Code 실행 디렉터리</td></tr>
+        <tr><td><code>hook_event_name</code></td><td>이벤트 이름 (PreToolUse 등)</td></tr>
+        <tr><td><code>tool_name</code></td><td>호출되려는/된 도구 이름 (Edit·Bash 등)</td></tr>
+        <tr><td><code>tool_input</code></td><td>도구 인자 객체 — 예: <code>tool_input.file_path</code></td></tr>
+        <tr><td><code>tool_response</code></td><td>PostToolUse에서 도구 결과</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>실제 환경변수는 3개뿐</strong> <code>CLAUDE_PROJECT_DIR</code> · <code>CLAUDE_PLUGIN_ROOT</code> · <code>CLAUDE_PLUGIN_DATA</code>. 도구 인자·이벤트 메타는 모두 stdin JSON에서 읽는다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.3 stdin JSON 페이로드</span>
+    <span class="slide-footer-right">32</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="54">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.3 EXIT CODES</div>
+    <div class="t-title">Exit code의 의미 — 차단·비차단 구분</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:18%;">Exit</th><th>동작</th><th>stdout / stderr</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">0</span></td><td>성공 — 그대로 진행</td><td>stdout은 transcript 모드에서 사용자에게 표시</td></tr>
+        <tr><td><span class="badge badge-amber">1</span></td><td><strong>비차단 오류</strong> — 실행 계속</td><td>stderr는 사용자에게 표시되지만 도구 호출 막지 않음</td></tr>
+        <tr><td><span class="badge badge-red">2</span></td><td><strong>차단</strong> — 도구 호출 거부</td><td>stderr가 모델에게 전달되어 다시 시도하게 만듦</td></tr>
+        <tr><td><span class="badge badge-gray">기타</span></td><td>비차단 오류로 처리</td><td>1과 동일 동작</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>정책 강제는 exit 2</strong> "이 파일은 수정 금지" 같은 가드는 exit 2로 stderr에 사유를 적어야 차단되고 모델이 재시도한다. exit 1은 경고만 띄우고 작업은 계속된다.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:10px;">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>JSON output 고급</strong> stdout으로 <code>{"decision": "block", "reason": "..."}</code> 형태 JSON을 내보내면 exit code보다 세밀한 제어 가능 (PreToolUse 한정).</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.3 Exit code · 차단 vs 비차단</span>
+    <span class="slide-footer-right">32</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="55">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.4 NOTIFICATION</div>
+    <div class="t-title">알림 Hook — 권한 요청·완료 통지</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">macOS 시스템 알림</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray">#!/bin/bash</span>
+<span class="gray"># .claude/hooks/notify-mac.sh</span>
+
+<span class="cyan">payload</span>=<span class="green">$(cat)</span>
+<span class="cyan">msg</span>=<span class="green">$(echo "$payload" \
+  | jq -r '.message // "Claude needs input"')</span>
+
+osascript -e <span class="green">"display notification \"$msg\" \
+  with title \"Claude Code\""</span></code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">Slack 웹훅</div>
+        <div class="code-block">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray">#!/bin/bash</span>
+<span class="gray"># .claude/hooks/notify-slack.sh</span>
+
+<span class="cyan">payload</span>=<span class="green">$(cat)</span>
+<span class="cyan">msg</span>=<span class="green">$(echo "$payload" \
+  | jq -r '.message // "Done"')</span>
+
+curl -s -X POST <span class="green">"$SLACK_WEBHOOK_URL"</span> \
+  -H <span class="green">"Content-Type: application/json"</span> \
+  -d <span class="green">"{\"text\":\"[Claude] $msg\"}"</span></code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:12px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>매처</strong> Notification 이벤트는 매처 없이 등록 — 모든 알림에 발화. Stop/SubagentStop과 조합하면 "긴 작업 끝날 때 핑" 패턴 구현 가능.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.4 알림 Hook</span>
+    <span class="slide-footer-right">33</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="56">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.5 GUARDRAILS</div>
+    <div class="t-title">가드레일 — 보호 파일·자동 백업</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray">#!/bin/bash</span>
+<span class="gray"># .claude/hooks/protect-paths.sh — PreToolUse 매처 "Edit|Write"</span>
+
+<span class="cyan">payload</span>=<span class="green">$(cat)</span>
+<span class="cyan">file</span>=<span class="green">$(echo "$payload" | jq -r '.tool_input.file_path // empty')</span>
+
+<span class="gray"># 보호 경로</span>
+<span class="cyan">case</span> <span class="green">"$file"</span> <span class="cyan">in</span>
+  *<span class="green">"/.env"</span>*|*<span class="green">"/secrets/"</span>*|*<span class="green">"/legacy/"</span>*)
+    echo <span class="green">"BLOCKED: $file는 수정 금지 경로"</span> <span class="red">&gt;&amp;2</span>
+    <span class="cyan">exit 2</span>   <span class="gray"># 차단 + 모델에 사유 전달</span>
+    ;;
+<span class="cyan">esac</span>
+
+<span class="gray"># 자동 백업 (대용량 파일)</span>
+<span class="cyan">if</span> [ -f <span class="green">"$file"</span> ] <span class="cyan">&amp;&amp;</span> [ <span class="green">"$(stat -f%z "$file")"</span> -gt 1000 ]; <span class="cyan">then</span>
+  cp <span class="green">"$file"</span> <span class="green">".claude/backups/$(basename "$file").$(date +%s)"</span>
+<span class="cyan">fi</span></code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.5 가드레일 — 보호 파일</span>
+    <span class="slide-footer-right">34</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="57">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.5 LINT &amp; TYPECHECK</div>
+    <div class="t-title">가드레일 — 자동 lint·tsc</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray">#!/bin/bash</span>
+<span class="gray"># .claude/hooks/post-edit-check.sh — PostToolUse 매처 "Edit|Write"</span>
+
+<span class="cyan">payload</span>=<span class="green">$(cat)</span>
+<span class="cyan">file</span>=<span class="green">$(echo "$payload" | jq -r '.tool_input.file_path // empty')</span>
+
+<span class="cyan">case</span> <span class="green">"$file"</span> <span class="cyan">in</span>
+  *.ts|*.tsx)
+    pnpm exec eslint <span class="green">"$file"</span> --fix <span class="red">&gt;/dev/null</span> <span class="cyan">||</span> {
+      echo <span class="green">"lint failed on $file"</span> <span class="red">&gt;&amp;2</span>
+      <span class="cyan">exit 2</span>   <span class="gray"># 모델에게 다시 시도하라고 신호</span>
+    }
+    pnpm exec tsc --noEmit <span class="red">&gt;/dev/null</span> <span class="cyan">||</span> {
+      echo <span class="green">"typecheck failed"</span> <span class="red">&gt;&amp;2</span>
+      <span class="cyan">exit 2</span>
+    }
+    ;;
+<span class="cyan">esac</span></code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>비용</strong> tsc는 느릴 수 있다. 대형 모노레포라면 변경 파일 단위 부분 체크(<code>tsgo</code>·<code>vue-tsc --filter</code> 등) 또는 비차단(exit 1)으로 둬서 IDE에 맡기는 편이 낫다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.5 가드레일 — lint·tsc</span>
+    <span class="slide-footer-right">34</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="58">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.6 HANDOFF</div>
+    <div class="t-title">PreCompact + claude-code-context-handoff</div>
+    <div class="t-body" style="margin-top:6px;">who96/claude-code-context-handoff는 PreCompact + SessionStart 조합을 패키지화한 오픈소스. /compact 직전 결정·미해결을 마크다운으로 dump하고, 새 세션 시작 시 자동 주입한다.</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># 사용 흐름</span>
+
+1) /compact 실행
+   ↓
+2) PreCompact 훅: <span class="green">.claude/handoff/&lt;session&gt;.md</span> 생성
+   - 결정 사항 / 진행 상태 / 다음 단계 / 미해결 / 파일 변경
+   ↓
+3) <span class="cyan">컨텍스트 압축 완료</span>
+   ↓
+4) (다음 날, 새 세션) <span class="green">claude --resume</span>
+   ↓
+5) SessionStart 훅 (matcher: resume): <span class="cyan">handoff.md</span>를 system 컨텍스트에 추가
+   ↓
+6) 모델: 이전 결정을 그대로 안 채로 작업 재개</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.6 PreCompact — claude-code-context-handoff</span>
+    <span class="slide-footer-right">35</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="59">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5.7 CAVEATS</div>
+    <div class="t-title">주의사항·디버깅</div>
+    <ul class="bullet-list" style="margin-top:14px;">
+      <li><div>훅은 사용자 권한으로 실행<span class="sub">시스템·DB·자격증명에 영향을 주는 명령을 무심코 적지 말 것 — 훅은 자동 실행</span></div></li>
+      <li><div>jq 미설치 환경 주의<span class="sub">CI·서버에서 brew·apt로 jq 설치 필수, 없으면 훅이 조용히 실패</span></div></li>
+      <li><div>비차단(exit 1) 메시지는 사용자만 봄<span class="sub">모델에게 사유를 전달하려면 exit 2 + stderr 필수</span></div></li>
+      <li><div>매처 누락 = 모든 도구<span class="sub">PreToolUse에 matcher 안 적으면 Read·Grep까지 가로챔 → 성능 저하</span></div></li>
+      <li><div>디버깅<span class="sub"><code>claude --debug</code>로 훅 발화·exit code·stderr 추적. 훅 자체에 <code>set -x</code> + 로그 파일 저장 권장</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>설계 원칙</strong> 훅은 "1초 안에 끝나야" — 느린 훅은 모든 도구 호출을 지연시킨다. 무거운 검증은 PostToolUse + 비동기로.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5.7 주의사항·디버깅</span>
+    <span class="slide-footer-right">36</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="60">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.5+ AUTOMATION &amp; PITFALLS</div>
+    <div class="t-title">matcher 객체 형식 · 자동화 훅 · 흔한 실수</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">matcher 두 가지 형식</div>
+        <div class="code-block" style="font-size:13px;">
+<pre><code><span class="gray">// ① 문자열 (정규식)</span>
+"matcher": "Write|Edit"
+<span class="gray">// ② 객체 (명시적 도구 목록)</span>
+"matcher": { "tools": ["BashTool"] }
+"matcher": { "tools": ["Write","Edit"] }</code></pre>
+        </div>
+        <div class="t-h3" style="margin-top:10px;margin-bottom:4px;">Tailwind 클래스 자동 정렬</div>
+        <div class="code-block" style="font-size:12px;" data-code-source="%22PostToolUse%22%3A%5B%7B%22matcher%22%3A%22Write%7CEdit%22%2C%22hooks%22%3A%5B%0A%20%7B%22type%22%3A%22command%22%2C%22command%22%3A%0A%20%20%22f%3D%24(jq%20-r%20'.tool_input.file_path%20%2F%2F%20empty')%3B%0A%20%20%20case%20%5C%22%24f%5C%22%20in%20*.tsx%7C*.jsx)%0A%20%20%20%20%20npx%20prettier%20--write%20%5C%22%24f%5C%22%3B%3B%20esac%22%7D%5D%7D%5D" data-code-lang="plaintext" data-block-id="code-1777607137371-2" data-slot="code">
+<div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span>"PostToolUse":[{"matcher":"Write|Edit","hooks":[</span></span>
+<span class="line"><span> {"type":"command","command":</span></span>
+<span class="line"><span>  "f=$(jq -r '.tool_input.file_path // empty');</span></span>
+<span class="line"><span>   case \"$f\" in *.tsx|*.jsx)</span></span>
+<span class="line"><span>     npx prettier --write \"$f\";; esac"}]}]</span></span></code></pre>
+        </div>
+        <div class="t-h3" style="margin-top:10px;margin-bottom:4px;">Git 자동 스테이징</div>
+        <div class="code-block" style="font-size:12px;" data-code-source="%22command%22%3A%22f%3D%24(jq%20-r%20'.tool_input.file_path')%3B%0A%20%5B%20-f%20%5C%22%24f%5C%22%20%5D%20%26%26%20git%20add%20%5C%22%24f%5C%22%22" data-code-lang="plaintext" data-block-id="code-1777607137372-3" data-slot="code">
+<div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span>"command":"f=$(jq -r '.tool_input.file_path');</span></span>
+<span class="line"><span> [ -f \"$f\" ] &amp;&amp; git add \"$f\""</span></span></code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">흔한 실수 — Settings Error</div>
+        <table class="tbl" style="font-size:13px;">
+          <thead><tr><th>증상</th><th>수정</th></tr></thead>
+          <tbody>
+            <tr><td><code>hook</code> 단수 키 (무시됨)</td><td><code>hooks</code> 배열로</td></tr>
+            <tr><td><code>$schema</code> 임의 URL → invalid</td><td>제거 또는 공식 URL</td></tr>
+            <tr><td>훅 명령 실패 → 파일 전체 무시</td><td><code>|| true</code> 흡수</td></tr>
+            <tr><td>matcher 정규식에 <code>/</code> 붙임</td><td>본문만, <code>"Write|Edit"</code></td></tr>
+            <tr><td><code>$1</code>·<code>$@</code>로 인자 시도</td><td>stdin <code>$(cat)</code> + jq</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-amber" style="margin-top:10px;">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>검증 루틴</strong> 수정 직후 <code>claude config list</code>로 유효성 확인 → 새 세션 한 번 열어 hook이 실제 발동하는지 확인.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.5 보강 — matcher 객체 · 자동화 · 흔한 실수</span>
+    <span class="slide-footer-right">37</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="61">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">06</div>
+    <div class="t-chapter">PART 06</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.6 MCP — Model Context Protocol</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      외부 시스템을 Claude Code의 도구로 연결 — Transport · Scope · 필수 서버
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">06 · 3.6 MCP</span>
+    <span class="slide-footer-right">3.6</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="62">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.6.1 TRANSPORT</div>
+    <div class="t-title">Transport 3종 — http · stdio · sse(deprecated)</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:18%;">Transport</th><th>용도</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>http</code></td><td>원격 HTTP 서버 (권장)</td><td>스트리밍 + 인증 헤더 지원</td></tr>
+        <tr><td><code>stdio</code></td><td>로컬 프로세스 (npx·uvx 등)</td><td>로컬 도구·CLI 래퍼</td></tr>
+        <tr><td><code>sse</code></td><td>레거시 SSE 서버</td><td><span class="hl-amber">deprecated</span> — http로 마이그레이션 권장</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .mcp.json — 프로젝트 공유 설정</span>
+{
+  <span class="cyan">"mcpServers"</span>: {
+    <span class="cyan">"github"</span>: {
+      <span class="cyan">"type"</span>: <span class="green">"http"</span>,
+      <span class="cyan">"url"</span>: <span class="green">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="cyan">"headers"</span>: { <span class="cyan">"Authorization"</span>: <span class="green">"Bearer ${GITHUB_TOKEN}"</span> }
+    }
+  }
+}
+
+<span class="gray"># CLI로 추가</span>
+<span class="green">claude mcp add --transport http github https://api.githubcopilot.com/mcp/</span></code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.6.1 MCP Transport</span>
+    <span class="slide-footer-right">38</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="63">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.6.2 SCOPE</div>
+    <div class="t-title">Scope — Local vs Project vs User</div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:18%;">Scope</th><th>저장 위치</th><th>적용 범위</th></tr></thead>
+      <tbody>
+        <tr><td><code>local</code><br><span class="badge badge-amber">기본</span></td><td><code>~/.claude.json</code> (프로젝트 경로 키 아래)</td><td>현재 프로젝트 한정 — 본인만</td></tr>
+        <tr><td><code>project</code></td><td><code>./.mcp.json</code></td><td>이 리포 — git 커밋, 팀 공유</td></tr>
+        <tr><td><code>user</code></td><td><code>~/.claude.json</code></td><td>본인의 모든 프로젝트</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>우선순위</strong> 같은 이름의 서버가 여러 scope에 정의되면 <strong>local &gt; project &gt; user &gt; plugin &gt; claude.ai connector</strong> 순으로 단일 정의만 사용. 팀 필수 서버(GitHub·DB)는 <code>.mcp.json</code>에 커밋, 개인 토큰은 <code>${ENV_VAR}</code>로 분리.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>승인 흐름</strong> 처음 .mcp.json을 가진 리포를 열면 사용자에게 승인 요청 — 신뢰하지 않는 리포의 MCP 서버는 자동으로 활성화되지 않는다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.6.2 MCP Scope</span>
+    <span class="slide-footer-right">39</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="64">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.6.3 ESSENTIAL SERVERS</div>
+    <div class="t-title">필수 MCP 서버 3종</div>
+    <ul class="bullet-list" style="margin-top:14px;">
+      <li><div>GitHub MCP<span class="sub"><code>https://api.githubcopilot.com/mcp/</code> · 이슈·PR·코드 검색·코멘트 — gh CLI 호출 대비 토큰 효율↑</span></div></li>
+      <li><div>Neon MCP (또는 Postgres MCP)<span class="sub">스키마 조회·쿼리 실행·인덱스 점검 — 마이그레이션 검토 시 필수</span></div></li>
+      <li><div>Slack MCP<span class="sub">채널 알림·DM — Stop 훅과 결합해 "긴 작업 끝남" 핑</span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>선택 기준</strong> "이 작업의 95%가 같은 도구로 끝나는가?"가 yes면 MCP로 박을 가치가 있다. 한 번 쓰는 도구는 Bash + curl로 충분.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>토큰 비용</strong> MCP 서버가 노출하는 도구 정의가 크면 매 턴 system prompt 무게 증가. 안 쓰는 서버는 비활성화.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.6.3 필수 MCP 서버</span>
+    <span class="slide-footer-right">40</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="65">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.6.4 SEMANTIC SEARCH</div>
+    <div class="t-title">Claude Context (Zilliz) — 코드베이스 의미 검색</div>
+    <div class="t-caption" style="margin-bottom:10px;">대규모 코드베이스를 벡터 인덱스로 만들어 "비슷한 의도의 코드"까지 검색.</div>
+    <div class="two-col" style="margin-top:6px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">핵심 메커니즘 4가지</div>
+        <ul class="bullet-list" style="font-size:15px;">
+          <li><strong>AST 청킹</strong> — 함수·클래스 경계로 분할 (의미 단위)</li>
+          <li><strong>하이브리드 검색</strong> — BM25(키워드) + dense vector(의미) 결합</li>
+          <li><strong>Merkle Tree 증분</strong> — 변경 파일만 재임베딩</li>
+          <li><strong>MCP 노출</strong> — Claude Code에서 <code>search_code</code>로 직접 호출</li>
+        </ul>
+        <div class="callout callout-green" style="margin-top:10px;">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body"><strong>효과</strong> 기존 grep+Read 반복 패턴 대비 약 <strong>40% 토큰 절감</strong> (Zilliz 자체 벤치마크). 모놀리식 리팩터·legacy 탐색에 큰 차이.</div>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">언제 쓰나 — grep vs Claude Context</div>
+        <table class="tbl" style="font-size:14px;">
+          <thead><tr><th>작업</th><th>grep</th><th>Claude Context</th></tr></thead>
+          <tbody>
+            <tr><td>정확한 식별자 찾기</td><td>✓</td><td>—</td></tr>
+            <tr><td>"비슷한 패턴 어디 있지?"</td><td>—</td><td>✓</td></tr>
+            <tr><td>"인증 흐름 전체 보여줘"</td><td>—</td><td>✓</td></tr>
+            <tr><td>단일 파일 편집</td><td>✓</td><td>—</td></tr>
+            <tr><td>모놀리식 리팩터링</td><td>—</td><td>✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.6.4 Claude Context (Zilliz) MCP</span>
+    <span class="slide-footer-right">41</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="66">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.6.5 LOCAL DEPLOY</div>
+    <div class="t-title">Ollama + Milvus 로컬 배포 — 사내 코드 폐쇄 운영</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">구성 요소</div>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li><strong>Ollama</strong> — 임베딩 모델 로컬 서빙 (<code>nomic-embed-text</code>)</li>
+          <li><strong>Milvus</strong> — 벡터 저장소 (Zilliz 오픈소스, Docker 단일 컨테이너)</li>
+          <li><strong>Claude Context MCP</strong> — Claude Code 어댑터</li>
+        </ul>
+        <div class="t-h3" style="margin-top:8px;margin-bottom:4px;">docker-compose.yml</div>
+        <div class="code-block" style="font-size:12px;" data-code-source="services%3A%0A%20%20milvus%3A%0A%20%20%20%20image%3A%20milvusdb%2Fmilvus%3Alatest%0A%20%20%20%20ports%3A%20%5B%2219530%3A19530%22%5D%0A%20%20%20%20volumes%3A%20%5B%22.%2Fmilvus_data%3A%2Fvar%2Flib%2Fmilvus%22%5D%0A%20%20ollama%3A%0A%20%20%20%20image%3A%20ollama%2Follama%3Alatest%0A%20%20%20%20ports%3A%20%5B%2211434%3A11434%22%5D%0A%20%20%20%20volumes%3A%20%5B%22.%2Follama%3A%2Froot%2F.ollama%22%5D" data-code-lang="plaintext" data-block-id="code-1777607137372-4" data-slot="code">
+<div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span>services:</span></span>
+<span class="line"><span>  milvus:</span></span>
+<span class="line"><span>    image: milvusdb/milvus:latest</span></span>
+<span class="line"><span>    ports: ["19530:19530"]</span></span>
+<span class="line"><span>    volumes: ["./milvus_data:/var/lib/milvus"]</span></span>
+<span class="line"><span>  ollama:</span></span>
+<span class="line"><span>    image: ollama/ollama:latest</span></span>
+<span class="line"><span>    ports: ["11434:11434"]</span></span>
+<span class="line"><span>    volumes: ["./ollama:/root/.ollama"]</span></span></code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-bottom:4px;">.mcp.json 등록</div>
+        <div class="code-block" style="font-size:12px;" data-code-source="%7B%0A%20%22mcpServers%22%3A%20%7B%0A%20%20%22claude-context%22%3A%20%7B%0A%20%20%20%22type%22%3A%20%22http%22%2C%0A%20%20%20%22url%22%3A%20%22http%3A%2F%2Flocalhost%3A8080%2Fmcp%22%2C%0A%20%20%20%22env%22%3A%20%7B%0A%20%20%20%20%22EMBEDDING_PROVIDER%22%3A%20%22ollama%22%2C%0A%20%20%20%20%22EMBEDDING_MODEL%22%3A%20%22nomic-embed-text%22%2C%0A%20%20%20%20%22VECTOR_STORE%22%3A%20%22milvus%22%2C%0A%20%20%20%20%22MILVUS_URI%22%3A%20%22http%3A%2F%2Flocalhost%3A19530%22%0A%20%20%20%7D%0A%20%20%7D%0A%20%7D%0A%7D" data-code-lang="plaintext" data-block-id="code-1777607137372-5" data-slot="code">
+<div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span>{</span></span>
+<span class="line"><span> "mcpServers": {</span></span>
+<span class="line"><span>  "claude-context": {</span></span>
+<span class="line"><span>   "type": "http",</span></span>
+<span class="line"><span>   "url": "http://localhost:8080/mcp",</span></span>
+<span class="line"><span>   "env": {</span></span>
+<span class="line"><span>    "EMBEDDING_PROVIDER": "ollama",</span></span>
+<span class="line"><span>    "EMBEDDING_MODEL": "nomic-embed-text",</span></span>
+<span class="line"><span>    "VECTOR_STORE": "milvus",</span></span>
+<span class="line"><span>    "MILVUS_URI": "http://localhost:19530"</span></span>
+<span class="line"><span>   }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span> }</span></span>
+<span class="line"><span>}</span></span></code></pre>
+        </div>
+        <div class="callout callout-amber" style="margin-top:10px;">
+          <div class="callout-icon">🔒</div>
+          <div class="callout-body"><strong>보안</strong> 사내 코드는 로컬 Ollama+Milvus 권장. 외부 임베딩 API를 쓰면 코드 단편이 그쪽으로 전송된다는 점을 팀 정책으로 명시.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.6.5 Claude Context 로컬 배포</span>
+    <span class="slide-footer-right">42</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="67">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;gap:0;">
+    <div class="section-num" style="position:absolute;left:72px;top:200px;right:auto;bottom:auto;">07</div>
+    <div class="t-chapter">PART 07</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">3.7 실습 — markflow에 적용</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);max-width:680px;line-height:1.7;">
+      Skill · Custom Command · Hook 패키지 — 실제 오픈소스 리포에 박아보기
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">07 · 3.7 실습</span>
+    <span class="slide-footer-right">3.7</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="68">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.7.1 SKILL HANDS-ON</div>
+    <div class="t-title">실습 ① drizzle-conventions Skill 적용</div>
+    <ul class="num-list" style="margin-top:14px;">
+      <li><div>스킬 파일 작성<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;"><code>.claude/skills/drizzle-conventions/SKILL.md</code> — 컬럼 명명·인덱스·관계 규칙(Slide 29 형식)</span></div></li>
+      <li><div>git 커밋·공유<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">팀원이 pull 받으면 즉시 활성화 — 별도 설치 절차 없음</span></div></li>
+      <li><div>검증<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">Claude에게 "user 테이블 추가해줘" 요청 → 스킬이 자동 호출되는지 <code>/help</code>로 확인</span></div></li>
+      <li><div>측정<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">스킬 적용 전/후 PR diff 비교 — 컨벤션 위반 코멘트가 사라졌는지</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>기대 효과</strong> "컨벤션 위반 PR 리뷰 코멘트" 발생 빈도가 1차 적용 후 50–70% 감소 — 모델이 스킬을 자가 호출해 사전 준수.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.7.1 drizzle-conventions Skill 실습</span>
+    <span class="slide-footer-right">43</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="69">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.7.2 COMMAND HANDS-ON</div>
+    <div class="t-title">실습 ② markflow 코드 리뷰 커맨드</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># .claude/commands/mf-review.md</span>
+<span class="yellow">---</span>
+<span class="cyan">description:</span> markflow 변경사항 자가 리뷰 — 보안·성능·UX·접근성
+<span class="cyan">allowed-tools:</span> [<span class="green">"Bash(git:*)"</span>, <span class="green">"Read"</span>, <span class="green">"Grep"</span>]
+<span class="yellow">---</span>
+
+다음 절차를 정확히 수행해:
+
+1. `git diff origin/main...HEAD --stat`로 변경 파일 목록 확인.
+2. 각 파일 별로 다음 4축 점검:
+   - Security: 인증·입력검증·secret 노출
+   - Performance: N+1·과도한 re-render·무한 useEffect
+   - UX: 에러 메시지·로딩 상태·접근성 라벨
+   - Tests: 변경에 대응하는 테스트 추가/수정 여부
+3. 위반 발견 시 파일·줄·근거·수정안 4컬럼 표로 출력.
+4. 최종 OK/REQUEST_CHANGES 판정 1줄.</code></pre>
+    </div>
+    <div class="t-caption" style="margin-top:10px;">사용: <code>/mf-review</code> — PR 올리기 전 1차 검수, GitHub Actions의 ai-review와 중복 없이 운영 가능.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.7.2 markflow 코드리뷰 커맨드</span>
+    <span class="slide-footer-right">44</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="70">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">3.7.3 HOOK HANDS-ON</div>
+    <div class="t-title">실습 ③ 가드레일 훅 패키지</div>
+    <ul class="num-list" style="margin-top:14px;">
+      <li><div>protect-paths.sh<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">PreToolUse(Edit|Write) — .env·secrets·legacy 차단 (exit 2)</span></div></li>
+      <li><div>post-edit-check.sh<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">PostToolUse — 변경 .ts/.tsx에 eslint --fix + tsc --noEmit</span></div></li>
+      <li><div>dump-handoff.sh<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">PreCompact — 결정·미해결 마크다운 dump</span></div></li>
+      <li><div>inject-handoff.sh<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">SessionStart(matcher: resume) — dump 내용을 system 컨텍스트로 주입</span></div></li>
+      <li><div>notify-slack.sh<span class="sub" style="font-size:17px;color:var(--muted);display:block;margin-top:4px;">Stop — 작업 종료 시 #claude-code 채널에 핑</span></div></li>
+    </ul>
+    <div class="callout callout-green" style="margin-top:12px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>패키지 배포</strong> 5개 훅 + settings.json을 <code>.claude/</code> 통째로 git 커밋 → 팀원이 pull 받으면 즉시 작동. 권한 부여(<code>chmod +x</code>)는 README에 명시.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">3.7.3 가드레일 훅 패키지</span>
+    <span class="slide-footer-right">45</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="71">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">SUMMARY ①</div>
+    <div class="t-title">Level 3 핵심 요약 ① — 컨텍스트·CLAUDE.md·커맨드</div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🧠</div>
+      <div class="callout-body"><strong>컨텍스트 엔지니어링</strong> 매 턴의 토큰 상태를 큐레이션한다. 1M은 도구이지 기본값이 아님 — Sonnet 4.6의 1M은 모든 플랜에서 Extra Usage 필요.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">📘</div>
+      <div class="callout-body"><strong>CLAUDE.md 계층</strong> 로드 순서 ① System(Managed) → ② User(<code>~/.claude/CLAUDE.md</code>) → ③ Project(<code>./CLAUDE.md</code>) → ④ Local(<code>./CLAUDE.local.md</code>). 모두 concat (override 아님), 마지막 Local이 가장 강함. 서브폴더는 lazy-load.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:10px;">
+      <div class="callout-icon">⚙️</div>
+      <div class="callout-body"><strong>Slash Commands</strong> 반복 프롬프트는 <code>.claude/commands/</code>로 박는다. <code>/effort xhigh</code>는 Opus 4.7 전용 — 다른 모델은 high로 폴백.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:10px;">
+      <div class="callout-icon">🤝</div>
+      <div class="callout-body"><strong>AGENTS.md</strong> OpenAI Codex·Amp·Google Jules·Cursor·Factory 등이 만든 도구 중립 표준. 여러 코딩 에이전트 공존 시 정본으로 활용.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">Level 3 핵심 요약 ①</span>
+    <span class="slide-footer-right">46</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="72">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">SUMMARY ②</div>
+    <div class="t-title">Level 3 핵심 요약 ② — Skill·Hook·MCP·실습</div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">🧩</div>
+      <div class="callout-body"><strong>Skills</strong> 모델이 자가 호출하는 절차 묶음. description이 호출의 전부 — 언제 써야 하는지 명확히 적는다. Slash Command와 같은 메커니즘으로 통합 운영.</div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:10px;">
+      <div class="callout-icon">🪝</div>
+      <div class="callout-body"><strong>Hooks</strong> stdin JSON 페이로드 (env var 아님)로 도구 인자 수신. exit 2 = 차단 + 모델에 사유 전달, exit 1 = 비차단 경고. 33개 이벤트(주요 8개) 중 PreToolUse·PostToolUse·Stop·SessionStart 위주로 정책·자동화·핸드오프 구현.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:10px;">
+      <div class="callout-icon">🔌</div>
+      <div class="callout-body"><strong>MCP</strong> <code>.mcp.json</code>의 <code>"type":"http"</code>로 원격 서버 연결 (sse는 deprecated). 팀 공용은 .mcp.json 커밋, 개인 토큰은 환경변수로 분리.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:10px;">
+      <div class="callout-icon">🛠️</div>
+      <div class="callout-body"><strong>실습</strong> markflow에 Skill(컨벤션) + Command(코드리뷰) + Hook(가드레일) 3종을 박으면 PR 품질·복구성·자동화가 모두 한 단계 상승.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">Level 3 핵심 요약 ②</span>
+    <span class="slide-footer-right">47</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="73">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">REFERENCES</div>
+    <div class="t-title">참고 자료</div>
+    <ul class="bullet-list" style="margin-top:12px;">
+      <li><div>markflow 오픈소스<span class="sub"><a class="link" href="https://github.com/claude-code-expert/markflow" target="_blank" rel="noopener noreferrer">https://github.com/claude-code-expert/markflow</a></span></div></li>
+      <li><div>Claude Code — Skills<span class="sub"><a class="link" href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/skills</a></span></div></li>
+      <li><div>Claude Code — Hooks<span class="sub"><a class="link" href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/hooks</a></span></div></li>
+      <li><div>Claude Code — Slash Commands<span class="sub"><a class="link" href="https://code.claude.com/docs/en/commands" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/commands</a></span></div></li>
+      <li><div>Claude Code — Memory (CLAUDE.md)<span class="sub"><a class="link" href="https://code.claude.com/docs/en/memory" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/memory</a></span></div></li>
+      <li><div>Claude Code — MCP<span class="sub"><a class="link" href="https://code.claude.com/docs/en/mcp" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/mcp</a></span></div></li>
+      <li><div>AGENTS.md 오픈 표준<span class="sub"><a class="link" href="https://agents.md" target="_blank" rel="noopener noreferrer">https://agents.md</a></span></div></li>
+      <li><div>Anthropic — Effective Context Engineering for AI Agents<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></span></div></li>
+      <li><div>Chroma Research — Context Rot<span class="sub"><a class="link" href="https://www.trychroma.com/research/context-rot" target="_blank" rel="noopener noreferrer">https://www.trychroma.com/research/context-rot</a></span></div></li>
+      <li><div>who96/claude-code-context-handoff<span class="sub"><a class="link" href="https://github.com/who96/claude-code-context-handoff" target="_blank" rel="noopener noreferrer">https://github.com/who96/claude-code-context-handoff</a></span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">참고 자료 (검증 완료 2026-04-30)</span>
+    <span class="slide-footer-right">REF</span>
+  </div>
+</div>
+</div>
+</section>
+<div class="export-nav" id="export-nav">1 / 74 · ↑ ↓ · P = Print</div>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
+  var nav = document.getElementById('export-nav');
+  function fitAll() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var s = Math.min(w / 1280, h / 720) * 0.96;
+    slides.forEach(function(sec){
+      var stage = sec.querySelector('.export-stage');
+      if (stage) stage.style.transform = 'scale(' + s + ')';
+    });
+  }
+  function currentIndex() {
+    var mid = window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      var r = slides[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return i;
+    }
+    return 0;
+  }
+  function updateNav() {
+    nav.textContent = (currentIndex() + 1) + ' / ' + slides.length + ' · \u2191 \u2193 · P = Print';
+  }
+  function goTo(n) {
+    if (n < 0) n = 0;
+    if (n > slides.length - 1) n = slides.length - 1;
+    slides[n].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.addEventListener('resize', fitAll);
+  window.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goTo(currentIndex() + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(currentIndex() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(slides.length - 1); }
+    else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); window.print(); }
+  });
+  fitAll();
+  updateNav();
+  if (window.location.hash === '#print') {
+    // Give fonts/layout a tick to settle before invoking the print dialog.
+    setTimeout(function(){ window.print(); }, 300);
+  }
+})();
+</script>
+</body>
+</html>

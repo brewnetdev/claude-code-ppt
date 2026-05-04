@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Level 4 — 실전 워크플로우</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
+<style>
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+
+
+html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
+body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+.export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
+.export-slide:last-child { border-bottom: 0; }
+.export-stage { position: relative; width: 1280px; height: 720px; transform-origin: center center; }
+/* Overlays must paint above every in-slide layer, including .slide-logo (z-index: 10) */
+.export-overlay { position: absolute; user-select: none; pointer-events: none; opacity: 1 !important; z-index: 100; }
+.export-nav {
+  position: fixed; right: 20px; bottom: 16px; z-index: 1000;
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #94a3b8;
+  background: rgba(15,23,42,0.8); padding: 8px 12px;
+  border: 1px solid #1e293b; border-radius: 6px; user-select: none;
+}
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { overflow: visible !important; background: var(--bg) !important; scroll-snap-type: none !important; }
+  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; border: 0 !important; }
+  .export-slide:last-child { page-break-after: auto; break-after: auto; }
+  .export-stage { transform: scale(1.5) !important; }
+  .export-nav { display: none !important; }
+}
+</style>
+</head>
+<body>
+<section class="export-slide" data-index="0">
+<div class="export-stage">
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="cover-deco">L4</div>
+    <div class="cover-level">LEVEL 04 · PRACTICAL WORKFLOWS</div>
+    <div class="t-hero">LEVEL 4 — <em>실전 워크플로우</em></div>
+    <div class="cover-subtitle">④ 프로젝트 기획 · 명세 · SDD · 디버깅 · Plugin Marketplace — markflow KMS 오픈소스 사례 기반 풀스택 실습</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">🧭 <strong>키워드</strong>&nbsp;PRD · TRD · REQUIREMENTS · GSD · SDD · Plugin</div>
+      <div class="cover-meta-item">📚 <strong>기반 사례</strong>&nbsp;markflow · Next.js 16 · Drizzle · PostgreSQL · Tailwind 4</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">기획부터 배포까지 — AI와 협업하는 풀스택 워크플로우</span>
+    <span class="slide-footer-right">COVER</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="1">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">CONTENTS</div>
+    <div class="t-title">Level 4 목차</div>
+    <ul class="num-list" style="margin-top:18px;">
+      <li><div>4.1 프로젝트 기획과 요구사항 정의<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">markflow KMS, 기술 스택 선정, FR · NFR · 사용자 스토리</span></div></li>
+      <li><div>4.2 개발 문서 작성<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">PRD · TRD · REQUIREMENTS.md · 명세 변경 관리</span></div></li>
+      <li><div>4.3 명세서 설계<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">데이터(ERD) · API · 컴포넌트 · 테스트 케이스</span></div></li>
+      <li><div>4.4 SDD 워크플로 — GSD<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">Discuss → Plan → Execute → Verify 4단계</span></div></li>
+      <li><div>4.5 Handoff &amp; Changelog<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">CHANGELOG.md 자동화 · GSD HANDOFF.json</span></div></li>
+      <li><div>4.6 디버깅 &amp; 리팩토링<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">에러 보고 · 회귀 방지 · 테스트 안전망 · Playwright E2E</span></div></li>
+      <li><div>4.7 Plugin Marketplace<span class="sub" style="font-size:16px;color:var(--muted);display:block;margin-top:2px;">4 구성 요소 · 공식/커뮤니티 마켓플레이스 · 커스텀 플러그인</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">Level 4 · 실전 워크플로우 — 차례</span>
+    <span class="slide-footer-right">TOC</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="2">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">01</div>
+    <div class="t-chapter">PART 01</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.1 프로젝트 기획과 요구사항 정의</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">markflow — 마크다운 기반 팀 KMS. 워크스페이스 · 문서 버전 관리 · Closure Table · JWT/RBAC를 모두 갖춘 실무 복잡도의 풀스택 학습 프로젝트.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">01 · 4.1 프로젝트 기획과 요구사항 정의</span>
+    <span class="slide-footer-right">4.1</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="3">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.1 PROJECT — KMS</div>
+    <div class="t-title">markflow — 지식관리 시스템으로 배우는 풀스택 개발</div>
+    <div class="t-body" style="margin-top:14px;">마크다운 기반 팀 KMS. SaaS 또는 온프레미스로 배포 가능한 오픈소스 — 폴더 단위 문서 연관 관계, 실시간 협업, RBAC를 핵심 기능으로 제공.</div>
+    <div class="t-h2">이 프로젝트로 습득하는 역량</div>
+    <ul class="bullet-list">
+      <li><div>AI와 협업해 요건 정의부터 배포까지 전 과정을 수행하는 능력</div></li>
+      <li><div>모노레포 기반 풀스택 아키텍처 설계 및 구현 능력</div></li>
+      <li><div>TDD 기반의 안정적인 코드 작성 습관</div></li>
+      <li><div>SDD(Specification-Driven Development) 워크플로를 실무에 적용하는 능력</div></li>
+      <li><div>명세 기반 AI 협업 개발에서 개발자의 <strong>오케스트레이터 역할</strong> 수립</div></li>
+    </ul>
+    <div class="callout callout-amber"><span class="callout-icon">📦</span><div class="callout-body"><strong>실무 복잡도</strong> &nbsp;단순 TODO 앱보다 무겁다 — 워크스페이스 · 문서 버전 관리 · Closure Table · JWT · RBAC · Cloudflare R2 이미지 업로드 등 실제 SaaS 핵심 요소를 모두 포함.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.1 markflow KMS 소개</span>
+    <span class="slide-footer-right">01</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="4">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.2 STACK — CRITERIA</div>
+    <div class="t-title">기술 스택 선정 — AI 코딩 3대 기준</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:200px;">기준</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><strong>AI 친화성</strong></td><td>GitHub 학습 데이터가 풍부해 AI가 정확한 코드를 생성할 수 있는가</td></tr>
+          <tr><td><strong>타입 안정성</strong></td><td>런타임 에러를 코드 작성 시점(IDE)에서 잡아낼 수 있는가</td></tr>
+          <tr><td><strong>배포 용이성</strong></td><td>무료 또는 저비용으로 빠르게 배포할 수 있는가</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-blue" style="margin-top:18px;"><span class="callout-icon">⏱️</span><div class="callout-body"><strong>시간 = 토큰 = 비용</strong> &nbsp;AI 에이전트 코딩에서는 런타임 디버깅보다 코드 작성 시점의 타입 체크가 압도적으로 효율적이다. TypeScript는 AI–IDE 사이의 강력한 계약(Contract).</div></div>
+    <div class="code-block" style="margin-top:8px;">
+      <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <pre><span class="gray">// IDE에서 즉시 오류 표시</span>
+const doc = await getDocument(&quot;123&quot;);
+console.log(doc.<span class="red">tilte</span>); <span class="gray">// ❌ 'tilte' → 'title' 즉시 오류 감지</span></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.2 기술 스택 선정 (1/2)</span>
+    <span class="slide-footer-right">02</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="5">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.2 STACK — DECISIONS</div>
+    <div class="t-title">markflow 기술 스택 결정표</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:170px;">레이어</th><th style="width:300px;">선택</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>프론트엔드</td><td>Next.js 16 (App Router)</td><td>React 19 + TypeScript, Vercel 네이티브 통합 (2025-10-21 release)</td></tr>
+          <tr><td>스타일링</td><td>Tailwind CSS 4</td><td>유틸리티 클래스 기반, AI가 일관된 스타일 생성에 유리</td></tr>
+          <tr><td>상태 관리</td><td>Zustand + React Query</td><td>클라이언트/서버 상태 명확히 분리</td></tr>
+          <tr><td>백엔드</td><td>Next.js Route Handlers</td><td>App Router의 <code>route.ts</code> — Same-origin · CORS 불필요 · Vercel 단일 배포</td></tr>
+          <tr><td>ORM</td><td>Drizzle ORM</td><td>코드 생성 단계 불필요, 서버리스 최적, SQL-like 문법</td></tr>
+          <tr><td>데이터베이스</td><td>PostgreSQL 16+</td><td>JSON 타입 · 벡터 검색 · 무료 호스팅 생태계 (Supabase / Neon)</td></tr>
+          <tr><td>에디터</td><td>CodeMirror 6 + remark/rehype</td><td>독립 패키지 분리(<code>@markflow/editor</code>)로 외부 이식 가능</td></tr>
+          <tr><td>패키지 매니저</td><td>pnpm + workspaces</td><td>모노레포 관리, 디스크 절약 (<code>@markflow/web</code> · <code>editor</code> · <code>db</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;"><span class="callout-icon">🔁</span><div class="callout-body"><strong>v0.4.0 통합</strong> &nbsp;별도 Fastify API 서버를 Next.js Route Handlers로 통합 — 단일 Vercel 프로젝트로 배포된다. 외부 도메인이 API를 공유해야 할 때만 분리 백엔드를 고려.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.2 기술 스택 선정 (2/2)</span>
+    <span class="slide-footer-right">02</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="6">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.3 BACKEND OPTIONS</div>
+    <div class="t-title">백엔드 옵션 비교 — 상황별 권장 스택</div>
+    <div class="t-body" style="margin-top:10px;">markflow는 초기 Fastify 5 별도 서버 → v0.4.0에서 Next.js Route Handlers(<code>app/api/**/route.ts</code>)로 통합. 에디터(<code>@markflow/editor</code>)는 npm 독립 패키지로 분리되어 이식성 유지.</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:380px;">상황</th><th>권장 스택</th></tr></thead>
+        <tbody>
+          <tr><td>MVP, 단일 배포 (Vercel)</td><td><strong>Next.js App Router + Route Handlers + PostgreSQL</strong> — markflow 선택</td></tr>
+          <tr><td>외부 도메인이 API를 공유해야 하는 경우</td><td>Fastify 5 / Hono + 분리 배포 (Railway · Render)</td></tr>
+          <tr><td>데이터 과학 · ML 프로젝트</td><td>Python + FastAPI</td></tr>
+          <tr><td>엔터프라이즈 · 레거시</td><td>Java + Spring Boot</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-blue" style="margin-top:16px;"><span class="callout-icon">💡</span><div class="callout-body"><strong>선택의 실질 기준</strong> &nbsp;배포 토폴로지 → 팀 역량 → 학습 데이터 풍부도 → 호스팅 비용. AI 친화성과 일관성은 라이브러리보다 도큐먼트 품질이 결정한다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.3 다른 백엔드 옵션 비교</span>
+    <span class="slide-footer-right">03</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="7">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.4 FUNCTIONAL REQUIREMENTS</div>
+    <div class="t-title">기능 요구사항 정의 — markflow MVP FR-001 ~ FR-010</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:170px;">기능 영역</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><strong>FR-001</strong></td><td>인증</td><td>이메일/비밀번호 회원가입, JWT 로그인/로그아웃, 이메일 인증</td></tr>
+          <tr><td><strong>FR-002</strong></td><td>워크스페이스</td><td>워크스페이스 CRUD, 멤버 초대 및 역할 관리</td></tr>
+          <tr><td><strong>FR-003</strong></td><td>문서 CRUD</td><td>마크다운 문서 CRUD, 제목 및 본문 편집</td></tr>
+          <tr><td><strong>FR-004</strong></td><td>문서 버전 관리</td><td>수정 이력 저장, 특정 버전으로 복원</td></tr>
+          <tr><td><strong>FR-005</strong></td><td>카테고리</td><td>폴더 계층 구조 (Closure Table 패턴)</td></tr>
+          <tr><td><strong>FR-006</strong></td><td>문서 간 연관 관계</td><td>문서 간 링크 생성/삭제/조회</td></tr>
+          <tr><td><strong>FR-007</strong></td><td>태그</td><td>태그 추가/삭제, 태그 기반 필터링</td></tr>
+          <tr><td><strong>FR-008</strong></td><td>댓글</td><td>문서에 댓글 작성/수정/삭제</td></tr>
+          <tr><td><strong>FR-009</strong></td><td>에디터</td><td>CodeMirror 6 기반, 실시간 미리보기</td></tr>
+          <tr><td><strong>FR-010</strong></td><td>이미지 업로드</td><td>Cloudflare R2 첨부 (선택)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.4 기능 요구사항 (FR)</span>
+    <span class="slide-footer-right">04</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="8">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.5 NON-FUNCTIONAL REQUIREMENTS</div>
+    <div class="t-title">비기능 요구사항 정의 (NFR)</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:100px;">ID</th><th style="width:160px;">항목</th><th>핵심 기준</th></tr></thead>
+        <tbody>
+          <tr><td><strong>NFR-001</strong></td><td>성능</td><td>API 응답 p95 300ms 이하, 문서 로드 2초 이내</td></tr>
+          <tr><td><strong>NFR-002</strong></td><td>보안</td><td>JWT, RBAC (소유자/관리자/편집자/뷰어), XSS 방어 (rehype-sanitize)</td></tr>
+          <tr><td><strong>NFR-003</strong></td><td>반응형</td><td>모바일(360px) ~ 데스크톱(1920px)</td></tr>
+          <tr><td><strong>NFR-004</strong></td><td>데이터 정합성</td><td>문서 버전 관리, 낙관적 업데이트 + 롤백</td></tr>
+          <tr><td><strong>NFR-005</strong></td><td>배포</td><td>Vercel 단일 배포 (Next.js + API Routes 통합), HTTPS, Git Push 자동 배포</td></tr>
+          <tr><td><strong>NFR-006</strong></td><td>확장성</td><td>SaaS 또는 온프레미스 모두 지원 가능한 구조</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-blue" style="margin-top:16px;"><span class="callout-icon">📐</span><div class="callout-body"><strong>FR vs NFR</strong> &nbsp;FR은 "무엇을"(기능) — NFR은 "어떻게"(성능/보안/배포). 둘을 분리해 명세하면 AI도 두 차원을 따로 검증할 수 있다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.5 비기능 요구사항 (NFR)</span>
+    <span class="slide-footer-right">05</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="9">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.1.6 USER STORIES</div>
+    <div class="t-title">사용자 스토리 — Connextra 형식</div>
+    <div class="callout callout-amber" style="margin-top:6px;"><span class="callout-icon">📝</span><div class="callout-body"><strong>형식</strong> &nbsp;<em>[역할]로서, [행동]을 할 수 있다. 그래서 [가치/목적]을 달성한다.</em>&nbsp;&nbsp;<span style="color:var(--muted);">출처: agilealliance.org/glossary/user-story-template</span></div></div>
+    <div data-slot="table" style="margin-top:6px;">
+      <table class="tbl">
+        <thead><tr><th style="width:80px;">ID</th><th>사용자 스토리</th><th style="width:140px;">관련 FR</th></tr></thead>
+        <tbody>
+          <tr><td><strong>US-001</strong></td><td>팀원으로서 마크다운 문서를 작성할 수 있다. 그래서 지식을 빠르게 기록·공유한다.</td><td>FR-003, FR-009</td></tr>
+          <tr><td><strong>US-002</strong></td><td>팀원으로서 문서를 카테고리별로 분류할 수 있다. 그래서 관련 문서를 쉽게 찾는다.</td><td>FR-005</td></tr>
+          <tr><td><strong>US-003</strong></td><td>관리자로서 워크스페이스 멤버를 초대하고 역할을 부여할 수 있다.</td><td>FR-002</td></tr>
+          <tr><td><strong>US-004</strong></td><td>팀원으로서 문서 수정 이력 확인 및 이전 버전 복원이 가능하다.</td><td>FR-004</td></tr>
+          <tr><td><strong>US-005</strong></td><td>팀원으로서 문서 간 연관 관계를 링크로 연결할 수 있다.</td><td>FR-006</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-green" style="margin-top:10px;"><span class="callout-icon">✨</span><div class="callout-body"><strong>AI 활용</strong> &nbsp;FR만 전달하면 기능적 정확성만 얻지만, US를 함께 전달하면 에러 메시지·기본값 설계가 사용자 친화적으로 나온다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.1.6 사용자 스토리 작성</span>
+    <span class="slide-footer-right">06</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="10">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">02</div>
+    <div class="t-chapter">PART 02</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.2 개발 문서 작성</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">PRD · TRD · REQUIREMENTS.md — 단일 진실 공급원으로 명세를 굳히고, 변경은 버전·이력으로 추적한다.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">02 · 4.2 개발 문서 작성</span>
+    <span class="slide-footer-right">4.2</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="11">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.2.1 PRD</div>
+    <div class="t-title">PRD — Product Requirements Document</div>
+    <div class="t-body" style="margin-top:10px;">제품이 <strong>"무엇을"</strong> 해야 하는지를 정의 — 기능 목록, 사용자 시나리오, MVP 범위, 제외 범위.</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h2">PRD 핵심 구조</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># docs/PRD.md</span>
+1. 제품 개요
+2. MVP 범위 및 제외 범위
+3. 핵심 기능 목록 (FR 매핑)
+4. 사용자 시나리오
+5. 기술 스택 요약</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h2">Claude Code와 함께 작성</div>
+        <div class="prompt-box">
+          <span class="prompt-box-label">PROMPT</span>
+          <pre>markflow PRD를 작성해줘.
+
+1. 제품 개요: 마크다운 기반 KMS
+2. MVP: 인증·워크스페이스·문서 CRUD·
+   버전관리·카테고리·연관관계·태그·댓글
+3. 2차 제외: WebSocket 협업, OAuth,
+   R2 업로드, Full-text 검색, 알림
+4. 사용자 시나리오: 워크스페이스 →
+   문서 작성 → 버전 → 공유
+5. 기술 스택 (CLAUDE.md 참고)
+
+CLAUDE.md를 읽고 /docs/PRD.md에 저장.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.2.1 PRD 작성</span>
+    <span class="slide-footer-right">07</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="12">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.2.2 TRD</div>
+    <div class="t-title">TRD — Technical Requirements Document</div>
+    <div class="t-body" style="margin-top:10px;"><strong>"어떻게"</strong> 구현할지 기술 명세 — 시스템 아키텍처, 데이터 흐름, 성능 기준, 보안.</div>
+    <div class="t-h2">markflow TRD 핵심 항목</div>
+    <ul class="bullet-list">
+      <li><div><strong>시스템 아키텍처</strong>&nbsp;<span class="sub">모노레포(pnpm workspaces) — Browser → Next.js Route Handler → Drizzle → PostgreSQL. 패키지 의존: <code>@markflow/web</code> · <code>editor</code> · <code>db</code></span></div></li>
+      <li><div><strong>기술 스택 상세</strong>&nbsp;<span class="sub">Next.js 16 · Drizzle · PostgreSQL 16 · JWT Access + Refresh Token 전략</span></div></li>
+      <li><div><strong>데이터 흐름</strong>&nbsp;<span class="sub">읽기: Component → API Client → <code>route.ts</code> → DocumentService → DB. 쓰기: Editor → Zod 검증 → Service → DB + 버전 기록</span></div></li>
+      <li><div><strong>계층 경계 규칙</strong>&nbsp;<span class="sub">Client ↔ Route Handler는 fetch만 사용 — 서버 모듈 직접 import 금지. <code>apps/web/lib/server/**</code>는 Route Handler/Server Component에서만</span></div></li>
+      <li><div><strong>배포 전략</strong>&nbsp;<span class="sub">apps/web → Vercel 단일 배포 / DB → Supabase·Neon / 이미지 업로드 → Cloudflare Worker(선택)</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.2.2 TRD 작성</span>
+    <span class="slide-footer-right">08</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="13">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.2.3 REQUIREMENTS.md</div>
+    <div class="t-title">단일 진실 공급원(Single Source of Truth)</div>
+    <div class="t-body" style="margin-top:10px;">FR · NFR · 사용자 스토리를 통합한 명세. CLAUDE.md에서 이 문서를 참조하면 모든 작업이 한 명세를 기준으로 정렬된다.</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h2">docs/ 구조</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>docs/
+├── PRD.md            <span class="gray"># 제품: 무엇을</span>
+├── TRD.md            <span class="gray"># 기술: 어떻게</span>
+├── REQUIREMENTS.md   <span class="gray"># FR + NFR + US</span>
+├── API_SPEC.md       <span class="gray"># API 명세</span>
+├── DATA_MODEL.md     <span class="gray"># 스키마/ERD</span>
+├── COMPONENT_SPEC.md
+└── TEST_CASES.md     <span class="gray"># TDD</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h2">REQUIREMENTS.md 핵심 섹션</div>
+        <ul class="bullet-list">
+          <li><div>1. 기능 요구사항 (FR)</div></li>
+          <li><div>2. 비기능 요구사항 (NFR)</div></li>
+          <li><div>3. 사용자 스토리 (US)</div></li>
+          <li><div>4. 추적 매트릭스 (US ↔ FR ↔ TC)</div></li>
+        </ul>
+        <div class="callout callout-amber" style="margin-top:14px;"><span class="callout-icon">🔁</span><div class="callout-body"><strong>처음부터 100% 완벽 불필요</strong> &nbsp;Claude Code에 교차 검증 요청 → 보정 후 개발 진입. 토큰 낭비와 디버깅 시간이 줄어든다.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.2.3 REQUIREMENTS.md 작성</span>
+    <span class="slide-footer-right">09</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="14">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.2.4 SPEC VERSIONING</div>
+    <div class="t-title">명세 변경 관리와 버전 추적</div>
+    <div class="t-body" style="margin-top:10px;">개발이 진행되면서 요구사항은 변경된다. 체계 없이 두면 코드와 명세가 어긋나는 <strong>Spec Drift</strong>가 누적된다.</div>
+    <div class="two-col" style="margin-top:6px;">
+      <div>
+        <div class="t-h2">버전 헤더</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># REQUIREMENTS.md 헤더</span>
+---
+version: 1.2.0
+last_updated: 2025-10-15
+changed_by: claude-code
+changes:
+  - FR-007: 태그 최대 10개 제한
+  - FR-004: 버전 50개로 변경
+---</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h2">변경 워크플로</div>
+        <div class="prompt-box">
+          <span class="prompt-box-label">PROMPT</span>
+          <pre>FR-007 태그를 변경:
+- 문서당 최대 태그 10개
+- 변경 이유: DB 인덱스 성능
+
+이후:
+1. API_SPEC.md, DATA_MODEL.md
+   영향 항목 함께 업데이트
+2. REQUIREMENTS.md 변경 이력 기록
+3. 기존 코드의 수정 필요 부분 보고</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.2.4 명세 변경 관리</span>
+    <span class="slide-footer-right">10</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="15">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">03</div>
+    <div class="t-chapter">PART 03</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.3 명세서 설계</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">데이터 → API → 컴포넌트 → 테스트 케이스. 골격이 정확해야 모든 후속 작업이 정합한다.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">03 · 4.3 명세서 설계</span>
+    <span class="slide-footer-right">4.3</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="16">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.1 DATA MODEL</div>
+    <div class="t-title">데이터 설계 — 15개 테이블 (Drizzle ORM)</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:230px;">테이블</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>users</code></td><td>사용자 계정 (이메일 인증 포함)</td></tr>
+          <tr><td><code>refresh_tokens</code></td><td>JWT Refresh Token 관리</td></tr>
+          <tr><td><code>workspaces</code> / <code>workspace_members</code></td><td>워크스페이스 + RBAC 멤버 역할</td></tr>
+          <tr><td><code>invitations</code> / <code>join_requests</code></td><td>초대 링크 / 가입 요청</td></tr>
+          <tr><td><code>categories</code> / <code>category_closure</code></td><td>카테고리 노드 + 계층(Closure Table)</td></tr>
+          <tr><td><code>documents</code> / <code>document_versions</code></td><td>마크다운 문서 + 버전 이력</td></tr>
+          <tr><td><code>document_relations</code></td><td>문서 간 연관 관계</td></tr>
+          <tr><td><code>tags</code> / <code>document_tags</code></td><td>태그 + 다대다 매핑</td></tr>
+          <tr><td><code>comments</code></td><td>문서 댓글</td></tr>
+          <tr><td><code>embed_tokens</code></td><td>문서 공개 임베딩 토큰</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.1 데이터 설계 (1/2)</span>
+    <span class="slide-footer-right">11</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="17">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.1 SCHEMA &amp; CLOSURE TABLE</div>
+    <div class="t-title">documents 스키마 + 카테고리 Closure Table</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">documents (Drizzle)</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="cyan">export const</span> documents = pgTable(<span class="yellow">'documents'</span>, {
+  id: text(<span class="yellow">'id'</span>).primaryKey(),
+  title: text(<span class="yellow">'title'</span>).notNull(),
+  content: text(<span class="yellow">'content'</span>).notNull().default(<span class="yellow">''</span>),
+  workspaceId: text(<span class="yellow">'workspace_id'</span>)
+    .notNull()
+    .references(() =&gt; workspaces.id,
+      { onDelete: <span class="yellow">'cascade'</span> }),
+  categoryId: text(<span class="yellow">'category_id'</span>)
+    .references(() =&gt; categories.id,
+      { onDelete: <span class="yellow">'set null'</span> }),
+  authorId: text(<span class="yellow">'author_id'</span>).notNull(),
+  isPublished: boolean(<span class="yellow">'is_published'</span>).default(<span class="cyan">false</span>),
+  createdAt: timestamp(<span class="yellow">'created_at'</span>).defaultNow(),
+});</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">category_closure (계층 패턴)</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray">-- ancestor / descendant / depth</span>
+<span class="gray">-- 자기 자신은 depth = 0</span>
+<span class="cyan">SELECT</span> * <span class="cyan">FROM</span> category_closure
+<span class="cyan">WHERE</span> ancestor = <span class="yellow">'cat-001'</span>;
+<span class="gray">-- → cat-001 하위 모든 카테고리</span>
+<span class="gray">--   한 번의 쿼리로 조회 가능</span></pre>
+        </div>
+        <div class="callout callout-blue" style="margin-top:10px;"><span class="callout-icon">🌲</span><div class="callout-body"><strong>왜 Closure Table?</strong> &nbsp;무한 깊이 지원, 단일 쿼리로 서브트리 조회. Adjacency List 대비 읽기 단순, 쓰기 시 약간의 오버헤드를 감수.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.1 데이터 설계 (2/2)</span>
+    <span class="slide-footer-right">11</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="18">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.2 API DESIGN</div>
+    <div class="t-title">API 설계 — REST 엔드포인트 (계약/Contract)</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:140px;">영역</th><th>엔드포인트</th><th style="width:200px;">설명</th></tr></thead>
+        <tbody>
+          <tr><td>인증</td><td><code>POST /api/v1/auth/register</code></td><td>회원가입</td></tr>
+          <tr><td>인증</td><td><code>POST /api/v1/auth/login</code></td><td>로그인 · JWT 발급</td></tr>
+          <tr><td>워크스페이스</td><td><code>GET /api/v1/workspaces</code></td><td>내 워크스페이스 목록</td></tr>
+          <tr><td>문서</td><td><code>POST /api/v1/workspaces/:wsId/documents</code></td><td>문서 생성</td></tr>
+          <tr><td>문서</td><td><code>GET /api/v1/workspaces/:wsId/documents/:docId</code></td><td>문서 조회</td></tr>
+          <tr><td>문서</td><td><code>PATCH /api/v1/workspaces/:wsId/documents/:docId</code></td><td>문서 수정</td></tr>
+          <tr><td>버전</td><td><code>GET /api/v1/documents/:docId/versions</code></td><td>버전 목록</td></tr>
+          <tr><td>버전</td><td><code>POST /api/v1/documents/:docId/versions/:versionId/restore</code></td><td>버전 복원</td></tr>
+          <tr><td>카테고리</td><td><code>GET /api/v1/workspaces/:wsId/categories</code></td><td>카테고리 트리</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;"><span class="callout-icon">📐</span><div class="callout-body"><strong>상태 코드 규칙</strong> &nbsp;200(조회/수정) · 201(생성) · 204(삭제) · 400(검증) · 401(미인증) · 403(권한) · 404(없음) · 500(서버).</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.2 API 설계 (1/2)</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="19">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.2 REQUEST / RESPONSE</div>
+    <div class="t-title">문서 생성 API — 요청/응답 예시</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">요청 바디 (필드 표)</div>
+        <div data-slot="table">
+          <table class="tbl">
+            <thead><tr><th style="width:100px;">필드</th><th style="width:80px;">타입</th><th style="width:60px;">필수</th><th>제약</th></tr></thead>
+            <tbody>
+              <tr><td><code>title</code></td><td>string</td><td>O</td><td>1~500자</td></tr>
+              <tr><td><code>content</code></td><td>string</td><td>X</td><td>마크다운, 최대 1MB</td></tr>
+              <tr><td><code>categoryId</code></td><td>string</td><td>X</td><td>유효한 카테고리 ID</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-blue" style="margin-top:14px;"><span class="callout-icon">🛡️</span><div class="callout-body"><strong>공통 에러 응답</strong>&nbsp;&nbsp;<code>{ error: { code: "VALIDATION_ERROR", message: "..." } }</code></div></div>
+      </div>
+      <div>
+        <div class="t-h3">성공 응답 (201 Created)</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>{
+  <span class="cyan">"id"</span>: <span class="yellow">"doc-abc123"</span>,
+  <span class="cyan">"title"</span>: <span class="yellow">"신규 문서"</span>,
+  <span class="cyan">"content"</span>: <span class="yellow">""</span>,
+  <span class="cyan">"workspaceId"</span>: <span class="yellow">"ws-xyz"</span>,
+  <span class="cyan">"categoryId"</span>: <span class="gray">null</span>,
+  <span class="cyan">"authorId"</span>: <span class="yellow">"user-001"</span>,
+  <span class="cyan">"isPublished"</span>: <span class="cyan">false</span>,
+  <span class="cyan">"createdAt"</span>: <span class="yellow">"2025-10-15T09:00:00Z"</span>,
+  <span class="cyan">"updatedAt"</span>: <span class="yellow">"2025-10-15T09:00:00Z"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.2 API 설계 (2/2)</span>
+    <span class="slide-footer-right">12</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="20">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.3 COMPONENT DESIGN</div>
+    <div class="t-title">컴포넌트 계층과 핵심 명세</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">컴포넌트 트리</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>App (layout.tsx)
+└─ WorkspaceLayout
+   ├─ Sidebar
+   │  ├─ WorkspaceSelector
+   │  ├─ CategoryTree (재귀 트리)
+   │  └─ DocumentList
+   └─ MainContent
+      ├─ DocumentEditor
+      │  ├─ @markflow/editor (CM6)
+      │  └─ MarkdownPreview
+      ├─ DocumentViewer
+      │  ├─ DocumentMeta
+      │  └─ RelatedDocuments
+      └─ VersionHistory (모달)</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">핵심 컴포넌트 명세</div>
+        <div data-slot="table">
+          <table class="tbl">
+            <thead><tr><th style="width:180px;">컴포넌트</th><th>책임 / 핵심 Props</th></tr></thead>
+            <tbody>
+              <tr><td><strong>CategoryTree</strong></td><td>Closure Table 기반 계층 트리 / <code>categories</code>, <code>onSelect</code></td></tr>
+              <tr><td><strong>DocumentEditor</strong></td><td>제목·본문·자동 저장 / <code>document</code>, <code>onSave</code></td></tr>
+              <tr><td><strong>VersionHistory</strong></td><td>버전 목록·복원 모달 / <code>documentId</code>, <code>onRestore</code></td></tr>
+              <tr><td><strong>RelatedDocuments</strong></td><td>연관 문서 링크 / <code>relations</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.3 컴포넌트 및 UseCase 설계</span>
+    <span class="slide-footer-right">13</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="21">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.3.4 TEST CASES</div>
+    <div class="t-title">테스트 케이스 정의 — TDD 명세 우선</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">TEST_CASES.md</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray">## TC-AUTH-001: 회원가입</span>
+정상:
+- [ ] 유효한 이메일/비밀번호 → 201
+- [ ] email_verified = false 확인
+
+에러:
+- [ ] 중복 이메일 → 409 DUPLICATE_EMAIL
+- [ ] 비밀번호 8자 미만 → 400
+- [ ] 이메일 형식 오류 → 400</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">TC ↔ FR ↔ US 매핑</div>
+        <div data-slot="table">
+          <table class="tbl">
+            <thead><tr><th>TC</th><th>FR</th><th>US</th></tr></thead>
+            <tbody>
+              <tr><td>TC-AUTH-001</td><td>FR-001</td><td>—</td></tr>
+              <tr><td>TC-DOC-001</td><td>FR-003</td><td>US-001</td></tr>
+              <tr><td>TC-DOC-002 (버전 복원)</td><td>FR-004</td><td>US-004</td></tr>
+              <tr><td>TC-CAT-001 (계층 조회)</td><td>FR-005</td><td>US-002</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-green" style="margin-top:10px;"><span class="callout-icon">✅</span><div class="callout-body"><strong>매핑 = 커버리지</strong> &nbsp;매트릭스로 누락된 케이스를 한눈에 발견.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.3.4 테스트 케이스 정의</span>
+    <span class="slide-footer-right">14</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="22">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">04</div>
+    <div class="t-chapter">PART 04</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.4 SDD 워크플로 — GSD</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">Specification-Driven Development. AI 에이전트를 "도움이 되는 자동완성"에서 "책임 있는 팀원"으로 — Discuss → Plan → Execute → Verify 4단계.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">04 · 4.4 SDD 워크플로와 풀스택 개발 실습</span>
+    <span class="slide-footer-right">4.4</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="23">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.4.1 WHY SDD</div>
+    <div class="t-title">왜 AI와 SDD가 잘 맞는가</div>
+    <div class="callout callout-amber" style="margin-top:6px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"SDD는 AI 에이전트를 '도움이 되는 자동완성'에서 '책임 있는 팀원'으로 전환시킨다."</em>&nbsp;— Augment Code, <em>Claude Code for Spec-Driven Development</em></div></div>
+    <div data-slot="table" style="margin-top:8px;">
+      <table class="tbl">
+        <thead><tr><th style="width:340px;">문제</th><th>SDD 해결책</th></tr></thead>
+        <tbody>
+          <tr><td>AI가 합리적이지만 틀린 가정을 함</td><td>명세가 모든 결정의 기준이 됨</td></tr>
+          <tr><td>세션 간 컨텍스트 손실</td><td>REQUIREMENTS.md + CLAUDE.md가 세션 너머로 전달</td></tr>
+          <tr><td>바이브 코딩의 일관성 부재</td><td>구현이 명세를 따르는지 테스트로 검증</td></tr>
+          <tr><td>리팩토링 시 회귀</td><td>명세 기반 테스트가 회귀 방지</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="step-flow" style="margin-top:14px;">
+      <div class="step-item"><div class="step-circle">1</div><div class="step-label">Specify</div><div class="step-sub">PRD · TRD · REQUIREMENTS</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-item"><div class="step-circle">2</div><div class="step-label">Plan</div><div class="step-sub">tasks 분해 · 검증 계획</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-item"><div class="step-circle">3</div><div class="step-label">Implement</div><div class="step-sub">명세 기반 구현</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-item"><div class="step-circle">4</div><div class="step-label">Validate</div><div class="step-sub">TEST_CASES · E2E</div></div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.4.1 SDD 개념과 사이클</span>
+    <span class="slide-footer-right">15</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="24">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.4.2 BEFORE / AFTER</div>
+    <div class="t-title">SDD 적용 전후 비교 (markflow 기준)</div>
+    <div data-slot="table" style="margin-top:14px;">
+      <table class="tbl">
+        <thead><tr><th style="width:180px;">구분</th><th>명세 없는 바이브 코딩</th><th>SDD 적용</th></tr></thead>
+        <tbody>
+          <tr><td><strong>문서 API 구현</strong></td><td>AI가 필드명을 임의로 결정</td><td>DATA_MODEL.md 기준으로 100% 일치</td></tr>
+          <tr><td><strong>버전 관리 로직</strong></td><td>"completedAt을 기록할까요?" 반복 질문</td><td>비즈니스 규칙이 명세에 정의 → 즉시 구현</td></tr>
+          <tr><td><strong>회귀 발생 시</strong></td><td>원인 추적 어려움</td><td>TEST_CASES.md 기반 테스트로 즉시 감지</td></tr>
+          <tr><td><strong>Spec Drift</strong></td><td>명세와 코드 불일치 누적</td><td>검증 단계에서 즉시 발견</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-green" style="margin-top:18px;"><span class="callout-icon">📊</span><div class="callout-body"><strong>핵심</strong> &nbsp;SDD는 AI에게 "더 똑똑해져라"가 아니라 "더 정확한 입력을 줘라"를 강제한다. 입력 품질 = 출력 품질.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.4.2 수동 워크플로 vs SDD</span>
+    <span class="slide-footer-right">16</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="25">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.4.3 GSD — GET SHIT DONE</div>
+    <div class="t-title">GSD 소개 — 메타프롬프팅 + 컨텍스트 + SDD 통합</div>
+    <div class="t-body" style="margin-top:10px;">Discuss → Plan → Execute → Verify 4단계 phase 구조로 Context Rot 없이 장기 프로젝트를 완성하도록 설계된 Claude Code 시스템.</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">디렉토리 구조</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>markflow/
+└── .planning/
+    ├── PROJECT.md       <span class="gray"># 비전, 항상 로드</span>
+    ├── REQUIREMENTS.md  <span class="gray"># v1/v2 범위</span>
+    ├── ROADMAP.md       <span class="gray"># Phase 추적</span>
+    ├── STATE.md         <span class="gray"># 결정·블로커</span>
+    ├── HANDOFF.json     <span class="gray"># 세션 핸드오프</span>
+    ├── config.json      <span class="gray"># 워크플로 설정</span>
+    ├── {N}-CONTEXT.md   <span class="gray"># Phase별 컨텍스트</span>
+    ├── {N}-PLAN.md      <span class="gray"># Phase 계획·검증</span>
+    └── research/ todos/ <span class="gray"># 리서치·할일</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">설치</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># 초기 1회만</span>
+claude --dangerously-skip-permissions \
+  /gsd-new-project</pre>
+        </div>
+        <div class="callout callout-amber" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>--dangerously-skip-permissions</strong>는 GSD 초기 1회에만. 이후는 일반 모드로 실행.</div></div>
+        <div class="t-caption" style="margin-top:6px;">출처: github.com/gsd-build/get-shit-done</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.4.3 GSD 소개와 디렉토리 구조</span>
+    <span class="slide-footer-right">17</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="26">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.4.3 GSD WORKFLOW</div>
+    <div class="t-title">GSD 실전 워크플로 — Phase 단위 컨텍스트 분리</div>
+    <div class="code-block" style="margin-top:8px;">
+      <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <pre><span class="gray"># 1. 새 프로젝트 초기화</span>
+claude --dangerously-skip-permissions /gsd-new-project
+
+<span class="gray"># 2. Phase 논의 (요구사항 명확화)</span>
+/clear
+/gsd-discuss-phase <span class="cyan">1</span>      <span class="gray"># Route Handlers API 설계 논의</span>
+
+<span class="gray"># 3. 구현 계획 수립</span>
+/gsd-plan-phase <span class="cyan">1</span>         <span class="gray"># 리서치 + 계획 + 검증</span>
+
+<span class="gray"># 4. 병렬 실행</span>
+/gsd-execute-phase <span class="cyan">1</span>      <span class="gray"># 서브에이전트 병렬 구현</span>
+
+<span class="gray"># 5. 검증 & 6. PR & 7. 다음 Phase</span>
+/gsd-verify-work <span class="cyan">1</span>
+/gsd-ship <span class="cyan">1</span>
+/gsd-next</pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;"><span class="callout-icon">🧠</span><div class="callout-body"><strong>핵심 메커니즘</strong> &nbsp;Phase마다 서브에이전트가 독립 컨텍스트를 가진다. 1 Task = 1 Commit 원자적 커밋으로 Context Rot 누적을 차단.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.4.3 GSD 워크플로 명령 흐름</span>
+    <span class="slide-footer-right">17</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="27">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">05</div>
+    <div class="t-chapter">PART 05</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.5 Handoff &amp; Changelog</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">세션이 끊겨도 작업은 이어진다 — CHANGELOG.md 자동화와 GSD HANDOFF.json으로 세션 연속성을 코드로 박는다.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">05 · 4.5 handoff.md &amp; changelog.md 활용</span>
+    <span class="slide-footer-right">4.5</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="28">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.5.1 CHANGELOG AUTOMATION</div>
+    <div class="t-title">CHANGELOG.md 자동화 Skill</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">.claude/skills/changelog/SKILL.md</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>---
+description: 코드 변경 후 CHANGELOG.md와
+  CLAUDE.md 최근 변경사항을 자동 기록.
+  /changelog 명령 또는 git commit 후 실행.
+---
+
+CHANGELOG.md 업데이트 지침:
+1. ## [브랜치명] - YYYY-MM-DD HH:MM
+   ### 🎯 Prompt
+   ### ✅ Changes (Added/Modified)
+   ### 📁 Files Modified
+2. CLAUDE.md 최근 7일 요약 유지
+3. /changelog "요약" 수동 호출 가능</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">사용 예</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># 작업 후 수동 호출</span>
+/changelog <span class="yellow">"문서 CRUD Route Handler 구현"</span>
+
+<span class="gray"># 응답 예시</span>
+<span class="green">✅ CHANGELOG.md 업데이트 완료</span>
+- 브랜치: feature/document-crud
+- 변경 파일: 8개
+- 추가 +312 / 삭제 -24
+- 커밋: abc1234 → 원격 푸시 완료</pre>
+        </div>
+        <div class="callout callout-blue" style="margin-top:10px;"><span class="callout-icon">📒</span><div class="callout-body"><strong>왜 자동화?</strong> &nbsp;세션마다 무엇을 했는지 기록되면 다음 세션의 컨텍스트가 줄고, 회고·릴리즈 노트도 한 번에 해결.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.5.1 CHANGELOG.md 자동화</span>
+    <span class="slide-footer-right">18</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="29">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.5.1 GSD HANDOFF</div>
+    <div class="t-title">GSD HANDOFF.json — SessionStart 훅 자동 재개</div>
+    <div class="t-body" style="margin-top:10px;"><code>/gsd-pause-work</code> 실행 시 자동으로 HANDOFF.json이 생성된다. 다음 세션에서 SessionStart 훅이 이를 감지해 자동으로 <code>/gsd-resume-work</code>를 호출한다.</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <pre><span class="gray"># 세션 종료 전</span>
+/gsd-pause-work
+
+<span class="gray"># 다음 세션 시작 시 자동 실행</span>
+SessionStart hook → /gsd-resume-work → HANDOFF.json 읽기 → 작업 재개</pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;"><span class="callout-icon">🔁</span><div class="callout-body"><strong>핸드오프 = 컨텍스트 외부화</strong> &nbsp;세션 컨텍스트(워킹 메모리)와 외부 파일(영속 메모리)의 경계를 명확히 — 컴팩션 자동화와 명시적 핸드오프를 함께 운용.</div></div>
+    <div class="t-caption" style="margin-top:8px;">관련: gsd-build/get-shit-done — <code>/gsd-pause-work</code>가 HANDOFF.json을 기록하고, SessionStart 훅이 다음 세션에서 <code>/gsd-resume-work</code>로 복원.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.5.1 GSD HANDOFF.json 자동 연동</span>
+    <span class="slide-footer-right">18</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="30">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">06</div>
+    <div class="t-chapter">PART 06</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.6 디버깅 &amp; 리팩토링</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">에러 보고는 컨텍스트와 함께 — 회귀는 테스트로 차단 — 리팩토링은 단위별로. Playwright/Vitest로 안전망을 깐다.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">06 · 4.6 디버깅 &amp; 리팩토링</span>
+    <span class="slide-footer-right">4.6</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="31">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.6.1 ERROR REPORTING</div>
+    <div class="t-title">에러 메시지 첨부 → 근본 원인 분석</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3" style="color:#FCA5A5;">비효과적</div>
+        <div class="prompt-box" style="border-left-color:#EF4444;">
+          <span class="prompt-box-label" style="background:#EF4444;">BAD</span>
+          <pre>이 에러 고쳐줘:
+TypeError: Cannot read property 'id'
+of undefined</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="color:#6EE7B7;">효과적</div>
+        <div class="prompt-box" style="border-left-color:#10B981;">
+          <span class="prompt-box-label" style="background:#10B981;">GOOD</span>
+          <pre>다음 에러의 근본 원인을 분석·수정.
+
+<span class="cmt"># 에러 메시지</span>
+TypeError: ... 'id' of undefined
+  at DocumentService.updateDocument
+  (apps/web/.../document.service.ts:47)
+
+<span class="cmt"># 발생 조건</span>
+- PATCH /api/v1/documents/:docId
+- categoryId가 null일 때만
+
+<span class="cmt"># 관련 파일·명세</span>
+- document.service.ts (line 47)
+- packages/db/src/schema.ts
+- DATA_MODEL.md 비즈니스 규칙</pre>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;"><span class="callout-icon">📐</span><div class="callout-body"><strong>4단계 분석</strong> &nbsp;증상 → 재현 조건 → 시도한 것 → 관련 명세(REQUIREMENTS.md FR-X). 회귀 방지까지 한 번에.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.6.1 에러 보고 패턴</span>
+    <span class="slide-footer-right">19</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="32">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.6.2-3 CHECKPOINT &amp; REGRESSION</div>
+    <div class="t-title">File Checkpointing &amp; 회귀 방지</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h2">체크포인트 활용</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># 1. 변경 확인</span>
+/diff apps/web/.../document.service.ts
+
+<span class="gray"># 2. 되돌리기 (UI Revert 또는 git)</span>
+git checkout -- .../document.service.ts
+
+<span class="gray"># 3. 더 안전: 브랜치 먼저</span>
+git checkout -b refactor/doc-service</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h2">회귀 방지 체크리스트</div>
+        <ul class="bullet-list">
+          <li><div>변경 전 전체 테스트 실행 → 베이스라인 확인</div></li>
+          <li><div>변경 범위 명시 (파일·기능)</div></li>
+          <li><div>관련 TEST_CASES.md 항목 명시</div></li>
+          <li><div>변경 후 동일 테스트 재실행</div></li>
+        </ul>
+        <div class="callout callout-blue" style="margin-top:10px;"><span class="callout-icon">🛡️</span><div class="callout-body"><strong>회귀</strong>는 새 변경이 기존 기능을 무너뜨리는 것 — 테스트가 첫 방어선.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.6.2 / 4.6.3 체크포인트와 회귀 방지</span>
+    <span class="slide-footer-right">20</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="33">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.6.4 SAFE REFACTORING</div>
+    <div class="t-title">안전한 리팩토링 흐름 — 단위별·순차적</div>
+    <div class="prompt-box" style="margin-top:8px;">
+      <span class="prompt-box-label">PROMPT</span>
+      <pre>apps/web/app/api/v1/workspaces/[wsId]/documents/route.ts와
+  .../[docId]/route.ts를 리팩토링.
+
+<span class="cmt"># 목표</span>
+- Route Handler에서 비즈니스 로직 분리
+  → apps/web/lib/server/services/document.service.ts
+- 250줄 → 50줄 이하로 축소
+
+<span class="cmt"># 제약 조건</span>
+1. API 인터페이스 변경 없음 (API_SPEC.md 준수)
+2. TC-DOC-001~005 통과 유지
+3. 한 번에 전체가 아닌, 함수 하나씩 순서대로
+
+<span class="cmt"># 순서</span>
+1) POST(createDocument) → 테스트
+2) GET(getDocument) → 테스트
+3) PATCH/DELETE 순서대로</pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;"><span class="callout-icon">📐</span><div class="callout-body"><strong>3원칙</strong> &nbsp;① 베이스라인 테스트 ② 단위별 진행(한 함수씩) ③ 실패 시 체크포인트 복원 후 재시도. 한 번에 전체 변경 = 디버깅 지옥.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.6.4 안전한 리팩토링 흐름</span>
+    <span class="slide-footer-right">21</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="34">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.6.5 TEST SAFETY NET</div>
+    <div class="t-title">테스트를 통한 안전망 — Vitest 통합 테스트</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">markflow 테스트 구조</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>markflow/
+├── apps/web/
+│   ├── __tests__/
+│   │   ├── api/        <span class="gray"># Vitest 통합</span>
+│   │   │   ├── auth.test.ts
+│   │   │   ├── documents.test.ts
+│   │   │   └── versions.test.ts
+│   │   └── components/ <span class="gray"># 단위 테스트</span>
+│   └── tests/e2e/      <span class="gray"># Playwright</span>
+└── packages/editor/src/__tests__/</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">Route Handler 통합 테스트</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="cyan">import</span> { POST } <span class="cyan">from</span> <span class="yellow">'@/app/api/v1/.../route'</span>;
+
+it(<span class="yellow">'TC-DOC-001-1'</span>, <span class="cyan">async</span> () =&gt; {
+  <span class="cyan">const</span> req = <span class="cyan">new</span> Request(url, {
+    method: <span class="yellow">'POST'</span>,
+    headers: { authorization: bearer },
+    body: JSON.stringify({ title, content }),
+  });
+  <span class="cyan">const</span> res = <span class="cyan">await</span> POST(req,
+    { params: Promise.resolve({ wsId }) });
+  expect(res.status).toBe(<span class="cyan">201</span>);
+});</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.6.5 테스트를 통한 안전망</span>
+    <span class="slide-footer-right">22</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="35">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.6.6 E2E AUTOMATION</div>
+    <div class="t-title">테스트 자동화 — Playwright + CI</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">item-test.sh + Playwright</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># 에디터 28기능 테스트</span>
+./scripts/item-test.sh all
+./scripts/item-test.sh bold
+./scripts/item-test.sh int
+
+<span class="gray"># Playwright E2E</span>
+pnpm --filter @markflow/web test:e2e</pre>
+        </div>
+        <div class="code-block" style="margin-top:8px;">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="cyan">test</span>(<span class="yellow">'TC-E2E-001: 작성→저장→조회'</span>, <span class="cyan">async</span> ({ page }) =&gt; {
+  <span class="cyan">await</span> page.goto(<span class="yellow">'/login'</span>);
+  <span class="cyan">await</span> page.fill(<span class="yellow">'[name=email]'</span>, ...);
+  <span class="cyan">await</span> page.click(<span class="yellow">'[data-testid=new-document-btn]'</span>);
+  <span class="cyan">await</span> page.keyboard.press(<span class="yellow">'Control+s'</span>);
+  <span class="cyan">await</span> expect(saveIndicator).toHaveText(<span class="yellow">'저장됨'</span>);
+});</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">CI/CD — GitHub Actions</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># .github/workflows/test.yml</span>
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - run: pnpm install
+      - run: pnpm --filter @markflow/editor build
+      - run: pnpm test
+      - run: pnpm --filter @markflow/web test:e2e</pre>
+        </div>
+        <div class="callout callout-blue" style="margin-top:10px;"><span class="callout-icon">🚦</span><div class="callout-body"><strong>3계층</strong> &nbsp;단위 → 통합(Vitest+Route Handler) → E2E(Playwright). 셋이 있어야 회귀를 막는다.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.6.6 테스트 자동화 (셸·Playwright·CI)</span>
+    <span class="slide-footer-right">23</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="36">
+<div class="export-stage">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center;">
+    <div class="section-num">07</div>
+    <div class="t-chapter">PART 07</div>
+    <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;">4.7 Plugin Marketplace</div>
+    <div style="margin-top:20px;font-size:20px;color:var(--muted);line-height:1.7;width:900px;">Skills · Commands · Agents · Hooks (+ MCP) — 4가지 구성 요소를 패키징해 팀·커뮤니티에 배포한다. 2025-10-09 공식 공개.</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">07 · 4.7 Plugin Marketplace</span>
+    <span class="slide-footer-right">4.7</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="37">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.1 PLUGIN COMPONENTS</div>
+    <div class="t-title">Plugin 4가지 구성 요소 + 디렉토리 구조</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">디렉토리 구조</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>my-plugin/
+├── .claude-plugin/
+│   └── plugin.json     <span class="gray"># 메타데이터(필수)</span>
+├── commands/           <span class="gray"># 슬래시 커맨드</span>
+│   └── my-command.md
+├── agents/             <span class="gray"># 서브에이전트</span>
+│   └── my-agent.md
+├── skills/             <span class="gray"># 자동 호출 컨텍스트</span>
+│   └── my-skill/SKILL.md
+├── hooks/
+│   └── hooks.json      <span class="gray"># 이벤트 핸들러</span>
+└── .mcp.json           <span class="gray"># MCP 서버(선택)</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">4가지 구성 요소</div>
+        <div data-slot="table">
+          <table class="tbl">
+            <thead><tr><th style="width:110px;">요소</th><th>트리거 / 용도</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Skills</strong></td><td>설명 매칭 시 자동 로드 / 도메인 지식·반복 워크플로</td></tr>
+              <tr><td><strong>Commands</strong></td><td><code>/cmd</code> 수동 호출 / 작업 실행·파일 생성</td></tr>
+              <tr><td><strong>Agents</strong></td><td>메인이 위임 / 독립 컨텍스트 병렬 작업</td></tr>
+              <tr><td><strong>Hooks</strong></td><td>이벤트 자동 / 품질 강제·로깅·보안</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-caption" style="margin-top:8px;">출처: claude.com/blog/claude-code-plugins (Anthropic, 2025.10.09)</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.1 Plugin 구성 요소와 디렉토리</span>
+    <span class="slide-footer-right">24</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="38">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.1 PLUGIN.JSON</div>
+    <div class="t-title">plugin.json + markflow Skill 예시</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">plugin.json</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>{
+  <span class="cyan">"name"</span>: <span class="yellow">"markflow-dev-tools"</span>,
+  <span class="cyan">"version"</span>: <span class="yellow">"1.0.0"</span>,
+  <span class="cyan">"description"</span>: <span class="yellow">"markflow 개발 도구"</span>,
+  <span class="cyan">"author"</span>: <span class="yellow">"markflow team"</span>,
+  <span class="cyan">"commands"</span>: [<span class="yellow">"commands/"</span>],
+  <span class="cyan">"agents"</span>: [<span class="yellow">"agents/"</span>],
+  <span class="cyan">"skills"</span>: [<span class="yellow">"skills/"</span>],
+  <span class="cyan">"hooks"</span>: <span class="yellow">"hooks/hooks.json"</span>
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">route-handler-conventions/SKILL.md</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>---
+description: Next.js Route Handler 코딩 규칙.
+  apps/web/app/api/** 작업 시 자동 로드.
+---
+markflow Route Handler 코딩 규칙:
+1. Zod로 body/query 검증
+2. 비즈니스 로직은 lib/server/services/**
+3. 에러: { error: { code, message } }
+4. 인증: extractCurrentUser → checkRole
+5. Drizzle 트랜잭션은 db.transaction()</pre>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:12px;"><span class="callout-icon">⚖️</span><div class="callout-body"><strong>Skills vs Commands</strong> &nbsp;Skill은 설명에 매칭되는 대화에서 자동 로드, Command는 개발자가 직접 호출. 이 차이가 활용 방식을 결정한다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.1 plugin.json &amp; Skill 예시</span>
+    <span class="slide-footer-right">24</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="39">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.2 OFFICIAL MARKETPLACE</div>
+    <div class="t-title">Anthropic 공식 플러그인 — anthropics/claude-code/plugins/</div>
+    <div data-slot="table" style="margin-top:8px;">
+      <table class="tbl">
+        <thead><tr><th style="width:240px;">플러그인</th><th>기능</th></tr></thead>
+        <tbody>
+          <tr><td><code>agent-sdk-dev</code></td><td>Claude Agent SDK 프로젝트 초기화 + 검증 에이전트</td></tr>
+          <tr><td><code>claude-opus-4-5-migration</code></td><td>이전 모델 문자열 → 신규 Opus 모델 자동 마이그레이션</td></tr>
+          <tr><td><code>code-review</code></td><td>다중 에이전트 기반 PR 코드 리뷰</td></tr>
+          <tr><td><code>commit-commands</code></td><td>Git 커밋 메시지 작성 보조</td></tr>
+          <tr><td><code>explanatory-output-style</code> / <code>learning-output-style</code></td><td>설명·학습용 출력 스타일 변경</td></tr>
+          <tr><td><code>feature-dev</code> / <code>plugin-dev</code></td><td>기능 개발·플러그인 개발 보조 에이전트 묶음</td></tr>
+          <tr><td><code>frontend-design</code></td><td>프론트엔드 작업 시 디자인 가이드 자동 제공</td></tr>
+          <tr><td><code>hookify</code></td><td>대화 패턴 분석으로 커스텀 훅 생성</td></tr>
+          <tr><td><code>pr-review-toolkit</code></td><td>PR 단계별 자동화(리뷰·간소화·테스트)</td></tr>
+          <tr><td><code>security-guidance</code></td><td>보안 검토·취약점 가이던스</td></tr>
+          <tr><td><code>ralph-wiggum</code></td><td>반복 작업 자동화 데모</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="t-caption" style="margin-top:6px;">출처: github.com/anthropics/claude-code/tree/main/plugins (총 13개)</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.2 공식 마켓플레이스 (1/2)</span>
+    <span class="slide-footer-right">25</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="40">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.2 INSTALL</div>
+    <div class="t-title">공식 마켓플레이스 추가 및 플러그인 설치</div>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <pre><span class="gray"># Claude Code 내에서</span>
+
+<span class="gray"># 1. 공식 마켓플레이스 추가</span>
+/plugin marketplace add anthropics/claude-code
+
+<span class="gray"># 2. 플러그인 탐색</span>
+/plugin
+
+<span class="gray"># 3. 특정 플러그인 설치</span>
+/plugin install code-review@anthropics/claude-code</pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:18px;"><span class="callout-icon">🧭</span><div class="callout-body"><strong>네임스페이싱</strong> &nbsp;플러그인 스킬은 항상 <code>/plugin-name:skill-name</code> 형태로 접두된다 — 동일 이름 충돌 방지. 표준 모드(<code>.claude/</code>)는 <code>/skill</code> 형태를 사용.</div></div>
+    <div class="callout callout-amber"><span class="callout-icon">🔄</span><div class="callout-body">개발 중에는 <code>--plugin-dir ./my-plugin</code>으로 로컬 로드, 변경 후 <code>/reload-plugins</code>로 즉시 반영.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.2 공식 마켓플레이스 (2/2)</span>
+    <span class="slide-footer-right">25</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="41">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.3 COMMUNITY MARKETPLACE</div>
+    <div class="t-title">커뮤니티 마켓플레이스 등록·설치 + 직접 만들기</div>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <div class="t-h3">커뮤니티 마켓플레이스 사용</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre><span class="gray"># 마켓플레이스 추가</span>
+/plugin marketplace add gsd-build/get-shit-done
+/plugin marketplace add ccplugins/awesome-claude-code-plugins
+/plugin marketplace add hesreallyhim/awesome-claude-code
+
+<span class="gray"># 탐색·설치</span>
+/plugin
+/plugin install gsd@gsd-build/get-shit-done</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">직접 만들기 — marketplace.json</div>
+        <div class="code-block">
+          <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <pre>{
+  <span class="cyan">"name"</span>: <span class="yellow">"markflow-plugins"</span>,
+  <span class="cyan">"description"</span>: <span class="yellow">"markflow Claude Code 플러그인"</span>,
+  <span class="cyan">"plugins"</span>: [
+    {
+      <span class="cyan">"name"</span>: <span class="yellow">"markflow-dev-tools"</span>,
+      <span class="cyan">"path"</span>: <span class="yellow">"plugins/dev-tools"</span>
+    },
+    {
+      <span class="cyan">"name"</span>: <span class="yellow">"markflow-doc-generator"</span>,
+      <span class="cyan">"path"</span>: <span class="yellow">"plugins/doc-generator"</span>
+    }
+  ]
+}</pre>
+        </div>
+        <div class="t-caption" style="margin-top:6px;">루트의 <code>.claude-plugin/marketplace.json</code></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.3 커뮤니티 마켓플레이스</span>
+    <span class="slide-footer-right">26</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="42">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">4.7.4 RECOMMENDED TOOLS</div>
+    <div class="t-title">유용한 도구 + 보안 주의사항</div>
+    <div data-slot="table" style="margin-top:10px;">
+      <table class="tbl">
+        <thead><tr><th style="width:220px;">도구</th><th style="width:330px;">설치</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td><strong>GSD</strong></td><td><code>/plugin marketplace add gsd-build/get-shit-done</code></td><td>SDD 워크플로 자동화</td></tr>
+          <tr><td><strong>cc-sdd</strong></td><td><code>npx cc-sdd@latest --claude-skills</code></td><td>Kiro 스타일 SDD · 17 Skills (progressive disclosure)</td></tr>
+          <tr><td><strong>claude-code-spec-workflow</strong></td><td><code>npx @pimzino/claude-code-spec-workflow</code></td><td>Requirements → Design → Tasks</td></tr>
+          <tr><td><strong>security-guidance</strong></td><td>공식 마켓플레이스</td><td>보안 검토·가이던스</td></tr>
+          <tr><td><strong>code-review</strong></td><td>공식 마켓플레이스</td><td>다중 에이전트 PR 리뷰</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;"><span class="callout-icon">⚠️</span><div class="callout-body"><strong>플러그인 보안</strong> &nbsp;플러그인은 셸 스크립트와 Hooks를 포함할 수 있다. 설치 전 ① GitHub 소스 직접 검토 ② <code>hooks.json</code>의 실행 명령 확인 ③ 신뢰할 수 없는 마켓플레이스는 설치 금지.</div></div>
+    <div class="callout callout-blue"><span class="callout-icon">💬</span><div class="callout-body"><strong>공식 가이드라인</strong>&nbsp;플러그인은 임의 코드(스크립트·Hooks)를 실행할 수 있다. 신뢰할 수 있는 출처에서만 설치하고, 마켓플레이스 추가 전 GitHub 소스를 직접 확인하라.&nbsp;<span style="color:var(--muted);">— code.claude.com/docs/en/plugin-marketplaces 권고 요약</span></div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">4.7.4 유용한 도구와 보안 주의</span>
+    <span class="slide-footer-right">27</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="43">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">SUMMARY</div>
+    <div class="t-title">Level 4 요약 — 7개 섹션 핵심</div>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <div class="callout callout-amber"><span class="callout-icon">📋</span><div class="callout-body"><strong>4.1 프로젝트 기획</strong> &nbsp;markflow KMS · AI 친화 3대 기준 · FR 10건 / NFR 6건 / US 5건. Connextra 형식으로 가치까지 명세.</div></div>
+        <div class="callout callout-blue"><span class="callout-icon">📄</span><div class="callout-body"><strong>4.2 개발 문서</strong> &nbsp;PRD(무엇을) · TRD(어떻게) · REQUIREMENTS.md(SSOT). 변경은 버전 헤더 + 이력으로 Spec Drift를 차단.</div></div>
+        <div class="callout callout-green"><span class="callout-icon">🗂️</span><div class="callout-body"><strong>4.3 명세서 설계</strong> &nbsp;Drizzle 15테이블 + Closure Table. REST 계약, 컴포넌트 계층, TC↔FR↔US 추적 매트릭스.</div></div>
+        <div class="callout callout-amber"><span class="callout-icon">🔁</span><div class="callout-body"><strong>4.4 SDD · GSD</strong> &nbsp;Discuss → Plan → Execute → Verify. Phase별 독립 컨텍스트 + 1 Task = 1 Commit.</div></div>
+      </div>
+      <div>
+        <div class="callout callout-blue"><span class="callout-icon">📒</span><div class="callout-body"><strong>4.5 Handoff/Changelog</strong> &nbsp;CHANGELOG 자동화 Skill + GSD HANDOFF.json. SessionStart 훅으로 자동 재개.</div></div>
+        <div class="callout callout-green"><span class="callout-icon">🛠️</span><div class="callout-body"><strong>4.6 디버깅·리팩토링</strong> &nbsp;에러 4단계 분석 → 회귀 체크리스트 → 단위별 리팩토링 → Vitest+Playwright+CI 3계층 안전망.</div></div>
+        <div class="callout callout-amber"><span class="callout-icon">🔌</span><div class="callout-body"><strong>4.7 Plugin Marketplace</strong> &nbsp;Skills·Commands·Agents·Hooks 4 구성. 공식 13개 + 커뮤니티 + 자작 마켓플레이스. 설치 전 코드 검토 필수.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">Level 4 요약 — 기획·명세·SDD·디버깅·플러그인</span>
+    <span class="slide-footer-right">SUM</span>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="export-slide" data-index="44">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter">REFERENCES</div>
+    <div class="t-title">참고 자료 (검증 완료 2026-05-02)</div>
+    <ul class="bullet-list" style="margin-top:14px;">
+      <li><div>markflow 리포지터리<span class="sub"><a class="link" href="https://github.com/claude-code-expert/markflow" target="_blank" rel="noopener noreferrer">https://github.com/claude-code-expert/markflow</a></span></div></li>
+      <li><div>GSD (Get Shit Done)<span class="sub"><a class="link" href="https://github.com/gsd-build/get-shit-done" target="_blank" rel="noopener noreferrer">https://github.com/gsd-build/get-shit-done</a></span></div></li>
+      <li><div>Claude Code Plugin 공식 발표 (2025-10-09)<span class="sub"><a class="link" href="https://claude.com/blog/claude-code-plugins" target="_blank" rel="noopener noreferrer">https://claude.com/blog/claude-code-plugins</a></span></div></li>
+      <li><div>Anthropic 공식 플러그인 디렉토리<span class="sub"><a class="link" href="https://github.com/anthropics/claude-code/tree/main/plugins" target="_blank" rel="noopener noreferrer">https://github.com/anthropics/claude-code/tree/main/plugins</a></span></div></li>
+      <li><div>Plugin Marketplaces 공식 문서<span class="sub"><a class="link" href="https://code.claude.com/docs/en/plugin-marketplaces" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/plugin-marketplaces</a></span></div></li>
+      <li><div>Claude Code Skills 공식 문서<span class="sub"><a class="link" href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/skills</a></span></div></li>
+      <li><div>cc-sdd (gotalab)<span class="sub"><a class="link" href="https://github.com/gotalab/cc-sdd" target="_blank" rel="noopener noreferrer">https://github.com/gotalab/cc-sdd</a></span></div></li>
+      <li><div>claude-code-spec-workflow (Pimzino)<span class="sub"><a class="link" href="https://github.com/Pimzino/claude-code-spec-workflow" target="_blank" rel="noopener noreferrer">https://github.com/Pimzino/claude-code-spec-workflow</a></span></div></li>
+      <li><div>awesome-claude-code<span class="sub"><a class="link" href="https://github.com/hesreallyhim/awesome-claude-code" target="_blank" rel="noopener noreferrer">https://github.com/hesreallyhim/awesome-claude-code</a></span></div></li>
+      <li><div>SDD with Claude Code (Augment)<span class="sub"><a class="link" href="https://www.augmentcode.com/guides/claude-code-spec-driven-development" target="_blank" rel="noopener noreferrer">https://www.augmentcode.com/guides/claude-code-spec-driven-development</a></span></div></li>
+      <li><div>Agile Alliance — User Story Template<span class="sub"><a class="link" href="https://www.agilealliance.org/glossary/user-story-template" target="_blank" rel="noopener noreferrer">https://www.agilealliance.org/glossary/user-story-template</a></span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">참고 자료 (검증 완료 2026-05-02)</span>
+    <span class="slide-footer-right">REF</span>
+  </div>
+</div>
+</div>
+</section>
+
+<div class="export-nav" id="export-nav">1 / 74 · ↑ ↓ · P = Print</div>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
+  var nav = document.getElementById('export-nav');
+  function fitAll() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var s = Math.min(w / 1280, h / 720) * 0.96;
+    slides.forEach(function(sec){
+      var stage = sec.querySelector('.export-stage');
+      if (stage) stage.style.transform = 'scale(' + s + ')';
+    });
+  }
+  function currentIndex() {
+    var mid = window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      var r = slides[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return i;
+    }
+    return 0;
+  }
+  function updateNav() {
+    nav.textContent = (currentIndex() + 1) + ' / ' + slides.length + ' · \u2191 \u2193 · P = Print';
+  }
+  function goTo(n) {
+    if (n < 0) n = 0;
+    if (n > slides.length - 1) n = slides.length - 1;
+    slides[n].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.addEventListener('resize', fitAll);
+  window.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goTo(currentIndex() + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(currentIndex() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(slides.length - 1); }
+    else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); window.print(); }
+  });
+  fitAll();
+  updateNav();
+  if (window.location.hash === '#print') {
+    // Give fonts/layout a tick to settle before invoking the print dialog.
+    setTimeout(function(){ window.print(); }, 300);
+  }
+})();
+</script>
