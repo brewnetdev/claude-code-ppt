@@ -319,10 +319,17 @@ parse-roundtrip / data-slot / data-block-id / cover-decoration 를 검사한다.
   - `title-bullets`에 `sub` 필드(설명 한 줄)를 적극 활용 — 산문 톤이 살아남
   - references를 마지막 슬라이드로 — 산문 발표의 자연스러운 마무리
 
-### `report` *(미배포)*
+### `report` (웜 크림 BG + 티얼 액센트, 표 강조)
 
-- 현재 `report.css`가 없어 portfolio 다음 단계로 합류 예정.
-- 사용자가 `template: 'report'`로 명시 요청하면 SKILL이 abort하고 사용자에게 "report theme not shipped" 안내 + portfolio fallback 제안.
+- **회피 패턴**:
+  - fenced code blocks 다수 → presentation으로 옮길 것 (report의 코드블럭은 다크 박스로 유지되어 무게가 큼)
+  - `two-col-code` → 동일 이유. 표/콜아웃에 자리를 양보
+  - `cover`에 deco 과다 → 슬레이트 다크 BG라 텍스트 대비를 우선
+- **선호 패턴**:
+  - `comparison-table` 다수 — 헤더 2px 티얼 언더라인 + zebra 행으로 데이터가 가장 읽기 쉬움
+  - `callout-summary`를 KPI 카드 용도로 — `amber` (티얼) = 핵심 지표, `green` = positive metric, `blue` = neutral context
+  - `title-bullets`의 `sub` 필드를 metric 단위·기간 표기로 활용 (예: "전년 대비 +18%, Q1 기준")
+  - references를 마지막 슬라이드로 — 데이터 출처 명시
 
 ## 7. 안 하는 것 (Out of Scope)
 

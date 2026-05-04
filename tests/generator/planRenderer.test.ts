@@ -188,3 +188,58 @@ describe('renderPlan — portfolio template (same plan, different data-template)
     expect(counts(portDom)).toEqual(counts(presDom));
   });
 });
+
+// Same plan, swapped to template:'report'. Identical invariants as the
+// portfolio block — markup is template-agnostic, only data-template flips.
+// CSS (src/canvas/themes/report.css) provides the warm-cream + teal visual.
+describe('renderPlan — report template (same plan, different data-template)', () => {
+  const raw = JSON.parse(readFileSync(FIXTURE_PATH, 'utf8'));
+  const reportRaw = { ...raw, template: 'report' };
+  const validation = validateSlidePlan(reportRaw);
+
+  it('validates with template=report', () => {
+    if (!validation.ok) {
+      console.error('validation errors:\n' + validation.errors.join('\n'));
+    }
+    expect(validation.ok).toBe(true);
+  });
+
+  if (!validation.ok) return;
+  const plan = validation.plan;
+  const rendered = renderPlan(plan);
+
+  it('every wrapper carries data-template="report"', () => {
+    const dom = new JSDOM(
+      `<!doctype html><html><body>${rendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    const slides = dom.window.document.querySelectorAll<HTMLDivElement>('div.slide');
+    expect(slides.length).toBe(plan.slides.length);
+    slides.forEach((el) => {
+      expect(el.getAttribute('data-template')).toBe('report');
+    });
+  });
+
+  it('markup stays identical to presentation: same slide-cover / slide-section / code-block counts', () => {
+    const presentationRaw = JSON.parse(readFileSync(FIXTURE_PATH, 'utf8'));
+    const presentationValidation = validateSlidePlan(presentationRaw);
+    expect(presentationValidation.ok).toBe(true);
+    if (!presentationValidation.ok) return;
+    const presRendered = renderPlan(presentationValidation.plan);
+
+    const presDom = new JSDOM(
+      `<!doctype html><html><body>${presRendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    const reportDom = new JSDOM(
+      `<!doctype html><html><body>${rendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    const counts = (dom: JSDOM) => ({
+      slides: dom.window.document.querySelectorAll('div.slide').length,
+      covers: dom.window.document.querySelectorAll('div.slide-cover').length,
+      sections: dom.window.document.querySelectorAll('div.slide-section').length,
+      codeBlocks: dom.window.document.querySelectorAll('div.code-block').length,
+      tables: dom.window.document.querySelectorAll('table.tbl').length,
+      anchors: dom.window.document.querySelectorAll('a').length,
+    });
+    expect(counts(reportDom)).toEqual(counts(presDom));
+  });
+});

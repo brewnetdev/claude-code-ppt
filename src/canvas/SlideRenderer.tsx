@@ -5,6 +5,7 @@ import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
 import './themes/code-blocks.css';
 import './themes/portfolio.css';
+import './themes/report.css';
 
 const COMMIT_DEBOUNCE_MS = 300;
 

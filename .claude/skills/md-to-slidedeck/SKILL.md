@@ -33,13 +33,13 @@ Same SlidePlan, different visual — **the markup is identical across templates;
 |---|---|---|---|
 | `presentation` | Code-heavy talks, tutorial decks, design-pattern walkthroughs (default) | Dark BG (#0F172A), amber accent (#F59E0B), monospace footer | Code blocks, comparison tables, two-col-code, callouts |
 | `portfolio` | Personal/team intro decks, project showcases, case studies, narrative pitches | White BG (#FFFFFF), blue accent (#3D5AF1), serif-friendly | Hero titles, paragraph callouts, references, light table |
-| `report` *(not yet shipped)* | Business reports, KPI dashboards, dense data slides | TBD — sibling to portfolio with stronger table/data emphasis | (skill must abort with "report theme not shipped" until `report.css` lands) |
+| `report` | Business reports, KPI dashboards, dense data slides | Warm cream BG (#FAFAF8), teal accent (#0F766E), 2px header underline + zebra rows | Tables, comparison-table, callout-summary KPI boxes, references |
 
 **Inference rules (when user doesn't specify)**:
 
 - Source MD has ≥ 3 fenced code blocks → `presentation`
+- Source MD has ≥ 2 tables AND headings like "Q1/Q2", "KPI", "ROI", "매출", "지표", "성과" → `report`
 - Source MD is mostly prose + ≥ 3 references → `portfolio`
-- Source MD has ≥ 2 tables and headings like "Q1/Q2", "KPI", "ROI" → would be `report` (currently abort and ask user)
 - Otherwise → `presentation` (safest fallback)
 
 > Never invent a template name outside the enum. The validator's `TEMPLATES` Set rejects anything else and the renderer's `data-template` attribute is what CSS selectors hook on — a typo means *no styling at all*.
