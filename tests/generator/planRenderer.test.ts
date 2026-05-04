@@ -6,6 +6,7 @@ import { renderPlan } from '../../src/generator/planRenderer';
 import { validateSlidePlan } from '../../src/generator/slidePlan';
 
 const FIXTURE_PATH = resolve(__dirname, 'fixtures/sample-plan.json');
+const PORTFOLIO_FIXTURE_PATH = resolve(__dirname, 'fixtures/sample-portfolio-plan.json');
 
 describe('renderPlan — hand-authored fixture', () => {
   const raw = JSON.parse(readFileSync(FIXTURE_PATH, 'utf8'));
@@ -241,5 +242,81 @@ describe('renderPlan — report template (same plan, different data-template)', 
       anchors: dom.window.document.querySelectorAll('a').length,
     });
     expect(counts(reportDom)).toEqual(counts(presDom));
+  });
+});
+
+// Stand-alone portfolio fixture: a real prose-only deck (no code fences,
+// 1 table, 4 references) authored to mirror sample-portfolio.md. This
+// proves the renderer handles a portfolio-shaped plan that DIDN'T come
+// from swapping the code-heavy presentation fixture — i.e. the slide
+// types portfolio actually emphasizes (title-body / title-bullets /
+// references) all render correctly when the deck has no code at all.
+describe('renderPlan — portfolio fixture (prose-only, no code fences)', () => {
+  const raw = JSON.parse(readFileSync(PORTFOLIO_FIXTURE_PATH, 'utf8'));
+  const validation = validateSlidePlan(raw);
+
+  it('validates the portfolio fixture', () => {
+    if (!validation.ok) {
+      console.error('validation errors:\n' + validation.errors.join('\n'));
+    }
+    expect(validation.ok).toBe(true);
+  });
+
+  if (!validation.ok) return;
+  const plan = validation.plan;
+  const rendered = renderPlan(plan);
+
+  it('emits one rendered slide per plan slide, all with data-template="portfolio"', () => {
+    const dom = new JSDOM(
+      `<!doctype html><html><body>${rendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    const slides = dom.window.document.querySelectorAll<HTMLDivElement>('div.slide');
+    expect(slides.length).toBe(plan.slides.length);
+    slides.forEach((el) => {
+      expect(el.getAttribute('data-template')).toBe('portfolio');
+    });
+  });
+
+  it('contains zero code blocks (prose-only deck)', () => {
+    const dom = new JSDOM(
+      `<!doctype html><html><body>${rendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    expect(dom.window.document.querySelectorAll('div.code-block').length).toBe(0);
+    expect(dom.window.document.querySelectorAll('div.terminal').length).toBe(0);
+  });
+
+  it('comparison-table preserves header + row counts (4 cols × 3 rows)', () => {
+    const idx = plan.slides.findIndex((s) => s.type === 'comparison-table');
+    expect(idx).toBeGreaterThan(0);
+    const dom = new JSDOM(`<!doctype html><html><body>${rendered[idx].html}</body></html>`);
+    const tbl = dom.window.document.querySelector<HTMLTableElement>('table');
+    expect(tbl).toBeTruthy();
+    expect(tbl!.querySelectorAll('thead th').length).toBe(4);
+    expect(tbl!.querySelectorAll('tbody tr').length).toBe(3);
+  });
+
+  it('references slide preserves all 4 https links', () => {
+    const idx = plan.slides.findIndex((s) => s.type === 'references');
+    expect(idx).toBeGreaterThan(0);
+    const dom = new JSDOM(`<!doctype html><html><body>${rendered[idx].html}</body></html>`);
+    const anchors = dom.window.document.querySelectorAll<HTMLAnchorElement>('a');
+    expect(anchors.length).toBe(4);
+    anchors.forEach((a) => {
+      expect(/^https:\/\//.test(a.getAttribute('href') ?? '')).toBe(true);
+    });
+  });
+
+  it('title-body + title-bullets slides expose data-slot=title and data-slot=caption', () => {
+    const dom = new JSDOM(
+      `<!doctype html><html><body>${rendered.map((s) => s.html).join('\n')}</body></html>`,
+    );
+    const slides = Array.from(
+      dom.window.document.querySelectorAll<HTMLDivElement>('div.slide'),
+    ).filter((el) => !el.classList.contains('slide-cover') && !el.classList.contains('slide-section'));
+    expect(slides.length).toBeGreaterThan(0);
+    slides.forEach((el, i) => {
+      expect(el.querySelector('[data-slot="title"]'), `slide ${i} missing title slot`).toBeTruthy();
+      expect(el.querySelector('[data-slot="caption"]'), `slide ${i} missing caption slot`).toBeTruthy();
+    });
   });
 });

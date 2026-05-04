@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "title": "Brewnet — 팀 소개 덱",
+    "sourceFile": "tests/generator/fixtures/sample-portfolio.md"
+  },
+  "template": "portfolio",
+  "slides": [
+    {
+      "type": "cover",
+      "title": "Brewnet 팀 소개",
+      "subtitle": "여섯 명의 엔지니어, 사이드 프로젝트 스튜디오",
+      "meta": [
+        { "label": "출범", "value": "2021 · 서울" },
+        { "label": "주력", "value": "에디터·위키·커뮤니티" }
+      ]
+    },
+    {
+      "type": "section",
+      "num": "01",
+      "title": "팀과 일하는 방식"
+    },
+    {
+      "type": "title-body",
+      "title": "우리는 누구인가",
+      "caption": "About us",
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "text": "브루넷은 2021년 서울에서 시작된 사이드 프로젝트 스튜디오다. 정규 일과 외 시간에 여섯 명의 엔지니어가 모여 작은 도구와 콘텐츠를 만든다."
+        },
+        {
+          "kind": "paragraph",
+          "text": "핵심 가치는 단순함이다. 빠르게 만들고, 일찍 배포하고, 사용자 반응을 본 뒤 정리한다. 화려한 기술 스택보다 문제와 해법의 거리를 좁히는 데 시간을 쓴다."
+        }
+      ]
+    },
+    {
+      "type": "title-bullets",
+      "title": "어떻게 일하는가",
+      "caption": "How we work",
+      "bullets": [
+        { "text": "RFC 한 장 의사결정", "sub": "길어지면 잘못 정리한 것" },
+        { "text": "24시간 내 1차 코드 리뷰", "sub": "48시간 내 머지 합의" },
+        { "text": "매주 금요일 릴리스", "sub": "미루면 다음 주가 더 무거워짐" },
+        { "text": "동기 회의는 화요일 1시간", "sub": "나머지는 PR과 음성 메모" }
+      ]
+    },
+    {
+      "type": "comparison-table",
+      "title": "우리가 만든 것",
+      "caption": "What we shipped",
+      "headers": ["이름", "출시", "MAU", "유지보수 부담"],
+      "rows": [
+        ["ClaudeCode 슬라이드 에디터", "2025 Q4", "1.2k", "중"],
+        ["한국어 RFC 위키", "2024 Q1", "4.8k", "낮음"],
+        ["음성 메모 회고 변환기", "2023 Q2", "0.6k", "높음 (정리 완료)"]
+      ]
+    },
+    {
+      "type": "title-bullets",
+      "title": "다음 분기 계획",
+      "caption": "Next quarter",
+      "bullets": [
+        { "text": "에디터의 LLM 자동 작성 경로 출시", "sub": "사용자 컨트롤 가능한 retry까지" },
+        { "text": "위키 다국어(영어) 지원", "sub": "1차 독자는 여전히 한국어" },
+        { "text": "신규 채용 보류", "sub": "현 인원으로 깊이 있게" }
+      ]
+    },
+    {
+      "type": "references",
+      "title": "참고 자료",
+      "caption": "Links",
+      "links": [
+        { "text": "팀 블로그", "href": "https://brewnet.dev/blog" },
+        { "text": "ClaudeCode 슬라이드 에디터 저장소", "href": "https://github.com/brewnetdev/claude-code-ppt" },
+        { "text": "한국어 RFC 위키", "href": "https://wiki.brewnet.dev" },
+        { "text": "회고 음성 메모 정리 글", "href": "https://brewnet.dev/blog/2024-retro" }
+      ]
+    }
+  ]
+}
