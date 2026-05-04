@@ -379,14 +379,20 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+// Inline tags allowed to survive escaping in cells, callouts, and similar
+// text blocks. Exported so cache migrations (`slideMigrations.ts`) can
+// reference the same source of truth — keeping the renderer and any
+// retroactive un-escape pass aligned.
+export const INLINE_TAG_ALLOWLIST = ['strong', 'em', 'span', 'br', 'code'] as const;
+const INLINE_TAGS_SRC = INLINE_TAG_ALLOWLIST.join('|');
+const ESCAPE_INLINE_PATTERN = new RegExp(`<(?!\\/?(${INLINE_TAGS_SRC})\\b)`, 'g');
+
 // Comparison-table cells frequently include light formatting that the brewnet
 // design relies on — `<strong>`, `<span class="badge ...">`, `<em>`. We keep
 // those, but escape the rest. This is the single concession to "safe HTML"
 // in the renderer; everywhere else we escape unconditionally.
 function escapeInlineHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/<(?!\/?(strong|em|span|br|code)\b)/g, '&lt;');
+  return s.replace(/&/g, '&amp;').replace(ESCAPE_INLINE_PATTERN, '&lt;');
 }
 
 // Adds `prefix` to each line of `text`, but skips lines that fall inside a

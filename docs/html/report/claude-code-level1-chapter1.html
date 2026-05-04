@@ -2211,29 +2211,26 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 <div class="export-stage">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
-  <div class="slide-inner">
-    <div class="t-chapter" data-slot="label">ADVANCED</div>
-    <div class="t-title" data-slot="title">1.3.4 ③ plan · ④ auto — 계획 모드 &amp; 자율 실행</div>
-    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Edit·Write 차단 vs 백그라운드 분류기 자동 승인</div>
-    <div class="t-body" data-slot="body">plan — 소스코드 편집(Edit·Write)은 차단된다. 단, 파일 읽기와 탐색용 Bash 명령 실행은 가능하다. Claude가 코드베이스를 분석하고 계획을 수립하지만 실제 소스코드를 변경하지 않는다. 상태 표시줄: ⏸ plan mode on.</div>
-    <div class="terminal" data-slot="code" data-block-id="tb-a3442bd0" data-code-source="%23%20Shift%2BTab%20%EB%91%90%20%EB%B2%88%EC%9C%BC%EB%A1%9C%20%EC%A7%84%EC%9E%85%20(%EC%A0%84%EC%B2%B4%20%EC%84%B8%EC%85%98%20%EC%A0%84%ED%99%98)%0Aclaude%20--permission-mode%20plan%0A%0A%23%20%EB%8B%A8%EC%9D%BC%20%EC%9A%94%EC%B2%AD%EC%97%90%EB%A7%8C%20plan%20%EB%AA%A8%EB%93%9C%20%EC%A0%81%EC%9A%A9%0A%2Fplan%20%EC%9D%B4%20%EC%9D%B8%EC%A6%9D%20%EB%AA%A8%EB%93%88%20%EB%A6%AC%ED%8C%A9%ED%84%B0%EB%A7%81%20%EA%B3%84%ED%9A%8D%20%EC%84%B8%EC%9B%8C%EC%A4%98" data-code-lang="bash">
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bBPIZUrWQ">ADVANCED</div>
+    <div class="t-title" data-slot="title" data-block-id="bfwWMMIqf">1.3.4 ③ plan · ④ auto — 계획 모드 &amp; 자율 실행</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;" data-block-id="bxqIvDvft">Edit·Write 차단 vs 백그라운드 분류기 자동 승인</div>
+    <div class="t-body" data-slot="body" data-block-id="b8abPVfeB">plan — 소스코드 편집(Edit·Write)은 차단된다. 단, 파일 읽기와 탐색용 Bash 명령 실행은 가능하다. Claude가 코드베이스를 분석하고 계획을 수립하지만 실제 소스코드를 변경하지 않는다. 상태 표시줄: ⏸ plan mode on.</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-a3442bd0" data-code-source="%23%20Shift%2BTab%20%EB%91%90%20%EB%B2%88%EC%9C%BC%EB%A1%9C%20%EC%A7%84%EC%9E%85%20(%EC%A0%84%EC%B2%B4%20%EC%84%B8%EC%85%98%20%EC%A0%84%ED%99%98)%0Aclaude%20--permission-mode%20plan%0A%0A%23%20%EB%8B%A8%EC%9D%BC%20%EC%9A%94%EC%B2%AD%EC%97%90%EB%A7%8C%20plan%20%EB%AA%A8%EB%93%9C%20%EC%A0%81%EC%9A%A9%0A%2Fplan%20%EC%9D%B4%20%EC%9D%B8%EC%A6%9D%20%EB%AA%A8%EB%93%88%20%EB%A6%AC%ED%8C%A9%ED%84%B0%EB%A7%81%20%EA%B3%84%ED%9A%8D%20%EC%84%B8%EC%9B%8C%EC%A4%98" data-code-lang="bash" style="width: 1136px; height: 182px; position: absolute; left: 72px; top: 308px;">
     <div class="terminal-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="terminal-title">Terminal</span></div><pre><code><span class="line"><span style="color:#6A737D"># Shift+Tab 두 번으로 진입 (전체 세션 전환)</span></span>
 <span class="line"><span style="color:#B392F0">claude</span><span style="color:#79B8FF"> --permission-mode</span><span style="color:#9ECBFF"> plan</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#6A737D"># 단일 요청에만 plan 모드 적용</span></span>
 <span class="line"><span style="color:#B392F0">/plan</span><span style="color:#9ECBFF"> 이</span><span style="color:#9ECBFF"> 인증</span><span style="color:#9ECBFF"> 모듈</span><span style="color:#9ECBFF"> 리팩터링</span><span style="color:#9ECBFF"> 계획</span><span style="color:#9ECBFF"> 세워줘</span></span></code></pre>
     </div>
-    <div class="t-body" data-slot="body">auto — 모든 작업을 백그라운드 안전성 검사와 함께 자동 실행한다. 사람이 매번 승인하는 대신 백그라운드 분류기(classifier)가 요청 의도와 행동 일치 여부를 판단한다.</div>
-    <div class="terminal" data-slot="code" data-block-id="tb-2b1f0bb9" data-code-source="%23%20%EC%8B%9C%EC%9E%91%20%ED%94%8C%EB%9E%98%EA%B7%B8%20%ED%95%84%EC%9A%94%0Aclaude%20--enable-auto-mode" data-code-lang="bash">
+    <div class="t-body" data-slot="body" data-block-id="byVUouU5a">auto — 모든 작업을 백그라운드 안전성 검사와 함께 자동 실행한다. 사람이 매번 승인하는 대신 백그라운드 분류기(classifier)가 요청 의도와 행동 일치 여부를 판단한다.</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-2b1f0bb9" data-code-source="%23%20%EC%8B%9C%EC%9E%91%20%ED%94%8C%EB%9E%98%EA%B7%B8%20%ED%95%84%EC%9A%94%0Aclaude%20--enable-auto-mode" data-code-lang="bash" style="width: 1136px; height: 115px; position: absolute; left: 72px; top: 520px;">
     <div class="terminal-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="terminal-title">Terminal</span></div><pre><code><span class="line"><span style="color:#6A737D"># 시작 플래그 필요</span></span>
 <span class="line"><span style="color:#B392F0">claude</span><span style="color:#79B8FF"> --enable-auto-mode</span></span></code></pre>
     </div>
-    <div class="callout callout-amber" style="margin-top:14px;">
-      <div class="callout-icon">🔒</div>
-      <div class="callout-body"><strong>auto 제한</strong> Pro 플랜 사용 불가. Max·Team·Enterprise·API 전용. Bedrock·Vertex·Foundry에서는 사용 불가.</div>
-    </div>
+    
   </div>
-  <div class="slide-footer">
+  <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left" data-slot="caption">1.3.4 ③ plan · ④ auto — 계획 모드 &amp; 자율 실행</span>
     <span class="slide-footer-right" data-slot="page-num">39</span>
   </div>

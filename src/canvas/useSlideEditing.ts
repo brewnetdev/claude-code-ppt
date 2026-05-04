@@ -70,6 +70,23 @@ function closestLi(node: Node | null): HTMLLIElement | null {
   return el?.closest<HTMLLIElement>('li') ?? null;
 }
 
+// Resolve `(selection, table-cell)` from the document selection if the caret
+// sits inside a cell within `root`. Both onTableTab and onTableBackspace lean
+// on this same lookup; callers consult `sel.isCollapsed`, `sel.removeAllRanges`,
+// or the cell's neighbors as needed.
+function getCaretTableCell(
+  root: Element,
+): { sel: Selection; cell: HTMLTableCellElement } | null {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  const focus = sel.focusNode;
+  if (!focus) return null;
+  const focusEl = focus instanceof Element ? focus : focus.parentElement;
+  const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
+  if (!cell || !root.contains(cell)) return null;
+  return { sel, cell };
+}
+
 function isInBulletOrNumList(li: HTMLLIElement): boolean {
   const ul = li.parentElement;
   if (!ul) return false;
@@ -488,13 +505,9 @@ export function useSlideEditing(
     const onTableTab = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
       if (e.isComposing || e.keyCode === 229) return;
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0) return;
-      const focus = sel.focusNode;
-      if (!focus) return;
-      const focusEl = focus instanceof Element ? focus : focus.parentElement;
-      const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
-      if (!cell || !root.contains(cell)) return;
+      const hit = getCaretTableCell(root);
+      if (!hit) return;
+      const { sel, cell } = hit;
       const table = cell.closest<HTMLTableElement>('table');
       if (!table) return;
       const allCells = Array.from(table.querySelectorAll<HTMLTableCellElement>('td, th'));
@@ -547,21 +560,18 @@ export function useSlideEditing(
     // empty row + single Backspace removes it. Header rows in <thead>
     // are structural and never auto-dropped, and we refuse to delete
     // the only remaining body row so the table doesn't end up shapeless.
-    // Caret parks at the end of the previous row's last cell.
+    // Caret parks at the last cell of the previous row, or — if the deleted
+    // row was the first body row — the first cell of the next row.
     const onTableBackspace = (e: KeyboardEvent) => {
       if (e.key !== 'Backspace') return;
       if (e.isComposing || e.keyCode === 229) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0) return;
+      const hit = getCaretTableCell(root);
+      if (!hit) return;
+      const { sel, cell } = hit;
       // A real Backspace over a non-collapsed selection should delete
       // that selection first — defer to the browser.
       if (!sel.isCollapsed) return;
-      const focus = sel.focusNode;
-      if (!focus) return;
-      const focusEl = focus instanceof Element ? focus : focus.parentElement;
-      const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
-      if (!cell || !root.contains(cell)) return;
       const row = cell.parentElement as HTMLTableRowElement | null;
       if (!row) return;
       if (row.closest('thead')) return;
