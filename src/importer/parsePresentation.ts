@@ -27,9 +27,24 @@ export function parsePresentationHTML(source: string): ParsedDeck {
       node.querySelector<HTMLElement>('[data-slot="subtitle"]');
     const title = (titleEl?.textContent ?? `Slide ${idx + 1}`).trim();
 
+    // Backward compat: older exports emitted .export-overlay images as siblings
+    // of .slide inside .export-stage. Pull them in so they round-trip into the
+    // overlay store instead of being dropped on re-import.
+    const orphanOverlays: string[] = [];
+    let sib = node.nextElementSibling;
+    while (sib && sib.classList.contains('export-overlay')) {
+      orphanOverlays.push(sib.outerHTML);
+      sib = sib.nextElementSibling;
+    }
+
+    let html = node.outerHTML;
+    if (orphanOverlays.length > 0) {
+      html = html.replace(/<\/div>\s*$/, `${orphanOverlays.join('\n')}\n</div>`);
+    }
+
     return {
       id: `slide-${idx + 1}`,
-      html: node.outerHTML,
+      html,
       title,
     };
   });

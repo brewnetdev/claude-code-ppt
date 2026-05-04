@@ -80,14 +80,19 @@ export async function buildHtmlBundle(input: BundleInput): Promise<string> {
       // the standalone bundle is self-contained — no runtime apply needed.
       // linkifyHtml runs after background application so any URLs that exist
       // in the slide body get target="_blank" + rel before shipping.
-      const slideHtml = linkifyHtml(
+      const slideHtmlRaw = linkifyHtml(
         applyBackgroundToHtml(s.html, s.background),
         document,
       );
+      // Overlays must live INSIDE .slide so a re-import (parsePresentation reads
+      // div.slide outerHTML) round-trips them. The last </div> in slideHtmlRaw
+      // closes .slide because slideHtmlRaw is the outerHTML of one div.slide.
+      const slideHtml = overlayHtml
+        ? slideHtmlRaw.replace(/<\/div>\s*$/, `${overlayHtml}\n</div>`)
+        : slideHtmlRaw;
       return `<section class="export-slide" data-index="${i}">
 <div class="export-stage">
 ${slideHtml}
-${overlayHtml}
 </div>
 </section>`;
     }),

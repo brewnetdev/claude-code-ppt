@@ -60,7 +60,7 @@ export function DeckLibraryView({ onOpen }: DeckLibraryViewProps) {
         <span className="ml-3 text-xs text-editor-dim">Deck Library</span>
       </header>
       <main className="flex-1 overflow-auto px-8 py-10">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-[1144px]">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight">발표 데크 선택</h1>
             <p className="mt-1 text-sm text-editor-dim">

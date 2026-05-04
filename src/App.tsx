@@ -52,10 +52,13 @@ export function App() {
         // possible by checking the first slide for the marker attribute.
         const hasShiki = /data-code-source="/.test(migrated.slides[0]?.html ?? '');
         const slides = hasShiki ? migrated.slides : await upgradeSlideCodeBlocks(migrated.slides);
+        // Always land on the first slide when opening from the library —
+        // the persisted currentIndex was the last position from a prior
+        // session, but selecting from the deck grid is a "fresh start" UX.
         loadDeckFull({
           slides,
           overlaysBySlide: persisted.overlaysBySlide,
-          currentIndex: persisted.currentIndex,
+          currentIndex: 0,
         });
         usePersistenceStore.getState().setSaved(persisted.savedAt);
         // Stale-cache detection: only flag when both sides have a hash and

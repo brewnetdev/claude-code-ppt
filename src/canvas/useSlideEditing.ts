@@ -3,6 +3,7 @@ import Sortable from 'sortablejs';
 import { showToast } from '../editor/Toast';
 import { DATA_BLOCK_ID, ensureBlockId } from '../scene/blockId';
 import { useDeckStore } from '../scene/store';
+import { linkifyHtml } from '../exporter/linkify';
 import { tryAutoLinkOnSpace } from './autoLinkUrl';
 import { enforceBulletListInvariant, ensureLiWrapper } from './listInvariant';
 
@@ -495,6 +496,29 @@ export function useSlideEditing(
     };
     root.addEventListener('beforeinput', onAutoLink, true);
 
+    // On focus loss from any editable, linkify any bare http(s) URLs that
+    // SPACE-on-typing missed (paste, import, drag-drop, URL with no trailing
+    // space). Done at blur — not on input — so the caret/selection is never
+    // shifted while the user is still editing. Read-only code mirrors are
+    // skipped to keep shiki output intact.
+    const onEditableBlur = (e: FocusEvent) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (!t.isContentEditable) return;
+      // focusout target is the deep blurred element, not the slide-inner host,
+      // so the node-level check is enough — the selection-fallback used by
+      // insideReadOnlyCode is unreliable here (focus has already moved).
+      if (nodeInsideReadOnlyCode(t)) return;
+      const before = t.innerHTML;
+      if (!/\bhttps?:\/\//.test(before)) return;
+      const after = linkifyHtml(before, document);
+      if (after !== before) {
+        t.innerHTML = after;
+        notify();
+      }
+    };
+    root.addEventListener('focusout', onEditableBlur);
+
     // Tab inside a table cell:
     // - Forward Tab at the last cell of the last row appends a new empty row
     //   that clones the previous row's structure (so styling/striping/column
@@ -734,6 +758,7 @@ export function useSlideEditing(
       root.removeEventListener('beforeinput', onCodeBeforeInput, true);
       root.removeEventListener('beforeinput', onListItemDelete, true);
       root.removeEventListener('beforeinput', onAutoLink, true);
+      root.removeEventListener('focusout', onEditableBlur);
       editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });
