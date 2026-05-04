@@ -4,6 +4,7 @@ import type { ParsedSlide } from '../importer/parsePresentation';
 const KEY_PREFIX = 'claude-code-ppt:deck:v1';
 const LEGACY_KEY = 'claude-code-ppt:deck:v1';
 const LAST_DECK_KEY = 'claude-code-ppt:last-deck:v1';
+const HIDDEN_DECKS_KEY = 'claude-code-ppt:hidden-decks:v1';
 const SCHEMA_VERSION = 1;
 
 function storageKeyFor(deckId: string): string {
@@ -140,4 +141,41 @@ export function setLastOpenedDeckId(deckId: string): void {
   } catch {
     /* swallow */
   }
+}
+
+// Logical "delete" for built-in decks. The HTML source is bundled at build
+// time so we can't physically remove it; instead we keep an id allowlist in
+// localStorage and filter the library through it. Restoring just removes
+// the id from the set — the bundle is still there.
+export function getHiddenDeckIds(): string[] {
+  try {
+    const raw = localStorage.getItem(HIDDEN_DECKS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is string => typeof v === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function writeHiddenDeckIds(ids: string[]): void {
+  try {
+    localStorage.setItem(HIDDEN_DECKS_KEY, JSON.stringify(ids));
+  } catch {
+    /* swallow */
+  }
+}
+
+export function addHiddenDeckId(deckId: string): void {
+  const current = getHiddenDeckIds();
+  if (current.includes(deckId)) return;
+  writeHiddenDeckIds([...current, deckId]);
+}
+
+export function removeHiddenDeckId(deckId: string): void {
+  const current = getHiddenDeckIds();
+  const next = current.filter((id) => id !== deckId);
+  if (next.length === current.length) return;
+  writeHiddenDeckIds(next);
 }
