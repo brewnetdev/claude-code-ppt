@@ -1,5 +1,9 @@
 import type { DragEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  getZoomPercent as readStoredZoomPercent,
+  setZoomPercent as writeStoredZoomPercent,
+} from '../persistence/localStore';
 import { useDeckStore } from '../scene/store';
 import { OverlayLayer, type ImageOverlay, type Overlay } from './OverlayLayer';
 import { SlideRenderer } from './SlideRenderer';
@@ -23,8 +27,16 @@ export function SlideCanvas() {
   // baseScale auto-fits the slide to the viewport; zoomPercent layers on top
   // so 100% always means "fit to current pane" regardless of pane size.
   const [baseScale, setBaseScale] = useState(1);
-  const [zoomPercent, setZoomPercent] = useState(100);
+  const [zoomPercent, setZoomPercent] = useState<number>(() => readStoredZoomPercent() ?? 100);
   const [zoomDraft, setZoomDraft] = useState<string | null>(null);
+
+  // Persist zoom across reloads. Skip the initial render to avoid writing
+  // the freshly-read value back, and stay below the storage call rate by
+  // only firing on settled values (the input commits via blur/Enter, the
+  // ± buttons fire once per click).
+  useEffect(() => {
+    writeStoredZoomPercent(zoomPercent);
+  }, [zoomPercent]);
   const [dropActive, setDropActive] = useState(false);
   const scale = baseScale * (zoomPercent / 100);
 
