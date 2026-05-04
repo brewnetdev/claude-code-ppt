@@ -189,7 +189,7 @@
 
   /* 본문 */
   .t-body {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 400;
     color: var(--text);
     line-height: 1.7;
@@ -226,7 +226,7 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    font-size: 17px;
+    font-size: 21px;
     color: var(--text);
     line-height: 1.5;
   }
@@ -238,10 +238,11 @@
     flex-shrink: 0;
   }
   .bullet-list li .sub {
-    font-size: 14px;
+    font-size: 18px;
     color: var(--muted);
     display: block;
-    margin-top: 2px;
+    margin-top: 4px;
+    line-height: 1.55;
   }
 
   /* 번호 리스트 */
@@ -258,7 +259,7 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    font-size: 17px;
+    font-size: 21px;
     color: var(--text);
     line-height: 1.5;
   }
@@ -380,14 +381,14 @@
   .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
   .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
   .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
-  .callout-body { font-size: 15px; color: var(--text); line-height: 1.6; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
   .callout-body strong { font-weight: 700; }
 
   /* ── Table ── */
   .tbl {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 17px;
     margin-top: 12px;
   }
   .tbl th {
@@ -397,7 +398,7 @@
     text-align: left;
     font-weight: 700;
     color: var(--text);
-    font-size: 13px;
+    font-size: 15px;
   }
   .tbl td {
     border-bottom: 1px solid var(--border);
