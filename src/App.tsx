@@ -9,8 +9,13 @@ import { Toolbar } from './editor/Toolbar';
 import { parsePresentationHTML } from './importer/parsePresentation';
 import { upgradeSlideCodeBlocks } from './importer/upgradeCodeBlocks';
 import { getDeckById, type DeckRegistryEntry } from './library/deckRegistry';
-import { loadDeckFromLocalStorage, setLastOpenedDeckId } from './persistence/localStore';
+import {
+  loadDeckFromLocalStorage,
+  saveDeckToLocalStorage,
+  setLastOpenedDeckId,
+} from './persistence/localStore';
 import { usePersistenceStore } from './persistence/persistenceStore';
+import { runSlideMigrations } from './persistence/slideMigrations';
 import { useAutoSave } from './persistence/useAutoSave';
 import { useDeckStore } from './scene/store';
 
@@ -29,11 +34,22 @@ export function App() {
     async (deck: DeckRegistryEntry) => {
       const persisted = await loadDeckFromLocalStorage(deck.id);
       if (persisted) {
+        // Surgical patches for HTML that an older renderer baked into the
+        // cache (e.g. over-escaped <strong> in <th>). Runs once per deck per
+        // migration; idempotent; preserves the user's edits.
+        const migrated = runSlideMigrations(persisted.slides, deck.id);
+        if (migrated.changed) {
+          await saveDeckToLocalStorage(deck.id, {
+            slides: migrated.slides,
+            overlaysBySlide: persisted.overlaysBySlide,
+            currentIndex: persisted.currentIndex,
+          });
+        }
         // Persisted decks were already upgraded on first import; re-upgrading
         // is idempotent (skips wired blocks) but we avoid the cost when
         // possible by checking the first slide for the marker attribute.
-        const hasShiki = /data-code-source="/.test(persisted.slides[0]?.html ?? '');
-        const slides = hasShiki ? persisted.slides : await upgradeSlideCodeBlocks(persisted.slides);
+        const hasShiki = /data-code-source="/.test(migrated.slides[0]?.html ?? '');
+        const slides = hasShiki ? migrated.slides : await upgradeSlideCodeBlocks(migrated.slides);
         loadDeckFull({
           slides,
           overlaysBySlide: persisted.overlaysBySlide,

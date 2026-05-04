@@ -219,7 +219,12 @@ function renderTwoColCode(node: Extract<SlideNode, { type: 'two-col-code' }>): s
 }
 
 function renderComparisonTable(node: Extract<SlideNode, { type: 'comparison-table' }>): string {
-  const ths = node.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('');
+  // Headers and rows share the same inline-formatting allowlist
+  // (strong/em/span/br/code) — authors regularly bold the header label or
+  // mark a cell with <em>. Using escapeHtml here would turn `<strong>플랜</strong>`
+  // into literal text, which is exactly what the "<strong> tag showing as
+  // text" report was. Keep the escaping symmetric with row cells.
+  const ths = node.headers.map((h) => `<th>${escapeInlineHtml(h)}</th>`).join('');
   const trs = node.rows
     .map((row) => `<tr>${row.map((c) => `<td>${escapeInlineHtml(c)}</td>`).join('')}</tr>`)
     .join('\n          ');
@@ -284,7 +289,9 @@ function renderBlock(b: Block): string {
     case 'badges':
       return renderBadges(b.items);
     case 'table': {
-      const ths = b.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('');
+      // Symmetric with renderComparisonTable: headers also go through the
+      // inline allowlist so authored `<strong>` / `<em>` survive escaping.
+      const ths = b.headers.map((h) => `<th>${escapeInlineHtml(h)}</th>`).join('');
       const trs = b.rows
         .map((row) => `<tr>${row.map((c) => `<td>${escapeInlineHtml(c)}</td>`).join('')}</tr>`)
         .join('\n      ');

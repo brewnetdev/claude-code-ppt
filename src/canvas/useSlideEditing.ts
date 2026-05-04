@@ -542,6 +542,62 @@ export function useSlideEditing(
     };
     root.addEventListener('keydown', onTableTab);
 
+    // Backspace inside a fully-empty <tbody> row → delete the row.
+    // Counterpart to onTableTab's "Tab past last cell appends a row":
+    // empty row + single Backspace removes it. Header rows in <thead>
+    // are structural and never auto-dropped, and we refuse to delete
+    // the only remaining body row so the table doesn't end up shapeless.
+    // Caret parks at the end of the previous row's last cell.
+    const onTableBackspace = (e: KeyboardEvent) => {
+      if (e.key !== 'Backspace') return;
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      // A real Backspace over a non-collapsed selection should delete
+      // that selection first — defer to the browser.
+      if (!sel.isCollapsed) return;
+      const focus = sel.focusNode;
+      if (!focus) return;
+      const focusEl = focus instanceof Element ? focus : focus.parentElement;
+      const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
+      if (!cell || !root.contains(cell)) return;
+      const row = cell.parentElement as HTMLTableRowElement | null;
+      if (!row) return;
+      if (row.closest('thead')) return;
+
+      const allEmpty = Array.from(row.cells).every(
+        (c) => (c.textContent ?? '').trim().length === 0,
+      );
+      if (!allEmpty) return;
+
+      const tbody = row.parentElement;
+      if (!tbody) return;
+      const bodyRows = Array.from(tbody.children).filter(
+        (el): el is HTMLTableRowElement => el.tagName === 'TR',
+      );
+      if (bodyRows.length <= 1) return;
+
+      e.preventDefault();
+      const prev = row.previousElementSibling as HTMLTableRowElement | null;
+      const next = row.nextElementSibling as HTMLTableRowElement | null;
+      row.remove();
+
+      const target =
+        prev?.querySelector<HTMLTableCellElement>('td:last-child, th:last-child') ??
+        next?.querySelector<HTMLTableCellElement>('td, th') ??
+        null;
+      if (target) {
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      notify();
+    };
+    root.addEventListener('keydown', onTableBackspace);
+
     // Enter inside a `.bullet-list` / `.num-list` <li>:
     //   plain Enter   → append a fresh `<li><div></div></li>` after the
     //                   current item and move the caret into the new wrapper.
@@ -660,6 +716,7 @@ export function useSlideEditing(
       root.removeEventListener('mousedown', onMouseDownSelect);
       root.removeEventListener('dblclick', onDblClick);
       root.removeEventListener('keydown', onTableTab);
+      root.removeEventListener('keydown', onTableBackspace);
       root.removeEventListener('keydown', onListItemEnter);
       root.removeEventListener('keydown', onCodeKeydown, true);
       root.removeEventListener('paste', onCodePaste, true);
