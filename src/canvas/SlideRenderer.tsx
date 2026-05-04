@@ -4,6 +4,7 @@ import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
 import './themes/code-blocks.css';
+import './themes/portfolio.css';
 
 const COMMIT_DEBOUNCE_MS = 300;
 
