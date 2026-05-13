@@ -3278,35 +3278,67 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 <div class="export-stage">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
-  <div class="slide-inner">
-    <div class="t-chapter" data-slot="label">REFERENCES</div>
-    <div class="t-title" data-slot="title">참고 자료</div>
-    <ul class="bullet-list" data-slot="bullets">
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bDWcgGegZ">REFERENCES</div>
+    <div class="t-title" data-slot="title" data-block-id="b5i7FDm6Y">참고 자료</div>
+    <ul class="bullet-list" data-slot="bullets" data-block-id="bGbnYO0iT">
       <li><div>Anthropic Engineering — Harness design for long-running application development (2026.03.24)<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/harness-design-long-running-apps</a> — 두 실패 모드(Context Anxiety, Self-Eval Blindspot) 정의. GAN 영감 구조 원전.</span></div></li>
       <li><div>Anthropic Engineering — Effective harnesses for long-running agents<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents</a> — 하네스 설계 심화. Sprint Contract + Evaluator 튜닝 패턴.</span></div></li>
       <li><div>Anthropic Engineering — Managed Agents (2026.04)<span class="sub"><a class="link" href="https://www.anthropic.com/engineering/managed-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/managed-agents</a> — "harnesses encode assumptions" 정의. 메타 하네스 개념.</span></div></li>
       <li><div>HKUDS/OpenHarness — Python으로 재구현된 Claude Code 하네스<span class="sub"><a class="link" href="https://github.com/HKUDS/OpenHarness" target="_blank" rel="noopener noreferrer">https://github.com/HKUDS/OpenHarness</a> — 10 서브시스템, 43+ 도구, 10 라이프사이클 이벤트. MIT 라이선스.</span></div></li>
       <li><div>affaan-m/everything-claude-code (ECC)<span class="sub"><a class="link" href="https://github.com/affaan-m/everything-claude-code" target="_blank" rel="noopener noreferrer">https://github.com/affaan-m/everything-claude-code</a> — 48 agents, 182 skills, 68 commands. ⭐ 44k+. MIT 라이선스.</span></div></li>
-      <li><div>affaan-m/agentshield — 에이전트 설정 보안 스캐너<span class="sub"><a class="link" href="https://github.com/affaan-m/agentshield" target="_blank" rel="noopener noreferrer">https://github.com/affaan-m/agentshield</a> — 102 보안 룰, 1,282 tests, 5 카테고리. Red/Blue/Auditor 3-에이전트 파이프라인.</span></div></li>
-      <li><div>Claude Code Docs — Sub-agents 공식 문서<span class="sub"><a class="link" href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/sub-agents</a> — frontmatter 필드 레퍼런스. permissionMode, background, hooks 등.</span></div></li>
-      <li><div>Claude Code Docs — Push events into a running session with channels<span class="sub"><a class="link" href="https://code.claude.com/docs/en/channels" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/channels</a> — Channels 설정 절차. Telegram/Discord/iMessage 연동.</span></div></li>
-      <li><div>Anthropic API Docs — Computer use tool (computer_20251124)<span class="sub"><a class="link" href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool" target="_blank" rel="noopener noreferrer">https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool</a> — 지원 모델, action 종류, zoom action, 비용 가이드.</span></div></li>
-      <li><div>Anthropic Quickstarts — Computer Use 레퍼런스 구현<span class="sub"><a class="link" href="https://github.com/anthropics/claude-quickstarts" target="_blank" rel="noopener noreferrer">https://github.com/anthropics/claude-quickstarts</a> — Docker + Web UI + agent loop 포함 최소 구현.</span></div></li>
-      <li><div>Claude Help Center — Assign tasks from anywhere in Claude Cowork (Dispatch)<span class="sub"><a class="link" href="https://support.claude.com/en/articles/13947068-assign-tasks-from-anywhere-in-claude-cowork" target="_blank" rel="noopener noreferrer">https://support.claude.com/en/articles/13947068-assign-tasks-from-anywhere-in-claude-cowork</a> — Dispatch 설정 절차. 모바일→데스크탑 작업 위임.</span></div></li>
-      <li><div>DataCamp — Claude Code Remote Control: A Guide For Beginners<span class="sub"><a class="link" href="https://www.datacamp.com/tutorial/claude-code-remote-control" target="_blank" rel="noopener noreferrer">https://www.datacamp.com/tutorial/claude-code-remote-control</a> — Remote Control 동작 원리. execution stays local, view follows you.</span></div></li>
-      <li><div>MindStudio — Claude Code Channels vs Dispatch vs Remote Control<span class="sub"><a class="link" href="https://www.mindstudio.ai/blog/claude-code-channels-vs-dispatch-vs-remote-control" target="_blank" rel="noopener noreferrer">https://www.mindstudio.ai/blog/claude-code-channels-vs-dispatch-vs-remote-control</a> — 세 메커니즘 비교 가이드.</span></div></li>
-      <li><div>ECC Tools — Open Agent Harness System<span class="sub"><a class="link" href="https://ecc.tools/" target="_blank" rel="noopener noreferrer">https://ecc.tools/</a> — Everything Claude Code 공식 웹사이트.</span></div></li>
-      <li><div>Anthropic — Introducing computer use (Claude 3.5 Sonnet)<span class="sub"><a class="link" href="https://www.anthropic.com/news/3-5-models-and-computer-use" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/3-5-models-and-computer-use</a> — Computer Use 최초 발표. 격리 환경 운영 원칙.</span></div></li>
+      <li><div>Claude Code Docs — Sub-agents 공식 문서<span class="sub"><a class="link" href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/sub-agents</a> — frontmatter 필드 레퍼런스. permissionMode, background, hooks 등.</span><span class="sub"></span></div></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
     </ul>
   </div>
-  <div class="slide-footer">
+  <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left" data-slot="caption">자기만의 subagent cli를 npm/releases로 배포 (7.1.6 참조) end of level 7 — 하네스 엔지니어링·클로드 코드 베스트 프렉티스</span>
     <span class="slide-footer-right" data-slot="page-num">52</span>
   </div>
 </div>
 </div>
 </section>
-<div class="export-nav" id="export-nav">1 / 89 · ↑ ↓ · P = Print</div>
+<section class="export-slide" data-index="89">
+<div class="export-stage">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bDWcgGegZ">REFERENCES</div>
+    <div class="t-title" data-slot="title" data-block-id="b5i7FDm6Y">참고 자료</div>
+    <ul class="bullet-list" data-slot="bullets" data-block-id="bGbnYO0iT" style="width: 1136px; height: 536px; position: absolute; left: 72px; top: 136px;">
+      <li><div><span class="sub"></span>Claude Code Docs — Push events into a running session with channels<span class="sub"><a class="link" href="https://code.claude.com/docs/en/channels" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/channels</a> — Channels 설정 절차. Telegram/Discord/iMessage 연동.</span></div></li>
+      
+      
+      
+      
+      
+      
+      
+      <li><div>Anthropic API Docs — Computer use tool (computer_20251124)<span class="sub"><a class="link" href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool" target="_blank" rel="noopener noreferrer">https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool</a> — 지원 모델, action 종류, zoom action, 비용 가이드.</span></div></li>
+      <li><div>Anthropic Quickstarts — Computer Use 레퍼런스 구현<span class="sub"><a class="link" href="https://github.com/anthropics/claude-quickstarts" target="_blank" rel="noopener noreferrer">https://github.com/anthropics/claude-quickstarts</a> — Docker + Web UI + agent loop 포함 최소 구현.</span></div></li>
+      <li><div>Claude Help Center — Assign tasks from anywhere in Claude Cowork (Dispatch)<span class="sub"><a class="link" href="https://support.claude.com/en/articles/13947068-assign-tasks-from-anywhere-in-claude-cowork" target="_blank" rel="noopener noreferrer">https://support.claude.com/en/articles/13947068-assign-tasks-from-anywhere-in-claude-cowork</a> — Dispatch 설정 절차. 모바일→데스크탑 작업&nbsp;</span></div></li>
+      <li><div>DataCamp — Claude Code Remote Control: A Guide For Beginners<span class="sub"><a class="link" href="https://www.datacamp.com/tutorial/claude-code-remote-control" target="_blank" rel="noopener noreferrer">https://www.datacamp.com/tutorial/claude-code-remote-control</a> — Remote Control 동작 원리. execution stays local, view follows you.</span></div></li>
+      <li><div>MindStudio — Claude Code Channels vs Dispatch vs Remote Control<span class="sub"><a class="link" href="https://www.mindstudio.ai/blog/claude-code-channels-vs-dispatch-vs-remote-control" target="_blank" rel="noopener noreferrer">https://www.mindstudio.ai/blog/claude-code-channels-vs-dispatch-vs-remote-control</a> — 세 메커니즘 비교 가이드.</span></div></li>
+      <li><div>ECC Tools — Open Agent Harness System<span class="sub"><a class="link" href="https://ecc.tools/" target="_blank" rel="noopener noreferrer">https://ecc.tools/</a> — Everything Claude Code 공식 웹사이트.</span></div></li>
+      
+    </ul>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">자기만의 subagent cli를 npm/releases로 배포 (7.1.6 참조) end of level 7 — 하네스 엔지니어링·클로드 코드 베스트 프렉티스</span>
+    <span class="slide-footer-right" data-slot="page-num">52</span>
+  </div>
+</div>
+</div>
+</section>
+<div class="export-nav" id="export-nav">1 / 90 · ↑ ↓ · P = Print</div>
 <script>
 (function(){
   var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));

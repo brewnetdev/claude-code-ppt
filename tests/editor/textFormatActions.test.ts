@@ -457,3 +457,42 @@ describe('cross-span queries (regression: selection inside single text node)', (
     expect(editable.textContent).toBe('crimson');
   });
 });
+
+// Regression: cleanup pass must NOT strip styles from a parent span when the
+// user only selects PART of its text. Prior bug: applying red to "text" inside
+// `<span style="color:blue">plain text content</span>` stripped+unwrapped the
+// parent span, turning "plain " and " content" black. The fix anchors the
+// "fully in range" probe at the element's deepest first/last leaf so a
+// (text, 0)..(text, length) range only covers the span when ALL its text is
+// selected — partial-overlap leaves the span intact.
+describe('regression: wrapWithStyle preserves parent color on partial selection', () => {
+  beforeEach(() => buildOverlayDom(''));
+
+  it('keeps parent span color for un-selected siblings when only inner text is wrapped', () => {
+    editable.innerHTML =
+      '<span style="color: rgb(0, 0, 255);">plain text content</span>';
+    const span = editable.querySelector('span')!;
+    const text = span.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(text, 6); // "text"
+    range.setEnd(text, 10);
+    const sel = dom.window.getSelection()!;
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    wrapWithStyle({ color: '#FF0000' });
+
+    // Outer span MUST keep its blue — this is the user-reported bug.
+    const outer = editable.querySelector('span') as HTMLElement;
+    expect(outer).not.toBeNull();
+    expect(outer.style.color).toMatch(/rgb\(0, 0, 255\)|#0000ff|blue/i);
+
+    // The wrapped portion should be a nested red span.
+    const inner = outer.querySelector('span') as HTMLElement;
+    expect(inner).not.toBeNull();
+    expect(inner.textContent).toBe('text');
+    expect(inner.style.color.toLowerCase()).toMatch(
+      /rgb\(255, 0, 0\)|#ff0000|red/i,
+    );
+  });
+});

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 슬라이드 템플릿 (brewnet-dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+    color: var(--text);
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px; right: 40px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo-url {
+    font-size: 11px; font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-text {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent bar ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Typography ── */
+  .t-hero {
+    font-size: 52px; font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em { font-style: normal; color: var(--amber); }
+
+  .t-chapter {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .t-chapter::before {
+    content: ''; display: inline-block;
+    width: 20px; height: 2px;
+    background: var(--amber);
+  }
+
+  .t-title {
+    font-size: 36px; font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  .t-h2 {
+    font-size: 22px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .t-h2::before {
+    content: ''; display: inline-block;
+    width: 4px; height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .t-h3 {
+    font-size: 15px; font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .t-body {
+    font-size: 20px; font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── Lists ── */
+  .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .bullet-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 21px; color: var(--text); line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸'; color: var(--amber);
+    font-size: 14px; margin-top: 3px; flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px; color: var(--muted);
+    display: block; margin-top: 4px; line-height: 1.55;
+  }
+
+  .num-list { list-style: none; counter-reset: num-cnt; display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex; align-items: flex-start; gap: 14px;
+    font-size: 21px; color: var(--text); line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px; font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0; margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--amber); color: #fff;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots { display: flex; gap: 6px; margin-bottom: 12px; }
+  .code-block-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15);  color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15);  color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15);  color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout ── */
+  .callout {
+    display: flex; gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 17px; margin-top: 12px; }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+
+  /* ── Two Column ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; flex: 1; min-height: 0; }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  .divider { height: 1px; background: #1E293B; margin: 16px 0; }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left, .slide-footer-right {
+    font-size: 11px; color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow ── */
+  .step-flow { display: flex; align-items: center; gap: 0; margin-top: 24px; }
+  .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label { font-size: 14px; font-weight: 700; color: var(--text); }
+  .step-sub { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .step-arrow {
+    font-size: 20px; color: #334155;
+    flex-shrink: 0; margin: 0 4px; padding-bottom: 24px;
+  }
+
+  /* ── Highlight ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* ── Architecture nodes ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+  }
+  .arch-node { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex; align-items: center;
+    color: #334155; font-size: 18px;
+    margin: 0 4px; padding-bottom: 22px;
+  }
+
+  /* ── Slide-type specifics ── */
+  .slide-cover .slide-inner { justify-content: center; gap: 0; }
+  .slide-cover .cover-level {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex; gap: 24px; align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong { color: var(--text); font-weight: 600; }
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px; top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px; line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  .slide-section .slide-inner { justify-content: center; align-items: flex-start; }
+  .slide-section .section-num {
+    font-size: 96px; font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px; bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+  /* Slide label (browser preview only) */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     01. COVER — 표지 슬라이드
+     ============================================================ -->
+<div class="slide slide-cover">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="cover-deco" data-slot="number">01</div>
+    <div class="cover-level" data-slot="label">CHAPTER LABEL · 1줄 코드</div>
+    <div class="t-hero" data-slot="title">메인 타이틀을<br><em>강조 문구</em><br>여기에 작성</div>
+    <div class="cover-subtitle" data-slot="subtitle">부제 / 한 줄 요약 — 슬라이드 톤을 결정하는 핵심 문장</div>
+    <div class="cover-meta" data-slot="body">
+      <span class="cover-meta-item">📖 <strong>발표자</strong></span>
+      <span class="cover-meta-item">📅 <strong>2026-05-13</strong></span>
+      <span class="cover-meta-item">🏷️ <strong>v1.0</strong></span>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">your-site.dev · contact@example.com</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+<div class="slide-label">01 · COVER</div>
+
+<!-- ============================================================
+     02. SECTION DIVIDER — 챕터 구분 슬라이드
+     ============================================================ -->
+<div class="slide slide-section">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="section-num" data-slot="number">02</div>
+    <div class="t-chapter" data-slot="label">PART 2 · 섹션 라벨</div>
+    <div class="t-title" data-slot="title" style="font-size:42px; max-width:680px; line-height:1.2;">
+      섹션 제목 — 이 장에서<br>다룰 핵심 주제
+    </div>
+    <div data-slot="subtitle" style="margin-top:20px; font-size:17px; color:var(--muted); max-width:560px; line-height:1.7;">
+      이 섹션의 학습 목표 또는 한 문장 요약을 여기에 작성합니다.
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">PART 2 — 섹션 부제</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+<div class="slide-label">02 · SECTION DIVIDER</div>
+
+<!-- ============================================================
+     03. CONTENT — 본문(타이틀 + 단순 본문)
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.1 · 본문 라벨</div>
+    <div class="t-title" data-slot="title">슬라이드 메인 타이틀</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:20px;">한 줄 부제로 맥락을 보충합니다.</div>
+    <p class="t-body" data-slot="body">
+      여기에 본문을 작성합니다. <span class="hl-amber">핵심 키워드는 amber</span>로 강조하고,
+      <span class="hl-blue">참조성 정보는 blue</span>로, <span class="hl-green">긍정/성공은 green</span>으로
+      구분하면 시각적 우선순위가 살아납니다.
+    </p>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.1 — 본문 푸터 라벨</span>
+    <span class="slide-footer-right" data-slot="page-num">03</span>
+  </div>
+</div>
+<div class="slide-label">03 · CONTENT (TITLE + BODY)</div>
+
+<!-- ============================================================
+     04. BULLET LIST — 불릿 리스트
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.1 · 핵심 포인트</div>
+    <div class="t-title" data-slot="title">불릿 리스트 슬라이드</div>
+    <ul class="bullet-list" data-slot="bullets" style="margin-top:24px;">
+      <li>
+        첫 번째 포인트 — 짧고 명확한 문장
+        <span class="sub">부가 설명을 sub 클래스로 한 줄 더 — 톤다운된 회색</span>
+      </li>
+      <li>두 번째 포인트 — sub 없이 단독 사용도 가능</li>
+      <li>
+        세 번째 포인트 — <span class="hl-amber">키워드 강조</span> 가능
+        <span class="sub">상세 설명을 sub 클래스로 부연</span>
+      </li>
+      <li>네 번째 포인트 — 항목 수는 4~5개가 가독성 최적</li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.1 — Bullet list pattern</span>
+    <span class="slide-footer-right" data-slot="page-num">04</span>
+  </div>
+</div>
+<div class="slide-label">04 · BULLET LIST</div>
+
+<!-- ============================================================
+     05. NUMBERED LIST — 번호 리스트
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.2 · 단계별 절차</div>
+    <div class="t-title" data-slot="title">번호 리스트 슬라이드</div>
+    <ol class="num-list" data-slot="bullets" style="margin-top:24px;">
+      <li>첫 단계 — 자동으로 amber 원형 배지가 카운트됩니다</li>
+      <li>두 번째 단계 — 절차 / 우선순위가 있는 정보에 사용</li>
+      <li>세 번째 단계 — bullet-list와 의미적으로 구분</li>
+      <li>네 번째 단계 — 5단계 이내 권장</li>
+    </ol>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.2 — Numbered list pattern</span>
+    <span class="slide-footer-right" data-slot="page-num">05</span>
+  </div>
+</div>
+<div class="slide-label">05 · NUMBERED LIST</div>
+
+<!-- ============================================================
+     06. TWO COLUMN (50:50) — 2단 분할
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.2 · 비교</div>
+    <div class="t-title" data-slot="title">2단 비교 슬라이드</div>
+    <div class="two-col" style="margin-top:24px;">
+      <div>
+        <div class="t-h2">왼쪽 컬럼</div>
+        <div class="t-h3">DESCRIPTION</div>
+        <p class="t-body" style="font-size:17px;">
+          왼쪽 영역의 본문. 비교 대상 A 또는 첫 번째 측면을 설명합니다.
+        </p>
+        <ul class="bullet-list" style="margin-top:12px;">
+          <li style="font-size:17px;">포인트 A-1</li>
+          <li style="font-size:17px;">포인트 A-2</li>
+        </ul>
+      </div>
+      <div>
+        <div class="t-h2">오른쪽 컬럼</div>
+        <div class="t-h3">DESCRIPTION</div>
+        <p class="t-body" style="font-size:17px;">
+          오른쪽 영역의 본문. 비교 대상 B 또는 두 번째 측면을 설명합니다.
+        </p>
+        <ul class="bullet-list" style="margin-top:12px;">
+          <li style="font-size:17px;">포인트 B-1</li>
+          <li style="font-size:17px;">포인트 B-2</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.2 — Two-column comparison</span>
+    <span class="slide-footer-right" data-slot="page-num">06</span>
+  </div>
+</div>
+<div class="slide-label">06 · TWO COLUMN 50:50</div>
+
+<!-- ============================================================
+     07. TWO COLUMN 6:4 — 본문 + 사이드
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.3 · 본문 + 사이드</div>
+    <div class="t-title" data-slot="title">6:4 비대칭 레이아웃</div>
+    <div class="two-col ratio-6-4" style="margin-top:24px;">
+      <div>
+        <p class="t-body" style="font-size:18px;">
+          주 본문 영역(6) — 핵심 설명을 작성합니다. 본문이 길어도 가독성이 유지되는
+          비율로, 보조 시각 자료를 오른쪽에 둘 때 적합합니다.
+        </p>
+        <div class="callout callout-amber" style="margin-top:16px;">
+          <span class="callout-icon">💡</span>
+          <span class="callout-body"><strong>Tip.</strong> 6:4 또는 4:6은 텍스트 vs. 시각자료 균형에 유용합니다.</span>
+        </div>
+      </div>
+      <div>
+        <div class="arch-box" style="height:100%; min-height:0;">
+          <span style="color:var(--muted); font-style:italic; font-size:14px;">사이드 이미지 / 도식</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.3 — Asymmetric layout 6:4</span>
+    <span class="slide-footer-right" data-slot="page-num">07</span>
+  </div>
+</div>
+<div class="slide-label">07 · TWO COLUMN 6:4</div>
+
+<!-- ============================================================
+     08. TABLE — 표
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.3 · 비교 표</div>
+    <div class="t-title" data-slot="title">표 슬라이드</div>
+    <table class="tbl" data-slot="table" style="margin-top:24px;">
+      <thead>
+        <tr><th style="width:20%;">항목</th><th>A 옵션</th><th>B 옵션</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>특성 1</strong></td><td>설명 A1</td><td>설명 B1</td><td>—</td></tr>
+        <tr><td><strong>특성 2</strong></td><td>설명 A2</td><td>설명 B2</td><td><span class="badge badge-amber">중요</span></td></tr>
+        <tr><td><strong>특성 3</strong></td><td>설명 A3</td><td>설명 B3</td><td>—</td></tr>
+        <tr><td><strong>특성 4</strong></td><td>설명 A4</td><td>설명 B4</td><td><span class="badge badge-green">권장</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.3 — Comparison table</span>
+    <span class="slide-footer-right" data-slot="page-num">08</span>
+  </div>
+</div>
+<div class="slide-label">08 · TABLE</div>
+
+<!-- ============================================================
+     09. CODE BLOCK — 터미널 스타일 코드
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.4 · 실행 예시</div>
+    <div class="t-title" data-slot="title">코드 블록 슬라이드</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:16px;">터미널 실행 결과를 시뮬레이션합니다.</div>
+    <div class="code-block" data-slot="code">
+      <div class="code-block-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><span class="gray">$</span> <span class="green">npm run dev</span>
+
+<span class="cyan">▲ Vite</span> <span class="gray">v5.0.0</span>  ready in <span class="yellow">340 ms</span>
+
+  ➜  Local:   <span class="blue">http://127.0.0.1:5173/</span>
+  ➜  Network: use <span class="gray">--host</span> to expose
+  ➜  press <span class="yellow">h</span> + enter to show help</pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.4 — Code block pattern</span>
+    <span class="slide-footer-right" data-slot="page-num">09</span>
+  </div>
+</div>
+<div class="slide-label">09 · CODE BLOCK</div>
+
+<!-- ============================================================
+     10. PROMPT BOX — 프롬프트/명령 예시
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.4 · 프롬프트 작성</div>
+    <div class="t-title" data-slot="title">프롬프트 박스 슬라이드</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:20px;">사용자/Claude에게 전달할 명령을 강조 표시합니다.</div>
+
+    <div class="prompt-box" data-slot="quote">
+      <span class="prompt-box-label">PROMPT</span>
+<pre><span class="cmt"># 사용자 프롬프트 예시</span>
+<span class="cmd">/explain</span> <span class="arg">src/canvas/SlideRenderer.tsx</span>
+이 컴포넌트가 <span class="str">"data-slot"</span> 속성을 어떻게
+처리하는지 단계별로 설명해줘.</pre>
+    </div>
+
+    <div class="callout callout-blue" style="margin-top:20px;">
+      <span class="callout-icon">ℹ️</span>
+      <span class="callout-body">prompt-box는 사용자 입력을, code-block은 실행 결과를 표현합니다.</span>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.4 — Prompt pattern</span>
+    <span class="slide-footer-right" data-slot="page-num">10</span>
+  </div>
+</div>
+<div class="slide-label">10 · PROMPT BOX</div>
+
+<!-- ============================================================
+     11. CALLOUTS — 강조 박스 3종
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.5 · 강조 패턴</div>
+    <div class="t-title" data-slot="title">콜아웃 박스</div>
+    <div data-slot="body" style="margin-top:24px;">
+      <div class="callout callout-amber">
+        <span class="callout-icon">💡</span>
+        <span class="callout-body"><strong>Tip.</strong> amber — 팁, 핵심 인사이트, 주의가 필요한 정보</span>
+      </div>
+      <div class="callout callout-blue">
+        <span class="callout-icon">ℹ️</span>
+        <span class="callout-body"><strong>Note.</strong> blue — 보충 설명, 참고 자료, 맥락 정보</span>
+      </div>
+      <div class="callout callout-green">
+        <span class="callout-icon">✅</span>
+        <span class="callout-body"><strong>OK.</strong> green — 성공, 권장, 확정된 결정</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.5 — Callout patterns</span>
+    <span class="slide-footer-right" data-slot="page-num">11</span>
+  </div>
+</div>
+<div class="slide-label">11 · CALLOUTS</div>
+
+<!-- ============================================================
+     12. BADGES — 태그/뱃지
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.5 · 태그</div>
+    <div class="t-title" data-slot="title">뱃지 슬라이드</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:20px;">카테고리, 상태, 난이도 등을 표시합니다.</div>
+    <div data-slot="body" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;">
+      <span class="badge badge-amber">⭐ FEATURED</span>
+      <span class="badge badge-blue">📘 GUIDE</span>
+      <span class="badge badge-green">✅ DONE</span>
+      <span class="badge badge-red">⚠️ BREAKING</span>
+      <span class="badge badge-gray">📦 ARCHIVED</span>
+    </div>
+    <div class="divider"></div>
+    <p class="t-body" style="font-size:17px;">
+      뱃지는 표 셀, 리스트 항목, 콜아웃 내부 어디에든 인라인으로 삽입할 수 있습니다.
+    </p>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.5 — Badge patterns</span>
+    <span class="slide-footer-right" data-slot="page-num">12</span>
+  </div>
+</div>
+<div class="slide-label">12 · BADGES</div>
+
+<!-- ============================================================
+     13. STEP FLOW — 가로 단계 흐름
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.6 · 워크플로우</div>
+    <div class="t-title" data-slot="title">단계 흐름도</div>
+    <div class="t-caption" data-slot="subtitle">3~5단계의 순차 프로세스를 시각화합니다.</div>
+
+    <div class="step-flow" data-slot="step">
+      <div class="step-item">
+        <div class="step-circle">1</div>
+        <div class="step-label">PLAN</div>
+        <div class="step-sub">요구사항 정리</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-item">
+        <div class="step-circle">2</div>
+        <div class="step-label">CODE</div>
+        <div class="step-sub">구현 및 PR</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <div class="step-label">REVIEW</div>
+        <div class="step-sub">검토 / 수정</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <div class="step-label">SHIP</div>
+        <div class="step-sub">배포</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.6 — Step flow pattern</span>
+    <span class="slide-footer-right" data-slot="page-num">13</span>
+  </div>
+</div>
+<div class="slide-label">13 · STEP FLOW</div>
+
+<!-- ============================================================
+     14. ARCHITECTURE DIAGRAM — 노드 다이어그램
+     ============================================================ -->
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">your-site.dev</a>
+    <span class="slide-logo-text">YOUR BRAND</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CH.7 · 시스템 구조</div>
+    <div class="t-title" data-slot="title">아키텍처 다이어그램</div>
+
+    <div class="arch-box" data-slot="body" style="margin-top:20px; padding:40px;">
+      <div class="arch-node">
+        <div class="arch-node-circle" style="background:rgba(96,165,250,.15); color:var(--blue);">U</div>
+        <div class="arch-node-label">USER</div>
+      </div>
+      <div class="arch-line">→</div>
+      <div class="arch-node">
+        <div class="arch-node-circle" style="background:rgba(245,158,11,.15); color:var(--amber);">CC</div>
+        <div class="arch-node-label">CLAUDE<br>CODE</div>
+      </div>
+      <div class="arch-line">→</div>
+      <div class="arch-node">
+        <div class="arch-node-circle" style="background:rgba(52,211,153,.15); color:var(--green);">FS</div>
+        <div class="arch-node-label">FILES</div>
+      </div>
+      <div class="arch-line">↔</div>
+      <div class="arch-node">
+        <div class="arch-node-circle" style="background:rgba(34,211,238,.15); color:var(--cyan);">API</div>
+        <div class="arch-node-label">SERVER</div>
+      </div>
+    </div>
+
+    <p class="t-caption" style="margin-top:16px;">
+      arch-box 안에 arch-node + arch-line을 조합해 시스템 흐름을 표현합니다.
+    </p>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">CH.7 — Architecture diagram</span>
+    <span class="slide-footer-right" data-slot="page-num">14</span>
+  </div>
+</div>
+<div class="slide-label">14 · ARCHITECTURE</div>
+
+</body>
+</html>

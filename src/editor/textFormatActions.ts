@@ -154,6 +154,45 @@ function applyPatchToCells(
   }
 }
 
+// True iff `range` covers ALL of `el`'s text content. Used to decide
+// which descendants the cleanup pass may safely strip styles from. The
+// previous `range.intersectsNode` check fired for partial-overlap
+// descendants too — so selecting "text" inside
+// `<span style="color:blue">plain text content</span>` and applying red
+// would strip the parent span's blue and unwrap it, turning "plain " and
+// " content" black even though only "text" was supposed to change.
+//
+// We compare against a probe range anchored at `el`'s deepest first/last
+// leaves (not `selectNode` / `selectNodeContents` which both anchor at the
+// element-level boundaries). The reason: a range whose endpoints sit at a
+// text-node's offsets `(text, 0)` and `(text, length)` is the canonical
+// "select all of this element's text" shape, but in tree order
+// `(span, 0)` is BEFORE `(text, 0)` — so anchoring the probe at the span
+// itself makes that range look like a partial-overlap. Anchoring at the
+// deepest leaf instead gives us position-equivalence with the typical
+// select-all selection.
+function isElementFullyInRange(el: Element, range: Range): boolean {
+  const probe = el.ownerDocument!.createRange();
+  let firstLeaf: Node = el;
+  while (firstLeaf.firstChild) firstLeaf = firstLeaf.firstChild;
+  let lastLeaf: Node = el;
+  while (lastLeaf.lastChild) lastLeaf = lastLeaf.lastChild;
+  try {
+    probe.setStart(firstLeaf, 0);
+    if (lastLeaf.nodeType === Node.TEXT_NODE) {
+      probe.setEnd(lastLeaf, (lastLeaf as Text).length);
+    } else {
+      probe.setEndAfter(lastLeaf);
+    }
+  } catch {
+    return false;
+  }
+  return (
+    range.compareBoundaryPoints(Range.START_TO_START, probe) <= 0 &&
+    range.compareBoundaryPoints(Range.END_TO_END, probe) >= 0
+  );
+}
+
 // `<span style="…">` wrapper for the active selection. Each property
 // supports `null` = remove that one inline style from intersecting elements,
 // or a string value to set+wrap (also clearing the same key from intersecting
@@ -177,17 +216,21 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
   const host = nearestFormatHost(range.commonAncestorContainer);
   if (!host) return;
 
-  // Cleanup pass: strip every key that's being set or removed from any
-  // intersecting element (span OR block like div/p — block-level inline
-  // color otherwise wins over our outer wrapper because it's closer to the
-  // text node in the cascade). Bare SPANs are unwrapped after cleanup;
-  // block elements stay as structural nodes.
+  // Cleanup pass: strip every key that's being set or removed from
+  // descendants that are FULLY contained by the range. Partial-overlap
+  // descendants (range covers only part of their content) and ancestors of
+  // the range are intentionally skipped — they hold styling that applies
+  // to *neighboring un-selected text*, and stripping it would corrupt
+  // colors/sizes outside the user's selection. The wrap span we create
+  // below sits deeper in the cascade than any ancestor and wins via
+  // specificity, so we don't need to clear ancestor styles.
+  // Bare SPANs are unwrapped after cleanup; block elements stay structural.
   const keysInPatch = INLINE_STYLE_KEYS.filter((k) => patch[k] !== undefined);
   if (keysInPatch.length > 0) {
     const all = Array.from(host.querySelectorAll<HTMLElement>('*'));
     for (const el of all) {
       if (el === host) continue;
-      if (!range.intersectsNode(el)) continue;
+      if (!isElementFullyInRange(el, range)) continue;
       let touched = false;
       for (const k of keysInPatch) {
         if ((el.style as unknown as Record<string, string>)[k]) {

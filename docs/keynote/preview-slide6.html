@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>슬라이드 6 SVG 미리보기 — 컨텍스트 윈도우 구조</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --amber: #F59E0B; --amber-d: #D97706; --blue: #60A5FA; --cyan: #22D3EE;
+    --green: #34D399; --red: #F87171; --text: #F1F5F9; --muted: #94A3B8;
+    --border: #1E293B; --bg: #0F172A;
+  }
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex; flex-direction: column; gap: 20px; align-items: center;
+    color: var(--text);
+  }
+  .slide {
+    position: relative;
+    width: 1280px; height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+  }
+  .slide-topbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+  .slide-logo {
+    position: absolute; top: 28px; right: 40px;
+    display: flex; align-items: center; gap: 8px; z-index: 10;
+  }
+  .slide-logo-url {
+    font-size: 11px; font-weight: 500; color: #475569;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: .02em;
+    text-decoration: none; margin-right: 12px;
+    border-right: 1px solid #1E293B; padding-right: 14px; line-height: 1;
+  }
+  .slide-logo-text {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em;
+    color: var(--amber); font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-inner {
+    position: relative; z-index: 2; height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex; flex-direction: column;
+  }
+  .t-chapter {
+    font-size: 11px; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .t-chapter::before {
+    content: ''; display: inline-block;
+    width: 20px; height: 2px; background: var(--amber);
+  }
+  .t-title {
+    font-size: 36px; font-weight: 700; color: var(--text);
+    line-height: 1.25; letter-spacing: -.02em; margin-bottom: 8px;
+  }
+  .t-caption {
+    font-size: 14px; color: var(--muted); line-height: 1.6; margin-top: 4px;
+  }
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan); font-weight: 700; }
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 16px 20px;
+    background: #111827;
+  }
+  .slide-footer {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 72px; z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left, .slide-footer-right {
+    font-size: 11px; color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .preview-banner {
+    color: #FCD34D;
+    background: rgba(245,158,11,.10);
+    border: 1px solid rgba(245,158,11,.40);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: .04em;
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-banner">📋 PREVIEW — 슬라이드 6 SVG 다이어그램 (적용 전 검토용)</div>
+
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="#">claude.ai/code</a>
+    <span class="slide-logo-text">CC HOW-TO</span>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter">CH.0 · PART 1</div>
+    <div class="t-title">컨텍스트 윈도우의 구조</div>
+    <div class="t-caption" style="margin-bottom:14px;">200K (Sonnet/Opus 기본) / 1M (확장) 토큰의 윈도우 안에 무엇이 들어가는가</div>
+
+    <div class="arch-box" style="margin-top:14px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 420"
+           style="width:100%; height:auto; display:block;"
+           font-family="'Noto Sans KR', sans-serif">
+
+        <!-- 상단 타이틀 -->
+        <text x="540" y="14" text-anchor="middle" fill="#94A3B8"
+              font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700"
+              letter-spacing="0.12em">CONTEXT WINDOW · 200K / 1M TOKENS</text>
+
+        <!-- 섹션 헤더 -->
+        <text x="156" y="40" text-anchor="middle" fill="#FCD34D"
+              font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700"
+              letter-spacing="0.1em">STATIC · 세션 시작 시 1회 로드</text>
+        <text x="676" y="40" text-anchor="middle" fill="#FCD34D"
+              font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700"
+              letter-spacing="0.1em">SESSION · 매 턴 누적, 사용량 증가  →</text>
+
+        <!-- Panel A 외곽 + 정적/세션 구분선 -->
+        <rect x="14" y="24" width="1052" height="180" rx="10"
+              fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <line x1="288" y1="32" x2="288" y2="196"
+              stroke="#475569" stroke-width="1" stroke-dasharray="3 4"/>
+
+        <!-- STATIC 3박스 -->
+        <g transform="translate(30, 56)">
+          <rect x="0" y="0" width="78" height="118" rx="6"
+                fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.55)"/>
+          <text x="39" y="22" text-anchor="middle" fill="#FCA5A5"
+                font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">SYSTEM</text>
+          <text x="39" y="48" text-anchor="middle" fill="#FCA5A5" font-size="20" font-weight="800">~11K</text>
+          <text x="39" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">Anthropic</text>
+          <text x="39" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">비공개</text>
+          <text x="39" y="106" text-anchor="middle" fill="#FCA5A5" font-size="10" font-weight="600">수정 불가</text>
+
+          <rect x="84" y="0" width="78" height="118" rx="6"
+                fill="rgba(34,211,238,0.12)" stroke="rgba(34,211,238,0.55)"/>
+          <text x="123" y="22" text-anchor="middle" fill="#67E8F9"
+                font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">TOOLS</text>
+          <text x="123" y="48" text-anchor="middle" fill="#67E8F9" font-size="20" font-weight="800">~13K</text>
+          <text x="123" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">Read · Edit</text>
+          <text x="123" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">Bash · MCP</text>
+          <text x="123" y="106" text-anchor="middle" fill="#67E8F9" font-size="10" font-weight="600">기본 제공</text>
+
+          <rect x="168" y="0" width="78" height="118" rx="6"
+                fill="rgba(52,211,153,0.14)" stroke="rgba(52,211,153,0.6)"/>
+          <text x="207" y="22" text-anchor="middle" fill="#6EE7B7"
+                font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700">CLAUDE.md</text>
+          <text x="207" y="48" text-anchor="middle" fill="#6EE7B7" font-size="20" font-weight="800">~5K</text>
+          <text x="207" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">프로젝트</text>
+          <text x="207" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">룰북</text>
+          <text x="207" y="106" text-anchor="middle" fill="#FCD34D" font-size="10" font-weight="700">★ 영향력</text>
+        </g>
+
+        <!-- SESSION: 턴 점증 블럭 -->
+        <rect x="300" y="138" width="36" height="42" rx="4"
+              fill="rgba(96,165,250,0.20)" stroke="rgba(96,165,250,0.6)"/>
+        <text x="318" y="162" text-anchor="middle" fill="#93C5FD"
+              font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">T1</text>
+        <text x="318" y="194" text-anchor="middle" fill="#94A3B8" font-size="9">~3K</text>
+
+        <rect x="346" y="124" width="46" height="56" rx="4"
+              fill="rgba(96,165,250,0.24)" stroke="rgba(96,165,250,0.6)"/>
+        <text x="369" y="158" text-anchor="middle" fill="#93C5FD"
+              font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">T2</text>
+        <text x="369" y="194" text-anchor="middle" fill="#94A3B8" font-size="9">+5K</text>
+
+        <rect x="402" y="106" width="60" height="74" rx="4"
+              fill="rgba(96,165,250,0.30)" stroke="rgba(96,165,250,0.65)"/>
+        <text x="432" y="148" text-anchor="middle" fill="#93C5FD"
+              font-size="14" font-weight="700" font-family="'JetBrains Mono', monospace">T3</text>
+        <text x="432" y="194" text-anchor="middle" fill="#94A3B8" font-size="9">+8K</text>
+
+        <rect x="472" y="86" width="76" height="94" rx="4"
+              fill="rgba(96,165,250,0.36)" stroke="rgba(96,165,250,0.7)"/>
+        <text x="510" y="138" text-anchor="middle" fill="#93C5FD"
+              font-size="14" font-weight="700" font-family="'JetBrains Mono', monospace">T4</text>
+        <text x="510" y="194" text-anchor="middle" fill="#94A3B8" font-size="9">+12K</text>
+
+        <rect x="558" y="68" width="96" height="112" rx="4"
+              fill="rgba(245,158,11,0.28)" stroke="rgba(245,158,11,0.7)"/>
+        <text x="606" y="128" text-anchor="middle" fill="#FCD34D"
+              font-size="15" font-weight="700" font-family="'JetBrains Mono', monospace">T5</text>
+        <text x="606" y="194" text-anchor="middle" fill="#FCD34D" font-size="9" font-weight="700">+18K · 70% ⚠</text>
+
+        <rect x="664" y="48" width="116" height="132" rx="4"
+              fill="rgba(245,158,11,0.42)" stroke="rgba(245,158,11,0.85)"/>
+        <text x="722" y="120" text-anchor="middle" fill="#FCD34D"
+              font-size="16" font-weight="700" font-family="'JetBrains Mono', monospace">T6</text>
+        <text x="722" y="194" text-anchor="middle" fill="#FCA5A5" font-size="9" font-weight="700">+25K · 95% 임박 ⚠</text>
+
+        <!-- /compact 곡선 화살표 -->
+        <g transform="translate(794, 90)">
+          <path d="M 0 30 Q 30 -10, 76 30" fill="none"
+                stroke="#34D399" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="68,20 80,32 64,38" fill="#34D399"/>
+          <text x="40" y="2" text-anchor="middle" fill="#34D399"
+                font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700">/compact</text>
+          <text x="40" y="56" text-anchor="middle" fill="#94A3B8" font-size="10">요약 압축</text>
+        </g>
+
+        <!-- 압축 결과 SUM -->
+        <rect x="878" y="138" width="50" height="42" rx="4"
+              fill="rgba(52,211,153,0.30)" stroke="rgba(52,211,153,0.7)" stroke-dasharray="3 2"/>
+        <text x="903" y="164" text-anchor="middle" fill="#6EE7B7"
+              font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">SUM</text>
+        <text x="903" y="194" text-anchor="middle" fill="#6EE7B7" font-size="9">압축본 ~6K</text>
+
+        <!-- T7 재개 -->
+        <rect x="938" y="138" width="34" height="42" rx="4"
+              fill="rgba(96,165,250,0.20)" stroke="rgba(96,165,250,0.6)"/>
+        <text x="955" y="162" text-anchor="middle" fill="#93C5FD"
+              font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">T7</text>
+        <text x="955" y="194" text-anchor="middle" fill="#94A3B8" font-size="9">재개</text>
+
+        <text x="1004" y="166" fill="#475569" font-size="22"
+              font-family="'JetBrains Mono', monospace">···</text>
+
+        <!-- Panel B: /context 사용 가이드 -->
+        <rect x="14" y="218" width="1052" height="96" rx="10"
+              fill="#111827" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
+        <rect x="30" y="232" width="130" height="68" rx="6"
+              fill="rgba(245,158,11,0.18)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5"/>
+        <text x="95" y="262" text-anchor="middle" fill="#FCD34D"
+              font-family="'JetBrains Mono', monospace" font-size="18" font-weight="700">/context</text>
+        <text x="95" y="284" text-anchor="middle" fill="#94A3B8"
+              font-family="'JetBrains Mono', monospace" font-size="10">사용률 시각화</text>
+
+        <text x="180" y="246" fill="#F1F5F9" font-size="13" font-weight="700">실시간 모니터링 — 어떤 부분이 토큰을 잡아먹는지 % 단위로 확인</text>
+        <text x="180" y="266" fill="#CBD5E1" font-size="12.5">70% 도달 시 <tspan fill="#6EE7B7" font-family="'JetBrains Mono', monospace" font-weight="700">/compact</tspan>로 압축 · 95%+ 또는 주제 전환 시 <tspan fill="#FCA5A5" font-family="'JetBrains Mono', monospace" font-weight="700">/clear</tspan>로 초기화</text>
+        <text x="180" y="288" fill="#94A3B8" font-size="11">📂 큰 파일은 head/grep으로 잘라 읽기 · 🛠 도구 출력은 필요한 부분만 인용 · 📜 종료 직전 HANDOFF.md로 인계</text>
+
+        <g transform="translate(794, 232)">
+          <rect x="0" y="0" width="106" height="30" rx="4" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.45)"/>
+          <text x="53" y="20" text-anchor="middle" fill="#6EE7B7"
+                font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">/compact</text>
+        </g>
+        <g transform="translate(794, 268)">
+          <rect x="0" y="0" width="106" height="30" rx="4" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.45)"/>
+          <text x="53" y="20" text-anchor="middle" fill="#FCA5A5"
+                font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">/clear</text>
+        </g>
+        <g transform="translate(908, 232)">
+          <rect x="0" y="0" width="130" height="30" rx="4" fill="rgba(96,165,250,0.10)" stroke="rgba(96,165,250,0.4)"/>
+          <text x="65" y="20" text-anchor="middle" fill="#93C5FD" font-size="11" font-weight="700">출력 잘라쓰기</text>
+        </g>
+        <g transform="translate(908, 268)">
+          <rect x="0" y="0" width="130" height="30" rx="4" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.4)"/>
+          <text x="65" y="20" text-anchor="middle" fill="#67E8F9" font-size="11" font-weight="700">HANDOFF.md</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(14, 336)">
+          <rect width="11" height="11" rx="2" fill="rgba(248,113,113,0.4)"/>
+          <text x="18" y="10" fill="#94A3B8" font-size="11">수정 불가 (Anthropic)</text>
+          <g transform="translate(180, 0)"><rect width="11" height="11" rx="2" fill="rgba(34,211,238,0.4)"/><text x="18" y="10" fill="#94A3B8" font-size="11">Claude Code 기본 제공</text></g>
+          <g transform="translate(376, 0)"><rect width="11" height="11" rx="2" fill="rgba(52,211,153,0.4)"/><text x="18" y="10" fill="#94A3B8" font-size="11">사용자 작성 (영향력 ★)</text></g>
+          <g transform="translate(572, 0)"><rect width="11" height="11" rx="2" fill="rgba(96,165,250,0.4)"/><text x="18" y="10" fill="#94A3B8" font-size="11">매 턴 누적 (정상 범위)</text></g>
+          <g transform="translate(764, 0)"><rect width="11" height="11" rx="2" fill="rgba(245,158,11,0.4)"/><text x="18" y="10" fill="#94A3B8" font-size="11">위험 구간 (70%+)</text></g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="t-caption" style="margin-top:14px; text-align:center;">
+      <span class="hl-amber">정적 부분</span>은 세션 시작 시 1회 로드 · <span class="hl-cyan">동적 부분</span>은 매 턴 누적 · <span class="hl-amber">/context</span>로 사용률 통제
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left">CH.0 · PART 1 — Context Window</span>
+    <span class="slide-footer-right">06</span>
+  </div>
+</div>
+
+</body>
+</html>
