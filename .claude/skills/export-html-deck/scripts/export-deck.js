@@ -273,26 +273,25 @@ body.deck-viewer-body.present-mode .deck-nav {
   transition: opacity 0.2s ease;
 }
 body.deck-viewer-body.present-mode .deck-nav:hover { opacity: 1; }
-body.deck-viewer-body.present-mode .deck-hint {
+.deck-hint {
   position: fixed;
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 14px;
-  background: rgba(15,23,42,0.7);
+  background: rgba(15,23,42,0.85);
   border: 1px solid rgba(245,158,11,0.35);
   border-radius: 999px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--muted, #94A3B8);
+  color: var(--text, #F1F5F9);
   z-index: 110;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  backdrop-filter: blur(6px);
 }
-body.deck-viewer-body.present-mode .deck-hint.show {
-  opacity: 1;
-}
+.deck-hint.show { opacity: 1; }
 
 /* ─── Floating nav bar ─── */
 .deck-nav {
@@ -339,6 +338,158 @@ body.deck-viewer-body.present-mode .deck-hint.show {
   padding: 0 6px;
   min-width: 64px;
   text-align: center;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   Presentation animations (export viewer only)
+   ═════════════════════════════════════════════════════════════ */
+
+/* Master toggle */
+body.deck-viewer-body.no-anim *,
+body.deck-viewer-body.no-anim *::before,
+body.deck-viewer-body.no-anim *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* [A] Cross-fade slide transition */
+.slide-frame {
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.slide-frame[hidden] { opacity: 0; }
+
+/* [B] Hero scale-up */
+@keyframes heroScaleUp {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.slide-frame.animate-active .slide-cover .cover-level,
+.slide-frame.animate-active .slide-cover .t-hero,
+.slide-frame.animate-active .slide-cover .cover-subtitle,
+.slide-frame.animate-active .slide-cover .cover-meta,
+.slide-frame.animate-active .slide-cover .cover-deco {
+  animation: heroScaleUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.slide-frame.animate-active .slide-cover .cover-level     { animation-delay: 0ms; }
+.slide-frame.animate-active .slide-cover .cover-deco      { animation-delay: 100ms; }
+.slide-frame.animate-active .slide-cover .t-hero          { animation-delay: 200ms; }
+.slide-frame.animate-active .slide-cover .cover-subtitle  { animation-delay: 500ms; }
+.slide-frame.animate-active .slide-cover .cover-meta      { animation-delay: 700ms; }
+
+/* SECTION slide impact */
+@keyframes sectionNumIn {
+  from { opacity: 0; transform: translateX(80px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-frame.animate-active .slide-section .section-num {
+  animation: sectionNumIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 100ms;
+}
+.slide-frame.animate-active .slide-section .t-chapter,
+.slide-frame.animate-active .slide-section .t-title,
+.slide-frame.animate-active .slide-section [data-slot="subtitle"] {
+  animation: heroScaleUp 0.55s ease backwards;
+}
+.slide-frame.animate-active .slide-section .t-chapter            { animation-delay: 250ms; }
+.slide-frame.animate-active .slide-section .t-title              { animation-delay: 400ms; }
+.slide-frame.animate-active .slide-section [data-slot="subtitle"]{ animation-delay: 600ms; }
+
+/* [C] Sequential reveal */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Bullet list stagger */
+.slide-frame.animate-active .bullet-list li {
+  animation: revealUp 0.45s ease backwards;
+}
+.slide-frame.animate-active .bullet-list li:nth-child(1) { animation-delay:  80ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(2) { animation-delay: 180ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(3) { animation-delay: 280ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(4) { animation-delay: 380ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(5) { animation-delay: 480ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(6) { animation-delay: 580ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(7) { animation-delay: 680ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(8) { animation-delay: 780ms; }
+
+/* Step flow stagger */
+.slide-frame.animate-active .step-flow > * {
+  animation: revealUp 0.45s ease backwards;
+}
+.slide-frame.animate-active .step-flow > *:nth-child(1) { animation-delay: 120ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(2) { animation-delay: 220ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(3) { animation-delay: 320ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(4) { animation-delay: 420ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(5) { animation-delay: 520ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(6) { animation-delay: 620ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(7) { animation-delay: 720ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(8) { animation-delay: 820ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(9) { animation-delay: 920ms; }
+
+/* Table row stagger */
+.slide-frame.animate-active .tbl tbody tr {
+  animation: revealUp 0.35s ease backwards;
+}
+.slide-frame.animate-active .tbl tbody tr:nth-child(1) { animation-delay: 200ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(2) { animation-delay: 285ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(3) { animation-delay: 360ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(4) { animation-delay: 425ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(5) { animation-delay: 480ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(6) { animation-delay: 525ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(7) { animation-delay: 565ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(8) { animation-delay: 600ms; }
+
+/* Body grid children stagger (3-col/4-col grids) */
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > * {
+  animation: revealUp 0.4s ease backwards;
+}
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(1) { animation-delay: 100ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(2) { animation-delay: 200ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(3) { animation-delay: 300ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(4) { animation-delay: 400ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(5) { animation-delay: 500ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(6) { animation-delay: 600ms; }
+
+/* [D] Code/prompt block container fade-in */
+.slide-frame.animate-active .code-block,
+.slide-frame.animate-active .prompt-box {
+  animation: revealUp 0.45s ease backwards;
+  animation-delay: 300ms;
+}
+.slide-frame.animate-active .tw-line {
+  opacity: 0;
+  animation: revealUp 0.3s ease forwards;
+  display: block;
+}
+
+/* [E] Emphasis pulse — Stage 3 amber THIS / Stage 4 red IMPORTANT pills */
+@keyframes pulsePill {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
+  50%      { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+}
+@keyframes pulsePillRed {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+  50%      { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+}
+.slide-frame.animate-active div[style*="background:var(--amber)"][style*="border-radius:999px"] {
+  animation: pulsePill 2.2s ease-in-out 1500ms infinite;
+}
+.slide-frame.animate-active div[style*="background:#F87171"][style*="border-radius:999px"] {
+  animation: pulsePillRed 2.2s ease-in-out 1700ms infinite;
+}
+
+/* [F] SVG arrow path draw (curved arrows in /clear, evolution, cycles) */
+@keyframes drawPath {
+  from { stroke-dashoffset: 220; }
+  to   { stroke-dashoffset: 0; }
+}
+.slide-frame.animate-active svg path[fill="none"][stroke-linecap="round"] {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawPath 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 600ms;
 }
 `;
 
@@ -402,10 +553,30 @@ const navScript = `(function() {
     else enterPresent(true);
   }
 
+  function runTypewriter(slide) {
+    if (document.body.classList.contains('no-anim')) return;
+    const blocks = slide.querySelectorAll('.code-block pre, .prompt-box pre');
+    blocks.forEach(function(pre){
+      if (pre.dataset.tw === 'done' || pre.dataset.tw === 'skip') return;
+      const html = pre.innerHTML;
+      // Skip if syntax-highlight <span> already present (would break the markup)
+      if (/<span\\b/i.test(html)) { pre.dataset.tw = 'skip'; return; }
+      const lineCount = (html.match(/\\n/g) || []).length;
+      if (lineCount > 20 || lineCount < 1) { pre.dataset.tw = 'skip'; return; }
+      const lines = html.split('\\n');
+      pre.innerHTML = lines.map(function(line, i){
+        return '<span class="tw-line" style="animation-delay:' + (i * 70) + 'ms;">' + (line || '\\u00A0') + '</span>';
+      }).join('');
+      pre.dataset.tw = 'done';
+    });
+  }
+
   function goTo(n) {
     if (n < 0) n = 0;
     if (n >= total) n = total - 1;
     current = n;
+    // Reset animation state across all slides
+    slides.forEach(function(el){ el.classList.remove('animate-active'); });
     slides.forEach(function(el, i){ el.hidden = (i !== n); });
     items.forEach(function(el, i){ el.classList.toggle('active', i === n); });
     counter.textContent = (n + 1) + ' / ' + total;
@@ -413,6 +584,11 @@ const navScript = `(function() {
     nextBtn.disabled = (n === total - 1);
     history.replaceState(null, '', '#slide-' + (n + 1));
     if (items[n]) items[n].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    // Force reflow then add animate-active so CSS animations replay
+    void slides[n].offsetWidth;
+    slides[n].classList.add('animate-active');
+    // Line-by-line typewriter for code/prompt blocks (delayed)
+    setTimeout(function(){ runTypewriter(slides[n]); }, 350);
   }
 
   function parseHash() {
@@ -426,6 +602,12 @@ const navScript = `(function() {
   prevBtn.addEventListener('click', function(){ goTo(current - 1); });
   nextBtn.addEventListener('click', function(){ goTo(current + 1); });
   if (presentBtn) presentBtn.addEventListener('click', togglePresent);
+  const animBtn = document.getElementById('deck-anim-toggle');
+  if (animBtn) animBtn.addEventListener('click', function(){
+    document.body.classList.toggle('no-anim');
+    const off = document.body.classList.contains('no-anim');
+    showHint(off ? '🚫 애니메이션 OFF' : '✨ 애니메이션 ON');
+  });
 
   document.addEventListener('keydown', function(e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -439,6 +621,20 @@ const navScript = `(function() {
       e.preventDefault(); goTo(total - 1);
     } else if (e.key === 'f' || e.key === 'F') {
       e.preventDefault(); togglePresent();
+    } else if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      slides[current].classList.remove('animate-active');
+      void slides[current].offsetWidth;
+      slides[current].classList.add('animate-active');
+      // Reset typewriter on re-run
+      slides[current].querySelectorAll('.code-block pre, .prompt-box pre').forEach(function(pre){ delete pre.dataset.tw; });
+      setTimeout(function(){ runTypewriter(slides[current]); }, 350);
+      showHint('🔁 애니메이션 재생');
+    } else if (e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      document.body.classList.toggle('no-anim');
+      const off = document.body.classList.contains('no-anim');
+      showHint(off ? '🚫 애니메이션 OFF' : '✨ 애니메이션 ON');
     } else if (e.key === 'Escape') {
       if (isPresenting()) { e.preventDefault(); exitPresent(); }
     }
@@ -491,6 +687,7 @@ ${slideFrames}
     <span class="counter" id="deck-counter">1 / ${slides.length}</span>
     <button id="deck-next" aria-label="Next slide">→</button>
     <button id="deck-present" aria-label="Enter presentation mode" title="Enter presentation (F)">🖥</button>
+    <button id="deck-anim-toggle" aria-label="Toggle animations" title="Toggle animations (A)">✨</button>
   </nav>
   <div class="deck-hint" id="deck-hint"></div>
 </main>

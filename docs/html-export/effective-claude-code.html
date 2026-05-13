@@ -841,26 +841,25 @@ body.deck-viewer-body.present-mode .deck-nav {
   transition: opacity 0.2s ease;
 }
 body.deck-viewer-body.present-mode .deck-nav:hover { opacity: 1; }
-body.deck-viewer-body.present-mode .deck-hint {
+.deck-hint {
   position: fixed;
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 14px;
-  background: rgba(15,23,42,0.7);
+  background: rgba(15,23,42,0.85);
   border: 1px solid rgba(245,158,11,0.35);
   border-radius: 999px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--muted, #94A3B8);
+  color: var(--text, #F1F5F9);
   z-index: 110;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  backdrop-filter: blur(6px);
 }
-body.deck-viewer-body.present-mode .deck-hint.show {
-  opacity: 1;
-}
+.deck-hint.show { opacity: 1; }
 
 /* ─── Floating nav bar ─── */
 .deck-nav {
@@ -907,6 +906,158 @@ body.deck-viewer-body.present-mode .deck-hint.show {
   padding: 0 6px;
   min-width: 64px;
   text-align: center;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   Presentation animations (export viewer only)
+   ═════════════════════════════════════════════════════════════ */
+
+/* Master toggle */
+body.deck-viewer-body.no-anim *,
+body.deck-viewer-body.no-anim *::before,
+body.deck-viewer-body.no-anim *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* [A] Cross-fade slide transition */
+.slide-frame {
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.slide-frame[hidden] { opacity: 0; }
+
+/* [B] Hero scale-up */
+@keyframes heroScaleUp {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.slide-frame.animate-active .slide-cover .cover-level,
+.slide-frame.animate-active .slide-cover .t-hero,
+.slide-frame.animate-active .slide-cover .cover-subtitle,
+.slide-frame.animate-active .slide-cover .cover-meta,
+.slide-frame.animate-active .slide-cover .cover-deco {
+  animation: heroScaleUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.slide-frame.animate-active .slide-cover .cover-level     { animation-delay: 0ms; }
+.slide-frame.animate-active .slide-cover .cover-deco      { animation-delay: 100ms; }
+.slide-frame.animate-active .slide-cover .t-hero          { animation-delay: 200ms; }
+.slide-frame.animate-active .slide-cover .cover-subtitle  { animation-delay: 500ms; }
+.slide-frame.animate-active .slide-cover .cover-meta      { animation-delay: 700ms; }
+
+/* SECTION slide impact */
+@keyframes sectionNumIn {
+  from { opacity: 0; transform: translateX(80px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-frame.animate-active .slide-section .section-num {
+  animation: sectionNumIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 100ms;
+}
+.slide-frame.animate-active .slide-section .t-chapter,
+.slide-frame.animate-active .slide-section .t-title,
+.slide-frame.animate-active .slide-section [data-slot="subtitle"] {
+  animation: heroScaleUp 0.55s ease backwards;
+}
+.slide-frame.animate-active .slide-section .t-chapter            { animation-delay: 250ms; }
+.slide-frame.animate-active .slide-section .t-title              { animation-delay: 400ms; }
+.slide-frame.animate-active .slide-section [data-slot="subtitle"]{ animation-delay: 600ms; }
+
+/* [C] Sequential reveal */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Bullet list stagger */
+.slide-frame.animate-active .bullet-list li {
+  animation: revealUp 0.45s ease backwards;
+}
+.slide-frame.animate-active .bullet-list li:nth-child(1) { animation-delay:  80ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(2) { animation-delay: 180ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(3) { animation-delay: 280ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(4) { animation-delay: 380ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(5) { animation-delay: 480ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(6) { animation-delay: 580ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(7) { animation-delay: 680ms; }
+.slide-frame.animate-active .bullet-list li:nth-child(8) { animation-delay: 780ms; }
+
+/* Step flow stagger */
+.slide-frame.animate-active .step-flow > * {
+  animation: revealUp 0.45s ease backwards;
+}
+.slide-frame.animate-active .step-flow > *:nth-child(1) { animation-delay: 120ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(2) { animation-delay: 220ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(3) { animation-delay: 320ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(4) { animation-delay: 420ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(5) { animation-delay: 520ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(6) { animation-delay: 620ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(7) { animation-delay: 720ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(8) { animation-delay: 820ms; }
+.slide-frame.animate-active .step-flow > *:nth-child(9) { animation-delay: 920ms; }
+
+/* Table row stagger */
+.slide-frame.animate-active .tbl tbody tr {
+  animation: revealUp 0.35s ease backwards;
+}
+.slide-frame.animate-active .tbl tbody tr:nth-child(1) { animation-delay: 200ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(2) { animation-delay: 285ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(3) { animation-delay: 360ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(4) { animation-delay: 425ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(5) { animation-delay: 480ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(6) { animation-delay: 525ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(7) { animation-delay: 565ms; }
+.slide-frame.animate-active .tbl tbody tr:nth-child(8) { animation-delay: 600ms; }
+
+/* Body grid children stagger (3-col/4-col grids) */
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > * {
+  animation: revealUp 0.4s ease backwards;
+}
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(1) { animation-delay: 100ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(2) { animation-delay: 200ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(3) { animation-delay: 300ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(4) { animation-delay: 400ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(5) { animation-delay: 500ms; }
+.slide-frame.animate-active [data-slot="body"] > div[style*="grid"] > *:nth-child(6) { animation-delay: 600ms; }
+
+/* [D] Code/prompt block container fade-in */
+.slide-frame.animate-active .code-block,
+.slide-frame.animate-active .prompt-box {
+  animation: revealUp 0.45s ease backwards;
+  animation-delay: 300ms;
+}
+.slide-frame.animate-active .tw-line {
+  opacity: 0;
+  animation: revealUp 0.3s ease forwards;
+  display: block;
+}
+
+/* [E] Emphasis pulse — Stage 3 amber THIS / Stage 4 red IMPORTANT pills */
+@keyframes pulsePill {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
+  50%      { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+}
+@keyframes pulsePillRed {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+  50%      { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+}
+.slide-frame.animate-active div[style*="background:var(--amber)"][style*="border-radius:999px"] {
+  animation: pulsePill 2.2s ease-in-out 1500ms infinite;
+}
+.slide-frame.animate-active div[style*="background:#F87171"][style*="border-radius:999px"] {
+  animation: pulsePillRed 2.2s ease-in-out 1700ms infinite;
+}
+
+/* [F] SVG arrow path draw (curved arrows in /clear, evolution, cycles) */
+@keyframes drawPath {
+  from { stroke-dashoffset: 220; }
+  to   { stroke-dashoffset: 0; }
+}
+.slide-frame.animate-active svg path[fill="none"][stroke-linecap="round"] {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawPath 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 600ms;
 }
 
 </style>
@@ -3947,7 +4098,7 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
         <div style="font-family:'JetBrains Mono', monospace; font-size:10.5px; font-weight:700; color:#FCA5A5; letter-spacing:0.06em; margin-bottom:6px;">STAGE 4</div>
         <div style="font-size:17px; font-weight:700; color:var(--text); line-height:1.3; margin-bottom:8px;">Harness<br>Engineering</div>
         <div style="font-size:12px; color:var(--muted); line-height:1.55; margin-bottom:10px;">자동화·안전망 — 모델 외 메커니즘</div>
-        <div style="font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#FCA5A5; line-height:1.6;">핵심: 모델 + 하네스</div>
+        <div style="font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#FCA5A5; line-height:1.6;">핵심: 모델 + 하네스 = AI 에이전트&nbsp;</div>
       </div>
     </div>
 
@@ -3973,17 +4124,10 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
     <a class="slide-logo-url" href="#">claude.ai/code</a>
     <span class="slide-logo-text">CC MASTER</span>
   </div>
-  <div class="slide-inner">
-    <div class="t-chapter" data-slot="label">EPILOGUE · SDD · 핵심 철학</div>
-    <div class="t-title" data-slot="title">Spec-Driven Development</div>
-    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;">GitHub Spec Kit — Vibe Coding을 벗어나 명세가 진실의 원천이 되는 개발 방법론.</div>
-
-    <div data-slot="body" style="margin-top:6px;">
-
-      <div style="padding:14px 22px; border-radius:10px; background:linear-gradient(90deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06)); border-left:4px solid var(--amber); margin-bottom:18px;">
-        <div style="font-size:17px; font-weight:700; color:var(--text); line-height:1.55;">"코드가 명세를 따르는 것이 아니라, <span class="hl-amber">명세가 코드를 생성한다.</span>"</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:4px; font-style:italic;">— GitHub Spec Kit 핵심 철학</div>
-      </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bVzdF50jK">EPILOGUE · SDD · 핵심 철학</div>
+    <div class="t-title" data-slot="title" data-block-id="bZyXVlRQu">Spec-Driven Development</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;" data-block-id="bZVIu89Sh">GitHub Spec Kit — Vibe Coding을 벗어나 명세가 진실의 원천이 되는 개발 방법론</div><div data-slot="body" style="margin-top:6px;" data-block-id="bq0MsBb79" class="">
 
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:18px;">
         <div style="padding:11px 13px; border-radius:8px; background:rgba(248,113,113,0.10); border:1px solid rgba(248,113,113,0.32);">
@@ -4036,8 +4180,13 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
         </div>
       </div>
     </div>
-  </div>
-  <div class="slide-footer">
+  <div class="code-block" data-slot="code" data-block-id="code-1778662553145-2" data-code-source="%0A%22%EC%BD%94%EB%93%9C%EA%B0%80%20%EB%AA%85%EC%84%B8%EB%A5%BC%20%EB%94%B0%EB%A5%B4%EB%8A%94%20%EA%B2%83%EC%9D%B4%20%EC%95%84%EB%8B%88%EB%9D%BC%2C%20%EB%AA%85%EC%84%B8%EA%B0%80%20%EC%BD%94%EB%93%9C%EB%A5%BC%20%EC%83%9D%EC%84%B1%ED%95%9C%EB%8B%A4.%22%0A%E2%80%94%20GitHub%20Spec%20Kit%20%ED%95%B5%EC%8B%AC%20%EC%B2%A0%ED%95%99" data-code-lang="typescript" style="width: 1136px; height: 111px; position: absolute; left: 72px; top: 469px; flex: 0 0 auto;">
+  <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+  <pre><code><span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">"코드가 명세를 따르는 것이 아니라, 명세가 코드를 생성한다."</span></span>
+<span class="line"><span style="color:#E1E4E8">— GitHub Spec Kit 핵심 철학</span></span></code></pre>
+</div></div>
+  <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left" data-slot="caption">EPILOGUE · SDD — Philosophy &amp; elements</span>
     <span class="slide-footer-right" data-slot="page-num">62</span>
   </div>
@@ -4597,6 +4746,7 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
     <span class="counter" id="deck-counter">1 / 74</span>
     <button id="deck-next" aria-label="Next slide">→</button>
     <button id="deck-present" aria-label="Enter presentation mode" title="Enter presentation (F)">🖥</button>
+    <button id="deck-anim-toggle" aria-label="Toggle animations" title="Toggle animations (A)">✨</button>
   </nav>
   <div class="deck-hint" id="deck-hint"></div>
 </main>
@@ -4660,10 +4810,30 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
     else enterPresent(true);
   }
 
+  function runTypewriter(slide) {
+    if (document.body.classList.contains('no-anim')) return;
+    const blocks = slide.querySelectorAll('.code-block pre, .prompt-box pre');
+    blocks.forEach(function(pre){
+      if (pre.dataset.tw === 'done' || pre.dataset.tw === 'skip') return;
+      const html = pre.innerHTML;
+      // Skip if syntax-highlight <span> already present (would break the markup)
+      if (/<span\b/i.test(html)) { pre.dataset.tw = 'skip'; return; }
+      const lineCount = (html.match(/\n/g) || []).length;
+      if (lineCount > 20 || lineCount < 1) { pre.dataset.tw = 'skip'; return; }
+      const lines = html.split('\n');
+      pre.innerHTML = lines.map(function(line, i){
+        return '<span class="tw-line" style="animation-delay:' + (i * 70) + 'ms;">' + (line || '\u00A0') + '</span>';
+      }).join('');
+      pre.dataset.tw = 'done';
+    });
+  }
+
   function goTo(n) {
     if (n < 0) n = 0;
     if (n >= total) n = total - 1;
     current = n;
+    // Reset animation state across all slides
+    slides.forEach(function(el){ el.classList.remove('animate-active'); });
     slides.forEach(function(el, i){ el.hidden = (i !== n); });
     items.forEach(function(el, i){ el.classList.toggle('active', i === n); });
     counter.textContent = (n + 1) + ' / ' + total;
@@ -4671,6 +4841,11 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
     nextBtn.disabled = (n === total - 1);
     history.replaceState(null, '', '#slide-' + (n + 1));
     if (items[n]) items[n].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    // Force reflow then add animate-active so CSS animations replay
+    void slides[n].offsetWidth;
+    slides[n].classList.add('animate-active');
+    // Line-by-line typewriter for code/prompt blocks (delayed)
+    setTimeout(function(){ runTypewriter(slides[n]); }, 350);
   }
 
   function parseHash() {
@@ -4684,6 +4859,12 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
   prevBtn.addEventListener('click', function(){ goTo(current - 1); });
   nextBtn.addEventListener('click', function(){ goTo(current + 1); });
   if (presentBtn) presentBtn.addEventListener('click', togglePresent);
+  const animBtn = document.getElementById('deck-anim-toggle');
+  if (animBtn) animBtn.addEventListener('click', function(){
+    document.body.classList.toggle('no-anim');
+    const off = document.body.classList.contains('no-anim');
+    showHint(off ? '🚫 애니메이션 OFF' : '✨ 애니메이션 ON');
+  });
 
   document.addEventListener('keydown', function(e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -4697,6 +4878,20 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
       e.preventDefault(); goTo(total - 1);
     } else if (e.key === 'f' || e.key === 'F') {
       e.preventDefault(); togglePresent();
+    } else if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      slides[current].classList.remove('animate-active');
+      void slides[current].offsetWidth;
+      slides[current].classList.add('animate-active');
+      // Reset typewriter on re-run
+      slides[current].querySelectorAll('.code-block pre, .prompt-box pre').forEach(function(pre){ delete pre.dataset.tw; });
+      setTimeout(function(){ runTypewriter(slides[current]); }, 350);
+      showHint('🔁 애니메이션 재생');
+    } else if (e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      document.body.classList.toggle('no-anim');
+      const off = document.body.classList.contains('no-anim');
+      showHint(off ? '🚫 애니메이션 OFF' : '✨ 애니메이션 ON');
     } else if (e.key === 'Escape') {
       if (isPresenting()) { e.preventDefault(); exitPresent(); }
     }
