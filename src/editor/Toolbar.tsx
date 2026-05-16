@@ -149,6 +149,21 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
       downloadBlob(html, defaultExportName(latestSlides[0]?.title));
     });
 
+  // Browser download path — bypasses the File System Access write-back so the
+  // dropdown's "Export HTML" always produces a downloaded file, regardless of
+  // FSA support or registry membership. The 💾 Save button still uses the
+  // FSA path above to overwrite the source HTML in place.
+  const handleDownloadHtml = () =>
+    withBusy('html', async () => {
+      const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
+      const html = await buildHtmlBundle({
+        slides: latestSlides,
+        overlaysBySlide,
+        title: activeDeck?.title ?? latestSlides[0]?.title ?? 'Presentation',
+      });
+      downloadBlob(html, defaultExportName(activeDeck?.title ?? latestSlides[0]?.title));
+    });
+
   const handleExportPdf = () =>
     withBusy('pdf', async () => {
       const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
@@ -179,9 +194,6 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         >
           ← Library
         </button>
-        <span className="text-sm font-bold tracking-wide text-editor-accent">
-          claude-code-ppt
-        </span>
         {activeDeck ? (
           <span className="text-xs text-editor-text">{activeDeck.title}</span>
         ) : null}
@@ -249,7 +261,7 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         <ExportDropdown
           busy={busy}
           disabled={!canExport}
-          onExportHtml={handleExportHtml}
+          onExportHtml={handleDownloadHtml}
           onExportPdf={handleExportPdf}
           onExportPng={handleExportPng}
         />
@@ -273,7 +285,14 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         >
           Reset
         </ToolbarButton>
-        <span className="ml-3 text-editor-dim">1280×720 · export 1920×1080</span>
+        <ToolbarButton
+          onClick={handleExportHtml}
+          disabled={!canExport}
+          tone="accent"
+          title="현재 슬라이드를 원본 HTML 파일로 저장"
+        >
+          {busy === 'html' ? 'Saving…' : '💾 Save'}
+        </ToolbarButton>
       </div>
     </header>
     <TemplatePicker

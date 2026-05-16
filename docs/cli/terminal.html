@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>터미널과 Git 기초 — 비개발자 입문 가이드</title>
+<meta name="description" content="비개발자도 따라올 수 있는 터미널·Git·nano·vi 기초 — 명령어 어원과 함께" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<style>
+:root {
+  --bg:#0b0f17; --bg-elev:#111827; --bg-code:#0f172a;
+  --border:#1f2937; --border-strong:#334155;
+  --text:#e5e7eb; --text-muted:#9ca3af; --text-dim:#6b7280;
+  --accent:#f59e0b; --accent-2:#fbbf24;
+  --link:#60a5fa; --link-hover:#93c5fd;
+  --green:#34d399; --red:#f87171;
+  --purple:#c4b5fd; --cyan:#67e8f9; --orange:#fb923c;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; scroll-padding-top:80px; }
+body {
+  background:var(--bg); color:var(--text);
+  font-family:'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height:1.75; font-size:15px; -webkit-font-smoothing:antialiased;
+}
+
+/* Layout */
+.layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+.sidebar {
+  position:sticky; top:0; height:100vh;
+  background:var(--bg-elev); border-right:1px solid var(--border);
+  padding:24px 0; overflow-y:auto;
+}
+.sidebar-inner { padding:0 20px; }
+.brand { font-family:'JetBrains Mono', monospace; font-weight:700; font-size:14px; color:var(--accent); letter-spacing:0.08em; margin-bottom:4px; }
+.brand-sub { font-size:11px; color:var(--text-dim); margin-bottom:24px; }
+
+.nav-group { margin-bottom:20px; }
+.nav-group-title {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--text-dim); font-weight:700; padding:8px 12px; margin-bottom:4px;
+}
+.nav-link {
+  display:block; padding:6px 12px;
+  color:var(--text-muted); text-decoration:none;
+  font-size:13px; border-radius:6px;
+  transition:all 0.15s ease;
+  border-left:2px solid transparent;
+}
+.nav-link:hover { background:rgba(245,158,11,0.06); color:var(--text); }
+.nav-link.active { background:rgba(245,158,11,0.1); color:var(--accent); border-left-color:var(--accent); }
+
+.search-box {
+  width:100%; padding:8px 12px;
+  background:var(--bg-code); border:1px solid var(--border);
+  border-radius:6px; color:var(--text); font-size:13px;
+  font-family:inherit; margin-bottom:16px;
+}
+.search-box::placeholder { color:var(--text-dim); }
+.search-box:focus { outline:none; border-color:var(--accent); }
+
+/* Main */
+main { padding:48px 56px; max-width:1100px; }
+h1 { font-size:34px; font-weight:900; letter-spacing:-0.02em; margin-bottom:8px; line-height:1.2; }
+h1 .emoji { color:var(--accent); }
+.hero-sub { color:var(--text-muted); font-size:16px; margin-bottom:8px; }
+.hero-meta {
+  display:flex; gap:16px; flex-wrap:wrap;
+  font-size:13px; color:var(--text-dim);
+  padding-bottom:24px; border-bottom:1px solid var(--border);
+  margin-bottom:40px;
+}
+h2 {
+  font-size:26px; font-weight:800; letter-spacing:-0.01em;
+  margin:56px 0 16px; padding-bottom:8px;
+  border-bottom:2px solid var(--accent); display:inline-block;
+}
+h3 {
+  font-size:19px; font-weight:700; color:var(--text);
+  margin:32px 0 12px; display:flex; align-items:center; gap:10px;
+}
+h3::before { content:'▸'; color:var(--accent); font-size:14px; }
+h4 {
+  font-size:15px; font-weight:700; color:var(--accent-2);
+  margin:20px 0 8px;
+}
+p { margin-bottom:12px; }
+p strong, li strong { color:var(--accent-2); }
+ul, ol { padding-left:24px; margin-bottom:14px; }
+li { margin-bottom:6px; }
+.lead { color:var(--text-muted); font-size:16px; }
+
+blockquote {
+  border-left:3px solid var(--accent); padding:12px 18px;
+  background:rgba(245,158,11,0.05); margin:16px 0;
+  color:var(--text-muted); border-radius:0 6px 6px 0; font-size:14px;
+}
+blockquote strong { color:var(--accent-2); }
+blockquote p { margin-bottom:6px; color:inherit; }
+
+/* Tables */
+table {
+  width:100%; border-collapse:collapse; margin:14px 0; font-size:13.5px;
+  border:1px solid var(--border); border-radius:8px; overflow:hidden;
+}
+thead { background:rgba(245,158,11,0.06); }
+th { text-align:left; padding:10px 14px; font-weight:700; color:var(--accent-2); font-size:12px; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--border-strong); }
+td { padding:10px 14px; border-top:1px solid var(--border); vertical-align:top; line-height:1.55; }
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+
+code {
+  font-family:'JetBrains Mono', monospace; font-size:12.5px;
+  background:var(--bg-code); color:var(--accent-2);
+  padding:1px 6px; border-radius:4px; border:1px solid var(--border);
+}
+td code { white-space:nowrap; }
+
+/* Code blocks */
+pre {
+  background:var(--bg-code); border:1px solid var(--border);
+  border-radius:8px; padding:0; margin:16px 0; overflow:hidden; position:relative;
+}
+pre code {
+  display:block; padding:16px 20px; background:transparent; color:var(--text);
+  font-size:13px; line-height:1.7; border:none; border-radius:0;
+  overflow-x:auto; white-space:pre;
+}
+.code-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 14px; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border);
+  font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-dim);
+}
+.code-dots { display:flex; gap:6px; }
+.code-dots span { width:10px; height:10px; border-radius:50%; }
+.code-dots span:nth-child(1) { background:#ef4444; }
+.code-dots span:nth-child(2) { background:#f59e0b; }
+.code-dots span:nth-child(3) { background:#10b981; }
+.copy-btn {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); padding:3px 10px; border-radius:4px;
+  cursor:pointer; font-size:11px; font-family:inherit; transition:all 0.15s ease;
+}
+.copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+.copy-btn.copied { color:var(--green); border-color:var(--green); }
+
+/* Syntax */
+.tok-c { color:#6b7280; font-style:italic; }
+.tok-p { color:#c4b5fd; }
+.tok-cmd { color:#c4b5fd; }
+.tok-sub { color:#60a5fa; }
+.tok-arg { color:#34d399; }
+.tok-str { color:#fbbf24; }
+.tok-flag { color:#fb923c; }
+.tok-out { color:#9ca3af; }
+.tok-err { color:#f87171; }
+.tok-warn { color:#fcd34d; }
+.tok-num { color:#67e8f9; }
+
+/* Callouts */
+.callout {
+  display:flex; gap:12px; padding:12px 16px; margin:16px 0;
+  border-radius:8px; border:1px solid; font-size:14px; line-height:1.6;
+}
+.callout-icon { font-size:18px; flex-shrink:0; line-height:1.3; }
+.callout-body { flex:1; }
+.callout-body strong { display:block; margin-bottom:2px; }
+.callout-warn { background:rgba(248,113,113,0.05); border-color:rgba(248,113,113,0.3); }
+.callout-warn strong { color:var(--red); }
+.callout-tip { background:rgba(96,165,250,0.05); border-color:rgba(96,165,250,0.3); }
+.callout-tip strong { color:var(--link); }
+.callout-info { background:rgba(245,158,11,0.05); border-color:rgba(245,158,11,0.3); }
+.callout-info strong { color:var(--accent); }
+.callout-success { background:rgba(52,211,153,0.05); border-color:rgba(52,211,153,0.3); }
+.callout-success strong { color:var(--green); }
+
+/* ASCII diagram block */
+.diagram {
+  background:var(--bg-code); border:1px solid var(--border); border-radius:8px;
+  padding:16px 20px; margin:16px 0;
+  font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.6;
+  color:var(--text-muted); white-space:pre; overflow-x:auto;
+}
+
+section[id] { scroll-margin-top:32px; }
+.anchor-link { color:inherit; text-decoration:none; }
+.anchor-link:hover { color:var(--accent); }
+
+.footer {
+  margin-top:80px; padding:32px 0;
+  border-top:1px solid var(--border);
+  font-size:13px; color:var(--text-dim); text-align:center;
+}
+.footer a { color:var(--link); text-decoration:none; }
+.footer a:hover { color:var(--link-hover); }
+
+/* Mobile */
+.menu-toggle { display:none; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns:1fr; }
+  .sidebar { position:fixed; top:0; left:0; bottom:0; width:280px; z-index:100; transform:translateX(-100%); transition:transform 0.2s ease; }
+  .sidebar.open { transform:translateX(0); }
+  main { padding:24px 20px; }
+  h1 { font-size:24px; } h2 { font-size:20px; } h3 { font-size:17px; }
+  .menu-toggle { display:block; position:fixed; top:12px; right:12px; z-index:101; background:var(--accent); color:#000; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; }
+  table { font-size:12.5px; }
+  td, th { padding:8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ 메뉴</button>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">💻 TERMINAL · GIT</div>
+      <div class="brand-sub">비개발자 입문 가이드</div>
+      <input type="search" class="search-box" placeholder="검색 (e.g. rm, vi)" id="searchBox" />
+
+      <div class="nav-group">
+        <div class="nav-group-title">기초</div>
+        <a class="nav-link" href="#sec-1">1. 터미널이란?</a>
+        <a class="nav-link" href="#sec-2">2. 기본 명령어 (어원)</a>
+        <a class="nav-link" href="#sec-3">3. 옵션(플래그) 약어</a>
+        <a class="nav-link" href="#sec-4">4. 키보드 단축키</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Git</div>
+        <a class="nav-link" href="#sec-5">5. Git 기본 명령어</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">편집기</div>
+        <a class="nav-link" href="#sec-6">6. nano 편집기</a>
+        <a class="nav-link" href="#sec-7">7. vi 편집기</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">정리</div>
+        <a class="nav-link" href="#sec-8">8. 한 페이지 요약</a>
+        <a class="nav-link" href="#sec-appendix">부록 · 공식 문서</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <h1><span class="emoji">💻</span> 터미널과 Git 기초</h1>
+    <p class="hero-sub">비개발자를 위한 입문 가이드 — 명령어 어원으로 자연스럽게 외우기</p>
+    <div class="hero-meta">
+      <span>📚 <strong>8개 섹션</strong> + 부록</span>
+      <span>💡 <strong>어원 중심</strong></span>
+      <span>🆘 <strong>비상 탈출법 포함</strong></span>
+    </div>
+
+    <blockquote>강의 노트 — 한 번도 터미널을 안 써본 사람도 따라올 수 있도록 핵심만 정리. <strong>외우려 하지 말고 영어 단어로 이해하면</strong> 자연스럽게 기억납니다.</blockquote>
+
+    <!-- ===================== 1 ===================== -->
+    <section id="sec-1">
+      <h2><a class="anchor-link" href="#sec-1">1. 터미널이란?</a></h2>
+
+      <h3>1.1 한 줄 설명</h3>
+      <p><strong>마우스 없이 키보드로 컴퓨터에게 명령을 내리는 검은 창</strong>입니다. 평소엔 Finder(macOS)나 탐색기(Windows)에서 폴더를 더블클릭해 열지만, 터미널에서는 글자로 입력합니다.</p>
+
+      <h3>1.2 왜 명령어가 이렇게 짧고 이상한가요?</h3>
+      <p>1970년대 Unix 시절 <strong>타자기처럼 한 글자씩 종이에 인쇄되는 단말기</strong>를 썼습니다. 글자 하나 출력하는 데도 시간이 걸렸기 때문에 명령어를 최대한 짧게 줄였습니다.</p>
+      <p>그래서 <code>list</code>가 <code>ls</code>, <code>copy</code>가 <code>cp</code>, <code>remove</code>가 <code>rm</code>이 된 겁니다. <strong>영어 단어의 첫 글자나 줄임말이라는 걸 알면 훨씬 친근해집니다.</strong></p>
+
+      <h3>1.3 터미널 여는 법</h3>
+      <table>
+        <thead><tr><th>OS</th><th>방법</th></tr></thead>
+        <tbody>
+          <tr><td>macOS</td><td><code>Command + Space</code> → "터미널" 입력 → Enter</td></tr>
+          <tr><td>Windows</td><td><code>Win + R</code> → "wt" 또는 "powershell" 입력</td></tr>
+          <tr><td>Linux</td><td><code>Ctrl + Alt + T</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.4 처음 보는 화면 읽기</h3>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>프롬프트 예시</span><button class="copy-btn">Copy</button></div><code><span class="tok-out">codevillain@MacBook-Pro ~ %</span></code></pre>
+      <table>
+        <thead><tr><th>부분</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>codevillain</code></td><td>사용자 이름</td></tr>
+          <tr><td><code>MacBook-Pro</code></td><td>컴퓨터 이름</td></tr>
+          <tr><td><code>~</code></td><td>현재 위치 (홈 폴더 = <code>/Users/사용자이름</code>)</td></tr>
+          <tr><td><code>%</code> 또는 <code>$</code></td><td>"여기에 명령어를 입력하세요" 신호 (프롬프트)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>중요</strong><code>%</code>나 <code>$</code>는 <strong>타이핑하는 게 아닙니다</strong>. 예제에서 <code>$ ls</code>라고 적혀 있으면 실제 입력은 <code>ls</code>만입니다.</div>
+      </div>
+    </section>
+
+    <!-- ===================== 2 ===================== -->
+    <section id="sec-2">
+      <h2><a class="anchor-link" href="#sec-2">2. 터미널 기본 명령어 (어원 포함)</a></h2>
+
+      <h3>2.1 위치·이동 관련</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>pwd</code></td><td><strong>P</strong>rint <strong>W</strong>orking <strong>D</strong>irectory</td><td>현재 작업 중인 디렉토리 출력</td><td>내가 지금 어디 있는지</td></tr>
+          <tr><td><code>cd</code></td><td><strong>C</strong>hange <strong>D</strong>irectory</td><td>디렉토리 변경</td><td>다른 폴더로 이동</td></tr>
+          <tr><td><code>ls</code></td><td><strong>L</strong>i<strong>S</strong>t</td><td>목록</td><td>폴더 안 내용 보기</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">pwd</span>
+<span class="tok-out">/Users/codevillain</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">ls</span>
+<span class="tok-out">Desktop  Documents  Downloads  Pictures</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">cd</span> <span class="tok-arg">Documents</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">pwd</span>
+<span class="tok-out">/Users/codevillain/Documents</span></code></pre>
+
+      <h3>2.2 폴더 이동 상세 (cd)</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>cd 폴더이름</code></td><td>해당 폴더로 들어감</td></tr>
+          <tr><td><code>cd ..</code></td><td>상위 폴더로 (<code>..</code>는 "부모 폴더")</td></tr>
+          <tr><td><code>cd ~</code></td><td>홈 폴더로 (<code>~</code>는 "내 홈")</td></tr>
+          <tr><td><code>cd /</code></td><td>최상위(루트) 폴더로 (<code>/</code>는 시작점)</td></tr>
+          <tr><td><code>cd -</code></td><td>직전에 있던 폴더로 (뒤로가기)</td></tr>
+          <tr><td><code>cd</code></td><td>인자 없이도 홈 폴더로</td></tr>
+        </tbody>
+      </table>
+      <blockquote><code>.</code>은 "현재 폴더", <code>..</code>은 "한 단계 위 폴더"를 의미하는 약속된 기호입니다. <code>git add .</code>에서의 <code>.</code>도 같은 뜻 — "지금 이 폴더 전체".</blockquote>
+
+      <h3>2.3 파일·폴더 만들기</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>mkdir</code></td><td><strong>M</strong>a<strong>K</strong>e <strong>DIR</strong>ectory</td><td>디렉토리 만들기</td><td>새 폴더 생성</td></tr>
+          <tr><td><code>touch</code></td><td>(영단어) "건드리다"</td><td>파일을 살짝 건드려 만들기</td><td>빈 파일 생성</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">mkdir</span> <span class="tok-arg">my-project</span>           <span class="tok-c"># my-project 폴더 만들기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">mkdir</span> <span class="tok-flag">-p</span> <span class="tok-arg">a/b/c</span>             <span class="tok-c"># 중간 폴더까지 한 번에 (parents)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">touch</span> <span class="tok-arg">README.md hello.txt</span>  <span class="tok-c"># 빈 파일 2개 만들기</span></code></pre>
+
+      <h3>2.4 복사·이동·삭제</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>cp</code></td><td><strong>C</strong>o<strong>P</strong>y</td><td>복사</td><td>파일 복사</td></tr>
+          <tr><td><code>mv</code></td><td><strong>M</strong>o<strong>V</strong>e</td><td>이동</td><td>파일 이동 또는 이름 변경</td></tr>
+          <tr><td><code>rm</code></td><td><strong>R</strong>e<strong>M</strong>ove</td><td>제거</td><td>파일 삭제</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">cp</span> <span class="tok-arg">README.md README-backup.md</span>      <span class="tok-c"># 복사</span>
+<span class="tok-p">$</span> <span class="tok-cmd">cp</span> <span class="tok-flag">-r</span> <span class="tok-arg">my-project backup-project</span>    <span class="tok-c"># 폴더 복사 (-r = recursive)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">mv</span> <span class="tok-arg">old.txt new.txt</span>                 <span class="tok-c"># 이름 변경</span>
+<span class="tok-p">$</span> <span class="tok-cmd">mv</span> <span class="tok-arg">hello.txt Documents/</span>            <span class="tok-c"># 폴더로 이동</span>
+<span class="tok-p">$</span> <span class="tok-cmd">rm</span> <span class="tok-arg">hello.txt</span>                       <span class="tok-c"># 파일 삭제</span>
+<span class="tok-p">$</span> <span class="tok-cmd">rm</span> <span class="tok-flag">-r</span> <span class="tok-arg">my-project</span>                   <span class="tok-c"># 폴더 통째로 삭제</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>절대 주의</strong>터미널의 <code>rm</code>은 <strong>휴지통을 거치지 않습니다</strong>. 한 번 지우면 끝입니다. 특히 <code>rm -rf /</code>는 "루트 폴더부터 강제로 다 지워라"라는 명령으로 컴퓨터를 통째로 날립니다. <strong>절대 따라 치지 마세요.</strong></div>
+      </div>
+
+      <h3>2.5 파일 내용 보기</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>cat</code></td><td>con<strong>CAT</strong>enate</td><td>이어 붙이기</td><td>파일 내용을 화면에 출력</td></tr>
+          <tr><td><code>less</code></td><td>(영단어) "less is more" 농담</td><td><code>more</code>의 후속</td><td>페이지 단위로 보기</td></tr>
+          <tr><td><code>head</code></td><td>"머리"</td><td>파일 앞부분</td><td>앞 N줄</td></tr>
+          <tr><td><code>tail</code></td><td>"꼬리"</td><td>파일 뒷부분</td><td>뒤 N줄</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">cat</span> <span class="tok-arg">README.md</span>           <span class="tok-c"># 전체 출력</span>
+<span class="tok-p">$</span> <span class="tok-cmd">less</span> <span class="tok-arg">long-file.txt</span>      <span class="tok-c"># 페이지 넘기며 보기 (q로 종료)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">head</span> <span class="tok-flag">-5</span> <span class="tok-arg">file.txt</span>        <span class="tok-c"># 앞 5줄</span>
+<span class="tok-p">$</span> <span class="tok-cmd">tail</span> <span class="tok-flag">-5</span> <span class="tok-arg">file.txt</span>        <span class="tok-c"># 뒤 5줄</span>
+<span class="tok-p">$</span> <span class="tok-cmd">tail</span> <span class="tok-flag">-f</span> <span class="tok-arg">server.log</span>      <span class="tok-c"># 실시간 로그 (-f = follow)</span></code></pre>
+      <blockquote><strong>재미있는 어원</strong> <code>cat</code>은 고양이가 아니라 <strong>concatenate(연결)</strong>의 약어입니다. <code>less</code>의 농담 — 옛날엔 <code>more</code> 명령어가 있었는데, 그 후속으로 만든 게 <code>less</code>입니다. "less is more"라는 영어 격언을 패러디한 이름이에요.</blockquote>
+
+      <h3>2.6 도움말·검색</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>man</code></td><td><strong>MAN</strong>ual</td><td>설명서</td><td>명령어의 전체 매뉴얼</td></tr>
+          <tr><td><code>which</code></td><td>(영단어) "어느 것?"</td><td>설치 경로</td><td>명령어가 설치된 위치</td></tr>
+          <tr><td><code>grep</code></td><td><strong>G</strong>lobally search <strong>R</strong>eg<strong>E</strong>xp and <strong>P</strong>rint</td><td>패턴 검색</td><td>파일 안에서 글자 찾기</td></tr>
+          <tr><td><code>find</code></td><td>(영단어) "찾다"</td><td>파일 찾기</td><td>파일/폴더 위치 검색</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">man</span> <span class="tok-arg">ls</span>                          <span class="tok-c"># ls의 전체 매뉴얼 (q로 종료)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">which</span> <span class="tok-arg">python</span>                    <span class="tok-c"># python이 설치된 위치</span>
+<span class="tok-p">$</span> <span class="tok-cmd">grep</span> <span class="tok-str">"error"</span> <span class="tok-arg">server.log</span>         <span class="tok-c"># server.log에서 "error" 찾기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">find</span> <span class="tok-arg">.</span> <span class="tok-flag">-name</span> <span class="tok-str">"*.md"</span>             <span class="tok-c"># 현재 폴더 아래 .md 파일 모두</span></code></pre>
+      <blockquote><strong><code>grep</code> 어원</strong> 원래 ed 편집기의 명령 <code>g/re/p</code>(global / regular expression / print = 전체에서 정규표현식으로 찾아 출력)에서 따왔습니다. 너무 유용해서 별도 명령어로 독립한 것.</blockquote>
+
+      <h3>2.7 기타 자주 쓰는 것</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>echo</code></td><td>(영단어) "메아리"</td><td>출력</td><td>글자 출력</td></tr>
+          <tr><td><code>clear</code></td><td>(영단어) "비우다"</td><td>화면 지우기</td><td>화면 깨끗이</td></tr>
+          <tr><td><code>history</code></td><td>(영단어) "기록"</td><td>이력</td><td>입력한 명령어 기록</td></tr>
+          <tr><td><code>exit</code></td><td>(영단어) "나가다"</td><td>종료</td><td>터미널 종료</td></tr>
+          <tr><td><code>sudo</code></td><td><strong>S</strong>uper<strong>U</strong>ser <strong>DO</strong></td><td>최고 권한자로 실행</td><td>관리자 권한</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">echo</span> <span class="tok-str">"Hello"</span>                    <span class="tok-c"># Hello</span>
+<span class="tok-p">$</span> <span class="tok-cmd">clear</span>                           <span class="tok-c"># 화면 깨끗이</span>
+<span class="tok-p">$</span> <span class="tok-cmd">history</span>                         <span class="tok-c"># 지난 명령어 목록</span>
+<span class="tok-p">$</span> <span class="tok-cmd">sudo</span> <span class="tok-cmd">apt</span> <span class="tok-sub">install</span> <span class="tok-arg">gh</span>             <span class="tok-c"># 관리자 권한으로 설치</span>
+<span class="tok-p">$</span> <span class="tok-cmd">exit</span>                            <span class="tok-c"># 터미널 닫기</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>sudo 강조</strong>비밀번호를 물어보는 명령은 거의 다 <code>sudo</code>입니다. <strong>시스템에 영향을 주는 명령</strong>이라는 뜻이니 신중하게 쓰세요.</div>
+      </div>
+    </section>
+
+    <!-- ===================== 3 ===================== -->
+    <section id="sec-3">
+      <h2><a class="anchor-link" href="#sec-3">3. 옵션(플래그) 약어 정리</a></h2>
+      <p>명령어 뒤에 붙는 <code>-r</code>, <code>-f</code>, <code>-a</code> 같은 게 <strong>옵션(플래그)</strong>입니다. 이것도 다 영어 단어의 약어입니다.</p>
+
+      <h3>3.1 가장 자주 만나는 옵션</h3>
+      <table>
+        <thead><tr><th>옵션</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>-r</code> / <code>-R</code></td><td><strong>R</strong>ecursive</td><td>재귀적으로</td><td>폴더 안쪽까지</td></tr>
+          <tr><td><code>-f</code></td><td><strong>F</strong>orce</td><td>강제로</td><td>확인 없이 실행</td></tr>
+          <tr><td><code>-a</code></td><td><strong>A</strong>ll</td><td>모두</td><td>숨김 파일 포함</td></tr>
+          <tr><td><code>-l</code></td><td><strong>L</strong>ong</td><td>긴 형식</td><td>자세히 표시</td></tr>
+          <tr><td><code>-v</code></td><td><strong>V</strong>erbose</td><td>수다스럽게</td><td>진행 상황 출력</td></tr>
+          <tr><td><code>-h</code></td><td><strong>H</strong>uman / <strong>H</strong>elp</td><td>사람이 읽기 좋게 / 도움말</td><td>1024 대신 1K / 도움말</td></tr>
+          <tr><td><code>-i</code></td><td><strong>I</strong>nteractive</td><td>물어보면서</td><td>작업 전 확인</td></tr>
+          <tr><td><code>-p</code></td><td><strong>P</strong>arents / <strong>P</strong>reserve</td><td>부모까지 / 유지</td><td>중간 폴더 생성</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.2 합쳐 쓰기</h3>
+      <p>옵션은 합쳐 쓸 수 있습니다.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">ls</span> <span class="tok-flag">-l -a</span>       <span class="tok-c"># 같음</span>
+<span class="tok-p">$</span> <span class="tok-cmd">ls</span> <span class="tok-flag">-la</span>         <span class="tok-c"># 이렇게도 됨</span>
+<span class="tok-p">$</span> <span class="tok-cmd">ls</span> <span class="tok-flag">-al</span>         <span class="tok-c"># 순서 상관없음</span></code></pre>
+
+      <h3>3.3 <code>rm -rf</code>의 의미를 분해해보면</h3>
+      <div class="diagram">rm   -r   -f
+ │    │    │
+ │    │    └─ Force      : 묻지 말고
+ │    └────── Recursive  : 폴더 안쪽까지
+ └─────────── Remove     : 삭제하라
+
+→ "묻지 말고 폴더 안쪽 전부 지워라"</div>
+      <p>이게 왜 위험한지 보이시죠? 묻지도 않고, 폴더 통째로, 휴지통도 거치지 않습니다.</p>
+
+      <h3>3.4 다른 예시들</h3>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">ls</span> <span class="tok-flag">-la</span>         <span class="tok-c"># List : Long + All        → 자세히 + 숨김파일까지</span>
+<span class="tok-p">$</span> <span class="tok-cmd">cp</span> <span class="tok-flag">-rv</span> <span class="tok-arg">a b</span>     <span class="tok-c"># Copy : Recursive + Verbose → 폴더 통째 복사 + 진행상황</span>
+<span class="tok-p">$</span> <span class="tok-cmd">mkdir</span> <span class="tok-flag">-p</span> <span class="tok-arg">a/b/c</span> <span class="tok-c"># Make Directory : Parents  → 중간 폴더까지 만들기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">rm</span> <span class="tok-flag">-i</span> <span class="tok-arg">file</span>     <span class="tok-c"># Remove : Interactive      → 지울 때 물어봐줘</span></code></pre>
+      <p><code>-i</code> 옵션은 비개발자에게 안전장치로 추천할 만합니다. 다음을 <code>~/.zshrc</code>에 추가하면 <code>rm</code> 사용 시 항상 물어봅니다:</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>~/.zshrc</span><button class="copy-btn">Copy</button></div><code><span class="tok-cmd">alias</span> rm=<span class="tok-str">'rm -i'</span></code></pre>
+    </section>
+
+    <!-- ===================== 4 ===================== -->
+    <section id="sec-4">
+      <h2><a class="anchor-link" href="#sec-4">4. 터미널 키보드 단축키 (macOS)</a></h2>
+      <blockquote>마우스로 글자 위치를 바꾸는 대신 키보드만으로 빠르게 움직이는 방법입니다. Windows/Linux 사용자는 <code>Command</code> → <code>Ctrl</code>로 대부분 동일하게 작동합니다.</blockquote>
+
+      <h3>4.1 단축키 약어 (먼저 알아두면 외우기 쉬움)</h3>
+      <table>
+        <thead><tr><th>키</th><th>약어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>Ctrl + A</code></td><td><strong>A</strong>head / 줄의 시작</td><td>줄 맨 앞</td></tr>
+          <tr><td><code>Ctrl + E</code></td><td><strong>E</strong>nd</td><td>줄 맨 끝</td></tr>
+          <tr><td><code>Ctrl + U</code></td><td><strong>U</strong>nix-cut to start</td><td>줄 전체 삭제</td></tr>
+          <tr><td><code>Ctrl + K</code></td><td><strong>K</strong>ill to end</td><td>끝까지 삭제</td></tr>
+          <tr><td><code>Ctrl + W</code></td><td><strong>W</strong>ord delete</td><td>단어 삭제</td></tr>
+          <tr><td><code>Ctrl + C</code></td><td><strong>C</strong>ancel</td><td>취소 / 강제 종료</td></tr>
+          <tr><td><code>Ctrl + D</code></td><td><strong>D</strong>one (EOF)</td><td>입력 종료</td></tr>
+          <tr><td><code>Ctrl + L</code></td><td>c<strong>L</strong>ear</td><td>화면 지우기</td></tr>
+          <tr><td><code>Ctrl + R</code></td><td><strong>R</strong>everse search</td><td>히스토리 검색</td></tr>
+          <tr><td><code>Cmd + F</code></td><td><strong>F</strong>ind</td><td>찾기</td></tr>
+          <tr><td><code>Cmd + T</code></td><td><strong>T</strong>ab</td><td>새 탭</td></tr>
+          <tr><td><code>Cmd + N</code></td><td><strong>N</strong>ew</td><td>새 창</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 커서(삽입점) 이동</h3>
+      <table>
+        <thead><tr><th>동작</th><th>단축키</th></tr></thead>
+        <tbody>
+          <tr><td>삽입점으로 위치 변경</td><td><code>Option</code> 키 누른 상태로 포인터를 새 위치로 이동</td></tr>
+          <tr><td>명령어 라인의 시작으로</td><td><code>Control + A</code> (<strong>A</strong>head)</td></tr>
+          <tr><td>명령어 라인의 끝으로</td><td><code>Control + E</code> (<strong>E</strong>nd)</td></tr>
+          <tr><td>한 문자 앞으로</td><td><code>→</code> (오른쪽 화살표)</td></tr>
+          <tr><td>한 문자 뒤로</td><td><code>←</code> (왼쪽 화살표)</td></tr>
+          <tr><td>한 단어 앞으로</td><td><code>Option + →</code></td></tr>
+          <tr><td>한 단어 뒤로</td><td><code>Option + ←</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 삭제</h3>
+      <table>
+        <thead><tr><th>동작</th><th>단축키</th></tr></thead>
+        <tbody>
+          <tr><td>라인 전체 삭제</td><td><code>Control + U</code></td></tr>
+          <tr><td>커서부터 라인 끝까지 삭제</td><td><code>Control + K</code> (<strong>K</strong>ill)</td></tr>
+          <tr><td>커서 앞 한 단어 삭제</td><td><code>Control + W</code> (<strong>W</strong>ord)</td></tr>
+          <tr><td>한 글자 삭제 (뒤로)</td><td><code>Delete</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.4 검색</h3>
+      <table>
+        <thead><tr><th>동작</th><th>단축키</th></tr></thead>
+        <tbody>
+          <tr><td>찾기</td><td><code>Command + F</code> (<strong>F</strong>ind)</td></tr>
+          <tr><td>다음 찾기</td><td><code>Command + G</code></td></tr>
+          <tr><td>이전 찾기</td><td><code>Command + Shift + G</code></td></tr>
+          <tr><td>이전 명령어 검색 (히스토리)</td><td><code>Control + R</code> (<strong>R</strong>everse search)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.5 화면·창</h3>
+      <table>
+        <thead><tr><th>동작</th><th>단축키</th></tr></thead>
+        <tbody>
+          <tr><td>화면 지우기</td><td><code>Command + K</code> 또는 <code>Control + L</code> (c<strong>L</strong>ear)</td></tr>
+          <tr><td>새 탭 열기</td><td><code>Command + T</code> (<strong>T</strong>ab)</td></tr>
+          <tr><td>새 창 열기</td><td><code>Command + N</code> (<strong>N</strong>ew)</td></tr>
+          <tr><td>탭 간 이동</td><td><code>Command + Shift + ←/→</code></td></tr>
+          <tr><td>글자 크게/작게</td><td><code>Command + +</code> / <code>Command + -</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.6 실행 제어 (필수)</h3>
+      <table>
+        <thead><tr><th>동작</th><th>단축키</th></tr></thead>
+        <tbody>
+          <tr><td>실행 중인 명령 강제 종료</td><td><code>Control + C</code> (<strong>C</strong>ancel)</td></tr>
+          <tr><td>입력 종료 (EOF)</td><td><code>Control + D</code> (<strong>D</strong>one)</td></tr>
+          <tr><td>명령 일시정지</td><td><code>Control + Z</code></td></tr>
+          <tr><td>이전 명령어 불러오기</td><td><code>↑</code> (위 화살표)</td></tr>
+          <tr><td>다음 명령어</td><td><code>↓</code> (아래 화살표)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>강사 강조 포인트</strong>비개발자가 가장 많이 막히는 상황은 <strong>명령이 안 끝나서 프롬프트가 안 돌아올 때</strong>입니다. 일단 <code>Control + C</code>(<strong>C</strong>ancel)를 누르라고 알려주면 90%는 해결됩니다.</div>
+      </div>
+    </section>
+
+    <!-- ===================== 5 ===================== -->
+    <section id="sec-5">
+      <h2><a class="anchor-link" href="#sec-5">5. Git 기본 명령어 (어원 포함)</a></h2>
+
+      <h3>5.1 Git이 뭔가요?</h3>
+      <p><strong>파일의 변경 이력을 저장하고, 협업할 수 있게 해주는 도구</strong>입니다.</p>
+      <blockquote><strong>이름 어원</strong> 만든 사람 리누스 토르발스(리눅스 창시자)가 자신을 "git"이라고 농담했는데, 영국 슬랭으로 "고집 센 영감"이라는 뜻입니다. 진지한 의미보다 농담조로 붙인 이름.</blockquote>
+
+      <h3>5.2 Git 용어 약어</h3>
+      <table>
+        <thead><tr><th>용어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><strong>repo</strong></td><td><strong>REPO</strong>sitory</td><td>저장소 — 프로젝트 폴더</td></tr>
+          <tr><td><strong>commit</strong></td><td>(영단어) "약속하다, 맡기다"</td><td>이 상태를 영구히 기록</td></tr>
+          <tr><td><strong>branch</strong></td><td>(영단어) "가지"</td><td>평행 작업 라인</td></tr>
+          <tr><td><strong>merge</strong></td><td>(영단어) "합치다"</td><td>두 가지를 하나로</td></tr>
+          <tr><td><strong>HEAD</strong></td><td>(영단어) "머리"</td><td>지금 보고 있는 위치</td></tr>
+          <tr><td><strong>origin</strong></td><td>(영단어) "원점"</td><td>원격 저장소의 기본 별명</td></tr>
+          <tr><td><strong>main</strong> / <strong>master</strong></td><td>"메인" / "주"</td><td>기본 브랜치 이름</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.3 처음 한 번만 하는 설정</h3>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">config</span> <span class="tok-flag">--global</span> <span class="tok-arg">user.name</span> <span class="tok-str">"Code Villain"</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">config</span> <span class="tok-flag">--global</span> <span class="tok-arg">user.email</span> <span class="tok-str">"codevillain@example.com"</span></code></pre>
+      <blockquote><code>config</code>는 <strong>CONFIG</strong>uration(설정)의 약어. <code>--global</code>은 "이 컴퓨터 전체에 적용".</blockquote>
+
+      <h3>5.4 핵심 흐름: 작업 → 저장 → 공유</h3>
+      <div class="diagram">   [작업 폴더]                                  [GitHub]
+   파일 수정
+     │
+     │ git add        (저장할 파일 고르기)
+     ▼
+   [Staging Area]    ← "무대"라는 뜻, 발표하기 전 대기 장소
+     │
+     │ git commit -m "메시지"     (세이브 포인트 만들기)
+     ▼
+   [로컬 저장소]
+     │
+     │ git push       (GitHub에 올리기)
+     ▼
+   [원격 저장소]</div>
+
+      <h3>5.5 저장소 만들기·가져오기</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어/어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git init</code></td><td><strong>INIT</strong>ialize "초기화"</td><td>이 폴더를 Git 저장소로</td></tr>
+          <tr><td><code>git clone</code></td><td>(영단어) "복제"</td><td>원격 저장소를 통째로 받기</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">init</span>                                              <span class="tok-c"># 새 저장소 만들기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">clone</span> <span class="tok-arg">https://github.com/villainscode/my-repo.git</span>  <span class="tok-c"># 원격 저장소 복제</span></code></pre>
+
+      <h3>5.6 상태 확인</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어/어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git status</code></td><td>(영단어) "상태"</td><td>지금 어떤 파일이 바뀌었나?</td></tr>
+          <tr><td><code>git log</code></td><td>(영단어) "기록"</td><td>커밋 기록 보기</td></tr>
+          <tr><td><code>git diff</code></td><td><strong>DIFF</strong>erence "차이"</td><td>무엇이 어떻게 바뀌었나?</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">status</span>
+<span class="tok-out">On branch main</span>
+<span class="tok-out">Changes not staged for commit:</span>
+<span class="tok-warn">  modified:   README.md</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">log</span> <span class="tok-flag">--oneline</span>    <span class="tok-c"># 한 줄씩 간단히</span>
+<span class="tok-out">4f1d2a3 README 첫 작성</span>
+<span class="tok-out">a2b3c4d 초기 설정</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">diff</span>             <span class="tok-c"># 줄 단위로 변경사항</span></code></pre>
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>막혔을 때 일단 git status</strong>Git이 친절하게 "이런 상태이고, 이렇게 하면 됩니다"라고 알려줍니다.</div>
+      </div>
+
+      <h3>5.7 저장하기 (add → commit)</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>약어/어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git add</code></td><td>(영단어) "추가"</td><td>저장 후보 목록에 올리기</td></tr>
+          <tr><td><code>git commit</code></td><td>(영단어) "약속하다"</td><td>세이브 포인트 만들기</td></tr>
+          <tr><td><code>-m</code></td><td><strong>M</strong>essage</td><td>커밋 메시지</td></tr>
+          <tr><td><code>-a</code></td><td><strong>A</strong>ll</td><td>모든 변경 자동 add</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-arg">README.md</span>              <span class="tok-c"># 하나만</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-arg">.</span>                      <span class="tok-c"># 전부 (`.`은 "현재 폴더 전체")</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-str">"README 작성"</span>    <span class="tok-c"># 커밋 + 메시지</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-am</span> <span class="tok-str">"버그 수정"</span>     <span class="tok-c"># add + commit 한 번에 (기존 파일만)</span></code></pre>
+      <p><strong>좋은 커밋 메시지</strong></p>
+      <ul>
+        <li>✅ <code>로그인 버튼 색상 변경</code></li>
+        <li>✅ <code>회원가입 이메일 검증 추가</code></li>
+        <li>❌ <code>수정함</code></li>
+        <li>❌ <code>ㅇㅇ</code></li>
+      </ul>
+
+      <h3>5.8 공유하기 (push / pull)</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git push</code></td><td>(영단어) "밀다"</td><td>내 변경을 원격으로 밀어 올리기</td></tr>
+          <tr><td><code>git pull</code></td><td>(영단어) "당기다"</td><td>원격 변경을 내 쪽으로 당겨오기</td></tr>
+          <tr><td><code>git fetch</code></td><td>(영단어) "가져오다"</td><td>원격 변경만 확인 (병합 안 함)</td></tr>
+          <tr><td><code>git remote</code></td><td>(영단어) "원격"</td><td>원격 저장소 설정</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 처음 한 번</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">remote</span> <span class="tok-sub">add</span> <span class="tok-arg">origin https://github.com/villainscode/my-blog.git</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">push</span> <span class="tok-flag">-u</span> <span class="tok-arg">origin main</span>      <span class="tok-c"># -u = Upstream "기본 연결 설정"</span>
+
+<span class="tok-c"># 이후엔</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">push</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">pull</span></code></pre>
+      <blockquote><strong>origin이란?</strong>원격 저장소의 기본 별명입니다. "출신지/원점"이라는 뜻에서 옴. 다른 이름을 줘도 되지만 관례적으로 <code>origin</code>을 씁니다.</blockquote>
+
+      <h3>5.9 브랜치 (가지)</h3>
+      <p>브랜치(branch) = "가지". 평행 우주에서 작업하기.</p>
+      <table>
+        <thead><tr><th>명령어</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git branch</code></td><td>"가지"</td><td>브랜치 목록</td></tr>
+          <tr><td><code>git switch</code></td><td>"전환"</td><td>다른 브랜치로 이동</td></tr>
+          <tr><td><code>git switch -c</code></td><td><strong>C</strong>reate</td><td>만들고 바로 이동</td></tr>
+          <tr><td><code>git merge</code></td><td>"합치다"</td><td>다른 브랜치를 현재로 합치기</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">branch</span>                       <span class="tok-c"># 목록</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">switch</span> <span class="tok-flag">-c</span> <span class="tok-arg">feature/login</span>      <span class="tok-c"># 새 브랜치 만들고 이동</span>
+<span class="tok-c"># ... 작업 후 commit ...</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">main</span>                  <span class="tok-c"># 본 줄기로 복귀</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">feature/login</span>          <span class="tok-c"># 작업 결과 합치기</span></code></pre>
+
+      <h3>5.10 실수 복구</h3>
+      <table>
+        <thead><tr><th>명령어</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>git restore</code></td><td>"복원"</td><td>변경 되돌리기</td></tr>
+          <tr><td><code>git restore --staged</code></td><td>"무대에서 내리기"</td><td><code>git add</code> 취소</td></tr>
+          <tr><td><code>git commit --amend</code></td><td>"수정"</td><td>직전 커밋 수정</td></tr>
+        </tbody>
+      </table>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">restore</span> <span class="tok-arg">README.md</span>              <span class="tok-c"># 변경한 내용 버리기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">restore</span> <span class="tok-flag">--staged</span> <span class="tok-arg">README.md</span>     <span class="tok-c"># add를 취소</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">--amend -m</span> <span class="tok-str">"새 메시지"</span>  <span class="tok-c"># 직전 커밋 메시지 수정</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>주의</strong><code>git reset --hard</code>, <code>git push --force</code>는 데이터를 영구히 날릴 수 있습니다. 비개발자 단계에서는 피하시고, 막히면 <code>git status</code> 안내를 따르세요.</div>
+      </div>
+
+      <h3>5.11 자주 만나는 시나리오</h3>
+      <h4>시나리오 1: 처음 GitHub에 올리기</h4>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">cd</span> <span class="tok-arg">my-project</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">init</span>                                                  <span class="tok-c"># 저장소 초기화</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-arg">.</span>                                                 <span class="tok-c"># 전부 추가</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-str">"첫 커밋"</span>                                   <span class="tok-c"># 첫 커밋</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">remote add</span> <span class="tok-arg">origin https://github.com/USER/REPO.git</span>    <span class="tok-c"># 원격 연결</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">-M</span> <span class="tok-arg">main</span>                                        <span class="tok-c"># 기본 브랜치 이름을 main으로</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">push</span> <span class="tok-flag">-u</span> <span class="tok-arg">origin main</span>                                   <span class="tok-c"># 업스트림 설정하며 푸시</span></code></pre>
+      <h4>시나리오 2: 매일의 작업 루틴</h4>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">pull</span>                <span class="tok-c"># 최신 받기</span>
+<span class="tok-c"># ... 작업 ...</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">status</span>              <span class="tok-c"># 상태 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-arg">.</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-str">"오늘 작업"</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">push</span></code></pre>
+    </section>
+
+    <!-- ===================== 6 ===================== -->
+    <section id="sec-6">
+      <h2><a class="anchor-link" href="#sec-6">6. nano 편집기 사용법</a></h2>
+
+      <h3>6.1 nano가 뭔가요?</h3>
+      <p><strong>터미널에서 쓰는 가장 쉬운 편집기</strong>입니다. 메모장과 비슷해서 비개발자에게 가장 친절합니다.</p>
+      <blockquote><strong>이름 어원</strong>원래 <code>pico</code> 편집기의 후계자로 만들어졌고, "pico보다 더 작다"는 의미로 "nano"(나노 = 10⁻⁹, pico = 10⁻¹²보다 작은 단위)라고 이름 붙였습니다. 사실 기능은 pico보다 많은데 농담조 이름.</blockquote>
+      <p>화면 아래에 단축키가 항상 표시되니까 외울 필요도 없습니다.</p>
+
+      <h3>6.2 화면 보는 법</h3>
+      <p>nano를 열면 화면 아래에 이런 게 보입니다.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>nano 하단 메뉴</span><button class="copy-btn">Copy</button></div><code><span class="tok-out">^G Help    ^O Write Out    ^W Where Is    ^K Cut</span>
+<span class="tok-out">^X Exit    ^R Read File    ^\ Replace     ^U Paste</span></code></pre>
+      <p><code>^</code>는 <code>Ctrl</code> 키를 의미합니다. 즉 <code>^X</code>는 <code>Ctrl + X</code>.</p>
+
+      <h3>6.3 열기·저장·종료 (이것만 알면 됨)</h3>
+      <table>
+        <thead><tr><th>단축키</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>nano 파일명</code></td><td></td><td></td><td>파일 열기 (없으면 새로 만듦)</td></tr>
+          <tr><td><code>Ctrl + O</code></td><td><strong>O</strong>ut</td><td>Write Out — 써서 내보내기</td><td>저장</td></tr>
+          <tr><td><code>Ctrl + X</code></td><td>e<strong>X</strong>it</td><td>나가다</td><td>종료</td></tr>
+          <tr><td><code>Ctrl + G</code></td><td><strong>G</strong>et help</td><td>도움 받기</td><td>도움말</td></tr>
+        </tbody>
+      </table>
+      <p><strong>가장 흔한 흐름</strong></p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">nano</span> <span class="tok-arg">hello.txt</span>
+<span class="tok-c"># 글자 입력...</span>
+<span class="tok-c"># Ctrl + O → Enter (저장)</span>
+<span class="tok-c"># Ctrl + X (종료)</span></code></pre>
+
+      <h3>6.4 편집 기능</h3>
+      <table>
+        <thead><tr><th>단축키</th><th>약어</th><th>풀이</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>Ctrl + K</code></td><td><strong>K</strong>ut(=Cut)</td><td>잘라내기</td><td>한 줄 잘라내기</td></tr>
+          <tr><td><code>Ctrl + U</code></td><td><strong>U</strong>ncut</td><td>되돌려 붙이기</td><td>붙여넣기</td></tr>
+          <tr><td><code>Ctrl + W</code></td><td><strong>W</strong>here is</td><td>어디 있나?</td><td>찾기</td></tr>
+          <tr><td><code>Ctrl + \</code></td><td></td><td></td><td>찾아 바꾸기</td></tr>
+          <tr><td><code>Ctrl + _</code></td><td></td><td></td><td>특정 줄 번호로 이동</td></tr>
+          <tr><td><code>Ctrl + A</code></td><td><strong>A</strong>head</td><td>맨 앞</td><td>줄 시작으로</td></tr>
+          <tr><td><code>Ctrl + E</code></td><td><strong>E</strong>nd</td><td>끝</td><td>줄 끝으로</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.5 비개발자가 가장 자주 만나는 상황</h3>
+      <p><strong>저장하고 나갈 때 묻는 메시지</strong></p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>nano 종료 시</span><button class="copy-btn">Copy</button></div><code><span class="tok-warn">Save modified buffer?</span>
+<span class="tok-out"> Y Yes    N No    ^C Cancel</span></code></pre>
+      <p>→ <code>Y</code> 입력 후 Enter</p>
+      <p><strong>파일 이름 확인</strong></p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>nano 저장 시</span><button class="copy-btn">Copy</button></div><code><span class="tok-warn">File Name to Write:</span> <span class="tok-out">hello.txt</span></code></pre>
+      <p>→ 그대로 Enter 누르면 그 이름으로 저장</p>
+    </section>
+
+    <!-- ===================== 7 ===================== -->
+    <section id="sec-7">
+      <h2><a class="anchor-link" href="#sec-7">7. vi 편집기 사용법</a></h2>
+
+      <h3>7.1 vi가 뭔가요?</h3>
+      <p><strong>거의 모든 Unix 계열 시스템에 기본 설치되어 있는 편집기</strong>입니다.</p>
+      <blockquote><strong>이름 어원</strong><code>vi</code>는 <strong>VI</strong>sual editor의 약어. 그 이전엔 <code>ed</code>(editor), <code>ex</code>(extended editor)가 있었고, vi는 "ex의 비주얼 모드"로 시작. 요즘은 대부분 <code>vim</code>이 설치되어 있는데, <strong>VI iM</strong>proved (vi 개선판)의 약어. macOS에서 <code>vi</code>를 치면 사실 <code>vim</code>이 실행됩니다.</blockquote>
+
+      <h3>7.2 ⚠️ 가장 먼저 외워야 할 것: 탈출법</h3>
+      <p>vi에 갇혔다면:</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>vi 비상 탈출</span><button class="copy-btn">Copy</button></div><code><span class="tok-warn">Esc 키 → : 입력 → q! 입력 → Enter</span></code></pre>
+      <p>읽기: "Escape, 콜론, q, 느낌표, 엔터" = <strong>저장 안 하고 강제 종료</strong></p>
+      <table>
+        <thead><tr><th>입력</th><th>약어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>Esc</code></td><td><strong>ESC</strong>ape</td><td>탈출, 빠져나오기 → 일반 모드로</td></tr>
+          <tr><td><code>:</code></td><td></td><td>이제 명령을 칠 거예요</td></tr>
+          <tr><td><code>q</code></td><td><strong>Q</strong>uit</td><td>끝내기</td></tr>
+          <tr><td><code>!</code></td><td></td><td>강제로! 무조건!</td></tr>
+        </tbody>
+      </table>
+      <p>이것만 알아도 패닉에서 벗어날 수 있습니다.</p>
+
+      <h3>7.3 vi의 핵심 개념: 모드(Mode)</h3>
+      <p>vi는 다른 편집기와 다릅니다. <strong>모드</strong>라는 게 있어요.</p>
+      <div class="diagram">        [일반 모드 (Normal)]
+        - 화살표로 이동
+        - 명령어 입력
+              │
+        ┌─────┴─────┐
+        │           │
+   i 누르면     : 누르면
+        │           │
+        ▼           ▼
+  [입력 모드]   [명령 모드]
+   글자 입력     :w 저장
+   가능         :q 종료
+        │           │
+   Esc 누르면  Enter 후 자동 복귀
+        │           │
+        └─────┬─────┘
+              ▼
+        [일반 모드]</div>
+      <p><strong>비유</strong> 일반 모드는 "리모컨", 입력 모드는 "글쓰기 펜". 글을 쓰려면 펜으로 바꾸고(<code>i</code>), 다 쓰면 다시 리모컨으로 돌아갑니다(<code>Esc</code>).</p>
+
+      <h3>7.4 vi 사용 흐름 (절대 외울 것)</h3>
+      <div class="diagram">1. vi 파일명           ← 파일 열기
+2. i                   ← 입력 모드로 (글자 쓸 수 있음)
+3. (글자 입력)
+4. Esc                 ← 일반 모드로 복귀
+5. :wq                 ← 저장하고 종료</div>
+      <p>이게 vi의 80%입니다.</p>
+
+      <h3>7.5 모드 전환 (어원과 함께)</h3>
+      <table>
+        <thead><tr><th>키</th><th>약어</th><th>풀이</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code>i</code></td><td><strong>I</strong>nsert</td><td>삽입</td><td>커서 앞에서 입력 시작</td></tr>
+          <tr><td><code>a</code></td><td><strong>A</strong>ppend</td><td>덧붙이기</td><td>커서 뒤에서 입력 시작</td></tr>
+          <tr><td><code>o</code></td><td><strong>O</strong>pen line</td><td>새 줄 열기</td><td>아래 새 줄 만들어 입력</td></tr>
+          <tr><td><code>Esc</code></td><td><strong>ESC</strong>ape</td><td>탈출</td><td>일반 모드로 복귀</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.6 저장·종료 (: 명령)</h3>
+      <p><code>Esc</code>로 일반 모드 들어간 후:</p>
+      <table>
+        <thead><tr><th>명령</th><th>약어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>:w</code></td><td><strong>W</strong>rite</td><td>저장</td></tr>
+          <tr><td><code>:q</code></td><td><strong>Q</strong>uit</td><td>종료</td></tr>
+          <tr><td><code>:wq</code></td><td><strong>W</strong>rite + <strong>Q</strong>uit</td><td>저장하고 종료</td></tr>
+          <tr><td><code>:q!</code></td><td><strong>Q</strong>uit + 강제</td><td>저장 안 하고 강제 종료</td></tr>
+          <tr><td><code>:w 파일명</code></td><td></td><td>다른 이름으로 저장</td></tr>
+          <tr><td><code>ZZ</code></td><td></td><td><code>:wq</code>와 같음 (shift+z 두 번)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.7 이동 (일반 모드에서)</h3>
+      <table>
+        <thead><tr><th>키</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>h</code> <code>j</code> <code>k</code> <code>l</code></td><td>키보드 위치상 좌·하·상·우</td><td>화살표 대용 (옛날엔 화살표 키가 없었음)</td></tr>
+          <tr><td><code>0</code></td><td>(숫자 0)</td><td>줄의 맨 앞</td></tr>
+          <tr><td><code>$</code></td><td>(정규식 약속)</td><td>줄의 맨 끝</td></tr>
+          <tr><td><code>gg</code></td><td><strong>G</strong>o to top</td><td>파일 맨 위</td></tr>
+          <tr><td><code>G</code></td><td><strong>G</strong>o to end</td><td>파일 맨 아래</td></tr>
+          <tr><td><code>숫자G</code></td><td></td><td>그 줄 번호로 이동 (<code>10G</code> = 10번째 줄)</td></tr>
+          <tr><td><code>Ctrl + f</code></td><td><strong>F</strong>orward</td><td>한 페이지 아래</td></tr>
+          <tr><td><code>Ctrl + b</code></td><td><strong>B</strong>ackward</td><td>한 페이지 위</td></tr>
+        </tbody>
+      </table>
+      <blockquote>비개발자에게 <code>hjkl</code> 대신 그냥 <strong>화살표 키</strong>를 쓰라고 하세요. 같은 결과입니다.</blockquote>
+
+      <h3>7.8 편집 (일반 모드에서)</h3>
+      <table>
+        <thead><tr><th>키</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>x</code></td><td>(영단어) "지우다"</td><td>커서 위치 한 글자 삭제</td></tr>
+          <tr><td><code>dd</code></td><td><strong>D</strong>elete + <strong>D</strong>elete</td><td>한 줄 삭제 (잘라내기)</td></tr>
+          <tr><td><code>yy</code></td><td><strong>Y</strong>ank + <strong>Y</strong>ank</td><td>한 줄 복사 (yank = 잡아당기다)</td></tr>
+          <tr><td><code>p</code></td><td><strong>P</strong>aste / <strong>P</strong>ut</td><td>붙여넣기</td></tr>
+          <tr><td><code>u</code></td><td><strong>U</strong>ndo</td><td>실행 취소</td></tr>
+          <tr><td><code>Ctrl + r</code></td><td><strong>R</strong>edo</td><td>다시 실행</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.9 찾기 (일반 모드에서)</h3>
+      <table>
+        <thead><tr><th>키</th><th>어원</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>/검색어</code></td><td></td><td>아래 방향으로 찾기</td></tr>
+          <tr><td><code>?검색어</code></td><td></td><td>위 방향으로 찾기</td></tr>
+          <tr><td><code>n</code></td><td><strong>N</strong>ext</td><td>다음 결과</td></tr>
+          <tr><td><code>N</code></td><td>(Shift+n)</td><td>이전 결과</td></tr>
+          <tr><td><code>:%s/이전/이후/g</code></td><td><strong>s</strong>ubstitute / <strong>g</strong>lobal</td><td>전체에서 바꾸기</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.10 비개발자가 가장 자주 만나는 시나리오</h3>
+      <h4>시나리오 1: <code>git commit</code> 했더니 vi가 떴어요!</h4>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>vi commit 작성</span><button class="copy-btn">Copy</button></div><code><span class="tok-cmd">git commit</span>
+<span class="tok-c">→ vi 화면 등장</span>
+<span class="tok-c">→ i 누르고 메시지 입력</span>
+<span class="tok-c">→ Esc</span>
+<span class="tok-c">→ :wq 입력 후 Enter</span>
+<span class="tok-c">→ 끝</span></code></pre>
+      <h4>시나리오 2: 망쳤어요, 처음부터 다시!</h4>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>vi 비상 탈출</span><button class="copy-btn">Copy</button></div><code><span class="tok-warn">Esc → :q! → Enter</span></code></pre>
+      <p>저장 안 하고 나갑니다. 그리고 다시 <code>vi 파일명</code>으로 열면 됩니다.</p>
+
+      <h3>7.11 nano vs vi 비교</h3>
+      <table>
+        <thead><tr><th>항목</th><th>nano</th><th>vi</th></tr></thead>
+        <tbody>
+          <tr><td>배우기 쉬움</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐</td></tr>
+          <tr><td>어디에나 설치</td><td>보통</td><td>거의 항상</td></tr>
+          <tr><td>단축키 표시</td><td>화면 아래 항상</td><td>외워야 함</td></tr>
+          <tr><td>비개발자 추천</td><td>첫 편집기로 추천</td><td>탈출법만 알면 됨</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info">
+        <span class="callout-icon">📘</span>
+        <div class="callout-body"><strong>결론</strong>평소엔 <strong>nano</strong>를 쓰고, 갑자기 <strong>vi</strong>가 뜨면 <code>:wq</code>나 <code>:q!</code>로 빠져나오세요.</div>
+      </div>
+    </section>
+
+    <!-- ===================== 8 ===================== -->
+    <section id="sec-8">
+      <h2><a class="anchor-link" href="#sec-8">8. 한 페이지 요약</a></h2>
+
+      <h3>8.1 어원으로 외우는 핵심 명령어</h3>
+      <div class="diagram">pwd     = Print Working Directory   → 현재 위치
+ls      = LiSt                      → 목록
+cd      = Change Directory          → 폴더 이동
+mkdir   = MaKe DIRectory            → 폴더 만들기
+cp      = CoPy                      → 복사
+mv      = MoVe                      → 이동
+rm      = ReMove                    → 삭제
+cat     = conCATenate               → 내용 출력
+man     = MANual                    → 매뉴얼
+grep    = Globally search RegExp Print → 패턴 검색
+sudo    = SuperUser DO              → 관리자 권한</div>
+
+      <h3>8.2 옵션 약어</h3>
+      <div class="diagram">-r/-R   = Recursive    → 폴더 안쪽까지
+-f      = Force        → 묻지 말고
+-a      = All          → 숨김 파일 포함
+-l      = Long         → 자세히
+-v      = Verbose      → 진행 상황 출력
+-h      = Human / Help → 사람이 읽기 좋게 / 도움말
+-i      = Interactive  → 물어보면서
+-p      = Parents      → 중간 폴더까지
+-m      = Message      → 메시지
+
+→ rm -rf = Remove + Recursive + Force
+   "묻지 말고 폴더 안쪽 전부 지워라" (위험!)</div>
+
+      <h3>8.3 단축키 필수 5개</h3>
+      <div class="diagram">Control + C  (Cancel)  → 강제 종료 (막히면 일단 이거)
+Control + L  (cLear)   → 화면 깨끗이
+Control + A  (Ahead)   → 줄 맨 앞
+Control + E  (End)     → 줄 맨 끝
+↑                      → 이전 명령어</div>
+
+      <h3>8.4 Git 매일 쓰는 6개</h3>
+      <div class="diagram">git status              → 뭐가 바뀌었나?
+git add .               → 다 저장 대상으로
+git commit -m "메시지"  → 세이브 (-m = Message)
+git push                → 밀어 올리기 (원격으로)
+git pull                → 당겨오기 (원격에서)
+git log --oneline       → 기록 보기</div>
+
+      <h3>8.5 편집기 비상 탈출</h3>
+      <div class="diagram">[nano]
+저장: Ctrl + O (Out)   → Enter
+종료: Ctrl + X (eXit)
+
+[vi]
+저장 종료:      Esc → :wq → Enter   (Write + Quit)
+저장 없이 종료: Esc → :q! → Enter   (Quit + 강제)</div>
+
+      <h3>8.6 막혔을 때 체크리스트</h3>
+      <ol>
+        <li>일단 <code>Control + C</code> (Cancel) 눌러봤나요?</li>
+        <li><code>git status</code>로 Git이 뭐라고 하는지 봤나요?</li>
+        <li>vi에 갇혔으면 <code>Esc → :q! → Enter</code></li>
+        <li>그래도 안 되면 터미널 창을 닫고 새로 여세요</li>
+        <li>정 안 되면 오류 메시지를 그대로 복사해서 검색하세요</li>
+      </ol>
+    </section>
+
+    <!-- ===================== Appendix ===================== -->
+    <section id="sec-appendix">
+      <h2><a class="anchor-link" href="#sec-appendix">부록 · 공식 문서</a></h2>
+      <table>
+        <thead><tr><th>주제</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Git 공식 문서 (한국어)</td><td><a href="https://git-scm.com/book/ko/v2" target="_blank">git-scm.com/book/ko/v2</a></td></tr>
+          <tr><td>Git 명령어 매뉴얼</td><td><a href="https://git-scm.com/docs" target="_blank">git-scm.com/docs</a></td></tr>
+          <tr><td>GNU nano 공식</td><td><a href="https://www.nano-editor.org/" target="_blank">nano-editor.org</a></td></tr>
+          <tr><td>Vim 공식</td><td><a href="https://www.vim.org/" target="_blank">vim.org</a></td></tr>
+          <tr><td>GitHub Docs (한국어)</td><td><a href="https://docs.github.com/ko" target="_blank">docs.github.com/ko</a></td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-success">
+        <span class="callout-icon">🎯</span>
+        <div class="callout-body"><strong>강의 진행 팁</strong>어원을 알려주는 것 자체가 학습자의 자립도를 크게 올립니다. "외워야 한다"가 아니라 "이 영어 단어의 약어다"라고 알면 자연스럽게 떠오릅니다.</div>
+      </div>
+    </section>
+
+    <div class="footer">
+      💻 Terminal & Git Reference · 마지막 갱신 <span id="lastUpdated"></span> · <a href="https://git-scm.com" target="_blank">git-scm.com</a> · <a href="https://www.nano-editor.org" target="_blank">nano</a> · <a href="https://www.vim.org" target="_blank">vim</a>
+    </div>
+  </main>
+</div>
+
+<script>
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pre = btn.closest('pre');
+    const code = pre.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Search filter
+const search = document.getElementById('searchBox');
+search.addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  navLinks.forEach(link => {
+    if (!q) { link.style.display = ''; return; }
+    link.style.display = link.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// Last updated
+document.getElementById('lastUpdated').textContent = new Date().toISOString().slice(0, 10);
+
+// Close mobile menu on link click
+navLinks.forEach(l => l.addEventListener('click', () => {
+  if (window.innerWidth <= 900) document.querySelector('.sidebar').classList.remove('open');
+}));
+</script>
+</body>
+</html>

@@ -1,6 +1,10 @@
 # ② 기초 개념
 
-## 🔵 LEVEL 2 — AI 시대 개발 방법론 (UI 컴포넌트 제작하기)
+## 🔵 LEVEL 2 — AI 시대 개발 방법론 (32가지 UI 컴포넌트 시스템 제작하기)
+
+> **강의 대상**: 실무 개발자 (입문 ~ 시니어)  
+> **학습 목표**: AI와 함께 일하는 5대 원칙을 익히고, 이를 적용해 32가지 UI 컴포넌트로 구성된 HTML·CSS 학습 사이트를 직접 만든다.  
+> **참고 리포지토리**: [github.com/claude-code-expert/inflearn-docs](https://github.com/claude-code-expert/inflearn-docs)
 
 ---
 
@@ -376,9 +380,21 @@ git reset --hard HEAD~1
 git checkout -b feature/try-new-approach
 ```
 
-`/rewind` 커맨드를 이용하면 컨텍스트와 대화까지 함께 롤백이 가능하다.
+**`/rewind` — 컨텍스트·코드 동시 롤백 (v2.0+, 4가지 모드)**
 
-**커밋 메시지 prefix 규칙**
+`/rewind`는 Claude Code v2.0에 도입된 핵심 기능이다. **Esc 키를 두 번 빠르게** 누르거나 `/rewind` 슬래시 커맨드로 진입한다. 2026년 업데이트로 다음 4가지 모드를 선택할 수 있다.
+
+| 모드 | 설명 | 사용 시점 |
+|------|------|---------|
+| Restore code and conversation | 코드와 대화를 모두 직전 지점으로 되돌림 | 방향 자체가 잘못된 경우 |
+| Restore conversation only | 코드는 유지, 대화 히스토리만 되돌림 | 코드는 좋은데 다시 묻고 싶을 때 |
+| Restore code only | 코드만 직전 상태로, 대화는 유지 | 실험적 리팩터링 시도 |
+| Summarize from here | 이 지점부터 이후 내용을 요약 압축 | 컨텍스트가 너무 길어진 경우 |
+
+> **주의**: `/rewind`는 Claude Code가 내부 도구로 변경한 파일만 추적한다. `!bash` 등으로 직접 실행한 외부 명령(`mv`, `rm` 등) 변경분이나 IDE에서 수동 편집한 변경분은 복원되지 않는다. 중요한 변경은 반드시 Git 커밋으로 백업한다.  
+> 출처: [docs.claude.com — Claude Code v2 release notes](https://docs.claude.com/en/docs/claude-code), [claudelog.com/mechanics/rewind](https://claudelog.com/mechanics/rewind/)
+
+**커밋 메시지 prefix 규칙 (Conventional Commits 변형)**
 
 | 타입 | 용도 |
 |------|------|
@@ -715,11 +731,14 @@ GitHub이 2025년 9월 2일 공식 오픈소스로 공개한 SDD 툴킷이다.
 - GitHub Blog 발표: [github.blog — spec-driven-development](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/) ✅
 - Martin Fowler 분석: [martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) ✅
 
-> **주의**: PyPI에 동일한 이름의 패키지가 있으나 공식 패키지가 아니다. 반드시 GitHub에서 직접 설치해야 한다.
+> **주의**: PyPI에 비공식 동명 패키지가 있을 수 있으므로 반드시 GitHub에서 직접 설치한다.
 
 ```bash
-# SpecKit 설치 (GitHub 공식 설치 방법)
+# SpecKit 설치 (GitHub 공식 설치 방법, 2026-05 기준)
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# 또는 특정 버전 고정 (재현성이 필요한 경우)
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.8.1
 
 # 프로젝트 초기화
 specify init my-app --ai claude
@@ -727,31 +746,40 @@ specify init my-app --ai claude
 
 **SpecKit 슬래시 커맨드 체인**
 
-각 문서는 다음 문서를 참조한다. plan은 spec을 참조하고, tasks는 spec과 plan을 모두 참조한다.
+각 문서는 이전 문서를 참조한다. plan은 spec을, tasks는 spec과 plan을 모두 참조한다.
 
 ```bash
-/speckit.constitution   # 프로젝트 원칙 수립 (constitution.md) — 불변 원칙
-/speckit.specify        # 요구사항 명세 (spec.md)
-/speckit.clarify        # 모호한 요구사항 명확화
-/speckit.plan           # 기술 구현 계획 (plan.md)
-/speckit.tasks          # 태스크 분해 (tasks.md)
-/speckit.implement      # 태스크별 구현
+/speckit.constitution    # 프로젝트 원칙 수립 (불변 원칙)
+/speckit.specify         # 요구사항 명세 (spec.md)
+/speckit.clarify         # 모호한 요구사항 명확화 (선택, plan 전 권장)
+/speckit.checklist       # 명세 품질 검증 (선택, "영어로 쓴 단위 테스트")
+/speckit.plan            # 기술 구현 계획 (plan.md)
+/speckit.tasks           # 태스크 분해 (tasks.md)
+/speckit.analyze         # 산출물 간 일관성 검증 (선택, implement 전)
+/speckit.implement       # 태스크별 구현
 ```
+
+> 출처: [marktechpost — Meet GitHub Spec-Kit (2026-05-08)](https://www.marktechpost.com/2026/05/08/meet-github-spec-kit-an-open-source-toolkit-for-spec-driven-development-with-ai-coding-agents/)
 
 **SpecKit 디렉터리 구조**
 
 ```
 project-name/
-├── .speckit/
-│   ├── constitution.md           # 프로젝트 원칙 (불변)
-│   └── features/
+├── .specify/
+│   ├── memory/
+│   │   └── constitution.md       # 프로젝트 원칙 (불변)
+│   └── specs/
 │       └── 001-feature-name/
-│           ├── specify.md        # 요구사항
+│           ├── spec.md           # 요구사항
 │           ├── plan.md           # 기술 계획
 │           ├── tasks.md          # 태스크 분해
-│           └── checklist.md      # 품질 게이트
+│           ├── data-model.md     # 데이터 모델
+│           ├── research.md       # 사전 조사
+│           └── quickstart.md     # 빠른 시작
 └── [application code]
 ```
+
+> 출처: [github.com/github/spec-kit README](https://github.com/github/spec-kit) (2026-05 확인, v0.8.1 기준)
 
 **CLAUDE.md와 SpecKit 연동 — 자동 연결이 아니므로 직접 설정 필요**
 
@@ -761,9 +789,9 @@ SpecKit과 Claude Code는 자동으로 연결되지 않는다. CLAUDE.md에 Spec
 <!-- CLAUDE.md -->
 ## SpecKit 워크플로
 이 프로젝트는 SpecKit SDD 방법론을 따른다.
-- constitution: `.speckit/constitution.md` — 모든 구현에 적용할 원칙
-- 기능 명세: `.speckit/features/[번호]-[기능명]/`
-- 구현 전 반드시 specify.md → plan.md → tasks.md 순서로 검토
+- constitution: `.specify/memory/constitution.md` — 모든 구현에 적용할 원칙
+- 기능 명세: `.specify/specs/[번호]-[기능명]/`
+- 구현 전 반드시 spec.md → plan.md → tasks.md 순서로 검토
 
 ## 완료 조건
 - 모든 acceptance criteria 충족
@@ -941,6 +969,260 @@ npm run lint && npm run test
 
 ---
 
+### 2.5.7 [실습] HTML · CSS 학습 사이트 — 32가지 UI 컴포넌트 고도화
+
+지금까지 배운 **5대 원칙(설계 우선 · 작은 단위 분해 · 명확한 지시 · 매 단계 리뷰 · 개발 방법론 적용)** 을 모두 한 번에 실습하는 프로젝트다. 결과물은 **32가지 UI 컴포넌트를 모은 HTML·CSS 학습 사이트**다.
+
+이 사이트는 본 강의의 LEVEL 3 이후에도 계속 확장된다.
+
+- **LEVEL 2 (이번 절)**: Vanilla HTML + CSS로 32개 컴포넌트 기본 구현
+- **LEVEL 4**: Tailwind CSS v4 + shadcn/ui로 마이그레이션
+- **LEVEL 5**: TanStack Query + CodeMirror 6로 인터랙티브 학습 환경 추가
+
+#### 🎯 학습 목표
+
+1. CLAUDE.md 한 장으로 **AI가 일관된 결과물**을 만들도록 통제하는 방법을 체득한다.
+2. **컴포넌트 단위 분해(2.2)** 와 **명확한 지시(2.3)** 를 실전에서 적용한다.
+3. **/review · /rewind(2.4)** 로 리뷰·되돌리기 사이클을 손에 익힌다.
+4. **TDD(2.5.3)** 또는 **SDD(2.5.4)** 중 적합한 방법론을 선택해 컴포넌트를 만든다.
+
+#### 📋 만들 32가지 컴포넌트 카탈로그
+
+본 강의에서 만들 32가지 컴포넌트다. **카테고리별로 묶어 동일 카테고리는 한 세션에서 일괄 작업**하면 컨텍스트 효율이 좋다.
+
+| 카테고리 | 컴포넌트 (개수) |
+|---------|---------------|
+| **버튼 (4)** | Primary Button · Secondary Button · Icon Button · Loading Button |
+| **입력 (5)** | Text Input · Textarea · Select · Checkbox · Radio Group |
+| **표시 (5)** | Badge · Tag · Avatar · Tooltip · Progress Bar |
+| **레이아웃 (4)** | Card · Modal · Accordion · Tabs |
+| **피드백 (3)** | Alert · Toast · Skeleton Loader |
+| **네비게이션 (4)** | Navbar · Breadcrumb · Pagination · Sidebar |
+| **데이터 (4)** | Table · List · Empty State · Stat Card |
+| **고급 (3)** | Dropdown Menu · Date Picker · File Upload |
+
+> **왜 32개인가**: 실무에서 자주 쓰이는 가장 작은 단위들이다. 더 적으면 학습 효과가 부족하고, 더 많으면 관리 부담이 커진다. shadcn/ui와 같은 메이저 라이브러리의 핵심 컴포넌트 수와 비슷하다.
+
+#### 🏗️ 1단계 — 프로젝트 초기화
+
+```bash
+# 디렉터리 생성
+mkdir ui-components-lab && cd ui-components-lab
+
+# Git 초기화
+git init && echo "node_modules\n.env\ndist" > .gitignore
+
+# Claude Code 실행 (acceptEdits로 시작 — 1.3.3 참고)
+claude --permission-mode acceptEdits
+```
+
+```
+> /init
+```
+
+`/init`이 만들어준 `CLAUDE.md` 초안을 다음과 같이 보완한다.
+
+```markdown
+<!-- CLAUDE.md -->
+# UI Components Lab — HTML·CSS 학습 사이트
+
+32가지 UI 컴포넌트를 직접 만들면서 HTML과 CSS의 기본기를 다지는
+학습용 정적 사이트.
+
+## 기술 스택
+- HTML5 (시맨틱 마크업)
+- CSS3 (커스텀 프로퍼티, Flexbox, Grid)
+- Vanilla JavaScript (ES2024) — 인터랙션이 필요한 컴포넌트에만 사용
+- **빌드 도구 없음** (live-server만 사용)
+
+## 디렉터리 구조
+- `index.html` - 컴포넌트 갤러리 홈
+- `components/<카테고리>/<컴포넌트명>/index.html` - 각 컴포넌트 데모
+- `components/<카테고리>/<컴포넌트명>/style.css` - 컴포넌트 전용 스타일
+- `assets/tokens.css` - 디자인 토큰 (색상·간격·타이포)
+
+## 코딩 규칙
+- 모든 색상은 `--color-*` 커스텀 프로퍼티로만 사용한다 (하드코딩 금지)
+- 모든 간격은 `--space-*` 토큰을 따른다 (4·8·12·16·24·32·48px)
+- 컴포넌트는 BEM 명명 규칙을 따른다 (`block__element--modifier`)
+- 접근성: 모든 인터랙티브 요소는 키보드로 조작 가능해야 한다
+- 다크모드: `prefers-color-scheme: dark` 미디어 쿼리로 자동 전환
+
+## 금지 사항
+- 인라인 스타일 (`style="..."`) 절대 금지
+- `!important` 사용 금지 (재정의가 필요하면 BEM modifier로)
+- jQuery·Bootstrap 등 외부 라이브러리 도입 금지
+- 한 컴포넌트 CSS 파일 200줄 초과 시 분리
+
+## 완료 조건 (모든 컴포넌트 공통)
+1. `<카테고리>/<컴포넌트명>/index.html`에 데모 페이지가 있다
+2. 다크/라이트 모드 모두에서 정상 표시된다
+3. 키보드 Tab으로 포커스 이동 가능 (인터랙티브한 경우)
+4. 모바일(375px)·데스크톱(1280px)에서 깨짐 없이 표시된다
+```
+
+#### 🎨 2단계 — 디자인 토큰 먼저 정의
+
+개별 컴포넌트보다 디자인 토큰을 **먼저** 만든다. 토큰이 있으면 32개 컴포넌트가 일관된 외관을 갖는다.
+
+```
+> 다음 요구사항으로 assets/tokens.css 파일을 만들어줘.
+>
+> [목표]
+> 32개 컴포넌트가 공유할 디자인 토큰을 CSS 커스텀 프로퍼티로 정의
+>
+> [필수 토큰]
+> - 색상: primary, secondary, success, warning, danger, neutral (각 50~900 단계)
+> - 간격: --space-1 (4px) ~ --space-12 (48px)
+> - 타이포: --text-xs, --text-sm, --text-base, --text-lg, --text-xl, --text-2xl
+> - 그림자: --shadow-sm, --shadow-md, --shadow-lg
+> - 둥근 모서리: --radius-sm (4px) ~ --radius-full (9999px)
+>
+> [제약]
+> - 다크모드 대응: prefers-color-scheme: dark에서 색상 토큰 재정의
+> - 토큰 외 하드코딩된 색상 절대 금지
+>
+> [완료 조건]
+> - tokens.css 단독으로 import 가능
+> - 라이트/다크 모드 자동 전환 동작 확인
+```
+
+`/review`로 즉시 점검한다.
+
+```
+> /review
+
+# 또는 명시적으로
+> 방금 만든 tokens.css에 다음을 확인해줘:
+> 1. 색상 단계가 50~900까지 모두 있는가
+> 2. 다크모드 미디어 쿼리가 모든 의미 토큰을 재정의하는가
+> 3. 누락된 토큰이 있는가
+```
+
+#### 🧩 3단계 — 컴포넌트 1개씩, 카테고리 단위로
+
+**한 번에 하나의 컴포넌트만(2.2.1)**, 단 **같은 카테고리는 묶어서**(컨텍스트 절약).
+
+```
+> components/buttons/ 디렉터리를 만들고
+> 다음 4가지 버튼 컴포넌트의 각 데모 페이지를 만들어줘.
+>
+> [목표]
+> 1. primary-button: 기본 강조 버튼 (호버·포커스·비활성화 상태 포함)
+> 2. secondary-button: 보조 버튼 (테두리 있음, 배경 투명)
+> 3. icon-button: 아이콘만 있는 정사각형 버튼 (SVG 아이콘 인라인)
+> 4. loading-button: 로딩 스피너가 포함된 버튼 (CSS 애니메이션)
+>
+> [공통 제약]
+> - tokens.css의 디자인 토큰만 사용
+> - 각 컴포넌트는 별도 폴더로 분리: buttons/primary-button/{index.html, style.css}
+> - 데모 페이지는 모든 상태(default/hover/focus/disabled)를 시각화
+> - 키보드 접근성: tabindex 사용 시 의도 명시, focus-visible 스타일 필수
+>
+> [완료 조건]
+> - 4개 모두 라이트·다크 모드에서 정상 표시
+> - 키보드 Tab으로 포커스 이동 가능
+> - 색상·간격·둥근 모서리가 모두 토큰을 통해 정의됨
+```
+
+생성이 끝나면 **반드시** 다음을 수행한다.
+
+```
+# 보안·접근성 리뷰
+> /security-review
+
+# 코드 단순화 점검
+> /simplify
+
+# 결과 확인 (브라우저 또는 live-server)
+> !npx live-server components/buttons/primary-button
+```
+
+문제가 발견되면 `/rewind`로 직전 단계까지 되돌리고 명세를 조정한다.
+
+#### 🔁 4단계 — TDD 또는 SDD 적용 (선택)
+
+**TDD 적용 — 인터랙티브 컴포넌트에 적합**
+
+JavaScript 동작이 있는 컴포넌트(Modal, Tabs, Dropdown 등)는 TDD가 효과적이다.
+
+```
+> /tdd-red Modal 컴포넌트의 open() · close() 함수에 대한 실패하는 테스트
+
+> /tdd-green
+
+> /tdd-refactor
+```
+
+**SDD 적용 — 컴포넌트 묶음을 한 번에 만들 때**
+
+```bash
+specify init ui-lab --ai claude
+
+> /speckit.constitution
+
+> /speckit.specify
+> "32개 UI 컴포넌트를 카테고리 단위로 분리한 정적 학습 사이트.
+>  각 컴포넌트는 독립 폴더, 디자인 토큰 단일 출처, 다크모드 대응."
+
+> /speckit.plan
+> "기술 스택: Vanilla HTML/CSS/JS, 빌드 도구 없음, live-server만 사용"
+
+> /speckit.tasks
+> /speckit.checklist
+> /speckit.implement
+```
+
+#### 📊 5단계 — 갤러리 홈 페이지
+
+32개 컴포넌트가 한 화면에 모이는 홈을 마지막에 만든다.
+
+```
+> index.html을 만들어줘.
+>
+> [목표]
+> 32개 컴포넌트 데모 페이지로 이동할 수 있는 인덱스 페이지
+>
+> [요구사항]
+> - 카테고리별로 섹션 분리 (버튼/입력/표시/레이아웃/피드백/네비게이션/데이터/고급)
+> - 각 카테고리는 카드 그리드로 컴포넌트 미리보기 표시
+> - 카드 클릭 시 해당 컴포넌트 데모 페이지로 이동
+> - 검색창: 컴포넌트 이름으로 필터링 (Vanilla JS)
+>
+> [제약]
+> - tokens.css만 import (외부 라이브러리 금지)
+> - 모바일·데스크톱 반응형
+> - 다크모드 토글 버튼 (localStorage 저장)
+```
+
+#### ✅ 6단계 — 최종 검증 체크리스트
+
+| 항목 | 확인 방법 |
+|------|---------|
+| 32개 컴포넌트 모두 존재 | `ls components/*/` |
+| 다크/라이트 모드 모두 정상 | 브라우저 DevTools에서 prefers-color-scheme 토글 |
+| 키보드 접근성 | Tab 키만으로 모든 인터랙션 가능 |
+| 모바일 반응형 | DevTools 디바이스 모드 375px·768px·1280px 확인 |
+| 코드 리뷰 통과 | `/review` 결과 critical 이슈 0건 |
+| 보안 리뷰 통과 | `/security-review` 결과 high 이슈 0건 |
+| CLAUDE.md 금지 사항 위반 0건 | 인라인 스타일·`!important`·jQuery 검색해서 없는지 확인 |
+
+#### 🎓 회고 — 5대 원칙이 어떻게 작동했는가
+
+| 원칙 (절) | 이 실습에서 어떻게 적용됐는가 |
+|----------|---------------------------|
+| 설계 우선 (2.1) | tokens.css 먼저 만들고 컴포넌트 시작. 잘못 시작하면 32개를 모두 다시 만들 뻔했다 |
+| 작은 단위 분해 (2.2) | 32개를 4~5개씩 카테고리로 묶어 진행. 한 번에 전부 만들기 절대 금지 |
+| 명확한 지시 (2.3) | 매 요청에 [목표]·[제약]·[완료 조건] 5요소 포함 |
+| 매 단계 리뷰 (2.4) | 카테고리 단위로 `/review` → `/security-review` → 문제 시 `/rewind` |
+| 방법론 (2.5) | 인터랙티브 컴포넌트는 TDD, 카테고리 묶음은 SDD |
+
+> **다음 단계 예고**: LEVEL 3에서는 Skills · Commands · Hooks · Prompts · Context의 5가지 Claude Code 시스템을 본격적으로 다룬다. 이번에 만든 32개 컴포넌트는 LEVEL 4에서 **Tailwind CSS v4 + shadcn/ui**로 마이그레이션하면서 **TanStack Query·CodeMirror 6**까지 결합해 진짜 학습 사이트로 발전한다.
+
+[스크린샷 영역: 완성된 32개 컴포넌트 갤러리 홈 — 카테고리별 카드 그리드 + 다크모드 토글]
+
+---
+
 ## 📋 LEVEL 2 핵심 요약
 
 | 항목 | 핵심 내용 |
@@ -951,36 +1233,49 @@ npm run lint && npm run test
 | 작업 단위 | 10분 내 검증 가능한 크기. 단일 책임 원칙 |
 | 명확한 지시 | 목표·맥락·제약조건·완료조건·예시 5요소를 명시한다 |
 | 매 단계 리뷰 | `/review`, `/security-review`, `/rewind` 활용 |
+| `/rewind` 4모드 | 코드+대화 / 대화만 / 코드만 / 이후 요약 (Esc 두 번 또는 슬래시) |
 | CLAUDE.md | `/init` 자동 생성 후 점진적 발전. `.claude/rules/`로 경로 기반 분리 |
-| 증강코딩 | 켄트 벡의 원칙: Small Safe Steps + TDD + Tidy First |
-| SDD | Specify → Plan → Implement → Validate. SpecKit으로 자동화 |
+| 증강코딩 | 켄트 벡의 원칙: Small Safe Steps + TDD + Tidy First + Constrain Context + Preserve Optionality |
+| SDD / SpecKit | constitution → specify → clarify → plan → tasks → analyze → implement |
 | TDD 슬래시 커맨드 | `/tdd-red`, `/tdd-green`, `/tdd-refactor`로 사이클 강제 |
+| **실습 (2.5.7)** | **32가지 UI 컴포넌트 사이트** — 5대 원칙을 모두 한 번에 적용하는 통합 실습 |
 
 ---
 
-## 📚 참고 자료 (검증 완료 2026-04-29)
+## 📚 참고 자료
 
-| 자료 | URL | 상태 |
-|------|-----|------|
-| Kent Beck 증강코딩 원문 | https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes | ✅ |
-| BPlusTree3 CLAUDE.md | https://github.com/KentBeck/BPlusTree3/blob/main/rust/docs/CLAUDE.md | ✅ |
-| SpecKit 공식 GitHub | https://github.com/github/spec-kit | ✅ |
-| GitHub Blog — SpecKit 발표 | https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/ | ✅ |
-| Martin Fowler — SDD 3 Tools | https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html | ✅ |
-| AGENTS.md 공식 사이트 | https://agents.md | ✅ |
-| AGENTS.md GitHub | https://github.com/agentsmd/agents.md | ✅ |
-| 지시 준수 연구 (arxiv) | https://arxiv.org/abs/2505.06120 | ✅ |
-| 바이브 코딩 숙취 | https://hackernoon.com/the-vibe-coding-hangover-what-happens-when-ai-writes-95percent-of-your-code | ✅ |
-| 강의 템플릿 저장소 | https://github.com/claude-code-expert/example/tree/main/template | ⚠️ 강의 제작 시 재확인 권장 |
-| Hook 예제 저장소 | https://github.com/claude-code-expert/example/tree/main/.claude | ⚠️ 강의 제작 시 재확인 권장 |
+| 자료 | URL |
+|------|-----|
+| Kent Beck 증강코딩 원문 | https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes |
+| Kent Beck 공식 사이트 (Augmented Coding 4원칙) | https://kentbeck.com |
+| BPlusTree3 (Kent Beck의 실험 프로젝트) | https://github.com/KentBeck/BPlusTree3 |
+| SpecKit 공식 GitHub | https://github.com/github/spec-kit |
+| SpecKit 공식 문서 | https://github.github.com/spec-kit/ |
+| GitHub Blog — SpecKit 발표 (2025-09) | https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/ |
+| Martin Fowler — SDD 3 Tools | https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html |
+| AGENTS.md 공식 사이트 | https://agents.md |
+| AGENTS.md GitHub | https://github.com/agentsmd/agents.md |
+| Agentic AI Foundation (Linux Foundation) | https://openai.com/index/agentic-ai-foundation/ |
+| Anthropic — MCP 기증 발표 (2025-12) | https://www.anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation |
+| Claude Code `/rewind` 가이드 | https://claudelog.com/mechanics/rewind/ |
+| 지시 준수 연구 (arxiv) | https://arxiv.org/abs/2505.06120 |
+| 바이브 코딩 숙취 (HackerNoon) | https://hackernoon.com/the-vibe-coding-hangover-what-happens-when-ai-writes-95percent-of-your-code |
+| 강의 템플릿 저장소 | https://github.com/claude-code-expert/inflearn-docs |
 
 ---
 
-> **할루시네이션 검증 노트 (2026-04-29)**
->
-> - **Kent Beck 증강코딩**: 2025년 6월 25일 게시물 ✅ 실제 확인. "지니"(AI 에이전트 지칭), BPlusTree3 프로젝트 모두 원문에 실재
-> - **SpecKit**: 2025년 9월 2일 출시 ✅ 확인. PyPI 동일 이름 패키지는 비공식이라는 경고도 공식 README에 명시됨
-> - **AGENTS.md**: agents.md 공식 사이트 ✅ 60,000개 이상 수치 확인. OpenAI 주도 사실 확인. Agentic AI Foundation(Linux Foundation 산하) 관리 확인
-> - **CodeRabbit 1.4~1.7배 수치**: 2025년 연구 기반. 원본 보고서 직접 링크가 없으므로 인용 시 "CodeRabbit 연구 기준" 명시 권장
-> - **claude-code-expert GitHub 링크**: 강의 저자 운영 저장소. 실제 접근 가능 여부는 강의 제작 시 확인 필요
-> - **arxiv 2505.06120**: 지시 준수 신뢰성 저하 논문. 섹션2 원본 문서에 기재된 출처. 논문 번호 형식 정상
+> **할루시네이션 검증 노트 (2026-05-16 갱신)**  
+> - ✅ Kent Beck Augmented Coding 4원칙 (Constrain Context · Preserve Optionality · Balance Expansion & Contraction · Maintain Human Judgment): kentbeck.com 공식 사이트 확인  
+> - ✅ Kent Beck 2026-03 "Still Burning" 팟캐스트 시작: Wikipedia 항목 확인  
+> - ✅ SpecKit v0.8.1까지 발전, 디렉터리 구조는 `.specify/` (이전 초안의 `.speckit/`은 잘못된 표기 — 수정 완료)  
+> - ✅ SpecKit 슬래시 커맨드: `/speckit.constitution`, `/speckit.specify`, `/speckit.clarify`, `/speckit.checklist`, `/speckit.plan`, `/speckit.tasks`, `/speckit.analyze`, `/speckit.implement` (marktechpost 2026-05-08 확인)  
+> - ✅ AGENTS.md 60,000+ 프로젝트 채택, Agentic AI Foundation (Linux Foundation 산하)에서 관리: agents.md 공식 사이트 확인  
+> - ✅ MCP는 2025-12 Anthropic이 AAIF로 기증: anthropic.com 공식 발표 확인  
+> - ✅ `/rewind` 4가지 모드 (코드+대화 / 대화만 / 코드만 / 이후 요약): claudelog.com, blog.vincentqiao.com 확인. Esc 두 번 또는 `/rewind` 슬래시 커맨드  
+> - ✅ `/rewind`는 Claude Code v2.0+ 도입, 외부 명령(`!bash`)으로 만든 파일은 추적 안 됨  
+> - ✅ Claude Code 슬래시 커맨드 `/review`, `/security-review`, `/simplify`: 공식 명령 (Claude Code 2.1.x cheatsheet 기준 확인)  
+> - ⚠️ 32가지 UI 컴포넌트 카탈로그 구성은 본 강의의 교육적 설계물 (shadcn/ui 등 메이저 라이브러리 핵심 컴포넌트를 참고했으나, 강의 진행 중 일부 조정 가능)  
+> - ⚠️ `/tdd-red`, `/tdd-green`, `/tdd-refactor`는 본 강의에서 정의하는 **사용자 정의 슬래시 커맨드**다. Claude Code 기본 명령이 아님 — `.claude/commands/` 디렉터리에 별도 파일 작성 필요 (본문에 예시 포함)  
+> - ⚠️ 강의 템플릿 저장소(`github.com/claude-code-expert/example`) 일부 경로는 강의 제작 시점에 재확인 필요  
+> - ℹ️ 본 챕터에는 PlantUML 코드 블록을 의도적으로 포함하지 않았다 (codevillain의 표준 워크플로 — PlantUML은 명시 요청 시만 포함)
+
