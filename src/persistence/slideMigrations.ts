@@ -41,7 +41,34 @@ const unescapeThInlineTags: Migration = {
   },
 };
 
-const ALL_MIGRATIONS: Migration[] = [unescapeThInlineTags];
+// The curriculum slide (page 3) shipped its stage "topics" as flex `<div
+// class="curr-topic">` rows inside a plain `<div class="curr-topics">`. The
+// editor's Enter handler only manages `<ul class="bullet-list">` / `<li><div>`
+// lists, so pressing Enter inside a flex `.curr-topic` let the browser split
+// the row into side-by-side flex children — the "옆으로 단이 나뉘는" bug.
+// Converting the cached markup to the supported bullet-list structure lets the
+// list-aware Enter/Backspace logic take over (Enter → new bullet `<li>`).
+// Idempotent: once converted the `<div class="curr-topics">` head no longer
+// matches, so re-runs are no-ops.
+const curriculumTopicsToBulletList: Migration = {
+  name: 'curriculum-topics-to-bullet-list-2026-05-29',
+  description:
+    'Convert the curriculum slide\'s flex `.curr-topic` divs into `<ul class="bullet-list"><li><div>` so the editor manages Enter as list items.',
+  transform(html) {
+    return html.replace(
+      /<div class="curr-topics"([^>]*)>([\s\S]*?)<\/div>(\s*<div class="curr-deliv")/g,
+      (_full, attrs, inner, tail) => {
+        const lis = inner.replace(
+          /<div class="curr-topic"([^>]*)>([\s\S]*?)<\/div>/g,
+          '<li class="curr-topic"$1><div>$2</div></li>',
+        );
+        return `<ul class="curr-topics bullet-list"${attrs}>${lis}</ul>${tail}`;
+      },
+    );
+  },
+};
+
+const ALL_MIGRATIONS: Migration[] = [unescapeThInlineTags, curriculumTopicsToBulletList];
 
 const migrationsKey = (deckId: string) => MIGRATIONS_KEY_PREFIX + deckId;
 

@@ -22,6 +22,8 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const setCurrentIndex = useDeckStore((s) => s.setCurrentIndex);
   const reorderSlide = useDeckStore((s) => s.reorderSlide);
+  const copySlideToClipboard = useDeckStore((s) => s.copySlideToClipboard);
+  const pasteSlideFromClipboard = useDeckStore((s) => s.pasteSlideFromClipboard);
   const listRef = useRef<HTMLDivElement>(null);
   const [thumbZoom, setThumbZoom] = useState(100);
   const [zoomDraft, setZoomDraft] = useState<string | null>(null);
@@ -49,6 +51,37 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [arrowKeysEnabled]);
+
+  // Cmd/Ctrl+C copies the current slide to a cross-deck clipboard
+  // (sessionStorage-mirrored). Cmd/Ctrl+V pastes after current. Bails inside
+  // contenteditable / input / textarea so native browser text clipboard
+  // keeps working during inline editing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod || e.altKey || e.shiftKey) return;
+      const key = e.key.toLowerCase();
+      if (key !== 'c' && key !== 'v') return;
+      const ae = document.activeElement;
+      if (ae instanceof HTMLInputElement || ae instanceof HTMLTextAreaElement || ae instanceof HTMLSelectElement) return;
+      if (ae instanceof HTMLElement && ae.isContentEditable) return;
+      // Don't hijack copy/paste when user has a text selection (likely
+      // wants to copy visible text, not the slide).
+      const selection = window.getSelection?.();
+      if (selection && selection.type === 'Range' && selection.toString().length > 0) return;
+      const { slides: cur, currentIndex: i } = useDeckStore.getState();
+      if (cur.length === 0) return;
+      if (key === 'c') {
+        e.preventDefault();
+        copySlideToClipboard(i);
+      } else {
+        e.preventDefault();
+        pasteSlideFromClipboard(i);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [copySlideToClipboard, pasteSlideFromClipboard]);
 
   useEffect(() => {
     const el = listRef.current;

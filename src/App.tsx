@@ -18,7 +18,7 @@ import {
 import { usePersistenceStore } from './persistence/persistenceStore';
 import { runSlideMigrations } from './persistence/slideMigrations';
 import { useAutoSave } from './persistence/useAutoSave';
-import { useDeckStore } from './scene/store';
+import { loadSlideClipboardFromSession, useDeckStore } from './scene/store';
 
 type BootMode = 'library' | 'editor';
 
@@ -30,6 +30,13 @@ export function App() {
   const [bootReady, setBootReady] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const exitPresenting = useCallback(() => setPresenting(false), []);
+
+  // Rehydrate slide-level clipboard from sessionStorage once per app load.
+  // Lets users Cmd+C in deck A, navigate to deck B, and Cmd+V — the
+  // selection survives because we keep a mirror outside the Zustand store.
+  useEffect(() => {
+    loadSlideClipboardFromSession();
+  }, []);
 
   const openDeck = useCallback(
     async (deck: DeckRegistryEntry) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   clearStoredExportRoot,
   getStoredExportRoot,
@@ -22,6 +22,7 @@ import { useDeckStore } from '../scene/store';
 import { ExportDropdown } from './ExportDropdown';
 import { HelpModal } from './HelpModal';
 import { IconPicker } from './IconPicker';
+import { ImportFromDeckModal } from './ImportFromDeckModal';
 import { TemplatePicker } from './TemplatePicker';
 
 type Busy = null | 'html' | 'pdf' | 'png';
@@ -46,7 +47,13 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
 
   const [busy, setBusy] = useState<Busy>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  // Latest-ref for the 💾 Save action so the global keydown listener can stay
+  // bound once (empty deps) yet always call the freshest closure — handleExportHtml
+  // is re-created every render and reads canExport/busy.
+  const saveActionRef = useRef<() => void>(() => {});
 
   const canDelete = slides.length > 1;
   const canExport = slides.length > 0 && busy === null;
@@ -87,6 +94,21 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [undo, redo]);
+
+  // Cmd/Ctrl+Shift+S → 💾 Save (overwrite source HTML via FSA). preventDefault
+  // suppresses the browser's native "Save page as" dialog. Bound once; the
+  // current save closure is read through saveActionRef.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.shiftKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveActionRef.current();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const withBusy = async (kind: NonNullable<Busy>, fn: () => Promise<void>) => {
     if (!canExport) return;
@@ -148,6 +170,15 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
 
       downloadBlob(html, defaultExportName(latestSlides[0]?.title));
     });
+
+  // Keep the keyboard-shortcut save in sync with the button: same guard
+  // (canExport / not already saving) and flush pending edits first so the
+  // latest keystrokes land in the store before the HTML is serialized.
+  saveActionRef.current = () => {
+    if (!canExport || busy === 'html') return;
+    flushPendingCommit();
+    void handleExportHtml();
+  };
 
   // Browser download path — bypasses the File System Access write-back so the
   // dropdown's "Export HTML" always produces a downloaded file, regardless of
@@ -246,6 +277,12 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         <ToolbarButton onClick={() => setPickerOpen(true)}>
           + New
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => setImportOpen(true)}
+          title="다른 데크에서 슬라이드 가져오기 (Cmd+V로도 가능)"
+        >
+          📥 Import
+        </ToolbarButton>
         <ToolbarButton onClick={() => duplicateSlide(currentIndex)}>
           Duplicate
         </ToolbarButton>
@@ -289,7 +326,7 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
           onClick={handleExportHtml}
           disabled={!canExport}
           tone="accent"
-          title="현재 슬라이드를 원본 HTML 파일로 저장"
+          title="현재 슬라이드를 원본 HTML 파일로 저장 (⇧⌘S / Ctrl+Shift+S)"
         >
           {busy === 'html' ? 'Saving…' : '💾 Save'}
         </ToolbarButton>
@@ -302,6 +339,11 @@ export function Toolbar({ onPresent, onExitToLibrary, activeDeck }: ToolbarProps
         insertSlideAfter(currentIndex, t.html, t.title);
         setPickerOpen(false);
       }}
+    />
+    <ImportFromDeckModal
+      open={importOpen}
+      onClose={() => setImportOpen(false)}
+      activeDeckId={activeDeck?.id ?? null}
     />
     <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </>

@@ -95,7 +95,50 @@ type Snapshot = {
 
 type ClipboardEntry =
   | { kind: 'block'; html: string }
-  | { kind: 'overlay'; data: Overlay };
+  | { kind: 'overlay'; data: Overlay }
+  | { kind: 'slide'; html: string; title: string; sourceDeckId?: string };
+
+// sessionStorage key for cross-deck slide clipboard. Tab-scoped, cleared on
+// tab close — matches OS clipboard semantics. Survives switching decks via
+// Library navigation (loadDeck wipes in-memory state but reads back here).
+const SLIDE_CLIPBOARD_KEY = 'slide-clipboard';
+
+function persistSlideClipboard(entry: ClipboardEntry | null): void {
+  if (typeof sessionStorage === 'undefined') return;
+  try {
+    if (entry && entry.kind === 'slide') {
+      sessionStorage.setItem(SLIDE_CLIPBOARD_KEY, JSON.stringify(entry));
+    } else {
+      sessionStorage.removeItem(SLIDE_CLIPBOARD_KEY);
+    }
+  } catch {
+    // Quota or privacy mode — best-effort, fall through.
+  }
+}
+
+function readSlideClipboardFromSession(): ClipboardEntry | null {
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SLIDE_CLIPBOARD_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.kind === 'slide' && typeof parsed.html === 'string') {
+      return parsed as ClipboardEntry;
+    }
+  } catch {
+    // Corrupted entry — ignore.
+  }
+  return null;
+}
+
+// Called once at app boot to rehydrate slide clipboard across deck loads /
+// browser refreshes (within the same tab session).
+export function loadSlideClipboardFromSession(): void {
+  const entry = readSlideClipboardFromSession();
+  if (entry) {
+    useDeckStore.setState({ clipboard: entry });
+  }
+}
 
 type DeckState = {
   slides: ParsedSlide[];
@@ -158,6 +201,12 @@ type DeckState = {
   // offsets x/y by +20px to make the duplicate visually distinguishable.
   copyOverlay: (slideId: string, overlayId: string) => void;
   pasteOverlay: (slideId: string) => void;
+
+  // Slide-level clipboard for cross-deck reuse. copy mirrors to
+  // sessionStorage so paste survives a deck switch (loadDeck resets in-memory
+  // state). paste delegates to insertSlideAfter which already pushes history.
+  copySlideToClipboard: (index: number, sourceDeckId?: string) => void;
+  pasteSlideFromClipboard: (afterIndex: number) => boolean;
 
   undo: () => void;
   redo: () => void;
@@ -583,6 +632,29 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         selectedBlockId: null,
       };
     });
+  },
+
+  copySlideToClipboard: (index, sourceDeckId) => {
+    const state = get();
+    const slide = state.slides[index];
+    if (!slide) return;
+    const entry: ClipboardEntry = {
+      kind: 'slide',
+      html: slide.html,
+      title: slide.title,
+      sourceDeckId,
+    };
+    set({ clipboard: entry });
+    persistSlideClipboard(entry);
+  },
+
+  pasteSlideFromClipboard: (afterIndex) => {
+    const entry = get().clipboard;
+    if (!entry || entry.kind !== 'slide') return false;
+    // insertSlideAfter already pushes history and sets currentIndex to the
+    // newly inserted slide — no extra bookkeeping needed.
+    get().insertSlideAfter(afterIndex, entry.html, entry.title);
+    return true;
   },
 
   undo: () =>
