@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="40" y="52" font-size="26" font-weight="800" fill="#1F2937">프롬프팅 기법 선택 가이드</text>
+    <text x="40" y="84" font-size="16" fill="#6B7280">상황에 따라 6가지 기법 중 하나를 고르거나, 겹쳐서 조합한다</text>
+
+    <!-- 6 cards in 3x2 grid -->
+    <!-- row 1 -->
+    <g>
+      <rect x="60" y="130" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="60" y="130" width="360" height="44" rx="14" fill="#3B82F6"/>
+      <rect x="60" y="156" width="360" height="18" fill="#3B82F6"/>
+      <text x="80" y="159" font-size="18" font-weight="800" fill="#FFFFFF">1 · 제로샷 (Zero-Shot)</text>
+      <text x="80" y="206" font-size="15" font-weight="700" fill="#1F2937">상황 · 단순 CRUD, 한 줄 수정</text>
+      <text x="80" y="234" font-size="14" fill="#475569">예시·추론 없이도 충분히 명확할 때.</text>
+      <text x="80" y="258" font-size="14" fill="#475569">What/Where/How를 구체적으로 명시.</text>
+    </g>
+    <g>
+      <rect x="460" y="130" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="460" y="130" width="360" height="44" rx="14" fill="#8B5CF6"/>
+      <rect x="460" y="156" width="360" height="18" fill="#8B5CF6"/>
+      <text x="480" y="159" font-size="18" font-weight="800" fill="#FFFFFF">2 · 퓨샷 (Few-Shot)</text>
+      <text x="480" y="206" font-size="15" font-weight="700" fill="#1F2937">상황 · 코드 스타일·패턴 통일</text>
+      <text x="480" y="234" font-size="14" fill="#475569">말보다 예시가 빠를 때. 일관된</text>
+      <text x="480" y="258" font-size="14" fill="#475569">예시 2~3개로 패턴을 보여준다.</text>
+    </g>
+    <g>
+      <rect x="860" y="130" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="860" y="130" width="360" height="44" rx="14" fill="#0EA5E9"/>
+      <rect x="860" y="156" width="360" height="18" fill="#0EA5E9"/>
+      <text x="880" y="159" font-size="18" font-weight="800" fill="#FFFFFF">3 · 생각의 사슬 (CoT)</text>
+      <text x="880" y="206" font-size="15" font-weight="700" fill="#1F2937">상황 · 복잡한 비즈니스 규칙</text>
+      <text x="880" y="234" font-size="14" fill="#475569">중간 추론을 단계로 전개해야</text>
+      <text x="880" y="258" font-size="14" fill="#475569">조건 누락·엣지 케이스를 막는다.</text>
+    </g>
+    <!-- row 2 -->
+    <g>
+      <rect x="60" y="320" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="60" y="320" width="360" height="44" rx="14" fill="#10B981"/>
+      <rect x="60" y="346" width="360" height="18" fill="#10B981"/>
+      <text x="80" y="349" font-size="18" font-weight="800" fill="#FFFFFF">4 · 역할 부여 (Role)</text>
+      <text x="80" y="396" font-size="15" font-weight="700" fill="#1F2937">상황 · 특정 관점의 리뷰·분석</text>
+      <text x="80" y="424" font-size="14" fill="#475569">"보안 엔지니어로서…" 관점을</text>
+      <text x="80" y="448" font-size="14" fill="#475569">좁히면 분석의 깊이가 생긴다.</text>
+    </g>
+    <g>
+      <rect x="460" y="320" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="460" y="320" width="360" height="44" rx="14" fill="#F59E0B"/>
+      <rect x="460" y="346" width="360" height="18" fill="#F59E0B"/>
+      <text x="480" y="349" font-size="18" font-weight="800" fill="#FFFFFF">5 · 제약 조건 (Constraint)</text>
+      <text x="480" y="396" font-size="15" font-weight="700" fill="#1F2937">상황 · AI의 과잉 행동 방지</text>
+      <text x="480" y="424" font-size="14" fill="#475569">"~하지 마"의 부정형 제약이</text>
+      <text x="480" y="448" font-size="14" fill="#475569">범위 확장(scope creep)을 막는다.</text>
+    </g>
+    <g>
+      <rect x="860" y="320" width="360" height="160" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+      <rect x="860" y="320" width="360" height="44" rx="14" fill="#EF4444"/>
+      <rect x="860" y="346" width="360" height="18" fill="#EF4444"/>
+      <text x="880" y="349" font-size="18" font-weight="800" fill="#FFFFFF">6 · 단계적 분해</text>
+      <text x="880" y="396" font-size="15" font-weight="700" fill="#1F2937">상황 · 대규모 기능 구현</text>
+      <text x="880" y="424" font-size="14" fill="#475569">검증 가능한 작은 단위로 나눠</text>
+      <text x="880" y="448" font-size="14" fill="#475569">한 단계씩 확인 후 다음으로.</text>
+    </g>
+
+    <!-- combination banner -->
+    <rect x="60" y="520" width="1160" height="150" rx="16" fill="#1F2937"/>
+    <text x="90" y="562" font-size="20" font-weight="800" fill="#FFFFFF">기법은 겹쳐 쓴다 — 복잡한 작업일수록 조합이 강력하다</text>
+    <text x="90" y="600" font-size="16" fill="#D1D5DB">예 ·  역할 부여  +  생각의 사슬  +  제약 조건</text>
+    <text x="90" y="632" font-size="15" fill="#9CA3AF">"너는 시니어 백엔드야(4). 단계별로 분석해줘(3). [제약] 기존 응답 구조를 바꾸지 마(5)."</text>
+    <text x="90" y="658" font-size="14" fill="#6EE7B7">프로젝트 전반에 반복되는 패턴·제약은 → CLAUDE.md 로 승격해 영구화한다</text>
+  </g>
+</svg>

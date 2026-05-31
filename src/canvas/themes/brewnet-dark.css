@@ -85,7 +85,10 @@
     letter-spacing: .08em;
     color: var(--amber);
     font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    cursor: pointer;
   }
+  .slide-logo-text:hover { text-decoration: underline; }
 
   /* ── Top accent line ── */
   .slide-topbar {
@@ -700,6 +703,13 @@ body {
   .curr-stage.ecc::after { content:'📘 ECC'; position:absolute; top:6px; right:7px; font-size:7.5px; background:#7C3AED; color:#fff; padding:1px 5px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; z-index:2; }
   .curr-stage.new::after { content:'NEW'; position:absolute; top:6px; right:7px; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
   .curr-stage.final { border-color:#475569; }
+  /* 현재 덱(Effective Claude Code) 강의 영역 강조 — IT 프로페셔널 트랙만, 보라 테두리 + 글로우 */
+  .curr-stage.it-pro.ecc { border-color:#7C3AED; border-width:2px; box-shadow:0 0 0 1px rgba(124,58,237,0.45), 0 0 16px rgba(124,58,237,0.40); background:#0C0A1E; }
+  /* IT 프로페셔널 4개 과정 상단 NEW 배지 (::before, ECC 배지와 공존) */
+  .curr-stage.it-pro::before { content:'NEW'; position:absolute; top:6px; right:7px; z-index:3; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.it-pro:not(.ecc):not(.new) .curr-shead { padding-right:42px; }
+  .curr-stage.it-pro.ecc::before { right:46px; }
+  .curr-stage.it-pro.ecc .curr-shead { padding-right:86px; }
 
   .curr-shead { display:flex; align-items:center; justify-content:space-between; padding-bottom:3px; border-bottom:1px dashed var(--border); gap:4px; padding-right:42px; }
   .curr-stage:not(.ecc):not(.new) .curr-shead { padding-right:0; }

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="40" y="52" font-size="26" font-weight="800" fill="#1F2937">치명적 3요소 (Lethal Trifecta) 와 2의 규칙</text>
+    <text x="40" y="84" font-size="16" fill="#6B7280">Simon Willison · Meta AI — 세 가지를 동시에 가지면 보안 사고는 필연이다</text>
+
+    <!-- Venn 3 circles -->
+    <g opacity="0.55">
+      <circle cx="500" cy="320" r="180" fill="#F87171"/>
+      <circle cx="700" cy="320" r="180" fill="#60A5FA"/>
+      <circle cx="600" cy="480" r="180" fill="#34D399"/>
+    </g>
+
+    <text x="430" y="270" font-size="17" font-weight="800" fill="#7F1D1D" text-anchor="middle">신뢰할 수 없는</text>
+    <text x="430" y="294" font-size="17" font-weight="800" fill="#7F1D1D" text-anchor="middle">입력 처리</text>
+    <text x="430" y="320" font-size="13" fill="#7F1D1D" text-anchor="middle">외부 웹·이메일·사용자</text>
+
+    <text x="775" y="270" font-size="17" font-weight="800" fill="#1E3A8A" text-anchor="middle">민감한 시스템</text>
+    <text x="775" y="294" font-size="17" font-weight="800" fill="#1E3A8A" text-anchor="middle">/ 데이터 접근</text>
+    <text x="775" y="320" font-size="13" fill="#1E3A8A" text-anchor="middle">개인정보·내부 API·DB</text>
+
+    <text x="600" y="540" font-size="17" font-weight="800" fill="#065F46" text-anchor="middle">상태 변경 능력</text>
+    <text x="600" y="566" font-size="13" fill="#065F46" text-anchor="middle">메일 발송·파일 삭제·API 호출</text>
+
+    <!-- danger center -->
+    <text x="600" y="386" font-size="15" font-weight="800" fill="#7F1D1D" text-anchor="middle">💥</text>
+    <text x="600" y="412" font-size="13" font-weight="700" fill="#7F1D1D" text-anchor="middle">셋 다 = 시한폭탄</text>
+
+    <!-- Rule of two panel -->
+    <rect x="900" y="160" width="340" height="430" rx="16" fill="#1F2937"/>
+    <text x="930" y="206" font-size="20" font-weight="800" fill="#FBBF24">Rule of Two</text>
+    <text x="930" y="236" font-size="14" fill="#D1D5DB">세 가지 중 최대 두 가지만</text>
+    <text x="930" y="258" font-size="14" fill="#D1D5DB">동시에 허용하라.</text>
+    <text x="930" y="288" font-size="14" fill="#D1D5DB">셋 다 필요하면 반드시</text>
+    <text x="930" y="310" font-size="14" font-weight="700" fill="#6EE7B7">human-in-the-loop (사람 승인)</text>
+
+    <line x1="930" y1="332" x2="1210" y2="332" stroke="#374151" stroke-width="1.5"/>
+    <text x="930" y="366" font-size="13" fill="#93C5FD">입력(1)+민감(2)</text>
+    <text x="930" y="388" font-size="13" fill="#E5E7EB">→ 상태변경 불가, 승인 필요</text>
+    <text x="930" y="420" font-size="13" fill="#93C5FD">입력(1)+상태변경(3)</text>
+    <text x="930" y="442" font-size="13" fill="#E5E7EB">→ 민감정보 차단, 샌드박스</text>
+    <text x="930" y="474" font-size="13" fill="#93C5FD">민감(2)+상태변경(3)</text>
+    <text x="930" y="496" font-size="13" fill="#E5E7EB">→ 외부 입력 차단, 내부만</text>
+
+    <text x="930" y="544" font-size="13" fill="#9CA3AF">가드레일은 기능 제약이 아니라</text>
+    <text x="930" y="564" font-size="13" fill="#9CA3AF">신뢰성 확보의 필수 요소다.</text>
+
+    <text x="600" y="690" font-size="15" fill="#6B7280" text-anchor="middle">하네스가 없는 에이전트는 데모에서는 빛나지만 프로덕션에서는 시한폭탄이다</text>
+  </g>
+</svg>

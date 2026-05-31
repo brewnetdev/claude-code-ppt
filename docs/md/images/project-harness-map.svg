@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="40" y="52" font-size="26" font-weight="800" fill="#1F2937">claude-code-ppt 하네스 구축 지도</text>
+    <text x="40" y="84" font-size="16" fill="#6B7280">슬라이드 에디터 프로젝트에 새로 구성할 가이드 · 커맨드 · 스킬 · 훅 · 서브에이전트</text>
+
+    <!-- model core -->
+    <ellipse cx="640" cy="400" rx="120" ry="78" fill="#1F2937"/>
+    <text x="640" y="392" font-size="20" font-weight="800" fill="#FFFFFF" text-anchor="middle">모델</text>
+    <text x="640" y="420" font-size="13" fill="#9CA3AF" text-anchor="middle">Claude (CPU)</text>
+
+    <!-- ring label -->
+    <text x="640" y="300" font-size="14" fill="#9CA3AF" text-anchor="middle">↑ 하네스가 모델을 둘러싼다 ↑</text>
+
+    <!-- Guides (top-left) -->
+    <rect x="60" y="140" width="360" height="150" rx="14" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="82" y="174" font-size="17" font-weight="800" fill="#1E40AF">① 가이드 · CLAUDE.md</text>
+    <text x="82" y="202" font-size="13" fill="#374151">좌표계(1280×720, 절대 post-scale 금지)</text>
+    <text x="82" y="224" font-size="13" fill="#374151">레이어드 편집 모델 · 허용 data-slot 목록</text>
+    <text x="82" y="246" font-size="13" fill="#374151">변경 범위 규칙 · 샘플 CSS 보존 규칙</text>
+    <text x="82" y="274" font-size="12" fill="#3B82F6">결정론적 · 피드포워드 (이미 존재 → 보강)</text>
+
+    <!-- Commands (top-right) -->
+    <rect x="860" y="140" width="360" height="150" rx="14" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+    <text x="882" y="174" font-size="17" font-weight="800" fill="#166534">② 슬래시 커맨드</text>
+    <text x="882" y="202" font-size="13" fill="#374151">/new-slide · MD→슬라이드 스캐폴드</text>
+    <text x="882" y="224" font-size="13" fill="#374151">/check-deck · 좌표·슬롯·파싱 검증</text>
+    <text x="882" y="246" font-size="13" fill="#374151">/export · 빌드+HTML/PDF 내보내기</text>
+    <text x="882" y="274" font-size="12" fill="#22C55E">반복 워크플로우를 한 단어로 고정</text>
+
+    <!-- Skills (bottom-left) -->
+    <rect x="60" y="500" width="360" height="150" rx="14" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
+    <text x="82" y="534" font-size="17" font-weight="800" fill="#5B21B6">③ 스킬 (Skills)</text>
+    <text x="82" y="562" font-size="13" fill="#374151">md-to-slidedeck · export-html-deck (기존)</text>
+    <text x="82" y="584" font-size="13" fill="#374151">+ slide-design-review (신규)</text>
+    <text x="82" y="606" font-size="13" fill="#374151">지연 로딩 · 목록만 접두어, 본문은 필요시</text>
+    <text x="82" y="634" font-size="12" fill="#8B5CF6">재사용 능력 단위 (도구의 묶음)</text>
+
+    <!-- Hooks (bottom-right) -->
+    <rect x="860" y="500" width="360" height="150" rx="14" fill="#FEF3F2" stroke="#F97316" stroke-width="2"/>
+    <text x="882" y="534" font-size="17" font-weight="800" fill="#9A3412">④ 훅 (Hooks · settings.json)</text>
+    <text x="882" y="562" font-size="13" fill="#374151">PostToolUse · *.ts(x) 저장 → tsc/eslint</text>
+    <text x="882" y="584" font-size="13" fill="#374151">PreToolUse · themes/*.css 편집 차단(보존)</text>
+    <text x="882" y="606" font-size="13" fill="#374151">Stop · 세션 끝에 npm run build 검증</text>
+    <text x="882" y="634" font-size="12" fill="#F97316">연산적 피드백 — 기계가 강제</text>
+
+    <!-- Evaluator subagent (center bottom) -->
+    <rect x="450" y="520" width="380" height="120" rx="14" fill="#FFFBEB" stroke="#EAB308" stroke-width="2"/>
+    <text x="472" y="554" font-size="17" font-weight="800" fill="#854D0E">⑤ 서브에이전트 · 평가 루프</text>
+    <text x="472" y="582" font-size="13" fill="#374151">디자인/렌더 검수 에이전트 (Evaluator)</text>
+    <text x="472" y="604" font-size="13" fill="#374151">"만드는 놈 ≠ 채점하는 놈" · 추론적 피드백</text>
+    <text x="472" y="626" font-size="12" fill="#EAB308">기준 미달이면 피드백과 함께 되돌려보냄</text>
+
+    <!-- connectors -->
+    <line x1="420" y1="215" x2="540" y2="360" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="860" y1="215" x2="740" y2="360" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="420" y1="560" x2="540" y2="440" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <line x1="860" y1="560" x2="740" y2="440" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 4"/>
+
+    <text x="640" y="700" font-size="14" fill="#6B7280" text-anchor="middle">실수가 나면 에이전트를 탓하지 말고 — 그 실수가 구조적으로 다시 발생할 수 없도록 하네스를 고친다 (Hashimoto)</text>
+  </g>
+</svg>
