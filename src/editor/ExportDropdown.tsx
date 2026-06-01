@@ -6,15 +6,14 @@ type Props = {
   busy: Busy;
   disabled?: boolean;
   onExportHtml: () => void;
-  onExportPdf: () => void;
-  onExportPng: () => void;
+  // Optional: flowing-document mode has no slides, so PNG export is omitted.
+  onExportPng?: () => void;
 };
 
 export function ExportDropdown({
   busy,
   disabled,
   onExportHtml,
-  onExportPdf,
   onExportPng,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -73,16 +72,13 @@ export function ExportDropdown({
             label="Export HTML"
             hint="단일 HTML 번들 다운로드"
           />
-          <ExportItem
-            onClick={wrap(onExportPdf)}
-            label="Export PDF"
-            hint="브라우저 인쇄로 PDF 저장"
-          />
-          <ExportItem
-            onClick={wrap(onExportPng)}
-            label="PNG (all)"
-            hint="모든 슬라이드를 PNG로"
-          />
+          {onExportPng ? (
+            <ExportItem
+              onClick={wrap(onExportPng)}
+              label="PNG (all)"
+              hint="모든 슬라이드를 PNG로"
+            />
+          ) : null}
         </div>
       ) : null}
     </div>

@@ -91,6 +91,101 @@ export async function clearStoredExportRoot(): Promise<void> {
   await idbDeleteMeta(META_KEY);
 }
 
+// ── Resource (flowing-document) write-back via a per-file handle ─────────────
+//
+// Earlier this used a single directory handle + path navigation, but that
+// forced the user to pick the exact project root or the write silently fell
+// back to download (picking docs/html instead of the repo root broke the
+// docs/… navigation). showSaveFilePicker is far less error-prone: the user
+// navigates straight to the target file once, we persist that FileSystemFile-
+// Handle keyed by resource id, and every later save (manual or auto) writes to
+// it silently. This is a real "save in place", cleanly distinct from Export's
+// blob download.
+
+type FsaFileHandle = FileSystemFileHandle & {
+  queryPermission(desc: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
+  requestPermission(desc: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
+};
+
+interface ShowSaveFilePickerOptions {
+  id?: string;
+  suggestedName?: string;
+  startIn?: 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos';
+  types?: { description?: string; accept: Record<string, string[]> }[];
+}
+
+declare global {
+  interface Window {
+    showSaveFilePicker?: (options?: ShowSaveFilePickerOptions) => Promise<FsaFileHandle>;
+  }
+}
+
+const RESOURCE_FILE_KEY = (id: string) => `resource-file-handle:v1:${id}`;
+
+async function fileHandleWritable(handle: FsaFileHandle, withGesture: boolean): Promise<boolean> {
+  const desc = { mode: 'readwrite' as const };
+  const current = await handle.queryPermission(desc);
+  if (current === 'granted') return true;
+  // requestPermission must run inside a user gesture. Auto-save passes
+  // withGesture=false so it never throws/looping — it just skips until the
+  // next manual Save re-grants.
+  if (!withGesture) return false;
+  const next = await handle.requestPermission(desc);
+  return next === 'granted';
+}
+
+// Returns the stored, write-permitted handle for this resource, or null.
+// `withGesture` distinguishes a manual Save (may prompt for permission) from
+// auto-save (must stay silent).
+export async function getStoredResourceFile(
+  resourceId: string,
+  withGesture: boolean,
+): Promise<FsaFileHandle | null> {
+  if (!isFsaSupported()) return null;
+  const handle = await idbGetMeta<FsaFileHandle>(RESOURCE_FILE_KEY(resourceId));
+  if (!handle) return null;
+  const ok = await fileHandleWritable(handle, withGesture);
+  return ok ? handle : null;
+}
+
+// Opens the Save-As dialog, persists the chosen handle for this resource, and
+// returns it. Returns null if the user cancels. Must be called from a gesture.
+export async function pickResourceFile(
+  resourceId: string,
+  suggestedName: string,
+): Promise<FsaFileHandle | null> {
+  if (!isFsaSupported() || !window.showSaveFilePicker) return null;
+  try {
+    const isMd = /\.md$/i.test(suggestedName);
+    const handle = await window.showSaveFilePicker({
+      id: 'claude-code-ppt-resource',
+      suggestedName,
+      types: isMd
+        ? [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }]
+        : [{ description: 'HTML', accept: { 'text/html': ['.html', '.htm'] } }],
+    });
+    const ok = await fileHandleWritable(handle, true);
+    if (!ok) return null;
+    await idbPutMeta(RESOURCE_FILE_KEY(resourceId), handle);
+    return handle;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return null;
+    throw err;
+  }
+}
+
+export async function clearResourceFile(resourceId: string): Promise<void> {
+  await idbDeleteMeta(RESOURCE_FILE_KEY(resourceId));
+}
+
+// Writes content to an already-resolved file handle. Returns the file name.
+export async function writeFileHandle(handle: FsaFileHandle, content: string): Promise<string> {
+  const writer = await handle.createWritable();
+  await writer.write(content);
+  await writer.close();
+  return handle.name;
+}
+
 // Writes the bundle to <root>/<template>/<id>.html, creating the template
 // subdirectory on demand. Returns a human-readable path for status UX.
 export async function writeDeckHtml(

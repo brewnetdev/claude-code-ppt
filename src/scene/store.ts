@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide, SlideBackground } from '../importer/parsePresentation';
 import { deriveSlideTitleFromHtml } from '../importer/parsePresentation';
+import { setSlideWatermark } from '../watermark/watermark';
 import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
 
@@ -167,6 +168,9 @@ type DeckState = {
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
   setSlideBackground: (id: string, background: SlideBackground | null) => void;
+  // Brand watermark across every slide. Single history entry; bumps revision so
+  // the live SlideRenderer remounts and shows the change immediately.
+  setWatermarkAllSlides: (enabled: boolean, lines: string[]) => void;
 
   insertSlideAfter: (index: number, html?: string, title?: string) => void;
   duplicateSlide: (index: number) => void;
@@ -297,6 +301,22 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         slides: state.slides.map((s) =>
           s.id === id ? { ...s, html, title: nextTitle } : s,
         ),
+      };
+    }),
+
+  setWatermarkAllSlides: (enabled, lines) =>
+    set((state) => {
+      if (state.slides.length === 0) return state;
+      const slides = state.slides.map((s) => {
+        const html = setSlideWatermark(s.html, enabled, lines);
+        return html === s.html ? s : { ...s, html };
+      });
+      if (slides.every((s, i) => s === state.slides[i])) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        revision: state.revision + 1,
       };
     }),
 
