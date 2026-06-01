@@ -59,7 +59,14 @@ export function DocumentPropertiesSection() {
   // True once the user edits the watermark textarea, so live-state syncing
   // stops overwriting what they're typing.
   const wmTextDirty = useRef(false);
-  const [img, setImg] = useState<DocImageState>({ selected: false, width: 0, height: 0, align: 'none' });
+  const [img, setImg] = useState<DocImageState>({
+    selected: false,
+    width: 0,
+    height: 0,
+    align: 'none',
+    marginTop: 0,
+    marginBottom: 0,
+  });
   // data-block-id of the currently selected code block (null = none). Doubles as
   // the CodeBlockEditPanel seedKey so it re-seeds when the selection changes.
   const [codeBlockId, setCodeBlockId] = useState<string | null>(null);
@@ -154,6 +161,36 @@ export function DocumentPropertiesSection() {
               />
             </label>
           </div>
+          <div className="mt-1 grid grid-cols-2 gap-1">
+            <label className="flex items-center gap-1 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs" title="위 여백 (0이면 위 간격 제거)">
+              <span className="font-mono text-editor-dim">↑여백</span>
+              <input
+                type="number"
+                value={img.marginTop}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  applyDocImageStyle({ marginTop: Number.isFinite(n) ? n : null });
+                  setImg(getDocImageState());
+                }}
+                className="w-full bg-transparent text-editor-text outline-none"
+              />
+            </label>
+            <label className="flex items-center gap-1 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs" title="아래 여백 (0이면 아래 간격 제거)">
+              <span className="font-mono text-editor-dim">↓여백</span>
+              <input
+                type="number"
+                value={img.marginBottom}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  applyDocImageStyle({ marginBottom: Number.isFinite(n) ? n : null });
+                  setImg(getDocImageState());
+                }}
+                className="w-full bg-transparent text-editor-text outline-none"
+              />
+            </label>
+          </div>
           <div className="mt-1 grid grid-cols-3 gap-1">
             {(['left', 'center', 'right'] as const).map((align) => (
               <Btn
@@ -194,7 +231,10 @@ export function DocumentPropertiesSection() {
               삭제
             </button>
           </div>
-          <p className="mt-1 text-[10px] text-editor-dim">W만 입력하면 비율 유지(H 비움). 캔버스에서 이미지를 클릭해 선택합니다.</p>
+          <p className="mt-1 text-[10px] text-editor-dim">
+            W만 입력하면 비율 유지(H 비움). ↑/↓여백을 0으로 하면 위/아래 간격이 닫힙니다(키로 못 지우는
+            CSS 여백). 캔버스에서 이미지를 클릭해 선택합니다.
+          </p>
         </Group>
       ) : null}
 

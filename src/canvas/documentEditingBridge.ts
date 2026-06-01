@@ -246,17 +246,36 @@ export function deleteSelectedDocImage(): boolean {
   return true;
 }
 
+// The element whose top/bottom margin produces the visible gap around the
+// image. Uploaded docs often wrap images in a sole-child <figure>/<p>/<div>
+// whose margin (not the img's) is the gap — target that wrapper so setting the
+// margin to 0 actually closes the space. Otherwise target the image itself.
+function imageGapTarget(img: HTMLImageElement): HTMLElement {
+  const p = img.parentElement;
+  if (
+    p &&
+    /^(FIGURE|P|DIV)$/.test(p.tagName) &&
+    p.children.length === 1 &&
+    (p.textContent ?? '').trim() === ''
+  ) {
+    return p;
+  }
+  return img;
+}
+
 export type DocImageState = {
   selected: boolean;
   width: number;
   height: number;
   align: 'left' | 'center' | 'right' | 'none';
+  marginTop: number;
+  marginBottom: number;
 };
 
 export function getDocImageState(): DocImageState {
   if (!selectedImg || !selectedImg.isConnected) {
     selectedImg = null;
-    return { selected: false, width: 0, height: 0, align: 'none' };
+    return { selected: false, width: 0, height: 0, align: 'none', marginTop: 0, marginBottom: 0 };
   }
   const rect = selectedImg.getBoundingClientRect();
   let align: DocImageState['align'] = 'none';
@@ -265,15 +284,30 @@ export function getDocImageState(): DocImageState {
     const mr = selectedImg.style.marginRight === 'auto';
     align = ml && mr ? 'center' : ml ? 'right' : 'left';
   }
-  return { selected: true, width: Math.round(rect.width), height: Math.round(rect.height), align };
+  const win = selectedImg.ownerDocument.defaultView;
+  const cs = win?.getComputedStyle(imageGapTarget(selectedImg));
+  const mt = Math.round(parseFloat(cs?.marginTop ?? '0') || 0);
+  const mb = Math.round(parseFloat(cs?.marginBottom ?? '0') || 0);
+  return {
+    selected: true,
+    width: Math.round(rect.width),
+    height: Math.round(rect.height),
+    align,
+    marginTop: mt,
+    marginBottom: mb,
+  };
 }
 
-// Apply size / alignment to the selected image (inline style) and commit. Pass
-// width/height as a number (px), or null to clear back to auto.
+// Apply size / alignment / vertical margin to the selected image and commit.
+// width/height: number (px) or null to clear to auto. marginTop/marginBottom:
+// number (px, 0 closes the gap by overriding the doc's CSS margin) or null to
+// revert to the document's own styling.
 export function applyDocImageStyle(patch: {
   width?: number | null;
   height?: number | null;
   align?: 'left' | 'center' | 'right';
+  marginTop?: number | null;
+  marginBottom?: number | null;
 }): boolean {
   if (!selectedImg) return false;
   if (patch.width !== undefined) selectedImg.style.width = patch.width ? `${patch.width}px` : '';
@@ -282,6 +316,19 @@ export function applyDocImageStyle(patch: {
     selectedImg.style.display = 'block';
     selectedImg.style.marginLeft = patch.align === 'left' ? '0' : 'auto';
     selectedImg.style.marginRight = patch.align === 'right' ? '0' : 'auto';
+  }
+  if (patch.marginTop !== undefined || patch.marginBottom !== undefined) {
+    const target = imageGapTarget(selectedImg);
+    // Vertical margin is ignored on inline images — promote to block.
+    if (target === selectedImg && selectedImg.style.display !== 'block') {
+      selectedImg.style.display = 'block';
+    }
+    if (patch.marginTop !== undefined) {
+      target.style.marginTop = patch.marginTop != null ? `${patch.marginTop}px` : '';
+    }
+    if (patch.marginBottom !== undefined) {
+      target.style.marginBottom = patch.marginBottom != null ? `${patch.marginBottom}px` : '';
+    }
   }
   notifyInput();
   return true;
