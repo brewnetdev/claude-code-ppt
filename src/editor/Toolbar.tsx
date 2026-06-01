@@ -4,9 +4,11 @@ import {
   clearStoredExportRoot,
   getStoredExportRoot,
   getStoredResourceFile,
+  isFileExternallyChanged,
   isFsaSupported,
   pickExportRoot,
   pickResourceFile,
+  recordWrittenMtime,
   writeDeckHtml,
   writeFileHandle,
 } from '../exporter/fileSystemAccess';
@@ -37,6 +39,8 @@ type ToolbarProps = {
   activeResource: ResourceEntry | null;
   editorKind: 'deck' | 'document';
   librarySection: 'decks' | 'resources';
+  docEditable: boolean;
+  onToggleDocEditable: () => void;
 };
 
 export function Toolbar({
@@ -46,6 +50,8 @@ export function Toolbar({
   activeResource,
   editorKind,
   librarySection,
+  docEditable,
+  onToggleDocEditable,
 }: ToolbarProps) {
   const isDoc = editorKind === 'document';
 
@@ -207,7 +213,14 @@ export function Toolbar({
             handle = await pickResourceFile(resource.id, suggested);
           }
           if (handle) {
+            if (await isFileExternallyChanged(resource.id, handle)) {
+              const ok = window.confirm(
+                '이 파일이 외부에서 변경된 것 같습니다. 현재 편집 내용으로 덮어쓸까요?',
+              );
+              if (!ok) return;
+            }
             const name = await writeFileHandle(handle, html);
+            await recordWrittenMtime(resource.id, handle);
             usePersistenceStore.getState().setSaved(Date.now());
             showToast({ message: `저장됨: ${name}`, tone: 'info' });
             return;
@@ -304,7 +317,9 @@ export function Toolbar({
           </button>
           <span className="text-xs text-editor-dim">
             {isDoc
-              ? '문서 편집'
+              ? docEditable
+                ? '문서 편집'
+                : '문서 보기'
               : slides.length > 0
                 ? `Slide ${currentIndex + 1} / ${slides.length}`
                 : 'Loading…'}
@@ -322,6 +337,18 @@ export function Toolbar({
             ↷ Redo
           </ToolbarButton>
           <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
+          {isDoc ? (
+            <>
+              <ToolbarButton
+                onClick={onToggleDocEditable}
+                tone={docEditable ? 'default' : 'accent'}
+                title={docEditable ? '읽기 전용으로 전환 (실수 편집 방지)' : '편집 모드로 전환'}
+              >
+                {docEditable ? '👁 보기' : '✎ 편집'}
+              </ToolbarButton>
+              <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
+            </>
+          ) : null}
           {!isDoc ? (
             <>
               <ToolbarButton

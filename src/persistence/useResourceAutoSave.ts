@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { getStoredResourceFile, writeFileHandle } from '../exporter/fileSystemAccess';
+import { getStoredResourceFile, recordWrittenMtime, writeFileHandle } from '../exporter/fileSystemAccess';
 import { assembleHtmlDocument } from '../importer/detectResource';
 import { useResourceStore } from '../scene/resourceStore';
 import { usePersistenceStore } from './persistenceStore';
@@ -62,6 +62,7 @@ export function useResourceAutoSave(enabled: boolean): void {
           title: resource.title,
         });
         await writeFileHandle(handle, html);
+        await recordWrittenMtime(resource.id, handle);
         usePersistenceStore.getState().setSaved(Date.now());
       } catch (err) {
         usePersistenceStore.getState().setError(

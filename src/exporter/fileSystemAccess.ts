@@ -186,6 +186,37 @@ export async function writeFileHandle(handle: FsaFileHandle, content: string): P
   return handle.name;
 }
 
+// External-change detection. We can't key by the handle object (each IDB read
+// deserializes a fresh handle), so we track the on-disk mtime by resource id.
+// Both manual Save and auto-save call recordWrittenMtime after writing;
+// manual Save calls isFileExternallyChanged before overwriting so the user can
+// be warned if the file was edited elsewhere since our last write.
+const writtenMtime = new Map<string, number>();
+
+export async function recordWrittenMtime(resourceId: string, handle: FsaFileHandle): Promise<void> {
+  try {
+    const file = await handle.getFile();
+    writtenMtime.set(resourceId, file.lastModified);
+  } catch {
+    /* best-effort */
+  }
+}
+
+export async function isFileExternallyChanged(
+  resourceId: string,
+  handle: FsaFileHandle,
+): Promise<boolean> {
+  const recorded = writtenMtime.get(resourceId);
+  if (recorded === undefined) return false; // never written by us yet
+  try {
+    const file = await handle.getFile();
+    // 500ms slack absorbs filesystem mtime jitter from our own write.
+    return file.lastModified > recorded + 500;
+  } catch {
+    return false;
+  }
+}
+
 // Writes the bundle to <root>/<template>/<id>.html, creating the template
 // subdirectory on demand. Returns a human-readable path for status UX.
 export async function writeDeckHtml(

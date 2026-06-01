@@ -52,6 +52,9 @@ export function App() {
   // Which library tab the current editor session was opened from — so the
   // breadcrumb / back navigation returns to the right place.
   const [librarySection, setLibrarySection] = useState<'decks' | 'resources'>('decks');
+  // Flowing-document edit/view toggle. Defaults to edit; the toolbar flips it to
+  // a read-only preview so layout-sensitive docs aren't edited by accident.
+  const [docEditable, setDocEditable] = useState(true);
   const [bootReady, setBootReady] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const exitPresenting = useCallback(() => setPresenting(false), []);
@@ -184,6 +187,7 @@ export function App() {
         // flow-html → document canvas
         const parts = splitHtmlDocument(entry.raw);
         loadDocument(entry, parts);
+        setDocEditable(true);
         setActiveDeck(null);
         setActiveDeckId(null);
         setActiveResource(entry);
@@ -220,6 +224,7 @@ export function App() {
         if (stored.doc.width != null) {
           useResourceStore.getState().setDocWidth(stored.doc.width);
         }
+        setDocEditable(true);
         setActiveDeck(null);
         setActiveDeckId(null);
         setActiveResource(entry);
@@ -274,6 +279,8 @@ export function App() {
         activeResource={activeResource}
         editorKind={editorKind}
         librarySection={librarySection}
+        docEditable={docEditable}
+        onToggleDocEditable={() => setDocEditable((v) => !v)}
       />
       {editorKind === 'deck' && activeDeck ? <StaleCacheBanner activeDeck={activeDeck} /> : null}
       <div className="flex flex-1 overflow-hidden">
@@ -286,7 +293,7 @@ export function App() {
           </>
         ) : (
           <main className="flex-1 overflow-hidden">
-            <DocumentCanvas />
+            <DocumentCanvas editable={docEditable} />
           </main>
         )}
         <PropertiesPanel editorKind={editorKind} />
