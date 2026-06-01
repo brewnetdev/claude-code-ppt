@@ -341,6 +341,13 @@ export function Toolbar({
               </ToolbarButton>
               {docEditable ? <IconPicker onPick={(emoji) => insertDocText(emoji)} /> : null}
               <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
+              <ToolbarButton
+                onClick={() => onPresent()}
+                title="Present full screen (Esc 종료)"
+              >
+                ⛶ Present
+              </ToolbarButton>
+              <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
             </>
           ) : null}
           {!isDoc ? (

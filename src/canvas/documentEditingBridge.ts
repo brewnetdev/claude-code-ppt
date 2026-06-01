@@ -276,6 +276,21 @@ function imageGapTarget(img: HTMLImageElement): HTMLElement {
   return img;
 }
 
+// The block-level wrapper whose text-align governs horizontal placement of the
+// image. Notion-style exports nest the image in an inline <a> inside a
+// <figure class="image"> — margin:auto on the inline image does nothing, so we
+// align via the nearest FIGURE/P/DIV wrapper instead. Returns the image itself
+// when it has no such wrapper (e.g. a bare block image), so the caller can fall
+// back to auto-margin centering.
+function imageAlignTarget(img: HTMLImageElement): HTMLElement {
+  let el = img.parentElement;
+  while (el && el.tagName !== 'BODY') {
+    if (/^(FIGURE|P|DIV)$/.test(el.tagName)) return el;
+    el = el.parentElement;
+  }
+  return img;
+}
+
 export type DocImageState = {
   selected: boolean;
   width: number;
@@ -291,13 +306,33 @@ export function getDocImageState(): DocImageState {
     return { selected: false, width: 0, height: 0, align: 'none', marginTop: 0, marginBottom: 0 };
   }
   const rect = selectedImg.getBoundingClientRect();
+  const win = selectedImg.ownerDocument.defaultView;
   let align: DocImageState['align'] = 'none';
   if (selectedImg.style.display === 'block') {
+    // Auto-margin centering (the image box positioned directly).
     const ml = selectedImg.style.marginLeft === 'auto';
     const mr = selectedImg.style.marginRight === 'auto';
-    align = ml && mr ? 'center' : ml ? 'right' : 'left';
+    align = ml && mr ? 'center' : ml ? 'right' : mr ? 'left' : 'left';
+  } else {
+    // Inline / anchor-wrapped image — read text-align from the anchor or the
+    // nearest block wrapper.
+    const anchor =
+      selectedImg.parentElement?.tagName === 'A'
+        ? (selectedImg.parentElement as HTMLElement)
+        : null;
+    const el = anchor ?? imageAlignTarget(selectedImg);
+    if (el && el !== selectedImg) {
+      const ta = win?.getComputedStyle(el).textAlign ?? '';
+      align =
+        ta === 'center'
+          ? 'center'
+          : ta === 'right' || ta === 'end'
+            ? 'right'
+            : ta === 'left' || ta === 'start'
+              ? 'left'
+              : 'none';
+    }
   }
-  const win = selectedImg.ownerDocument.defaultView;
   const cs = win?.getComputedStyle(imageGapTarget(selectedImg));
   const mt = Math.round(parseFloat(cs?.marginTop ?? '0') || 0);
   const mb = Math.round(parseFloat(cs?.marginBottom ?? '0') || 0);
@@ -326,9 +361,33 @@ export function applyDocImageStyle(patch: {
   if (patch.width !== undefined) selectedImg.style.width = patch.width ? `${patch.width}px` : '';
   if (patch.height !== undefined) selectedImg.style.height = patch.height ? `${patch.height}px` : '';
   if (patch.align) {
-    selectedImg.style.display = 'block';
-    selectedImg.style.marginLeft = patch.align === 'left' ? '0' : 'auto';
-    selectedImg.style.marginRight = patch.align === 'right' ? '0' : 'auto';
+    const align = patch.align;
+    const wrapper = imageAlignTarget(selectedImg);
+    const anchor =
+      selectedImg.parentElement?.tagName === 'A'
+        ? (selectedImg.parentElement as HTMLElement)
+        : null;
+    if (anchor) {
+      // Inline image wrapped in an <a> (e.g. Notion's <figure><a><img>): make
+      // the anchor a block and center its inline content via text-align. Clear
+      // any block/margins on the image so they don't fight it.
+      selectedImg.style.display = '';
+      selectedImg.style.marginLeft = '';
+      selectedImg.style.marginRight = '';
+      anchor.style.display = 'block';
+      anchor.style.textAlign = align;
+      if (wrapper !== selectedImg) wrapper.style.textAlign = align;
+    } else {
+      // Image is a direct child of its container. Centering via the parent's
+      // text-align only works while the image is inline-level; many docs render
+      // images as display:block (which ignores text-align), so we position the
+      // image box itself with auto margins — the reliable cross-case approach.
+      selectedImg.style.display = 'block';
+      selectedImg.style.marginLeft = align === 'left' ? '0' : 'auto';
+      selectedImg.style.marginRight = align === 'right' ? '0' : 'auto';
+      // Belt-and-suspenders for inline-level images: also set wrapper text-align.
+      if (wrapper !== selectedImg) wrapper.style.textAlign = align;
+    }
   }
   if (patch.marginTop !== undefined || patch.marginBottom !== undefined) {
     const target = imageGapTarget(selectedImg);
@@ -347,13 +406,67 @@ export function applyDocImageStyle(patch: {
   return true;
 }
 
-// Strip editor-only selection classes (image + code block) from a serialized
-// body clone so they never land in the saved/exported HTML.
+// Strip editor-only selection classes (image + code block + block) from a
+// serialized body clone so they never land in the saved/exported HTML.
 export function stripSelectionClasses(bodyEl: HTMLElement): void {
-  bodyEl.querySelectorAll(`.${IMG_SELECTED_CLASS}, .${CODE_SELECTED_CLASS}`).forEach((el) => {
-    el.classList.remove(IMG_SELECTED_CLASS, CODE_SELECTED_CLASS);
-    if (el.getAttribute('class') === '') el.removeAttribute('class');
-  });
+  bodyEl
+    .querySelectorAll(`.${IMG_SELECTED_CLASS}, .${CODE_SELECTED_CLASS}, .${BLOCK_SELECTED_CLASS}`)
+    .forEach((el) => {
+      el.classList.remove(IMG_SELECTED_CLASS, CODE_SELECTED_CLASS, BLOCK_SELECTED_CLASS);
+      if (el.getAttribute('class') === '') el.removeAttribute('class');
+    });
+}
+
+// ── Block width (document mode) ──────────────────────────────────────────────
+// Lets the user resize an individual content block (paragraph / table / figure
+// / list …) by dragging a handle on its right edge — independent of the
+// document-wide width. The chosen width is written as an inline style so it
+// round-trips into the saved/exported HTML; the selection outline class is
+// editor-only and stripped on serialize.
+
+export const BLOCK_SELECTED_CLASS = 'doc-block-selected';
+
+let selectedBlock: HTMLElement | null = null;
+
+export function setSelectedDocBlock(el: HTMLElement | null): void {
+  const doc = activeDoc();
+  doc?.querySelectorAll(`.${BLOCK_SELECTED_CLASS}`).forEach((e) => e.classList.remove(BLOCK_SELECTED_CLASS));
+  selectedBlock = el && el.isConnected ? el : null;
+  if (selectedBlock) selectedBlock.classList.add(BLOCK_SELECTED_CLASS);
+}
+
+export function getSelectedDocBlock(): HTMLElement | null {
+  if (selectedBlock && !selectedBlock.isConnected) selectedBlock = null;
+  return selectedBlock;
+}
+
+export function clearDocBlockSelection(): void {
+  const doc = activeDoc();
+  doc?.querySelectorAll(`.${BLOCK_SELECTED_CLASS}`).forEach((e) => e.classList.remove(BLOCK_SELECTED_CLASS));
+  selectedBlock = null;
+}
+
+// Apply an explicit pixel width to the selected block (null clears it back to
+// the document's own layout). When the block is a flex child, also pin its flex
+// basis so the chosen width isn't overridden by the flex container. commit=true
+// nudges the debounced save (skip it during a live drag, commit once on release).
+export function applyDocBlockWidth(px: number | null, commit: boolean): boolean {
+  if (!selectedBlock || !selectedBlock.isConnected) return false;
+  const el = selectedBlock;
+  if (px == null) {
+    el.style.width = '';
+    el.style.maxWidth = '';
+    el.style.flex = '';
+  } else {
+    el.style.width = `${px}px`;
+    el.style.maxWidth = 'none';
+    const parent = el.parentElement;
+    const win = el.ownerDocument.defaultView;
+    const disp = parent && win ? win.getComputedStyle(parent).display : '';
+    if (disp === 'flex' || disp === 'inline-flex') el.style.flex = `0 0 ${px}px`;
+  }
+  if (commit) notifyInput();
+  return true;
 }
 
 // ── Code block (document mode) ───────────────────────────────────────────────

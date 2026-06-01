@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { DocumentCanvas } from './canvas/DocumentCanvas';
 import { SlideCanvas } from './canvas/SlideCanvas';
 import { DeckLibraryView } from './editor/DeckLibraryView';
+import { DocumentPresentationView } from './editor/DocumentPresentationView';
 import { PresentationView } from './editor/PresentationView';
 import { PropertiesPanel } from './editor/PropertiesPanel';
 import { SlideListSidebar } from './editor/SlideListSidebar';
@@ -299,6 +300,9 @@ export function App() {
         <PropertiesPanel editorKind={editorKind} />
       </div>
       {presenting && editorKind === 'deck' ? <PresentationView onExit={exitPresenting} /> : null}
+      {presenting && editorKind === 'document' ? (
+        <DocumentPresentationView onExit={exitPresenting} />
+      ) : null}
       <ToastHost />
     </div>
   );

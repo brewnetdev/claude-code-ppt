@@ -103,6 +103,19 @@ export function DocumentPropertiesSection() {
   };
 
   const run = (command: string, value?: string) => {
+    // execCommand('justify*') aligns text blocks but does nothing to a selected
+    // image. When an image is the active selection, route the justify buttons to
+    // image alignment so BOTH the text-format row and the image panel work.
+    const justifyMap: Record<string, 'left' | 'center' | 'right'> = {
+      justifyLeft: 'left',
+      justifyCenter: 'center',
+      justifyRight: 'right',
+    };
+    if (command in justifyMap && getDocImageState().selected) {
+      applyDocImageStyle({ align: justifyMap[command] });
+      setImg(getDocImageState());
+      return;
+    }
     execDocCommand(command, value);
     setSel(getDocSelectionState());
   };

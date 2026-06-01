@@ -119,16 +119,28 @@ export function assembleHtmlDocument(input: {
   lang?: string;
   bodyClassName?: string;
   title?: string;
+  // Editor/presentation display override. Many source docs (e.g. Notion HTML
+  // exports) pin `body { max-width: 900px }`, so widening the canvas leaves the
+  // text wrapping at 900px. When `fillWidth` is true we neutralize that cap so
+  // the content fills the chosen canvas width. Omitted on save/export so the
+  // standalone file keeps its original measure.
+  fillWidth?: boolean;
 }): string {
   const langAttr = input.lang ? ` lang="${input.lang}"` : '';
   const bodyClassAttr = input.bodyClassName ? ` class="${input.bodyClassName}"` : '';
   const titleTag = input.title ? `<title>${escapeHtml(input.title)}</title>` : '';
+  // `html body` raises specificity above the source's bare `body` rule; the
+  // !important + explicit margins win over `@media only screen { body { ... } }`.
+  const fillWidthCss = input.fillWidth
+    ? `html body { max-width: none !important; width: auto !important; margin-left: auto !important; margin-right: auto !important; box-sizing: border-box; }`
+    : '';
   return `<!DOCTYPE html>
 <html${langAttr}>
 <head>
 ${titleTag}
 ${input.headHtml}
 <style>${CHECKLIST_CSS}</style>
+<style>${fillWidthCss}</style>
 </head>
 <body${bodyClassAttr}>
 ${input.bodyHtml}

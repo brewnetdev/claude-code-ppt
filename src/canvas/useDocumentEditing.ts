@@ -1,13 +1,48 @@
 import { useEffect } from 'react';
 import { useResourceStore } from '../scene/resourceStore';
 import {
+  clearDocBlockSelection,
   clearDocCodeSelection,
   clearDocImageSelection,
   setActiveDocFrame,
+  setSelectedDocBlock,
   setSelectedDocCodeBlock,
   setSelectedDocImage,
   stripSelectionClasses,
 } from './documentEditingBridge';
+
+// Atomic containers resized as a whole (rather than their inner blocks).
+const RESIZABLE_ATOMIC = 'table, figure, blockquote, pre';
+
+// Resolve the click target to a resizable block. We deliberately pick the
+// INNERMOST block-level element wrapping the click — not the top-level child of
+// <body>. Many exports (e.g. Notion) wrap the whole document in a single
+// <article>/<main>; walking to the body child would select that giant wrapper,
+// placing the handle at the wrapper's vertical center (off-screen) so it reads
+// as "no handle". Stopping at the innermost block targets the actual paragraph
+// / heading / list the user clicked. Atomic containers (table/figure/…) are
+// returned whole. Returns null for clicks with no block (e.g. bare <body>).
+function findResizableBlock(target: HTMLElement, body: HTMLElement): HTMLElement | null {
+  if (!body.contains(target) || target === body) return null;
+  const atomic = target.closest<HTMLElement>(RESIZABLE_ATOMIC);
+  if (atomic && body.contains(atomic) && atomic !== body) return atomic;
+  const win = body.ownerDocument.defaultView;
+  let el: HTMLElement | null = target;
+  while (el && el !== body) {
+    const d = win ? win.getComputedStyle(el).display : 'block';
+    if (
+      d.startsWith('block') ||
+      d === 'list-item' ||
+      d === 'flex' ||
+      d === 'grid' ||
+      d.startsWith('table')
+    ) {
+      return el;
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
 
 // Window event PropertiesPanel listens to so its format-button active states
 // (bold/italic/…) reflect the caret position inside the edit iframe.
@@ -23,6 +58,7 @@ const EDIT_AFFORDANCE_CSS = `
   body[contenteditable="true"] img { cursor: pointer; }
   img.doc-img-selected { outline: 2px solid rgba(56,139,253,0.95); outline-offset: 2px; }
   .doc-code-selected { outline: 2px solid rgba(56,139,253,0.95); outline-offset: 2px; }
+  .doc-block-selected { outline: 1px dashed rgba(56,139,253,0.7); outline-offset: 3px; }
 `;
 
 type Options = {
@@ -172,12 +208,17 @@ export function useDocumentEditing(
         if (t && t.tagName === 'IMG') {
           setSelectedDocImage(t as HTMLImageElement);
           clearDocCodeSelection();
+          clearDocBlockSelection();
         } else if (codeEl) {
           setSelectedDocCodeBlock(codeEl);
           clearDocImageSelection();
+          clearDocBlockSelection();
         } else {
           clearDocImageSelection();
           clearDocCodeSelection();
+          // Select the surrounding block so its width handle (rendered in the
+          // parent over the iframe) appears at its right edge.
+          setSelectedDocBlock(t ? findResizableBlock(t, doc.body) : null);
         }
         window.dispatchEvent(new CustomEvent(DOC_SELECTION_EVENT));
       };
