@@ -13,6 +13,7 @@ import {
   writeFileHandle,
 } from '../exporter/fileSystemAccess';
 import { buildHtmlBundle, defaultExportName, downloadBlob } from '../exporter/htmlBundle';
+import { insertDocText } from '../canvas/documentEditingBridge';
 import { assembleHtmlDocument, splitHtmlDocument } from '../importer/detectResource';
 import { parsePresentationHTML } from '../importer/parsePresentation';
 import type { DeckRegistryEntry } from '../library/deckRegistry';
@@ -338,6 +339,7 @@ export function Toolbar({
               >
                 {docEditable ? '👁 보기' : '✎ 편집'}
               </ToolbarButton>
+              {docEditable ? <IconPicker onPick={(emoji) => insertDocText(emoji)} /> : null}
               <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
             </>
           ) : null}

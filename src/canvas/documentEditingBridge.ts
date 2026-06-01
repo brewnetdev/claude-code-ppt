@@ -82,6 +82,19 @@ export function wrapSelectionStyle(prop: string, value: string): boolean {
   }
 }
 
+// Insert plain text (e.g. an emoji icon) at the document caret. Uses
+// execCommand('insertText') so it lands at the iframe's current selection even
+// when focus is on a parent toolbar control (same path the format buttons use).
+export function insertDocText(text: string): boolean {
+  const doc = activeDoc();
+  if (!doc?.body) return false;
+  if (execDocCommand('insertText', text)) return true;
+  // Fallback: no usable selection — append at end of body.
+  doc.body.appendChild(doc.createTextNode(text));
+  notifyInput();
+  return true;
+}
+
 // Insert an image. `src` is a data: URL (uploaded files are inlined, matching
 // how slide overlays store images). Built with DOM APIs (not
 // execCommand('insertImage')) so it works even when the iframe has no caret —
