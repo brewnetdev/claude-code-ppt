@@ -237,6 +237,7 @@ function ResourcePanel({
   onOpenResource: (entry: ResourceEntry, template?: Template) => void;
   onOpenRecent: (id: string) => void;
 }) {
+  const [template, setTemplate] = useState<Template>('presentation');
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [recents, setRecents] = useState<RecentResource[]>([]);
@@ -267,7 +268,7 @@ function ResourcePanel({
           origin: 'upload',
           raw: content,
         };
-        onOpenResource(entry);
+        onOpenResource(entry, template);
       } catch (err) {
         console.error('resource upload failed', err);
         showToast({ message: '파일을 읽지 못했습니다.', tone: 'error' });
@@ -275,7 +276,7 @@ function ResourcePanel({
         setBusy(false);
       }
     },
-    [onOpenResource],
+    [onOpenResource, template],
   );
 
   return (
@@ -287,6 +288,25 @@ function ResourcePanel({
           에디터로, 그 외 HTML 문서는 문서 편집 캔버스로 열립니다. 편집한 리소스는 아래 목록에서
           다시 열 수 있습니다.
         </p>
+      </div>
+
+      <div className="mb-3 flex items-center gap-2 text-xs text-editor-dim">
+        <span>MD → 슬라이드 템플릿:</span>
+        {(['presentation', 'portfolio', 'report'] as Template[]).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTemplate(t)}
+            title="Markdown 업로드 시 적용 (HTML 업로드에는 영향 없음)"
+            className={`rounded border px-2 py-0.5 transition ${
+              template === t
+                ? 'border-editor-accent text-editor-accent'
+                : 'border-editor-border hover:border-editor-accent hover:text-editor-accent'
+            }`}
+          >
+            {t}
+          </button>
+        ))}
       </div>
 
       <div

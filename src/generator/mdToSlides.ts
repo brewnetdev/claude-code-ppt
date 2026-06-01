@@ -16,11 +16,13 @@ export type Template = 'presentation' | 'portfolio' | 'report';
 // only needs the slides, not the publish-time quality report, so we skip the
 // jsdom path entirely and keep the editor bundle clean.
 //
-// portfolio/report reuse the presentation renderer, matching pipeline.ts's
-// current behavior (their dedicated adapters are a future addition).
-export async function mdToSlides(source: string, _template: Template): Promise<ParsedSlide[]> {
+// All three templates share the rendering backbone; the template only sets the
+// `data-template` attribute, and the attribute-scoped theme CSS gives each its
+// visual identity (presentation = dark/amber, portfolio = white/blue,
+// report = cream/teal).
+export async function mdToSlides(source: string, template: Template): Promise<ParsedSlide[]> {
   const tree = parseMarkdown(source);
   sanitizeRawHtml(tree);
   const groups = blockify(tree);
-  return renderPresentation(groups);
+  return renderPresentation(groups, template);
 }

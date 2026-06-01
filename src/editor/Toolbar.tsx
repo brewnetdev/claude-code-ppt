@@ -13,7 +13,6 @@ import {
   writeFileHandle,
 } from '../exporter/fileSystemAccess';
 import { buildHtmlBundle, defaultExportName, downloadBlob } from '../exporter/htmlBundle';
-import { exportAllSlidesPng } from '../exporter/pngExport';
 import { assembleHtmlDocument, splitHtmlDocument } from '../importer/detectResource';
 import { parsePresentationHTML } from '../importer/parsePresentation';
 import type { DeckRegistryEntry } from '../library/deckRegistry';
@@ -30,7 +29,7 @@ import { ImportFromDeckModal } from './ImportFromDeckModal';
 import { TemplatePicker } from './TemplatePicker';
 import { showToast } from './Toast';
 
-type Busy = null | 'html' | 'pdf' | 'png';
+type Busy = null | 'html';
 
 type ToolbarProps = {
   onPresent: () => void;
@@ -263,13 +262,6 @@ export function Toolbar({
       downloadBlob(html, defaultExportName(activeDeck?.title ?? latestSlides[0]?.title));
     });
 
-  const handleExportPng = () =>
-    withBusy('png', async () => {
-      const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
-      if (latestSlides.length === 0) return;
-      await exportAllSlidesPng({ slides: latestSlides, overlaysBySlide });
-    });
-
   const title = isDoc ? docResource?.title ?? activeResource?.title ?? '' : activeDeck?.title ?? '';
 
   return (
@@ -381,12 +373,7 @@ export function Toolbar({
               <IconPicker />
             </>
           ) : null}
-          <ExportDropdown
-            busy={busy}
-            disabled={!canExport}
-            onExportHtml={handleDownloadHtml}
-            onExportPng={isDoc ? undefined : handleExportPng}
-          />
+          <ExportDropdown busy={busy} disabled={!canExport} onExportHtml={handleDownloadHtml} />
           <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
           <SaveIndicator />
           <ToolbarButton
