@@ -23,6 +23,7 @@ const NAVIGATION: Row[] = [
 const SHORTCUTS: Row[] = [
   { keys: ['⌘Z', 'Ctrl+Z'], desc: 'Undo' },
   { keys: ['⇧⌘Z', 'Ctrl+Y'], desc: 'Redo' },
+  { keys: ['⇧⌘S', 'Ctrl+Shift+S'], desc: '저장 (원본 HTML 덮어쓰기)' },
 ];
 
 const VIEW: Row[] = [

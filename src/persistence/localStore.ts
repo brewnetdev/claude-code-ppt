@@ -20,6 +20,13 @@ export type PersistedDeck = {
   slides: ParsedSlide[];
   overlaysBySlide: Record<string, Overlay[]>;
   currentIndex: number;
+  // Identity of the source HTML this cache was seeded from. Compared at
+  // boot against the registry's current sourceHash to detect when a deck
+  // has been re-published since the user's edits were captured. Optional
+  // for backward compatibility — caches written before this field existed
+  // (and decks without a source hash, like brewnet-presentation) leave it
+  // undefined and never trigger the stale-cache banner.
+  sourceHash?: string;
 };
 
 export type SaveResult =
@@ -128,6 +135,7 @@ export async function saveDeckToLocalStorage(
     slides: ParsedSlide[];
     overlaysBySlide: Record<string, Overlay[]>;
     currentIndex: number;
+    sourceHash?: string;
   },
 ): Promise<SaveResult> {
   try {
@@ -139,6 +147,7 @@ export async function saveDeckToLocalStorage(
       slides: input.slides,
       overlaysBySlide,
       currentIndex: input.currentIndex,
+      sourceHash: input.sourceHash,
     };
     await idbPutDeck(deckId, payload);
     try {
@@ -190,12 +199,12 @@ export function setLastOpenedDeckId(deckId: string): void {
   }
 }
 
-// Logical "delete" for built-in decks. The HTML source is bundled at build
-// time so we can't physically remove it; instead we keep an id allowlist in
-// localStorage and filter the library through it.
-export function getHiddenDeckIds(): string[] {
+// Generic helpers for tiny localStorage payloads. Shared so the swallow-on-
+// error contract stays uniform across hidden-deck tracking, applied-migration
+// tracking, and any future single-key bookkeeping.
+export function safeReadStringArray(key: string): string[] {
   try {
-    const raw = localStorage.getItem(HIDDEN_DECKS_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
@@ -205,12 +214,23 @@ export function getHiddenDeckIds(): string[] {
   }
 }
 
-function writeHiddenDeckIds(ids: string[]): void {
+export function safeWriteJson(key: string, value: unknown): void {
   try {
-    localStorage.setItem(HIDDEN_DECKS_KEY, JSON.stringify(ids));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    /* swallow */
+    /* swallow — best-effort */
   }
+}
+
+// Logical "delete" for built-in decks. The HTML source is bundled at build
+// time so we can't physically remove it; instead we keep an id allowlist in
+// localStorage and filter the library through it.
+export function getHiddenDeckIds(): string[] {
+  return safeReadStringArray(HIDDEN_DECKS_KEY);
+}
+
+function writeHiddenDeckIds(ids: string[]): void {
+  safeWriteJson(HIDDEN_DECKS_KEY, ids);
 }
 
 export function addHiddenDeckId(deckId: string): void {

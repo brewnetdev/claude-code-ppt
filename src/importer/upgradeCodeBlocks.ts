@@ -32,16 +32,37 @@ async function upgradeHtml(html: string): Promise<string> {
     root.querySelectorAll<HTMLElement>('.code-block, .terminal'),
   );
   for (const el of targets) {
-    if (el.hasAttribute('data-code-source')) continue;
+    const isTerminal = el.classList.contains('terminal');
+    // Skip blocks that are already fully upgraded (chrome present). Editor's
+    // CodeBlockEditPanel writes chrome + data-code-source on Apply; skipping
+    // those preserves shiki output. planRenderer baked decks have
+    // data-code-source but NO chrome — they still need this upgrade pass.
+    const hasChrome = isTerminal
+      ? !!el.querySelector(':scope > .terminal-header')
+      : !!el.querySelector(':scope > .code-dots');
+    if (hasChrome) continue;
     const pre = el.querySelector(':scope > pre') as HTMLPreElement | null;
     if (!pre) continue;
     // brewnet-style manual coloring (`<span class="green">$</span>`) — keep as-is.
     if (pre.querySelector('span')) continue;
     const codeEl = pre.querySelector(':scope > code') as HTMLElement | null;
-    const source = (codeEl?.textContent ?? pre.textContent ?? '').replace(/\n+$/, '');
+    // Prefer data-code-source as source of truth — pre/code text may have
+    // legacy whitespace artefacts from older builds, while data-code-source
+    // is the canonical encoded form written by the renderer.
+    let source = '';
+    const enc = el.getAttribute('data-code-source');
+    if (enc) {
+      try {
+        source = decodeURIComponent(enc);
+      } catch {
+        source = '';
+      }
+    }
+    if (!source) {
+      source = (codeEl?.textContent ?? pre.textContent ?? '').replace(/\n+$/, '');
+    }
     if (!source) continue;
 
-    const isTerminal = el.classList.contains('terminal');
     const langHint = el.getAttribute('data-code-lang');
     const lang = langHint && langHint.length > 0 ? langHint : isTerminal ? 'bash' : 'plaintext';
     const inner = await highlightCode(source, lang);

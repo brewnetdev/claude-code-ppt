@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { ColorSwatchButton } from './ColorPicker';
 import { FONT_GROUPS, loadGoogleFont } from './fontList';
+import {
+  applyHighlight,
+  clearHighlights,
+  selectionInsideCanvas,
+  toggleCmd,
+  wrapWithStyle,
+} from './textFormatActions';
 
 type SelectionMeta = {
   bold: boolean;
@@ -8,35 +15,18 @@ type SelectionMeta = {
   underline: boolean;
 };
 
-// Legacy hl-* classes — older decks still carry these wrappers, and Clear
-// must keep recognising them. New highlights use inline style + a
-// data-highlight marker so the swatch hex is exactly what gets rendered,
-// regardless of the deck's data-template (portfolio/report tinted these
-// classes to different colors, which is what the "wrong color applied"
-// report actually was).
-const HL_CLASSES = ['hl-amber', 'hl-blue', 'hl-green', 'hl-cyan'] as const;
-
 const SWATCHES: { label: string; color: string }[] = [
-  { label: 'Amber', color: '#F59E0B' },
-  { label: 'Blue', color: '#60A5FA' },
-  { label: 'Green', color: '#34D399' },
-  { label: 'Cyan', color: '#22D3EE' },
-  { label: 'Deep Green', color: '#166534' },
-  { label: 'Deep Red', color: '#991B1B' },
-  { label: 'Deep Gray', color: '#374151' },
+  { label: 'Mint Glow (키포인트)', color: '#34D399' },
+  { label: 'Sky Blue (링크·키워드)', color: '#60A5FA' },
+  { label: 'Blue Gray (뮤트·설명)', color: '#94A3B8' },
+  { label: 'Soft Red (오류·경고)', color: '#F87171' },
+  { label: 'Amber (Brewnet 키)', color: '#F59E0B' },
+  { label: 'Emerald Deep (성공·완료)', color: '#065F46' },
+  { label: 'Royal Blue (링크·키워드)', color: '#1D4ED8' },
+  { label: 'Mid Gray (캡션·보조)', color: '#6B7280' },
+  { label: 'Crimson (경고·위험)', color: '#BE123C' },
+  { label: 'Golden (핵심 포인트)', color: '#B45309' },
 ];
-
-function selectionInsideCanvas(): Range | null {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
-  const range = sel.getRangeAt(0);
-  const node =
-    range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-      ? (range.commonAncestorContainer as Element)
-      : range.commonAncestorContainer.parentElement;
-  if (!node || !node.closest('.slide-canvas-host')) return null;
-  return range;
-}
 
 function readMeta(): SelectionMeta {
   return {
@@ -59,13 +49,17 @@ function firstFamilyName(stack: string): string {
 // inherited preset (.t-title etc.), and the wrapper's inline override are
 // all reflected. Returns the select's option value ("stack||google") or ''
 // when no curated entry matches.
+function rangeAnchorElement(range: Range): Element | null {
+  const node = range.commonAncestorContainer;
+  return node.nodeType === Node.ELEMENT_NODE
+    ? (node as Element)
+    : node.parentElement;
+}
+
 function detectFontKey(range: Range): string {
-  const node =
-    range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-      ? (range.commonAncestorContainer as Element)
-      : range.commonAncestorContainer.parentElement;
+  const node = rangeAnchorElement(range);
   if (!node) return '';
-  const cs = getComputedStyle(node as Element).fontFamily;
+  const cs = getComputedStyle(node).fontFamily;
   if (!cs) return '';
   const target = firstFamilyName(cs);
   for (const g of FONT_GROUPS) {
@@ -78,160 +72,29 @@ function detectFontKey(range: Range): string {
   return '';
 }
 
-// Notify the slide root so the debounced DOM→store commit fires after our
-// programmatic edits, just like keyboard typing would. SlideRenderer's
-// `input` listener is on the wrapper div *inside* `.slide-canvas-host`, so
-// firing on the host element wouldn't bubble down to it. Dispatch on the
-// nearest element of the selection range instead — that lives inside the
-// editable region, so the event bubbles up through root naturally.
-function notifyInput(range: Range): void {
-  const target =
-    range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-      ? (range.commonAncestorContainer as HTMLElement)
-      : (range.commonAncestorContainer.parentElement as HTMLElement | null);
-  target?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+// `getComputedStyle().fontSize` is always reported in `px` regardless of how
+// the rule was authored (em / rem / pt …) — parseFloat is safe.
+function detectFontSizePx(range: Range): number | null {
+  const node = rangeAnchorElement(range);
+  if (!node) return null;
+  const v = parseFloat(getComputedStyle(node).fontSize);
+  return Number.isFinite(v) && v > 0 ? Math.round(v) : null;
 }
 
-// WYSIWYG highlight: write the swatch hex straight into inline `style` and
-// flag the span with `data-highlight="1"` so Clear can find it later. We
-// stopped using the legacy `hl-amber/blue/green/cyan` classes because each
-// template (presentation/portfolio/report) re-tints them — the swatch said
-// amber, but a portfolio deck would render brown. Inline color makes the
-// painted result match the swatch unconditionally.
-function applyHighlight(color: string): void {
-  const range = selectionInsideCanvas();
-  if (!range) return;
-  const span = document.createElement('span');
-  span.style.color = color;
-  span.style.fontWeight = '700';
-  span.setAttribute('data-highlight', '1');
-  try {
-    range.surroundContents(span);
-  } catch {
-    const fragment = range.extractContents();
-    span.appendChild(fragment);
-    range.insertNode(span);
-  }
-  const sel = window.getSelection();
-  if (sel) {
-    const fresh = document.createRange();
-    fresh.selectNodeContents(span);
-    sel.removeAllRanges();
-    sel.addRange(fresh);
-  }
-  notifyInput(range);
+// `getComputedStyle().color` returns `rgb(r, g, b)` or `rgba(r, g, b, a)`.
+// We feed the result back into `ColorSwatchButton` whose internal popover
+// matches active swatch by uppercase hex, so normalise to `#RRGGBB`.
+function rgbToHex(rgb: string): string | null {
+  const m = rgb.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (!m) return null;
+  const hex = (n: string) => Number(n).toString(16).padStart(2, '0');
+  return `#${hex(m[1])}${hex(m[2])}${hex(m[3])}`.toUpperCase();
 }
 
-// `<span style="…">` wrapper for the active selection. Each property
-// supports `null` = remove that one inline style from intersecting spans
-// (and unwrap bare spans), or a string value to set+wrap.
-type InlineStylePatch = {
-  color?: string | null;
-  fontSize?: string | null;
-  fontFamily?: string | null;
-};
-const INLINE_STYLE_KEYS = ['color', 'fontSize', 'fontFamily'] as const;
-
-function wrapWithStyle(patch: InlineStylePatch): void {
-  const range = selectionInsideCanvas();
-  if (!range) return;
-  // Null on any key means "strip this style from intersecting spans".
-  const removals = INLINE_STYLE_KEYS.filter((k) => patch[k] === null);
-  if (removals.length > 0) {
-    const root = range.commonAncestorContainer.parentElement;
-    if (!root) return;
-    Array.from(root.querySelectorAll<HTMLElement>('span')).forEach((el) => {
-      if (!range.intersectsNode(el)) return;
-      let touched = false;
-      for (const k of removals) {
-        if ((el.style as unknown as Record<string, string>)[k]) {
-          (el.style as unknown as Record<string, string>)[k] = '';
-          touched = true;
-        }
-      }
-      if (!touched) return;
-      if (!el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) return;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
-    });
-    // If nothing else to set, we're done.
-    const stillHas = INLINE_STYLE_KEYS.some((k) => typeof patch[k] === 'string');
-    if (!stillHas) {
-      notifyInput(range);
-      return;
-    }
-  }
-  const span = document.createElement('span');
-  if (typeof patch.color === 'string') span.style.color = patch.color;
-  if (typeof patch.fontSize === 'string') span.style.fontSize = patch.fontSize;
-  if (typeof patch.fontFamily === 'string') span.style.fontFamily = patch.fontFamily;
-  try {
-    range.surroundContents(span);
-  } catch {
-    const fragment = range.extractContents();
-    span.appendChild(fragment);
-    range.insertNode(span);
-  }
-  const sel = window.getSelection();
-  if (sel) {
-    const fresh = document.createRange();
-    fresh.selectNodeContents(span);
-    sel.removeAllRanges();
-    sel.addRange(fresh);
-  }
-  notifyInput(range);
-}
-
-function clearHighlights(): void {
-  const range = selectionInsideCanvas();
-  if (!range) return;
-  const root = range.commonAncestorContainer.parentElement;
-  if (!root) return;
-  const all = Array.from(root.querySelectorAll<HTMLElement>('span'));
-  for (const el of all) {
-    if (!range.intersectsNode(el)) continue;
-
-    // Path 1: legacy `hl-*` class wrapper.
-    const classTokens = el.className.split(/\s+/).filter(Boolean);
-    const remainingClasses = classTokens.filter(
-      (c) => !HL_CLASSES.includes(c as (typeof HL_CLASSES)[number]),
-    );
-    const strippedClass = remainingClasses.length !== classTokens.length;
-    if (strippedClass) el.className = remainingClasses.join(' ');
-
-    // Path 2: new inline-style highlight (data-highlight="1"). Drop the
-    // marker, reset the inline color/weight we wrote, but leave any other
-    // inline styles (font-size, font-family, …) alone.
-    const isMarked = el.getAttribute('data-highlight') === '1';
-    if (isMarked) {
-      el.removeAttribute('data-highlight');
-      el.style.color = '';
-      el.style.fontWeight = '';
-    }
-
-    if (!strippedClass && !isMarked) continue;
-
-    // Unwrap if nothing meaningful remains on the span.
-    if (!el.className && !el.getAttribute('style')) {
-      const parent = el.parentNode;
-      if (!parent) continue;
-      while (el.firstChild) parent.insertBefore(el.firstChild, el);
-      parent.removeChild(el);
-    }
-  }
-  notifyInput(range);
-}
-
-function toggleCmd(cmd: 'bold' | 'italic' | 'underline'): void {
-  if (!selectionInsideCanvas()) return;
-  document.execCommand(cmd);
-  // execCommand emits its own input event when targeting contenteditable, but
-  // belt-and-braces: ensure debounced commit sees a tick.
-  const range = selectionInsideCanvas();
-  if (range) notifyInput(range);
+function detectTextColorHex(range: Range): string | null {
+  const node = rangeAnchorElement(range);
+  if (!node) return null;
+  return rgbToHex(getComputedStyle(node).color);
 }
 
 export function TextFormatPanel() {
@@ -241,11 +104,26 @@ export function TextFormatPanel() {
   // option-value form ("stack||google"). Empty string = no curated match,
   // which displays the "기본 (해제)" placeholder.
   const [fontKey, setFontKey] = useState<string>('');
+  // Currently-applied font-size in px, as a string so the user can type
+  // freely (e.g. clear the field, type "2" before "24") without React
+  // clobbering the partial value. Number conversion happens at apply time.
+  const [fontSizeInput, setFontSizeInput] = useState<string>('');
+  // Currently-applied text color in `#RRGGBB`. Null = could not detect or
+  // selection has no canvas range. Forwarded to `ColorSwatchButton` so the
+  // active swatch and hex readout reflect the actual painted color.
+  const [textColorHex, setTextColorHex] = useState<string | null>(null);
   // Last canvas selection range, stashed so number/hex inputs can apply
   // changes after focus moves away from contenteditable. Buttons with
   // onMouseDown=preventDefault don't need this; inputs do because focus
   // transfer collapses the visible selection.
   const lastCanvasRange = useRef<Range | null>(null);
+  // Last detected font size for the active canvas selection. We only push
+  // the detected value into `fontSizeInput` when it *actually changes* —
+  // otherwise typing inside the size input itself triggers a stream of
+  // `selectionchange` events (the document selection still points at the
+  // canvas while focus is in the input), and re-running setFontSizeInput
+  // with the previously-detected value clobbers the user's partial typing.
+  const lastDetectedFontSize = useRef<number | null>(null);
 
   useEffect(() => {
     const onChange = () => {
@@ -255,6 +133,12 @@ export function TextFormatPanel() {
         lastCanvasRange.current = range.cloneRange();
         setMeta(readMeta());
         setFontKey(detectFontKey(range));
+        const px = detectFontSizePx(range);
+        if (px !== lastDetectedFontSize.current) {
+          lastDetectedFontSize.current = px;
+          setFontSizeInput(px !== null ? String(px) : '');
+        }
+        setTextColorHex(detectTextColorHex(range));
       }
     };
     document.addEventListener('selectionchange', onChange);
@@ -264,16 +148,49 @@ export function TextFormatPanel() {
   const guard = (e: React.MouseEvent) => {
     // Prevent the toolbar button click from stealing the canvas selection.
     e.preventDefault();
+    // ALSO snapshot the live range right now. The selectionchange listener
+    // is supposed to keep `lastCanvasRange.current` in sync, but in practice
+    // the React commit cycle can fire between the user lifting the drag and
+    // pressing the button, and any intermediate selectionchange that lands
+    // outside the canvas (e.g. focus moving for any reason) will skip the
+    // save branch — leaving us with a stale or null saved range when the
+    // button's onClick eventually runs. Snapshotting here is a no-op when
+    // the saved value is already correct, and a safety net otherwise.
+    const range = selectionInsideCanvas();
+    if (range) lastCanvasRange.current = range.cloneRange();
   };
 
   const restoreRange = () => {
     const r = lastCanvasRange.current;
     if (!r) return false;
+    // Reject saved ranges whose endpoints have been detached from the live
+    // DOM (overlay deleted, undo/redo remount, React reconciler swap). Using
+    // a stale range causes wrapWithStyle to silently no-op or insert into a
+    // ghost subtree, neither of which the user sees on the actual canvas.
+    const start = r.startContainer;
+    if (!start.isConnected) return false;
+    const startEl =
+      start.nodeType === Node.ELEMENT_NODE
+        ? (start as Element)
+        : start.parentElement;
+    if (!startEl || !startEl.closest('.slide-canvas-host')) return false;
     const sel = window.getSelection();
     if (!sel) return false;
     sel.removeAllRanges();
     sel.addRange(r);
     return true;
+  };
+
+  // Snapshot the current canvas selection on mousedown of the font-size number
+  // input. Unlike toolbar buttons, native <input> elements cannot use
+  // e.preventDefault() on mousedown (that would prevent focus from transferring
+  // to the input). Instead we eagerly capture whatever range exists at that
+  // instant — before the browser collapses the canvas selection on focus-out —
+  // so the subsequent onBlur / onKeyDown apply path has a valid lastCanvasRange
+  // to restore from.
+  const snapshotRangeOnMouseDown = () => {
+    const range = selectionInsideCanvas();
+    if (range) lastCanvasRange.current = range.cloneRange();
   };
 
   const applyFontSize = (px: number | null) => {
@@ -293,6 +210,20 @@ export function TextFormatPanel() {
     // family are no-ops thanks to the `loaded` set inside the helper.
     if (google) loadGoogleFont(google);
     wrapWithStyle({ fontFamily: cssStack });
+  };
+
+  const applyTextColor = (hex: string | null) => {
+    // ColorSwatchButton's popover transfers focus before this fires, so the
+    // canvas selection is already collapsed by the time onChange runs. Same
+    // restore-then-wrap pattern as size/family — without it, the action is
+    // a silent no-op (selectionInsideCanvas returns null inside wrapWithStyle).
+    if (!restoreRange()) return;
+    wrapWithStyle({ color: hex });
+  };
+
+  const applyClear = () => {
+    if (!restoreRange()) return;
+    clearHighlights();
   };
 
   return (
@@ -325,7 +256,7 @@ export function TextFormatPanel() {
             <button
               type="button"
               onMouseDown={guard}
-              onClick={clearHighlights}
+              onClick={applyClear}
               title="Remove highlight"
               className="rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim hover:border-editor-accent hover:text-editor-accent"
             >
@@ -357,12 +288,29 @@ export function TextFormatPanel() {
               max={200}
               placeholder="px"
               data-testid="text-font-size-input"
+              value={fontSizeInput}
+              onMouseDown={snapshotRangeOnMouseDown}
+              onChange={(e) => setFontSizeInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   const n = Number((e.target as HTMLInputElement).value);
                   if (Number.isFinite(n) && n > 0) applyFontSize(n);
                   (e.target as HTMLInputElement).blur();
+                  return;
+                }
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                  // Native number-input step fires *after* this handler runs,
+                  // so read the value on the next frame to capture the
+                  // post-step number and apply it to the selected text.
+                  const target = e.target as HTMLInputElement;
+                  requestAnimationFrame(() => {
+                    const n = Number(target.value);
+                    if (Number.isFinite(n) && n > 0) {
+                      setFontSizeInput(String(n));
+                      applyFontSize(n);
+                    }
+                  });
                 }
               }}
               onBlur={(e) => {
@@ -401,8 +349,8 @@ export function TextFormatPanel() {
           <div onMouseDown={guard}>
             <ColorSwatchButton
               label="Text color"
-              value={null}
-              onChange={(hex) => wrapWithStyle({ color: hex })}
+              value={textColorHex}
+              onChange={applyTextColor}
             />
           </div>
         </div>

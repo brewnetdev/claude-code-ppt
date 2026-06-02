@@ -1,11 +1,74 @@
 import { create } from 'zustand';
 import type { Overlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide, SlideBackground } from '../importer/parsePresentation';
+import { deriveSlideTitleFromHtml } from '../importer/parsePresentation';
+import { setSlideWatermark } from '../watermark/watermark';
 import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
 
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
+
+// Block IDs are stamped on the live DOM in useSlideEditing's useEffect but
+// only flow into stored html via commitFromDom (typing debounce / Sortable).
+// If the user clicks a block and triggers Copy / Paste / Delete without
+// typing, the stored html has no matching id. This helper parses the slide
+// html and copies live DOM block-ids onto the parsed copy so subsequent
+// querySelector by id succeeds. Positional sync (children index) is safe
+// because edits only commit through this same store path.
+//
+// useSlideEditing stamps ids on direct children of .slide-inner *and* on
+// deeply-nested .code-block / .terminal elements, so we walk the live DOM
+// and replay each id at its child-index path inside doc. A direct-children-
+// only loop would miss the nested cases and Copy/Paste/Delete on those
+// blocks would silently no-op until the first debounced commit landed the
+// runtime ids in slide.html.
+function parseSlideWithLiveIds(slideHtml: string): Document {
+  const doc = new DOMParser().parseFromString(slideHtml, 'text/html');
+  if (typeof document === 'undefined') return doc;
+  const liveSlide = document.querySelector<HTMLElement>(
+    '[data-canvas-role="main"] div.slide',
+  );
+  if (!liveSlide) return doc;
+  const docSlide = doc.querySelector<HTMLElement>('div.slide');
+  if (!docSlide) return doc;
+  const innerLive = liveSlide.querySelector('.slide-inner');
+  const innerDoc = doc.querySelector('.slide-inner');
+  if (!innerLive || !innerDoc) return doc;
+  // Pessimistic guard: if direct-children counts diverge between live and
+  // stored, index-based path alignment can't be trusted (Sortable mid-flight,
+  // out-of-band insertion). Bail here so we don't stamp ids onto the wrong
+  // structurally-matched elements. In practice this rarely trips because
+  // every reorder/insert path commits or bumps revision before the next
+  // store action runs.
+  if (innerLive.children.length !== innerDoc.children.length) return doc;
+
+  const liveBlocks = liveSlide.querySelectorAll<HTMLElement>(`[${DATA_BLOCK_ID}]`);
+  liveBlocks.forEach((live) => {
+    const id = live.getAttribute(DATA_BLOCK_ID);
+    if (!id) return;
+    const path: number[] = [];
+    let cursor: Element | null = live;
+    while (cursor && cursor !== liveSlide) {
+      const parent: HTMLElement | null = cursor.parentElement;
+      if (!parent) return;
+      const idx = Array.prototype.indexOf.call(parent.children, cursor);
+      if (idx < 0) return;
+      path.unshift(idx);
+      cursor = parent;
+    }
+    if (cursor !== liveSlide) return;
+    let target: Element | null = docSlide;
+    for (const step of path) {
+      target = target?.children[step] ?? null;
+      if (!target) return;
+    }
+    if (!target.getAttribute(DATA_BLOCK_ID)) {
+      target.setAttribute(DATA_BLOCK_ID, id);
+    }
+  });
+  return doc;
+}
 
 const HISTORY_LIMIT = 50;
 
@@ -33,7 +96,50 @@ type Snapshot = {
 
 type ClipboardEntry =
   | { kind: 'block'; html: string }
-  | { kind: 'overlay'; data: Overlay };
+  | { kind: 'overlay'; data: Overlay }
+  | { kind: 'slide'; html: string; title: string; sourceDeckId?: string };
+
+// sessionStorage key for cross-deck slide clipboard. Tab-scoped, cleared on
+// tab close — matches OS clipboard semantics. Survives switching decks via
+// Library navigation (loadDeck wipes in-memory state but reads back here).
+const SLIDE_CLIPBOARD_KEY = 'slide-clipboard';
+
+function persistSlideClipboard(entry: ClipboardEntry | null): void {
+  if (typeof sessionStorage === 'undefined') return;
+  try {
+    if (entry && entry.kind === 'slide') {
+      sessionStorage.setItem(SLIDE_CLIPBOARD_KEY, JSON.stringify(entry));
+    } else {
+      sessionStorage.removeItem(SLIDE_CLIPBOARD_KEY);
+    }
+  } catch {
+    // Quota or privacy mode — best-effort, fall through.
+  }
+}
+
+function readSlideClipboardFromSession(): ClipboardEntry | null {
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SLIDE_CLIPBOARD_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.kind === 'slide' && typeof parsed.html === 'string') {
+      return parsed as ClipboardEntry;
+    }
+  } catch {
+    // Corrupted entry — ignore.
+  }
+  return null;
+}
+
+// Called once at app boot to rehydrate slide clipboard across deck loads /
+// browser refreshes (within the same tab session).
+export function loadSlideClipboardFromSession(): void {
+  const entry = readSlideClipboardFromSession();
+  if (entry) {
+    useDeckStore.setState({ clipboard: entry });
+  }
+}
 
 type DeckState = {
   slides: ParsedSlide[];
@@ -62,6 +168,9 @@ type DeckState = {
   setCurrentIndex: (i: number) => void;
   commitSlideHtml: (id: string, html: string) => void;
   setSlideBackground: (id: string, background: SlideBackground | null) => void;
+  // Brand watermark across every slide. Single history entry; bumps revision so
+  // the live SlideRenderer remounts and shows the change immediately.
+  setWatermarkAllSlides: (enabled: boolean, lines: string[]) => void;
 
   insertSlideAfter: (index: number, html?: string, title?: string) => void;
   duplicateSlide: (index: number) => void;
@@ -96,6 +205,12 @@ type DeckState = {
   // offsets x/y by +20px to make the duplicate visually distinguishable.
   copyOverlay: (slideId: string, overlayId: string) => void;
   pasteOverlay: (slideId: string) => void;
+
+  // Slide-level clipboard for cross-deck reuse. copy mirrors to
+  // sessionStorage so paste survives a deck switch (loadDeck resets in-memory
+  // state). paste delegates to insertSlideAfter which already pushes history.
+  copySlideToClipboard: (index: number, sourceDeckId?: string) => void;
+  pasteSlideFromClipboard: (afterIndex: number) => boolean;
 
   undo: () => void;
   redo: () => void;
@@ -172,10 +287,36 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     set((state) => {
       const current = state.slides.find((s) => s.id === id);
       if (!current || current.html === html) return state;
+      // Re-extract the sidebar title from the freshly committed html so the
+      // slide list reflects edits to [data-slot="title|label|subtitle"]
+      // immediately. parsePresentation runs the same logic at import time;
+      // mirroring it here keeps the sidebar in sync with what the user is
+      // actually seeing on the canvas. When a slide has no title slot at
+      // all, we keep `current.title` so an explicit "Slide N (copy)" set
+      // by duplicateSlide isn't clobbered with a generic fallback.
+      const nextTitle = deriveSlideTitleFromHtml(html, current.title);
       return {
         past: pushPast(state.past, snap(state)),
         future: [],
-        slides: state.slides.map((s) => (s.id === id ? { ...s, html } : s)),
+        slides: state.slides.map((s) =>
+          s.id === id ? { ...s, html, title: nextTitle } : s,
+        ),
+      };
+    }),
+
+  setWatermarkAllSlides: (enabled, lines) =>
+    set((state) => {
+      if (state.slides.length === 0) return state;
+      const slides = state.slides.map((s) => {
+        const html = setSlideWatermark(s.html, enabled, lines);
+        return html === s.html ? s : { ...s, html };
+      });
+      if (slides.every((s, i) => s === state.slides[i])) return state;
+      return {
+        past: pushPast(state.past, snap(state)),
+        future: [],
+        slides,
+        revision: state.revision + 1,
       };
     }),
 
@@ -396,7 +537,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     flushPendingCommit();
     const slide = get().slides.find((s) => s.id === slideId);
     if (!slide) return;
-    const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+    const doc = parseSlideWithLiveIds(slide.html);
     const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
     if (!block) return;
     // Strip ephemeral runtime decoration the source block accumulated:
@@ -424,7 +565,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       if (!entry || entry.kind !== 'block') return state;
       const slide = state.slides.find((s) => s.id === slideId);
       if (!slide) return state;
-      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const doc = parseSlideWithLiveIds(slide.html);
       const inner = doc.querySelector('.slide-inner');
       if (!inner) return state;
       const tmp = doc.createElement('div');
@@ -464,7 +605,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     set((state) => {
       const slide = state.slides.find((s) => s.id === slideId);
       if (!slide) return state;
-      const doc = new DOMParser().parseFromString(slide.html, 'text/html');
+      const doc = parseSlideWithLiveIds(slide.html);
       const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
       if (!block) return state;
       block.remove();
@@ -511,6 +652,29 @@ export const useDeckStore = create<DeckState>((set, get) => ({
         selectedBlockId: null,
       };
     });
+  },
+
+  copySlideToClipboard: (index, sourceDeckId) => {
+    const state = get();
+    const slide = state.slides[index];
+    if (!slide) return;
+    const entry: ClipboardEntry = {
+      kind: 'slide',
+      html: slide.html,
+      title: slide.title,
+      sourceDeckId,
+    };
+    set({ clipboard: entry });
+    persistSlideClipboard(entry);
+  },
+
+  pasteSlideFromClipboard: (afterIndex) => {
+    const entry = get().clipboard;
+    if (!entry || entry.kind !== 'slide') return false;
+    // insertSlideAfter already pushes history and sets currentIndex to the
+    // newly inserted slide — no extra bookkeeping needed.
+    get().insertSlideAfter(afterIndex, entry.html, entry.title);
+    return true;
   },
 
   undo: () =>

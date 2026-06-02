@@ -24,9 +24,9 @@ export function showToast(detail: ToastEventDetail): void {
 }
 
 const TONE_CLASS: Record<ToastTone, string> = {
-  info: 'border-editor-accent/50 bg-editor-accent/10 text-editor-text',
-  warn: 'border-amber-500/50 bg-amber-500/10 text-amber-200',
-  error: 'border-red-500/50 bg-red-500/10 text-red-200',
+  info: 'border-2 border-blue-500 bg-slate-900 text-white',
+  warn: 'border-2 border-orange-500 bg-slate-900 text-white',
+  error: 'border-2 border-red-500 bg-slate-900 text-white',
 };
 
 export function ToastHost() {
@@ -56,7 +56,7 @@ export function ToastHost() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-6 left-1/2 z-[1000] flex -translate-x-1/2 flex-col items-center gap-2">
+    <div className="pointer-events-none fixed right-4 top-14 z-[2100] flex flex-col items-end gap-2">
       {toasts.map((t) => (
         <div
           key={t.id}

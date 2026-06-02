@@ -3,6 +3,7 @@ import type { TextOverlay } from '../canvas/OverlayLayer';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { ColorSwatchButton } from './ColorPicker';
+import { TextFormatPanel } from './TextFormatPanel';
 
 const PRESETS: { value: NonNullable<TextOverlay['preset']>; label: string }[] = [
   { value: 'h1', label: 'H1' },
@@ -125,6 +126,13 @@ export function TextOverlayPropertiesSection({ slideId, overlay }: Props) {
           onChange={(hex) => patch({ bg: hex })}
         />
       </div>
+
+      {/* Inline text formatting (color/bold/size/family) for the SELECTION inside
+          the overlay's contenteditable. The panel listens to `selectionchange`
+          and self-disables when no canvas range is active, so it stays inert
+          while the user is still in transform mode (single-click) and lights
+          up after they double-click into the box and drag-select text. */}
+      <TextFormatPanel />
 
       <div>
         <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">

@@ -32,15 +32,9 @@ export type GenerateOutput = {
 };
 
 async function renderForTemplate(template: Template, groups: Awaited<ReturnType<typeof blockify>>): Promise<ParsedSlide[]> {
-  switch (template) {
-    case 'presentation':
-      return renderPresentation(groups);
-    case 'portfolio':
-    case 'report':
-      // Phase 5 will add proper adapters. For now fall back to the
-      // presentation renderer so the pipeline shape works end-to-end.
-      return renderPresentation(groups);
-  }
+  // One rendering backbone; `template` sets data-template and the
+  // attribute-scoped theme CSS supplies each template's visual identity.
+  return renderPresentation(groups, template);
 }
 
 export async function generateOnce({ source, template, hint }: GenerateInput): Promise<GenerateOutput> {

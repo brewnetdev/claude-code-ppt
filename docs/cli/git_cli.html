@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Git CLI 필수 명령어 레퍼런스</title>
+<meta name="description" content="Git CLI 필수 명령어와 고급 명령어를 한눈에 — 저장소 초기화부터 worktree까지" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<style>
+:root {
+  --bg:#0b0f17;
+  --bg-elev:#111827;
+  --bg-code:#0f172a;
+  --border:#1f2937;
+  --border-strong:#334155;
+  --text:#e5e7eb;
+  --text-muted:#9ca3af;
+  --text-dim:#6b7280;
+  --accent:#f59e0b;
+  --accent-2:#fbbf24;
+  --link:#60a5fa;
+  --link-hover:#93c5fd;
+  --green:#34d399;
+  --red:#f87171;
+  --purple:#c4b5fd;
+  --cyan:#67e8f9;
+  --orange:#fb923c;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; scroll-padding-top:80px; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height:1.7;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== Layout ===== */
+.layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+.sidebar {
+  position:sticky; top:0; height:100vh;
+  background:var(--bg-elev);
+  border-right:1px solid var(--border);
+  padding:24px 0; overflow-y:auto;
+}
+.sidebar-inner { padding:0 20px; }
+.brand {
+  font-family:'JetBrains Mono', monospace;
+  font-weight:700; font-size:14px; color:var(--accent);
+  letter-spacing:0.08em; margin-bottom:4px;
+}
+.brand-sub { font-size:11px; color:var(--text-dim); margin-bottom:24px; }
+
+.nav-group { margin-bottom:20px; }
+.nav-group-title {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--text-dim); font-weight:700;
+  padding:8px 12px; margin-bottom:4px;
+}
+.nav-link {
+  display:block; padding:6px 12px;
+  color:var(--text-muted); text-decoration:none;
+  font-size:13px; border-radius:6px;
+  transition:all 0.15s ease;
+  border-left:2px solid transparent;
+}
+.nav-link:hover { background:rgba(245,158,11,0.06); color:var(--text); }
+.nav-link.active { background:rgba(245,158,11,0.1); color:var(--accent); border-left-color:var(--accent); }
+.nav-link code { font-size:11.5px; color:var(--purple); background:transparent; padding:0; }
+
+.search-box {
+  width:100%; padding:8px 12px;
+  background:var(--bg-code); border:1px solid var(--border);
+  border-radius:6px; color:var(--text); font-size:13px;
+  font-family:inherit; margin-bottom:16px;
+}
+.search-box::placeholder { color:var(--text-dim); }
+.search-box:focus { outline:none; border-color:var(--accent); }
+
+/* ===== Main ===== */
+main { padding:48px 56px; max-width:1100px; }
+
+h1 {
+  font-size:36px; font-weight:900; letter-spacing:-0.02em;
+  margin-bottom:8px; line-height:1.2;
+}
+h1 .emoji { color:var(--accent); }
+.hero-sub { color:var(--text-muted); font-size:16px; margin-bottom:8px; }
+.hero-meta {
+  display:flex; gap:16px; flex-wrap:wrap;
+  font-size:13px; color:var(--text-dim);
+  padding-bottom:24px; border-bottom:1px solid var(--border);
+  margin-bottom:40px;
+}
+.hero-meta a { color:var(--link); text-decoration:none; }
+.hero-meta a:hover { color:var(--link-hover); text-decoration:underline; }
+
+h2 {
+  font-size:28px; font-weight:800; letter-spacing:-0.01em;
+  margin:48px 0 16px; padding-bottom:8px;
+  border-bottom:2px solid var(--accent);
+  display:inline-block;
+}
+h3 {
+  font-size:20px; font-weight:700;
+  margin:36px 0 12px;
+  color:var(--text);
+  display:flex; align-items:center; gap:10px;
+}
+h3::before {
+  content:'▸'; color:var(--accent); font-size:14px;
+}
+h4 {
+  font-size:15px; font-weight:700; color:var(--accent-2);
+  margin:20px 0 8px; font-family:'JetBrains Mono', monospace;
+}
+
+p { margin-bottom:12px; color:var(--text); }
+p.lead { color:var(--text-muted); }
+
+blockquote {
+  border-left:3px solid var(--accent); padding:12px 18px;
+  background:rgba(245,158,11,0.05);
+  margin:16px 0; color:var(--text-muted);
+  border-radius:0 6px 6px 0;
+  font-size:14px;
+}
+blockquote strong { color:var(--accent-2); }
+blockquote p { margin-bottom:6px; color:inherit; }
+
+/* ===== Tables ===== */
+table {
+  width:100%; border-collapse:collapse;
+  margin:14px 0; font-size:13.5px;
+  border:1px solid var(--border); border-radius:8px;
+  overflow:hidden;
+}
+thead { background:rgba(245,158,11,0.06); }
+th {
+  text-align:left; padding:10px 14px;
+  font-weight:700; color:var(--accent-2);
+  font-size:12px; text-transform:uppercase;
+  letter-spacing:0.05em;
+  border-bottom:1px solid var(--border-strong);
+}
+td {
+  padding:10px 14px; border-top:1px solid var(--border);
+  vertical-align:top; line-height:1.55;
+}
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+td:first-child { color:var(--text-muted); white-space:nowrap; }
+
+code {
+  font-family:'JetBrains Mono', monospace; font-size:12.5px;
+  background:var(--bg-code); color:var(--accent-2);
+  padding:1px 6px; border-radius:4px;
+  border:1px solid var(--border);
+}
+td code { white-space:nowrap; }
+
+/* ===== Code blocks ===== */
+pre {
+  background:var(--bg-code); border:1px solid var(--border);
+  border-radius:8px; padding:0; margin:16px 0;
+  overflow:hidden;
+  position:relative;
+}
+pre code {
+  display:block; padding:16px 20px;
+  background:transparent; color:var(--text);
+  font-size:13px; line-height:1.7;
+  border:none; border-radius:0;
+  overflow-x:auto;
+  white-space:pre;
+}
+.code-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 14px;
+  background:rgba(0,0,0,0.3);
+  border-bottom:1px solid var(--border);
+  font-family:'JetBrains Mono', monospace; font-size:11px;
+  color:var(--text-dim);
+}
+.code-dots { display:flex; gap:6px; }
+.code-dots span {
+  width:10px; height:10px; border-radius:50%;
+}
+.code-dots span:nth-child(1) { background:#ef4444; }
+.code-dots span:nth-child(2) { background:#f59e0b; }
+.code-dots span:nth-child(3) { background:#10b981; }
+.copy-btn {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); padding:3px 10px; border-radius:4px;
+  cursor:pointer; font-size:11px;
+  font-family:inherit;
+  transition:all 0.15s ease;
+}
+.copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+.copy-btn.copied { color:var(--green); border-color:var(--green); }
+
+/* Syntax */
+.tok-c { color:#6b7280; font-style:italic; }       /* comment */
+.tok-p { color:#c4b5fd; }                          /* prompt $ */
+.tok-cmd { color:#c4b5fd; }                        /* git */
+.tok-sub { color:#60a5fa; }                        /* sub-command */
+.tok-arg { color:#34d399; }                        /* arg */
+.tok-str { color:#fbbf24; }                        /* string */
+.tok-flag { color:#fb923c; }                       /* --flag */
+.tok-out { color:#9ca3af; }                        /* output */
+.tok-err { color:#f87171; }                        /* error */
+.tok-warn { color:#fcd34d; }
+
+/* ===== Callouts ===== */
+.callout {
+  display:flex; gap:12px;
+  padding:12px 16px; margin:16px 0;
+  border-radius:8px; border:1px solid;
+  font-size:14px; line-height:1.6;
+}
+.callout-icon { font-size:18px; flex-shrink:0; line-height:1.3; }
+.callout-body { flex:1; }
+.callout-body strong { display:block; margin-bottom:2px; }
+.callout-warn { background:rgba(248,113,113,0.05); border-color:rgba(248,113,113,0.3); }
+.callout-warn strong { color:var(--red); }
+.callout-tip { background:rgba(96,165,250,0.05); border-color:rgba(96,165,250,0.3); }
+.callout-tip strong { color:var(--link); }
+.callout-info { background:rgba(245,158,11,0.05); border-color:rgba(245,158,11,0.3); }
+.callout-info strong { color:var(--accent); }
+
+/* ===== Anchors ===== */
+section[id] { scroll-margin-top:32px; }
+.anchor-link { color:inherit; text-decoration:none; }
+.anchor-link:hover { color:var(--accent); }
+
+/* ===== Footer ===== */
+.footer {
+  margin-top:80px; padding:32px 0;
+  border-top:1px solid var(--border);
+  font-size:13px; color:var(--text-dim); text-align:center;
+}
+
+/* ===== Mobile ===== */
+.menu-toggle { display:none; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns:1fr; }
+  .sidebar {
+    position:fixed; top:0; left:0; bottom:0;
+    width:280px; z-index:100; transform:translateX(-100%);
+    transition:transform 0.2s ease;
+  }
+  .sidebar.open { transform:translateX(0); }
+  main { padding:24px 20px; }
+  h1 { font-size:26px; }
+  h2 { font-size:22px; }
+  h3 { font-size:18px; }
+  .menu-toggle {
+    display:block; position:fixed; top:12px; right:12px; z-index:101;
+    background:var(--accent); color:#000; border:none;
+    padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer;
+  }
+  table { font-size:12.5px; }
+  td, th { padding:8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ 메뉴</button>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">📘 GIT CLI</div>
+      <div class="brand-sub">필수 명령어 레퍼런스</div>
+      <input type="search" class="search-box" placeholder="명령어 검색 (e.g. rebase)" id="searchBox" />
+
+      <div class="nav-group">
+        <div class="nav-group-title">필수 명령어</div>
+        <a class="nav-link" href="#cycle">기본 사이클</a>
+        <a class="nav-link" href="#repo">저장소 초기화 · 클론</a>
+        <a class="nav-link" href="#branch">브랜치</a>
+        <a class="nav-link" href="#checkout">체크아웃 · 전환</a>
+        <a class="nav-link" href="#staging">스테이징 · 커밋</a>
+        <a class="nav-link" href="#status">상태 · 로그</a>
+        <a class="nav-link" href="#sync">Fetch · Pull · Push</a>
+        <a class="nav-link" href="#merge">Merge</a>
+        <a class="nav-link" href="#tag">태그</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">고급 명령어</div>
+        <a class="nav-link" href="#fetch-merge">원격 브랜치 병합</a>
+        <a class="nav-link" href="#unrelated">Unrelated Histories</a>
+        <a class="nav-link" href="#cherry-pick">Cherry-pick</a>
+        <a class="nav-link" href="#stash">Stash</a>
+        <a class="nav-link" href="#squash">Squash</a>
+        <a class="nav-link" href="#rebase">Rebase</a>
+        <a class="nav-link" href="#reset">Reset</a>
+        <a class="nav-link" href="#revert">Revert</a>
+        <a class="nav-link" href="#bisect">Bisect</a>
+        <a class="nav-link" href="#reflog">Reflog</a>
+        <a class="nav-link" href="#worktree">Worktree</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <h1><span class="emoji">📘</span> Git CLI 필수 명령어 레퍼런스</h1>
+    <p class="hero-sub">저장소 초기화부터 worktree까지 — 한눈에 보는 Git 명령어 표</p>
+    <div class="hero-meta">
+      <span>🗂 <strong>2 섹션</strong> · 필수 + 고급</span>
+      <span>📝 <strong>20+ 카테고리</strong></span>
+      <span>💻 <strong>100+ 명령어 예시</strong></span>
+    </div>
+
+    <!-- ===================== Section 1 ===================== -->
+    <h2 id="section-1">1. 필수 명령어</h2>
+
+    <section id="cycle">
+      <h3><a class="anchor-link" href="#cycle">기본 사이클 — clone · add · commit · push · pull</a></h3>
+      <p>매일 반복되는 5단계 — 원격 저장소를 받아 → 변경 → 스테이징 → 커밋 → 푸시 → 동기화.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal — Git 최초 사이클</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># [A] 기존 원격 저장소를 내려받기 (clone)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">clone</span> <span class="tok-arg">https://github.com/user/tika.git</span>
+<span class="tok-p">$</span> <span class="tok-cmd">cd</span> <span class="tok-arg">tika</span>
+
+<span class="tok-c"># [B] 빈 폴더에서 새로 시작 (init)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">init</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">remote add</span> <span class="tok-arg">origin</span> <span class="tok-arg">https://github.com/user/repo.git</span>
+
+<span class="tok-c"># 변경 → 스테이징 → 커밋 → 푸시</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">status</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-flag">.</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-str">"feat: 사용자 인증 추가"</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">push</span> <span class="tok-flag">-u</span> <span class="tok-arg">origin main</span>
+
+<span class="tok-c"># 다른 사람의 변경 받기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">pull</span> <span class="tok-arg">origin main</span>
+</code></pre>
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>흐름</strong>Working Directory (수정) → Staging Area (<code>git add</code>) → Local Repo (<code>git commit</code>) → Remote (<code>git push</code>). 반대 방향은 <code>git pull</code> (= fetch + merge).</div>
+      </div>
+    </section>
+
+    <section id="repo">
+      <h3><a class="anchor-link" href="#repo">저장소 초기화 / 클론</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>저장소 초기화</td><td><code>git init</code></td><td><code>git init</code></td></tr>
+          <tr><td>원격 저장소 클론</td><td><code>git clone &lt;url&gt;</code></td><td><code>git clone https://github.com/user/tika.git</code></td></tr>
+          <tr><td>원격 저장소 등록</td><td><code>git remote add &lt;name&gt; &lt;url&gt;</code></td><td><code>git remote add origin https://github.com/user/tika.git</code></td></tr>
+          <tr><td>원격 저장소 확인</td><td><code>git remote -v</code></td><td><code>git remote -v</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="branch">
+      <h3><a class="anchor-link" href="#branch">브랜치</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>브랜치 목록 확인</td><td><code>git branch</code></td><td><code>git branch</code></td></tr>
+          <tr><td>원격 포함 전체 목록</td><td><code>git branch -a</code></td><td><code>git branch -a</code></td></tr>
+          <tr><td>새 브랜치 생성</td><td><code>git branch &lt;name&gt;</code></td><td><code>git branch feature/kanban-board</code></td></tr>
+          <tr><td>새 브랜치 생성 + 전환</td><td><code>git checkout -b &lt;name&gt;</code></td><td><code>git checkout -b feature/kanban-board</code></td></tr>
+          <tr><td>새 브랜치 생성 + 전환 (신규)</td><td><code>git switch -c &lt;name&gt;</code></td><td><code>git switch -c feature/kanban-board</code></td></tr>
+          <tr><td>브랜치 삭제</td><td><code>git branch -d &lt;name&gt;</code></td><td><code>git branch -d feature/kanban-board</code></td></tr>
+          <tr><td>브랜치 이름 변경</td><td><code>git branch -m &lt;old&gt; &lt;new&gt;</code></td><td><code>git branch -m master main</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="checkout">
+      <h3><a class="anchor-link" href="#checkout">체크아웃 / 전환</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>브랜치 전환</td><td><code>git checkout &lt;branch&gt;</code></td><td><code>git checkout main</code></td></tr>
+          <tr><td>브랜치 전환 (신규)</td><td><code>git switch &lt;branch&gt;</code></td><td><code>git switch main</code></td></tr>
+          <tr><td>특정 커밋으로 이동</td><td><code>git checkout &lt;commit-hash&gt;</code></td><td><code>git checkout a1b2c3d</code></td></tr>
+          <tr><td>파일 변경 되돌리기</td><td><code>git checkout -- &lt;file&gt;</code></td><td><code>git checkout -- src/app.ts</code></td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">📘</span>
+        <div class="callout-body"><strong>switch vs checkout</strong>Git 2.23부터 <code>switch</code>(브랜치 전환)와 <code>restore</code>(파일 복원)가 <code>checkout</code>의 두 역할을 분리. 신규 명령 권장.</div>
+      </div>
+    </section>
+
+    <section id="staging">
+      <h3><a class="anchor-link" href="#staging">스테이징 / 커밋</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>파일 스테이징</td><td><code>git add &lt;file&gt;</code></td><td><code>git add src/components/Board.tsx</code></td></tr>
+          <tr><td>여러 파일 스테이징</td><td><code>git add &lt;file1&gt; &lt;file2&gt;</code></td><td><code>git add src/db/schema.ts src/types/index.ts</code></td></tr>
+          <tr><td>전체 스테이징</td><td><code>git add .</code></td><td><code>git add .</code></td></tr>
+          <tr><td>커밋</td><td><code>git commit -m "&lt;message&gt;"</code></td><td><code>git commit -m "티켓 생성 API 구현"</code></td></tr>
+          <tr><td>스테이징 + 커밋 (tracked만)</td><td><code>git commit -am "&lt;message&gt;"</code></td><td><code>git commit -am "버그 수정: position 계산 오류"</code></td></tr>
+          <tr><td>직전 커밋 메시지 수정</td><td><code>git commit --amend -m "&lt;message&gt;"</code></td><td><code>git commit --amend -m "수정된 커밋 메시지"</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="status">
+      <h3><a class="anchor-link" href="#status">상태 확인 / 로그</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>작업 상태 확인</td><td><code>git status</code></td><td><code>git status</code></td></tr>
+          <tr><td>변경 내용 확인</td><td><code>git diff</code></td><td><code>git diff</code></td></tr>
+          <tr><td>스테이징된 변경 확인</td><td><code>git diff --staged</code></td><td><code>git diff --staged</code></td></tr>
+          <tr><td>커밋 로그</td><td><code>git log --oneline</code></td><td><code>git log --oneline -10</code></td></tr>
+          <tr><td>그래프 형태 로그</td><td><code>git log --oneline --graph --all</code></td><td><code>git log --oneline --graph --all</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="sync">
+      <h3><a class="anchor-link" href="#sync">Fetch / Pull / Push</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>원격 변경사항 가져오기 (병합 X)</td><td><code>git fetch &lt;remote&gt;</code></td><td><code>git fetch origin</code></td></tr>
+          <tr><td>전체 원격 브랜치 가져오기</td><td><code>git fetch --all</code></td><td><code>git fetch --all</code></td></tr>
+          <tr><td>원격 변경사항 가져오기 + 병합</td><td><code>git pull &lt;remote&gt; &lt;branch&gt;</code></td><td><code>git pull origin main</code></td></tr>
+          <tr><td>리베이스 방식 pull</td><td><code>git pull --rebase &lt;remote&gt; &lt;branch&gt;</code></td><td><code>git pull --rebase origin main</code></td></tr>
+          <tr><td>원격에 푸시</td><td><code>git push &lt;remote&gt; &lt;branch&gt;</code></td><td><code>git push origin feature/kanban-board</code></td></tr>
+          <tr><td>원격 브랜치 추적 설정 + 푸시</td><td><code>git push -u &lt;remote&gt; &lt;branch&gt;</code></td><td><code>git push -u origin feature/kanban-board</code></td></tr>
+          <tr><td>원격 브랜치 삭제</td><td><code>git push &lt;remote&gt; --delete &lt;branch&gt;</code></td><td><code>git push origin --delete feature/old-branch</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="merge">
+      <h3><a class="anchor-link" href="#merge">Merge</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>브랜치 병합</td><td><code>git merge &lt;branch&gt;</code></td><td><code>git merge feature/kanban-board</code></td></tr>
+          <tr><td>병합 커밋 없이 (fast-forward)</td><td><code>git merge --ff-only &lt;branch&gt;</code></td><td><code>git merge --ff-only hotfix/typo</code></td></tr>
+          <tr><td>항상 병합 커밋 생성</td><td><code>git merge --no-ff &lt;branch&gt;</code></td><td><code>git merge --no-ff feature/kanban-board</code></td></tr>
+          <tr><td>병합 충돌 해결 후 계속</td><td><code>git add . &amp;&amp; git commit</code></td><td><code>git add . &amp;&amp; git commit -m "충돌 해결"</code></td></tr>
+          <tr><td>관련 없는 히스토리 병합</td><td><code>git merge &lt;branch&gt; --allow-unrelated-histories</code></td><td><code>git merge feature --allow-unrelated-histories</code></td></tr>
+          <tr><td>병합 취소</td><td><code>git merge --abort</code></td><td><code>git merge --abort</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="tag">
+      <h3><a class="anchor-link" href="#tag">태그</a></h3>
+      <table>
+        <thead><tr><th>명령어</th><th>문법</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>태그 목록</td><td><code>git tag</code></td><td><code>git tag</code></td></tr>
+          <tr><td>경량 태그 생성</td><td><code>git tag &lt;name&gt;</code></td><td><code>git tag v0.1.0</code></td></tr>
+          <tr><td>주석 태그 생성</td><td><code>git tag -a &lt;name&gt; -m "&lt;message&gt;"</code></td><td><code>git tag -a v0.1.0 -m "MVP 릴리스"</code></td></tr>
+          <tr><td>특정 커밋에 태그</td><td><code>git tag -a &lt;name&gt; &lt;commit&gt;</code></td><td><code>git tag -a v0.1.0 a1b2c3d</code></td></tr>
+          <tr><td>태그 푸시</td><td><code>git push &lt;remote&gt; &lt;tag&gt;</code></td><td><code>git push origin v0.1.0</code></td></tr>
+          <tr><td>전체 태그 푸시</td><td><code>git push &lt;remote&gt; --tags</code></td><td><code>git push origin --tags</code></td></tr>
+          <tr><td>태그 삭제 (로컬)</td><td><code>git tag -d &lt;name&gt;</code></td><td><code>git tag -d v0.1.0</code></td></tr>
+          <tr><td>태그 삭제 (원격)</td><td><code>git push &lt;remote&gt; --delete &lt;tag&gt;</code></td><td><code>git push origin --delete v0.1.0</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===================== Section 2 ===================== -->
+    <h2 id="section-2">2. 고급 명령어</h2>
+
+    <section id="fetch-merge">
+      <h3><a class="anchor-link" href="#fetch-merge">원격 브랜치를 현재 브랜치로 병합 (Fetch + Merge)</a></h3>
+      <blockquote>원격 저장소의 최신 브랜치(주로 <code>develop</code> / <code>main</code>)를 현재 작업 브랜치로 가져와 병합한다. 기능 개발 중 베이스 브랜치가 앞서 나간 상황에서 PR 머지 전 충돌을 미리 해결하거나, 최신 변경사항을 반영해 계속 작업할 때 사용한다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: <code>feature/ui</code> 브랜치에서 작업 중인데 <code>develop</code>에 다른 팀원이 머지한 변경사항이 생겼을 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal — 3가지 방법</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 방법 1: fetch + merge (권장 — 로컬 develop 체크아웃 불필요)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">fetch</span> <span class="tok-arg">origin develop</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">origin/develop</span>
+
+<span class="tok-c"># 방법 2: 로컬 develop도 최신화하고 싶다면</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">checkout</span> <span class="tok-arg">develop</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">pull</span> <span class="tok-arg">origin develop</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">checkout</span> <span class="tok-arg">feature/ui</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">develop</span>
+
+<span class="tok-c"># 방법 3: rebase로 병합 커밋 없이 직선형 히스토리 유지</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">fetch</span> <span class="tok-arg">origin develop</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-arg">origin/develop</span></code></pre>
+      <h4>충돌 발생 시</h4>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">status</span>                          <span class="tok-c"># 충돌 파일 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">add</span> <span class="tok-arg">&lt;resolved-files&gt;</span>            <span class="tok-c"># 수동 해결 후 스테이징</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-flag">--continue</span>           <span class="tok-c"># merge 사용 시</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">--continue</span>          <span class="tok-c"># rebase 사용 시</span>
+
+<span class="tok-c"># 중단하고 원상복구</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-flag">--abort</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">--abort</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>주의</strong>작업 중 미커밋 변경이 있으면 먼저 <code>git status</code> 확인하고 필요 시 <code>git stash</code>로 임시 보관. <code>rebase</code> 방식은 이미 push된 브랜치 히스토리를 변경하므로 혼자 사용하는 feature 브랜치에서만 권장.</div>
+      </div>
+    </section>
+
+    <section id="unrelated">
+      <h3><a class="anchor-link" href="#unrelated">Allow Unrelated Histories</a></h3>
+      <blockquote>공통 조상 커밋이 없는 독립적인 두 히스토리를 병합한다. <code>git init</code>으로 새로 만든 로컬 저장소와 기존 원격 저장소를 합치거나, 서로 다른 프로젝트를 하나로 통합할 때 사용한다.</blockquote>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 예시 1: 원격 브랜치를 로컬 main에 병합</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">fetch</span> <span class="tok-arg">origin</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">origin/feature</span> <span class="tok-flag">--allow-unrelated-histories</span>
+
+<span class="tok-c"># 예시 2: 로컬 브랜치끼리 병합</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">feature</span> <span class="tok-flag">--allow-unrelated-histories</span>
+
+<span class="tok-c"># 예시 3: pull 시에도 사용 가능</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">pull</span> <span class="tok-arg">origin main</span> <span class="tok-flag">--allow-unrelated-histories</span></code></pre>
+      <div class="callout callout-info">
+        <span class="callout-icon">📘</span>
+        <div class="callout-body"><strong>발생 상황</strong><code>fatal: refusing to merge unrelated histories</code> 에러가 나타나면 두 브랜치가 공통 조상이 없다는 의미. 의도적으로 합쳐야 하는 경우에만 사용.</div>
+      </div>
+    </section>
+
+    <section id="cherry-pick">
+      <h3><a class="anchor-link" href="#cherry-pick">Cherry-pick</a></h3>
+      <blockquote>다른 브랜치의 특정 커밋 하나만 현재 브랜치로 가져온다. 전체 브랜치를 병합하지 않고, 필요한 커밋만 선택적으로 적용할 때 사용한다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: hotfix 브랜치에서 수정한 버그 픽스 커밋을 develop 브랜치에도 적용하고 싶을 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">log</span> <span class="tok-flag">--oneline</span> <span class="tok-arg">hotfix/urgent</span>       <span class="tok-c"># 커밋 해시 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">cherry-pick</span> <span class="tok-arg">a1b2c3d</span>             <span class="tok-c"># 해당 커밋만 가져오기</span>
+
+<span class="tok-c"># 여러 커밋을 연속 적용</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">cherry-pick</span> <span class="tok-arg">a1b2c3d e4f5g6h</span>
+
+<span class="tok-c"># 충돌 발생 시</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">cherry-pick</span> <span class="tok-flag">--abort</span>            <span class="tok-c"># 취소</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">cherry-pick</span> <span class="tok-flag">--continue</span>         <span class="tok-c"># 충돌 해결 후 계속</span></code></pre>
+    </section>
+
+    <section id="stash">
+      <h3><a class="anchor-link" href="#stash">Stash</a></h3>
+      <blockquote>현재 작업 중인 변경사항을 임시 저장소에 보관하고 워킹 디렉토리를 깨끗한 상태로 되돌린다. 작업 중 급하게 다른 브랜치로 전환해야 할 때 커밋하지 않고 변경사항을 보존할 수 있다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: 기능 개발 중 긴급 버그 수정 요청이 와서, 현재 미완성 작업을 임시 보관하고 hotfix 브랜치로 전환할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 작업 중 브랜치 전환이 필요할 때</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">push</span> <span class="tok-flag">-m</span> <span class="tok-str">"Board 드래그 작업 중"</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">hotfix/urgent</span>
+<span class="tok-c"># ... 작업 완료 ...</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">feature/kanban-board</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">pop</span>                  <span class="tok-c"># 마지막 stash 복원 + 삭제</span>
+
+<span class="tok-c"># stash 관리</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">list</span>                  <span class="tok-c"># 저장된 stash 목록</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">show</span> <span class="tok-flag">-p</span> <span class="tok-arg">stash@{0}</span>       <span class="tok-c"># 특정 stash 내용 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">apply</span> <span class="tok-arg">stash@{1}</span>         <span class="tok-c"># 특정 stash 복원 (삭제 안 함)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">drop</span> <span class="tok-arg">stash@{0}</span>          <span class="tok-c"># 특정 stash 삭제</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">stash</span> <span class="tok-sub">clear</span>                 <span class="tok-c"># 전체 stash 삭제</span></code></pre>
+    </section>
+
+    <section id="squash">
+      <h3><a class="anchor-link" href="#squash">Squash (Interactive Rebase)</a></h3>
+      <blockquote>여러 개의 커밋을 하나의 커밋으로 합친다. 기능 개발 중 생긴 잡다한 커밋들("WIP", "typo 수정", "다시 수정")을 하나의 깔끔한 커밋으로 정리할 때 사용한다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: PR 생성 전에 feature 브랜치의 커밋 5개를 의미 있는 커밋 1개로 합칠 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 최근 3개 커밋을 하나로 합치기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">-i</span> <span class="tok-arg">HEAD~3</span>
+<span class="tok-c"># 에디터가 열리면:</span>
+<span class="tok-c">#   pick   a1b2c3d 첫 번째 커밋 (유지)</span>
+<span class="tok-c">#   squash e4f5g6h 두 번째 커밋 (위 커밋에 합침)</span>
+<span class="tok-c">#   squash i7j8k9l 세 번째 커밋 (위 커밋에 합침)</span>
+<span class="tok-c"># 저장 후 커밋 메시지 편집</span>
+
+<span class="tok-c"># merge 시 squash 옵션 (별도 커밋으로 합침)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">merge</span> <span class="tok-flag">--squash</span> <span class="tok-arg">feature/kanban-board</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-str">"칸반 보드 기능 구현"</span></code></pre>
+    </section>
+
+    <section id="rebase">
+      <h3><a class="anchor-link" href="#rebase">Rebase</a></h3>
+      <blockquote>현재 브랜치의 커밋들을 다른 브랜치 위로 재배치한다. merge와 달리 병합 커밋 없이 직선형 히스토리를 만든다. 최신 main 위에 feature 작업을 얹고 싶을 때 사용한다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: feature 브랜치에서 작업하는 동안 main이 앞서 나갔을 때, main의 최신 커밋 위에 내 작업을 재배치할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># main의 최신 상태 위에 현재 브랜치 재배치</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">feature/kanban-board</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-arg">main</span>
+
+<span class="tok-c"># 충돌 발생 시</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">--abort</span>                <span class="tok-c"># 취소</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">--continue</span>             <span class="tok-c"># 충돌 해결 후 계속</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">rebase</span> <span class="tok-flag">--skip</span>                 <span class="tok-c"># 현재 커밋 건너뛰기</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>주의</strong>이미 push한 커밋을 rebase하면 히스토리가 변경되므로, 공유 브랜치에서는 사용하지 않는다.</div>
+      </div>
+    </section>
+
+    <section id="reset">
+      <h3><a class="anchor-link" href="#reset">Reset</a></h3>
+      <blockquote>커밋 이력을 되돌린다. 되돌리는 강도에 따라 3가지 모드가 있다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: 방금 한 커밋을 취소하고 다시 작업하고 싶을 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal — 3가지 모드</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># soft: 커밋만 취소 (변경사항은 스테이징에 유지)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reset</span> <span class="tok-flag">--soft</span> <span class="tok-arg">HEAD~1</span>
+
+<span class="tok-c"># mixed (기본값): 커밋 + 스테이징 취소 (변경사항은 워킹 디렉토리에 유지)</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reset</span> <span class="tok-arg">HEAD~1</span>
+
+<span class="tok-c"># hard: 커밋 + 스테이징 + 변경사항 모두 삭제 ⚠️ 복구 불가</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reset</span> <span class="tok-flag">--hard</span> <span class="tok-arg">HEAD~1</span>
+
+<span class="tok-c"># 특정 커밋으로 되돌리기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reset</span> <span class="tok-flag">--soft</span> <span class="tok-arg">a1b2c3d</span></code></pre>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>주의</strong><code>--hard</code>는 변경사항이 완전히 삭제됨. 이미 push한 커밋에 사용 시 force push 필요 — 신중하게 사용.</div>
+      </div>
+    </section>
+
+    <section id="revert">
+      <h3><a class="anchor-link" href="#revert">Revert</a></h3>
+      <blockquote>특정 커밋의 변경사항을 취소하는 새 커밋을 생성한다. reset과 달리 히스토리를 변경하지 않으므로 공유 브랜치에서도 안전하게 사용할 수 있다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: 이미 push된 커밋에 문제가 있어서 되돌려야 할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># 특정 커밋 되돌리기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">revert</span> <span class="tok-arg">a1b2c3d</span>
+
+<span class="tok-c"># 커밋 메시지 편집 없이 바로 적용</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">revert</span> <span class="tok-flag">--no-edit</span> <span class="tok-arg">a1b2c3d</span>
+
+<span class="tok-c"># 여러 커밋 범위 되돌리기</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">revert</span> <span class="tok-arg">HEAD~3..HEAD</span></code></pre>
+    </section>
+
+    <section id="bisect">
+      <h3><a class="anchor-link" href="#bisect">Bisect</a></h3>
+      <blockquote>이진 탐색으로 버그가 도입된 커밋을 찾는다. "여기는 정상", "여기는 버그"를 표시하면 Git이 자동으로 범위를 좁혀가며 문제 커밋을 찾아준다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: "언제부터 이 버그가 생겼지?" — 수십 개 커밋 중 원인 커밋을 빠르게 특정할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">start</span>                <span class="tok-c"># 시작</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">bad</span>                  <span class="tok-c"># 현재 상태가 버그 있음</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">good</span> <span class="tok-arg">a1b2c3d</span>          <span class="tok-c"># 이 커밋은 정상이었음</span>
+
+<span class="tok-c"># Git이 중간 커밋을 체크아웃 → 테스트 후 판정</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">good</span>                 <span class="tok-c"># 이 커밋은 정상</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">bad</span>                  <span class="tok-c"># 이 커밋은 버그 있음</span>
+<span class="tok-c"># ... 반복하면 원인 커밋을 찾아줌 ...</span>
+
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">bisect</span> <span class="tok-sub">reset</span>                <span class="tok-c"># 종료</span></code></pre>
+    </section>
+
+    <section id="reflog">
+      <h3><a class="anchor-link" href="#reflog">Reflog</a></h3>
+      <blockquote>Git의 모든 HEAD 이동 기록을 보여준다. 실수로 삭제한 커밋이나 브랜치를 복구할 때 사용한다. <code>reset --hard</code>로 날린 커밋도 여기서 찾을 수 있다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: <code>git reset --hard</code>를 잘못 실행해서 날린 작업을 복구할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># HEAD 이동 기록 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reflog</span>
+
+<span class="tok-c"># 출력 예시:</span>
+<span class="tok-out">a1b2c3d HEAD@{0}: reset: moving to HEAD~3</span>
+<span class="tok-out">e4f5g6h HEAD@{1}: commit: 드래그앤드롭 구현</span>
+<span class="tok-out">i7j8k9l HEAD@{2}: commit: Column 컴포넌트 추가</span>
+
+<span class="tok-c"># 특정 시점으로 복구</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">reset</span> <span class="tok-flag">--hard</span> <span class="tok-arg">HEAD@{1}</span>      <span class="tok-c"># e4f5g6h 시점으로 복구</span></code></pre>
+    </section>
+
+    <section id="worktree">
+      <h3><a class="anchor-link" href="#worktree">Worktree</a></h3>
+      <blockquote>하나의 저장소에서 여러 브랜치를 동시에 체크아웃한다. 브랜치 전환 없이 다른 디렉토리에서 별도 브랜치 작업이 가능하다.</blockquote>
+      <p><strong>대표 사용 사례</strong>: feature 작업 중 hotfix를 별도 디렉토리에서 동시에 진행할 때.</p>
+      <pre><div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span>Terminal</span><button class="copy-btn">Copy</button></div><code><span class="tok-c"># hotfix 브랜치를 별도 디렉토리에서 작업</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">worktree</span> <span class="tok-sub">add</span> <span class="tok-arg">../tika-hotfix hotfix/urgent</span>
+<span class="tok-p">$</span> <span class="tok-cmd">cd</span> <span class="tok-arg">../tika-hotfix</span>
+<span class="tok-c"># ... hotfix 작업 ...</span>
+<span class="tok-p">$</span> <span class="tok-cmd">cd</span> <span class="tok-arg">../tika</span>
+
+<span class="tok-c"># worktree 목록 확인</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">worktree</span> <span class="tok-sub">list</span>
+
+<span class="tok-c"># worktree 삭제</span>
+<span class="tok-p">$</span> <span class="tok-cmd">git</span> <span class="tok-sub">worktree</span> <span class="tok-sub">remove</span> <span class="tok-arg">../tika-hotfix</span></code></pre>
+    </section>
+
+    <div class="footer">
+      📘 Git CLI Reference · 마지막 갱신 <span id="lastUpdated"></span> · <a href="https://git-scm.com/docs" target="_blank" style="color:var(--link);">git-scm.com 공식 문서</a>
+    </div>
+  </main>
+</div>
+
+<script>
+// === Copy buttons ===
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pre = btn.closest('pre');
+    const code = pre.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// === Active nav link on scroll ===
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// === Search filter ===
+const search = document.getElementById('searchBox');
+search.addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  navLinks.forEach(link => {
+    if (!q) { link.style.display = ''; return; }
+    link.style.display = link.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// === Last updated ===
+document.getElementById('lastUpdated').textContent = new Date().toISOString().slice(0, 10);
+
+// === Close mobile menu on link click ===
+navLinks.forEach(l => l.addEventListener('click', () => {
+  if (window.innerWidth <= 900) document.querySelector('.sidebar').classList.remove('open');
+}));
+</script>
+</body>
+</html>

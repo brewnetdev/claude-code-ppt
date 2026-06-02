@@ -22,6 +22,18 @@
   margin: 18px 0;
   border: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  /* `.slide-inner` is a column flex container — without an explicit
+     flex-shrink:0 the terminal collapses to header-height when a slide
+     packs multiple terminals, leaving only the dark title band visible
+     with the body clipped by overflow:hidden. Pin to content height. */
+  flex: 0 0 auto;
+}
+
+/* Same pinning for plain code blocks; brewnet-dark's `.code-block` rule
+   doesn't set flex sizing so the same collapse happens for code-heavy
+   slides on multi-block layouts. */
+.slide-canvas-host .code-block {
+  flex: 0 0 auto;
 }
 
 .slide-canvas-host .terminal-header {
@@ -43,7 +55,11 @@
 .slide-canvas-host .terminal pre {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 13px;
-  color: #cbd5e1;
+  /* Bumped from #cbd5e1 — base color only paints text that *isn't* wrapped
+     in a shiki <span style="color:…">. Once shiki runs that's mostly
+     punctuation, but a brighter fallback also helps unhighlighted plaintext
+     terminals read against the near-black bg. */
+  color: #f1f5f9;
   padding: 16px 20px;
   margin: 0;
   line-height: 1.7;
@@ -65,4 +81,26 @@
   font-size: inherit;
   background: transparent;
   display: block;
+  /* shiki bakes inline `style="color:#…"` on every token span, so we can't
+     re-color them via CSS rules. github-dark in particular paints comments
+     at #8b949e — readable but visibly dimmer than the active code. A scoped
+     brightness filter on the <code> wrapper lifts every token uniformly
+     (comments, strings, keywords) without touching the chrome / dots. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+/* Targeted override: shiki's `github-dark` theme paints comment tokens
+   inline as `style="color:#6A737D"` (verified by probing the actual
+   highlighter output — it uses the legacy GitHub-Octicons palette, NOT
+   the newer #8b949e variant). The filter above lifts them proportionally,
+   but #6A737D against #020408 still reads as mid-gray. Repaint to a
+   near-white tone so comments are clearly legible against the terminal
+   bg. `!important` is required because shiki writes the color inline on
+   the span, which would otherwise beat normal CSS specificity. The `i`
+   flag handles upper/lowercase variations across shiki versions. */
+.slide-canvas-host .code-block pre code span[style*="#6A737D" i],
+.slide-canvas-host .terminal pre code span[style*="#6A737D" i],
+.slide-canvas-host .code-block pre code span[style*="#8b949e" i],
+.slide-canvas-host .terminal pre code span[style*="#8b949e" i] {
+  color: #b0b1b2 !important;
 }

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="40" y="52" font-size="26" font-weight="800" fill="#1F2937">엄밀함은 사라지지 않는다 — 이동할 뿐이다</text>
+    <text x="40" y="84" font-size="16" fill="#6B7280">Relocating Rigor (Chad Fowler) — 4년간 엔지니어링 무게중심이 옮겨간 경로</text>
+
+    <!-- baseline arrow -->
+    <line x1="80" y1="200" x2="1200" y2="200" stroke="#D1D5DB" stroke-width="3"/>
+    <polygon points="1200,193 1216,200 1200,207" fill="#D1D5DB"/>
+
+    <!-- Era 1: Prompt -->
+    <g>
+      <rect x="80" y="240" width="340" height="380" rx="16" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+      <circle cx="250" cy="200" r="14" fill="#3B82F6"/>
+      <text x="250" y="160" font-size="15" font-weight="700" fill="#3B82F6" text-anchor="middle">2022 – 2024</text>
+      <text x="100" y="290" font-size="22" font-weight="800" fill="#1E3A8A">Prompt Engineering</text>
+      <text x="100" y="324" font-size="16" font-weight="700" fill="#1F2937">"어떤 말을 해야 하나?"</text>
+      <text x="100" y="362" font-size="15" fill="#374151">은유 · 이메일 작성법</text>
+      <text x="100" y="392" font-size="15" fill="#374151">OS 비유 · 명령어 한 줄</text>
+      <line x1="100" y1="414" x2="400" y2="414" stroke="#BFDBFE" stroke-width="1.5"/>
+      <text x="100" y="446" font-size="14" font-weight="700" fill="#1E3A8A">엄밀함이 사는 곳</text>
+      <text x="100" y="472" font-size="15" fill="#111827">→ 프롬프트 텍스트</text>
+      <text x="100" y="514" font-size="14" font-weight="700" fill="#B91C1C">사인(死因)</text>
+      <text x="100" y="540" font-size="14" fill="#374151">Blind prompting,</text>
+      <text x="100" y="562" font-size="14" fill="#374151">비결정론 · 바이브 코딩 숙취</text>
+    </g>
+
+    <!-- Era 2: Context -->
+    <g>
+      <rect x="470" y="240" width="340" height="380" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+      <circle cx="640" cy="200" r="14" fill="#22C55E"/>
+      <text x="640" y="160" font-size="15" font-weight="700" fill="#16A34A" text-anchor="middle">2025</text>
+      <text x="490" y="290" font-size="22" font-weight="800" fill="#166534">Context Engineering</text>
+      <text x="490" y="324" font-size="16" font-weight="700" fill="#1F2937">"어떤 정보를 넣어야 하나?"</text>
+      <text x="490" y="362" font-size="15" fill="#374151">은유 · 받은편지함 관리</text>
+      <text x="490" y="392" font-size="15" fill="#374151">OS 비유 · RAM 관리</text>
+      <line x1="490" y1="414" x2="790" y2="414" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="490" y="446" font-size="14" font-weight="700" fill="#166534">엄밀함이 사는 곳</text>
+      <text x="490" y="472" font-size="15" fill="#111827">→ 컨텍스트 윈도우 구성</text>
+      <text x="490" y="514" font-size="14" font-weight="700" fill="#B91C1C">사인(死因)</text>
+      <text x="490" y="540" font-size="14" fill="#374151">단일 턴의 한계 ·</text>
+      <text x="490" y="562" font-size="14" fill="#374151">Lost-in-the-Middle</text>
+    </g>
+
+    <!-- Era 3: Harness -->
+    <g>
+      <rect x="860" y="240" width="340" height="380" rx="16" fill="#FEF3F2" stroke="#F97316" stroke-width="2"/>
+      <circle cx="1030" cy="200" r="14" fill="#F97316"/>
+      <text x="1030" y="160" font-size="15" font-weight="700" fill="#EA580C" text-anchor="middle">2026 ~</text>
+      <text x="880" y="290" font-size="22" font-weight="800" fill="#9A3412">Harness Engineering</text>
+      <text x="880" y="324" font-size="16" font-weight="700" fill="#1F2937">"어떤 시스템을 만드나?"</text>
+      <text x="880" y="362" font-size="15" fill="#374151">은유 · 이메일 시스템 설계</text>
+      <text x="880" y="392" font-size="15" fill="#374151">OS 비유 · 운영체제 전체</text>
+      <line x1="880" y1="414" x2="1180" y2="414" stroke="#FED7AA" stroke-width="1.5"/>
+      <text x="880" y="446" font-size="14" font-weight="700" fill="#9A3412">엄밀함이 사는 곳</text>
+      <text x="880" y="472" font-size="15" fill="#111827">→ 시스템 아키텍처</text>
+      <text x="880" y="514" font-size="14" font-weight="700" fill="#15803D">핵심 메트릭</text>
+      <text x="880" y="540" font-size="14" fill="#374151">태스크 완료율,</text>
+      <text x="880" y="562" font-size="14" fill="#374151">KV-cache hit rate, 비용/태스크</text>
+    </g>
+
+    <!-- subsume note -->
+    <text x="640" y="675" font-size="15" fill="#6B7280" text-anchor="middle">각 시대는 이전 시대를 <tspan font-weight="700" fill="#1F2937">대체하지 않고 포함(subsume)</tspan>한다 — 좋은 하네스는 여전히 좋은 컨텍스트를, 좋은 컨텍스트는 여전히 좋은 프롬프트를 요구한다</text>
+  </g>
+</svg>

@@ -1,0 +1,109 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-block-destructive.sh",
+            "_carve": true
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-protect-secrets.sh",
+            "_carve": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-pre-push-test.sh",
+            "_carve": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-codesight-refresh.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-anti-slop.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-precompact-handoff.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/subagent-chain.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/subagent-chain.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "codesight": {
+      "command": "npx",
+      "args": [
+        "codesight",
+        "--mcp"
+      ]
+    },
+    "cclsp": {
+      "command": "npx",
+      "args": [
+        "cclsp@latest"
+      ]
+    }
+  }
+}

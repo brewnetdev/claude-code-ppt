@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { BlockFormatPanel } from './BlockFormatPanel';
-import { CodeBlockEditPanel, isCodeBlock } from './CodeBlockEditPanel';
+import { CodeBlockEditPanel, findMainCanvasBlock, isCodeBlock } from './CodeBlockEditPanel';
 import { CodeBlockTemplates } from './CodeBlockTemplates';
+import { DeckWatermarkSection } from './DeckWatermarkSection';
+import { DocumentPropertiesSection } from './DocumentPropertiesSection';
 import { SlideBackgroundSection } from './SlideBackgroundSection';
 import { TextBlockTemplates } from './TextBlockTemplates';
 import { TextFormatPanel } from './TextFormatPanel';
 import { TextOverlayPropertiesSection } from './TextOverlayPropertiesSection';
 
-export function PropertiesPanel() {
+type PropertiesPanelProps = {
+  editorKind: 'deck' | 'document';
+};
+
+export function PropertiesPanel({ editorKind }: PropertiesPanelProps) {
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
+  const revision = useDeckStore((s) => s.revision);
   const selectedId = useDeckStore((s) => s.selectedOverlayId);
   const selectedBlockId = useDeckStore((s) => s.selectedBlockId);
   const overlay = useDeckStore((s) =>
@@ -65,7 +72,8 @@ export function PropertiesPanel() {
         </button>
       </div>
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
-        {selectedBlockId && !overlay ? (
+        {editorKind === 'document' ? <DocumentPropertiesSection /> : null}
+        {editorKind === 'document' ? null : selectedBlockId && !overlay ? (
           isCodeBlock(selectedBlockId) ? (
             // Code / Terminal: position-only block panel + source/lang editor.
             // Text formatting & templates are intentionally hidden — the
@@ -73,7 +81,10 @@ export function PropertiesPanel() {
             // highlighted code box.
             <div className="space-y-4">
               <BlockFormatPanel blockId={selectedBlockId} />
-              <CodeBlockEditPanel blockId={selectedBlockId} />
+              <CodeBlockEditPanel
+                getEl={() => findMainCanvasBlock(selectedBlockId)}
+                seedKey={`${slideId}:${revision}:${selectedBlockId}`}
+              />
             </div>
           ) : (
             // Text block: position panel + the full text formatting controls.
@@ -83,13 +94,14 @@ export function PropertiesPanel() {
             </div>
           )
         ) : null}
-        {!selectedBlockId && !overlay ? (
+        {editorKind === 'document' ? null : !selectedBlockId && !overlay ? (
           // Default landing view: slide-level background + text format defaults
           // + insertion templates. Background sits at the top because it's the
           // most "ambient" change — once set, the user typically clicks back
           // into a block and the section drops out of view.
           <div className="space-y-4">
             <SlideBackgroundSection />
+            <DeckWatermarkSection />
             {(canPasteBlock || canPasteOverlay) && slideId ? (
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
@@ -130,7 +142,7 @@ export function PropertiesPanel() {
             </p>
           </div>
         ) : null}
-        {!overlay || !slideId ? null : overlay.kind === 'image' ? (
+        {editorKind === 'document' || !overlay || !slideId ? null : overlay.kind === 'image' ? (
           <div className="space-y-4">
             <div>
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">

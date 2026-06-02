@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "title": "분기 운영 리포트",
+    "subtitle": "Q2 지표와 다음 분기 계획",
+    "sourceFile": "tests/generator/fixtures/sample-report.md"
+  },
+  "template": "report",
+  "slides": [
+    {
+      "type": "cover",
+      "title": "분기 운영 리포트",
+      "subtitle": "Q2 핵심 지표 요약",
+      "meta": [
+        { "label": "기간", "value": "2026 Q2" },
+        { "label": "작성", "value": "운영팀" }
+      ]
+    },
+    {
+      "type": "section",
+      "num": "01",
+      "title": "핵심 지표"
+    },
+    {
+      "type": "title-body",
+      "title": "요약",
+      "caption": "Summary",
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "text": "Q2는 활성 사용자와 유지율이 모두 개선됐다. 신규 유입보다 잔존에 집중한 결과가 지표로 나타났다."
+        }
+      ]
+    },
+    {
+      "type": "comparison-table",
+      "title": "분기 지표 비교",
+      "caption": "Metrics",
+      "headers": ["지표", "Q1", "Q2", "변화"],
+      "rows": [
+        ["MAU", "8.2k", "9.6k", "+17%"],
+        ["주간 유지율", "41%", "48%", "+7pp"],
+        ["평균 세션", "6.1분", "7.4분", "+21%"]
+      ]
+    }
+  ]
+}

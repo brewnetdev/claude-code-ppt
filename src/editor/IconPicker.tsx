@@ -34,6 +34,9 @@ const CATEGORIES: IconCategory[] = [
 
 type Props = {
   className?: string;
+  // When provided, picking an emoji calls this instead of the deck-canvas
+  // insertion (used by the document editor, which inserts into its iframe).
+  onPick?: (emoji: string) => void;
 };
 
 // Find the editable host node currently focused inside .slide-canvas-host.
@@ -67,7 +70,7 @@ function insertEmojiAtRange(range: Range, emoji: string): void {
   target?.dispatchEvent(new InputEvent('input', { bubbles: true }));
 }
 
-export function IconPicker({ className }: Props) {
+export function IconPicker({ className, onPick }: Props) {
   const [open, setOpen] = useState(false);
   const savedRangeRef = useRef<Range | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
@@ -95,11 +98,17 @@ export function IconPicker({ className }: Props) {
   }, [open]);
 
   const handleTriggerMouseDown = () => {
+    if (onPick) return; // document mode inserts via the bridge; no canvas range
     // Capture selection BEFORE the click moves focus out of the editable.
     savedRangeRef.current = captureCanvasSelection();
   };
 
   const handlePick = (emoji: string) => {
+    if (onPick) {
+      onPick(emoji);
+      setOpen(false);
+      return;
+    }
     const range = savedRangeRef.current;
     if (!range) {
       setOpen(false);
@@ -130,7 +139,7 @@ export function IconPicker({ className }: Props) {
             <span className="text-[11px] font-semibold uppercase tracking-wide text-editor-dim">
               아이콘 삽입
             </span>
-            {savedRangeRef.current ? null : (
+            {onPick || savedRangeRef.current ? null : (
               <span className="text-[10px] text-red-300">
                 먼저 텍스트 위치에 커서를 두세요
               </span>

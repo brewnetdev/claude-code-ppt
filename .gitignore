@@ -1,6 +1,7 @@
 # macOS
 .DS_Store
 
+# docs/resource
 # Logs
 logs
 *.log
@@ -150,3 +151,4 @@ playwright-report/
 
 # Generator scratch
 .tmp/
+

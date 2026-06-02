@@ -221,18 +221,26 @@ async function renderGroup(g: SlideGroup, idx: number): Promise<{ html: string; 
   return { html: parts.join('\n'), title };
 }
 
-export async function renderPresentation(groups: SlideGroup[]): Promise<ParsedSlide[]> {
+// `template` only changes the `data-template` attribute (and the slide id
+// prefix). The visual identity — dark/amber vs white/blue vs cream/teal — is
+// driven entirely by the attribute-scoped theme CSS (brewnet-dark baseline +
+// [data-template="portfolio|report"] overrides), so the same rendering backbone
+// yields three distinct decks.
+export async function renderPresentation(
+  groups: SlideGroup[],
+  template: 'presentation' | 'portfolio' | 'report' = 'presentation',
+): Promise<ParsedSlide[]> {
   const slides: ParsedSlide[] = [];
   const inners = await Promise.all(groups.map((g, i) => renderGroup(g, i)));
   inners.forEach((inner, idx) => {
     const wrapped = wrapSlide({
-      template: 'presentation',
+      template,
       innerHtml: inner.html,
       pageNum: idx + 1,
       totalPages: groups.length,
     });
     slides.push({
-      id: `presentation-slide-${idx + 1}`,
+      id: `${template}-slide-${idx + 1}`,
       html: wrapped,
       title: inner.title,
     });

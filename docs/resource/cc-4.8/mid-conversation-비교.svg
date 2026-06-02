@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="360" viewBox="0 0 680 360" font-family="-apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <rect x="0" y="0" width="680" height="360" fill="#ffffff"/>
+  <text x="30" y="22" font-size="15" font-weight="600" fill="#2C2C2A">대화 도중 새 지시 주기 — 3가지 방식 비교</text>
+
+  <!-- Column 1 header -->
+  <rect x="30" y="40" width="190" height="56" rx="10" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.8"/>
+  <text x="125" y="64" font-size="14" font-weight="600" fill="#791F1F" text-anchor="middle">옛날 방식 ①</text>
+  <text x="125" y="83" font-size="12" fill="#A32D2D" text-anchor="middle">system 필드 수정</text>
+  <!-- Column 2 header -->
+  <rect x="245" y="40" width="190" height="56" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text x="340" y="64" font-size="14" font-weight="600" fill="#633806" text-anchor="middle">옛날 방식 ②</text>
+  <text x="340" y="83" font-size="12" fill="#854F0B" text-anchor="middle">user 메시지로 추가</text>
+  <!-- Column 3 header -->
+  <rect x="460" y="40" width="190" height="56" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="555" y="64" font-size="14" font-weight="600" fill="#085041" text-anchor="middle">Opus 4.8 신규</text>
+  <text x="555" y="83" font-size="12" fill="#0F6E56" text-anchor="middle">중간 system 메시지</text>
+
+  <!-- Col1 blocks -->
+  <rect x="45" y="112" width="160" height="52" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.8"/>
+  <text x="125" y="134" font-size="14" font-weight="600" fill="#791F1F" text-anchor="middle">지시문 교체</text>
+  <text x="125" y="152" font-size="12" fill="#A32D2D" text-anchor="middle">맨 앞을 변경</text>
+  <rect x="45" y="172" width="160" height="56" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.8"/>
+  <text x="125" y="194" font-size="12" fill="#A32D2D" text-anchor="middle">캐시 전체 무효</text>
+  <text x="125" y="212" font-size="12" fill="#A32D2D" text-anchor="middle">처음부터 재계산</text>
+
+  <!-- Col2 blocks -->
+  <rect x="260" y="112" width="160" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+  <text x="340" y="134" font-size="14" font-weight="600" fill="#2C2C2A" text-anchor="middle">이전 대화</text>
+  <text x="340" y="152" font-size="12" fill="#5F5E5A" text-anchor="middle">맨 앞 그대로(캐시)</text>
+  <rect x="260" y="172" width="160" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text x="340" y="194" font-size="14" font-weight="600" fill="#633806" text-anchor="middle">새 지시 추가</text>
+  <text x="340" y="212" font-size="12" fill="#854F0B" text-anchor="middle">user 권한 → 약함</text>
+
+  <!-- Col3 blocks -->
+  <rect x="475" y="112" width="160" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+  <text x="555" y="134" font-size="14" font-weight="600" fill="#2C2C2A" text-anchor="middle">이전 대화</text>
+  <text x="555" y="152" font-size="12" fill="#5F5E5A" text-anchor="middle">맨 앞 그대로(캐시)</text>
+  <rect x="475" y="172" width="160" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="555" y="194" font-size="14" font-weight="600" fill="#085041" text-anchor="middle">새 지시 추가</text>
+  <text x="555" y="212" font-size="12" fill="#085041" text-anchor="middle">system 권한 → 강함</text>
+
+  <!-- Col1 badges -->
+  <rect x="60" y="258" width="130" height="30" rx="15" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.8"/>
+  <text x="125" y="277" font-size="12" font-weight="600" fill="#791F1F" text-anchor="middle">캐시 깨짐</text>
+  <rect x="60" y="296" width="130" height="30" rx="15" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+  <text x="125" y="315" font-size="12" font-weight="600" fill="#2C2C2A" text-anchor="middle">권한 강함</text>
+
+  <!-- Col2 badges -->
+  <rect x="275" y="258" width="130" height="30" rx="15" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.8"/>
+  <text x="340" y="277" font-size="12" font-weight="600" fill="#27500A" text-anchor="middle">캐시 유지</text>
+  <rect x="275" y="296" width="130" height="30" rx="15" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text x="340" y="315" font-size="12" font-weight="600" fill="#633806" text-anchor="middle">권한 약함</text>
+
+  <!-- Col3 badges -->
+  <rect x="490" y="258" width="130" height="30" rx="15" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.8"/>
+  <text x="555" y="277" font-size="12" font-weight="600" fill="#27500A" text-anchor="middle">캐시 유지</text>
+  <rect x="490" y="296" width="130" height="30" rx="15" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="555" y="315" font-size="12" font-weight="600" fill="#085041" text-anchor="middle">권한 강함</text>
+
+  <text x="340" y="348" font-size="12" fill="#5F5E5A" text-anchor="middle">캐시(비용·속도)는 "맨 앞"을 바꾸면 깨지고, "맨 끝"에 붙이면 유지된다 — 4.8은 끝에 system을 붙여 둘 다 잡았다</text>
+</svg>

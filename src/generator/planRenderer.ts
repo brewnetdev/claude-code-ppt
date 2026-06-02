@@ -219,7 +219,12 @@ function renderTwoColCode(node: Extract<SlideNode, { type: 'two-col-code' }>): s
 }
 
 function renderComparisonTable(node: Extract<SlideNode, { type: 'comparison-table' }>): string {
-  const ths = node.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('');
+  // Headers and rows share the same inline-formatting allowlist
+  // (strong/em/span/br/code) — authors regularly bold the header label or
+  // mark a cell with <em>. Using escapeHtml here would turn `<strong>플랜</strong>`
+  // into literal text, which is exactly what the "<strong> tag showing as
+  // text" report was. Keep the escaping symmetric with row cells.
+  const ths = node.headers.map((h) => `<th>${escapeInlineHtml(h)}</th>`).join('');
   const trs = node.rows
     .map((row) => `<tr>${row.map((c) => `<td>${escapeInlineHtml(c)}</td>`).join('')}</tr>`)
     .join('\n          ');
@@ -284,7 +289,9 @@ function renderBlock(b: Block): string {
     case 'badges':
       return renderBadges(b.items);
     case 'table': {
-      const ths = b.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('');
+      // Symmetric with renderComparisonTable: headers also go through the
+      // inline allowlist so authored `<strong>` / `<em>` survive escaping.
+      const ths = b.headers.map((h) => `<th>${escapeInlineHtml(h)}</th>`).join('');
       const trs = b.rows
         .map((row) => `<tr>${row.map((c) => `<td>${escapeInlineHtml(c)}</td>`).join('')}</tr>`)
         .join('\n      ');
@@ -311,18 +318,29 @@ function renderBullets(
 }
 
 function renderCodeBlock(lang: SupportedLang, source: string): string {
-  // Plain shape — upgradeSlideCodeBlocks() at deck-load time injects shiki
-  // output, .code-dots chrome, data-code-source, and data-block-id. Keeping
-  // the source readable here makes static decks reviewable in git.
-  return `<div class="code-block" data-slot="code" data-code-lang="${escapeAttr(lang)}">
+  // Match the shape produced by presentationAdapter / CodeBlockTemplates so
+  // the coverage scorer (which expects `data-code-source` on every code/term
+  // block) can find them in the static render. upgradeSlideCodeBlocks() at
+  // deck-load time refreshes the encoded source and injects shiki chrome.
+  const enc = encodeURIComponent(source);
+  const id = `cb-${shortHash(`${lang}|${source}`)}`;
+  return `<div class="code-block" data-slot="code" data-block-id="${id}" data-code-source="${enc}" data-code-lang="${escapeAttr(lang)}">
 <pre><code>${escapeHtml(source)}</code></pre>
 </div>`;
 }
 
 function renderTerminalBlock(source: string): string {
-  return `<div class="terminal" data-slot="code" data-code-lang="bash">
+  const enc = encodeURIComponent(source);
+  const id = `tb-${shortHash(`bash|${source}`)}`;
+  return `<div class="terminal" data-slot="code" data-block-id="${id}" data-code-source="${enc}" data-code-lang="bash">
 <pre><code>${escapeHtml(source)}</code></pre>
 </div>`;
+}
+
+function shortHash(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16);
 }
 
 function renderCalloutEl(c: Callout, marginTop: string): string {
@@ -361,19 +379,38 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+// Inline tags allowed to survive escaping in cells, callouts, and similar
+// text blocks. Exported so cache migrations (`slideMigrations.ts`) can
+// reference the same source of truth — keeping the renderer and any
+// retroactive un-escape pass aligned.
+export const INLINE_TAG_ALLOWLIST = ['strong', 'em', 'span', 'br', 'code'] as const;
+const INLINE_TAGS_SRC = INLINE_TAG_ALLOWLIST.join('|');
+const ESCAPE_INLINE_PATTERN = new RegExp(`<(?!\\/?(${INLINE_TAGS_SRC})\\b)`, 'g');
+
 // Comparison-table cells frequently include light formatting that the brewnet
 // design relies on — `<strong>`, `<span class="badge ...">`, `<em>`. We keep
 // those, but escape the rest. This is the single concession to "safe HTML"
 // in the renderer; everywhere else we escape unconditionally.
 function escapeInlineHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/<(?!\/?(strong|em|span|br|code)\b)/g, '&lt;');
+  return s.replace(/&/g, '&amp;').replace(ESCAPE_INLINE_PATTERN, '&lt;');
 }
 
+// Adds `prefix` to each line of `text`, but skips lines that fall inside a
+// <pre>...</pre> region. <pre> preserves whitespace, so prepending an indent
+// inside it would become visible content (e.g. a terminal block whose 2nd
+// line gets pushed 4 columns right).
 function indent(text: string, prefix: string): string {
+  let inPre = 0;
   return text
     .split('\n')
-    .map((line) => (line.length === 0 ? line : prefix + line))
+    .map((line) => {
+      const before = inPre;
+      const opens = (line.match(/<pre\b/g) || []).length;
+      const closes = (line.match(/<\/pre>/g) || []).length;
+      inPre += opens - closes;
+      if (before > 0) return line; // continuation line inside <pre>
+      if (line.length === 0) return line;
+      return prefix + line;
+    })
     .join('\n');
 }

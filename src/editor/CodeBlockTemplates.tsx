@@ -1,54 +1,10 @@
-import { highlightCode } from '../highlight/highlighter';
+import {
+  buildCodeBlockHtml,
+  buildTerminalHtml,
+  CODE_BLOCK_DEFAULT_SOURCE,
+  TERMINAL_DEFAULT_SOURCE,
+} from './codeBlockHtml';
 import { useDeckStore } from '../scene/store';
-
-let codeBlockSeq = 0;
-const makeCodeBlockId = () => `code-${Date.now()}-${++codeBlockSeq}`;
-
-const CODE_BLOCK_DEFAULT_SOURCE = `import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic();
-const message = await client.messages.create({
-  model: "claude-opus-4-7",
-  max_tokens: 1024,
-  messages: [{ role: "user", content: "Hello, Claude" }],
-});
-console.log(message.content);`;
-
-const TERMINAL_DEFAULT_SOURCE = `$ npm install -g @anthropic-ai/claude-code
-added 142 packages in 8.3s
-✓ claude-code 2.4.1 ready
-
-$ claude --version
-claude-code 2.4.1`;
-
-function encodeSource(s: string): string {
-  return encodeURIComponent(s);
-}
-
-async function buildCodeBlockHtml(source: string, lang: string): Promise<string> {
-  const id = makeCodeBlockId();
-  const inner = await highlightCode(source, lang);
-  return [
-    `<div class="code-block" data-slot="code" data-block-id="${id}" data-code-source="${encodeSource(source)}" data-code-lang="${lang}">`,
-    `  <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>`,
-    `  <pre><code>${inner}</code></pre>`,
-    `</div>`,
-  ].join('\n');
-}
-
-async function buildTerminalHtml(source: string): Promise<string> {
-  const id = makeCodeBlockId();
-  const inner = await highlightCode(source, 'bash');
-  return [
-    `<div class="terminal" data-slot="code" data-block-id="${id}" data-code-source="${encodeSource(source)}" data-code-lang="bash">`,
-    `  <div class="terminal-header">`,
-    `    <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>`,
-    `    <span class="terminal-title">Terminal</span>`,
-    `  </div>`,
-    `  <pre><code>${inner}</code></pre>`,
-    `</div>`,
-  ].join('\n');
-}
 
 export function CodeBlockTemplates() {
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);

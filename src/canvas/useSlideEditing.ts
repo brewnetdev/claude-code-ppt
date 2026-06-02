@@ -3,6 +3,7 @@ import Sortable from 'sortablejs';
 import { showToast } from '../editor/Toast';
 import { DATA_BLOCK_ID, ensureBlockId } from '../scene/blockId';
 import { useDeckStore } from '../scene/store';
+import { linkifyHtml } from '../exporter/linkify';
 import { tryAutoLinkOnSpace } from './autoLinkUrl';
 import { enforceBulletListInvariant, ensureLiWrapper } from './listInvariant';
 
@@ -37,6 +38,10 @@ function isMutatingKeydown(e: KeyboardEvent): boolean {
 
 const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
+const COL_RESIZE_HANDLE_CLASS = 'col-resize-handle';
+const MIN_COL_WIDTH_PX = 40;
+const CODE_BLOCK_SELECTOR = '.code-block, .terminal';
+const DATA_CODE_SOURCE = 'data-code-source';
 
 function createDragHandle(): HTMLElement {
   const handle = document.createElement('div');
@@ -68,6 +73,23 @@ function closestLi(node: Node | null): HTMLLIElement | null {
   if (!node) return null;
   const el = node instanceof Element ? node : node.parentElement;
   return el?.closest<HTMLLIElement>('li') ?? null;
+}
+
+// Resolve `(selection, table-cell)` from the document selection if the caret
+// sits inside a cell within `root`. Both onTableTab and onTableBackspace lean
+// on this same lookup; callers consult `sel.isCollapsed`, `sel.removeAllRanges`,
+// or the cell's neighbors as needed.
+function getCaretTableCell(
+  root: Element,
+): { sel: Selection; cell: HTMLTableCellElement } | null {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  const focus = sel.focusNode;
+  if (!focus) return null;
+  const focusEl = focus instanceof Element ? focus : focus.parentElement;
+  const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
+  if (!cell || !root.contains(cell)) return null;
+  return { sel, cell };
 }
 
 function isInBulletOrNumList(li: HTMLLIElement): boolean {
@@ -109,6 +131,16 @@ function isAtEndOfLi(li: HTMLLIElement, range: Range): boolean {
     return false;
   }
   return probe.toString().trim().length === 0;
+}
+
+// Brewnet pre-existing .code-block / .terminal blocks are plain HTML with
+// inline `<span class="cyan">` / `<span class="gray">` color spans — no shiki
+// tokens to corrupt — so they're editable in place like any other text. Only
+// blocks with `data-code-source` (the CodeBlockEditPanel-driven shiki path)
+// are locked, since raw character entry would shred the highlighted output.
+function isReadOnlyCodeBlock(el: Element | null | undefined): boolean {
+  if (!el) return false;
+  return el.matches(CODE_BLOCK_SELECTOR) && el.hasAttribute(DATA_CODE_SOURCE);
 }
 
 const LIST_DELETE_TYPES = new Set([
@@ -213,6 +245,129 @@ export function useSlideEditing(
     // parent is non-editable (e.g., if tables live outside .slide-inner).
     root.querySelectorAll<HTMLElement>('td, th').forEach(enforceEditable);
 
+    // Column resize handles — slide tables use `width: 100%` with no fixed
+    // layout, so cell widths are auto-sized to content. Inject a thin handle
+    // on the right edge of each first-row cell so users can drag column
+    // boundaries; widths are written as inline px on every cell in the
+    // column (in 1280×720 source coordinates) and committed via notify().
+    const insertedResizeHandles: HTMLElement[] = [];
+    const resizeCleanups: Array<() => void> = [];
+
+    const getCanvasScale = (el: Element): number => {
+      // Find the scaled stage and read its current effective scale by
+      // comparing rendered width to its intrinsic 1280px source. Falls back
+      // to 1 if the stage is missing (offscreen export host, tests, etc.).
+      const stage =
+        (el.closest('.export-stage') as HTMLElement | null) ??
+        (el.closest('.slide-canvas-host') as HTMLElement | null);
+      if (!stage) return 1;
+      const rect = stage.getBoundingClientRect();
+      const w = stage.offsetWidth || 1280;
+      return rect.width / w || 1;
+    };
+
+    const cellsInColumn = (table: HTMLTableElement, colIdx: number): HTMLTableCellElement[] => {
+      const out: HTMLTableCellElement[] = [];
+      table.querySelectorAll<HTMLTableRowElement>('tr').forEach((row) => {
+        const cell = row.cells[colIdx];
+        if (cell) out.push(cell);
+      });
+      return out;
+    };
+
+    root.querySelectorAll<HTMLTableElement>('table').forEach((table) => {
+      // Pick the first row's cells as the "header" row whose right edges
+      // get handles. Prefer thead's first row, fall back to tbody's first.
+      const headerRow =
+        table.querySelector<HTMLTableRowElement>('thead tr') ??
+        table.querySelector<HTMLTableRowElement>('tr');
+      if (!headerRow) return;
+      const headerCells = Array.from(headerRow.cells);
+      // Last column has no neighbor on its right — no handle needed there.
+      headerCells.slice(0, -1).forEach((cell, idx) => {
+        // Cell needs to be a positioning context so the absolutely positioned
+        // handle anchors to its right edge. Setting position only if not
+        // already positioned avoids stomping a theme override.
+        const computed = getComputedStyle(cell);
+        if (computed.position === 'static') {
+          cell.style.position = 'relative';
+        }
+
+        const handle = document.createElement('div');
+        handle.className = COL_RESIZE_HANDLE_CLASS;
+        handle.setAttribute('contenteditable', 'false');
+        handle.setAttribute('draggable', 'false');
+        handle.setAttribute('aria-label', 'Resize column');
+        cell.appendChild(handle);
+        insertedResizeHandles.push(handle);
+
+        let startX = 0;
+        let startWidthA = 0;
+        let startWidthB = 0;
+        let scale = 1;
+        let columnA: HTMLTableCellElement[] = [];
+        let columnB: HTMLTableCellElement[] = [];
+
+        const onMove = (ev: MouseEvent) => {
+          const delta = (ev.clientX - startX) / scale;
+          let newA = startWidthA + delta;
+          let newB = startWidthB - delta;
+          if (newA < MIN_COL_WIDTH_PX) {
+            newA = MIN_COL_WIDTH_PX;
+            newB = startWidthA + startWidthB - MIN_COL_WIDTH_PX;
+          }
+          if (newB < MIN_COL_WIDTH_PX) {
+            newB = MIN_COL_WIDTH_PX;
+            newA = startWidthA + startWidthB - MIN_COL_WIDTH_PX;
+          }
+          columnA.forEach((c) => {
+            c.style.width = `${Math.round(newA)}px`;
+          });
+          columnB.forEach((c) => {
+            c.style.width = `${Math.round(newB)}px`;
+          });
+        };
+
+        const onUp = () => {
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          handle.classList.remove('dragging');
+          document.body.classList.remove('col-resizing');
+          notify();
+        };
+
+        const onDown = (ev: MouseEvent) => {
+          // Only respond to primary button; ignore right/middle clicks so
+          // context-menu invocations don't accidentally start a resize.
+          if (ev.button !== 0) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          startX = ev.clientX;
+          // Resize is between this column (`idx`) and the next (`idx + 1`).
+          // Pull the live cell list each time — rows may have been added
+          // since the handle was attached (Tab-past-last-cell appends rows).
+          columnA = cellsInColumn(table, idx);
+          columnB = cellsInColumn(table, idx + 1);
+          // offsetWidth is reported in source-coord px (transform: scale on
+          // ancestor doesn't change layout box width).
+          startWidthA = headerCells[idx].offsetWidth;
+          startWidthB = headerCells[idx + 1].offsetWidth;
+          scale = getCanvasScale(table);
+          handle.classList.add('dragging');
+          document.body.classList.add('col-resizing');
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        };
+
+        handle.addEventListener('mousedown', onDown);
+        resizeCleanups.push(() => {
+          handle.removeEventListener('mousedown', onDown);
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+        });
+      });
+    });
+
     // Stamp stable IDs on direct children of .slide-inner so the Properties
     // panel can refer to selected in-flow blocks. IDs survive
     // commitFromDom (cloneNode preserves attributes) so they persist across
@@ -228,16 +383,17 @@ export function useSlideEditing(
       // selection ring would frame the whole column instead of the code box
       // the user actually clicked.
       slideInner
-        .querySelectorAll<HTMLElement>('.code-block, .terminal')
+        .querySelectorAll<HTMLElement>(CODE_BLOCK_SELECTOR)
         .forEach((el) => {
           ensureBlockId(el);
-          // Make the block itself non-editable. Even though the parent
-          // .slide-inner is contenteditable=true, marking these subtrees
-          // false stops the browser from accepting typing/IME inside them
-          // entirely — the previous capture-listener guard relied on
-          // `e.target` matching `.code-block` which is wrong for keydown
-          // (target is the contenteditable host, not the deepest node).
-          el.contentEditable = 'false';
+          // Only shiki-driven blocks (data-code-source) get locked — typing
+          // inside the highlighted `<pre><code>` would corrupt their tokens.
+          // Brewnet pre-existing blocks fall through to inherit slide-inner's
+          // contenteditable=true so the user can edit command listings, box
+          // diagrams, etc. directly in place.
+          if (isReadOnlyCodeBlock(el)) {
+            el.contentEditable = 'false';
+          }
         });
     }
 
@@ -295,11 +451,14 @@ export function useSlideEditing(
     // sibling chrome header, duplicating the macOS dots). Block mutating
     // keys, paste, and drop here, and surface a toast pointing at the
     // CodeBlockEditPanel — the legitimate edit path.
-    // True if the given DOM node sits inside a read-only code block / terminal.
+    // True if the given DOM node sits inside a read-only (shiki-driven) code
+    // block / terminal. Brewnet pre-existing blocks (no data-code-source) are
+    // editable in place and intentionally fall through here.
     const nodeInsideReadOnlyCode = (node: Node | null): boolean => {
       if (!node) return false;
       const el = node instanceof HTMLElement ? node : node.parentElement;
-      return !!el?.closest?.('.code-block, .terminal');
+      const block = el?.closest?.(CODE_BLOCK_SELECTOR) ?? null;
+      return isReadOnlyCodeBlock(block);
     };
     // True if the live caret/selection touches a read-only code block —
     // either the caret is inside one, the selection spans into one, or the
@@ -325,7 +484,7 @@ export function useSlideEditing(
         const before = parent.childNodes[offset - 1];
         const after = parent.childNodes[offset];
         const matches = (n: Node | undefined): boolean =>
-          n instanceof HTMLElement && (n.matches('.code-block') || n.matches('.terminal'));
+          isReadOnlyCodeBlock(n instanceof HTMLElement ? n : null);
         if (matches(before) || matches(after)) return true;
       }
       return false;
@@ -358,10 +517,100 @@ export function useSlideEditing(
       // Catches IME commit + drag-text-into edge cases that bypass keydown.
       e.preventDefault();
     };
+
+    // Force-case interceptor — when the caret sits inside a block tagged with
+    // `data-force-case="lowercase|uppercase"` (set by BlockFormatPanel's case
+    // toggle), substitute the typed character before insertion. CSS
+    // text-transform alone visually transforms the rendering but leaves the
+    // underlying text node in its original case; users editing existing text
+    // or copying selections out then see the un-transformed source. Mutating
+    // the actual `data` here keeps the source and the visual in sync.
+    //
+    // Hangul composition events (`insertCompositionText` / `insertFromComposition`)
+    // are intentionally skipped — Korean has no upper/lower distinction and
+    // intercepting them would corrupt IME state. Direct English typing after
+    // a Korean→English IME switch fires `insertText` for each character,
+    // which is what we transform.
+    const onForceCase = (e: InputEvent) => {
+      if (e.inputType !== 'insertText') return;
+      const data = e.data;
+      if (typeof data !== 'string' || data.length === 0) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      const startEl =
+        range.startContainer.nodeType === Node.ELEMENT_NODE
+          ? (range.startContainer as Element)
+          : range.startContainer.parentElement;
+      if (!startEl) return;
+      const block = startEl.closest('[data-force-case]');
+      if (!block) return;
+      const mode = block.getAttribute('data-force-case');
+      if (mode !== 'lowercase' && mode !== 'uppercase') return;
+      const transformed = mode === 'lowercase' ? data.toLowerCase() : data.toUpperCase();
+      if (transformed === data) return;
+      e.preventDefault();
+      // execCommand is deprecated but the only stable path that respects the
+      // contenteditable's native input flow (selection placement, undo stack,
+      // composition state). Selection-API insertion would skip the browser's
+      // own `input` event and break our debounced commit pipeline.
+      document.execCommand('insertText', false, transformed);
+    };
+
     root.addEventListener('keydown', onCodeKeydown, true);
     root.addEventListener('paste', onCodePaste, true);
     root.addEventListener('drop', onCodeDrop, true);
     root.addEventListener('beforeinput', onCodeBeforeInput, true);
+    root.addEventListener('beforeinput', onForceCase, true);
+
+    // Promote inline `<img class="export-overlay">` images to interactive
+    // overlays on click. These images are baked into the slide HTML by the
+    // standalone exporter and are non-interactive in the editor by default
+    // (CSS `pointer-events: auto` was just enabled — see spike.css). Lift
+    // them into `overlaysBySlide` so OverlayLayer's Moveable can attach
+    // drag/resize handles. Position/size carry over from the inline style
+    // so the image stays exactly where it was visually.
+    const onExportOverlayClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!(target instanceof HTMLImageElement)) return;
+      if (!target.classList.contains('export-overlay')) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const left = parseFloat(target.style.left);
+      const top = parseFloat(target.style.top);
+      const width = parseFloat(target.style.width);
+      const height = parseFloat(target.style.height);
+      const src = target.getAttribute('src');
+      if (!src) return;
+      if (![left, top, width, height].every((n) => Number.isFinite(n))) return;
+
+      const state = useDeckStore.getState();
+      const slide = state.slides[state.currentIndex];
+      if (!slide) return;
+
+      const id = `ovl-promoted-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      state.addOverlay(slide.id, {
+        id,
+        kind: 'image',
+        src,
+        x: left,
+        y: top,
+        w: width,
+        h: height,
+      });
+      state.setSelectedOverlayId(id);
+
+      // Remove inline img from DOM and trigger commit so the slide HTML
+      // no longer contains a duplicate. The 300ms debounce path is fine
+      // here — the new overlay is already in the store and rendered by
+      // OverlayLayer immediately.
+      target.remove();
+      const slideInner = root.querySelector<HTMLElement>('.slide-inner');
+      slideInner?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    };
+    root.addEventListener('click', onExportOverlayClick, true);
 
     const notify = onChange ?? (() => {});
     // Run the bullet/num-list wrapper invariant repair before notify() so any
@@ -478,6 +727,29 @@ export function useSlideEditing(
     };
     root.addEventListener('beforeinput', onAutoLink, true);
 
+    // On focus loss from any editable, linkify any bare http(s) URLs that
+    // SPACE-on-typing missed (paste, import, drag-drop, URL with no trailing
+    // space). Done at blur — not on input — so the caret/selection is never
+    // shifted while the user is still editing. Read-only code mirrors are
+    // skipped to keep shiki output intact.
+    const onEditableBlur = (e: FocusEvent) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (!t.isContentEditable) return;
+      // focusout target is the deep blurred element, not the slide-inner host,
+      // so the node-level check is enough — the selection-fallback used by
+      // insideReadOnlyCode is unreliable here (focus has already moved).
+      if (nodeInsideReadOnlyCode(t)) return;
+      const before = t.innerHTML;
+      if (!/\bhttps?:\/\//.test(before)) return;
+      const after = linkifyHtml(before, document);
+      if (after !== before) {
+        t.innerHTML = after;
+        notify();
+      }
+    };
+    root.addEventListener('focusout', onEditableBlur);
+
     // Tab inside a table cell:
     // - Forward Tab at the last cell of the last row appends a new empty row
     //   that clones the previous row's structure (so styling/striping/column
@@ -488,13 +760,9 @@ export function useSlideEditing(
     const onTableTab = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
       if (e.isComposing || e.keyCode === 229) return;
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0) return;
-      const focus = sel.focusNode;
-      if (!focus) return;
-      const focusEl = focus instanceof Element ? focus : focus.parentElement;
-      const cell = focusEl?.closest<HTMLTableCellElement>('td, th') ?? null;
-      if (!cell || !root.contains(cell)) return;
+      const hit = getCaretTableCell(root);
+      if (!hit) return;
+      const { sel, cell } = hit;
       const table = cell.closest<HTMLTableElement>('table');
       if (!table) return;
       const allCells = Array.from(table.querySelectorAll<HTMLTableCellElement>('td, th'));
@@ -541,6 +809,59 @@ export function useSlideEditing(
       sel.addRange(range);
     };
     root.addEventListener('keydown', onTableTab);
+
+    // Backspace inside a fully-empty <tbody> row → delete the row.
+    // Counterpart to onTableTab's "Tab past last cell appends a row":
+    // empty row + single Backspace removes it. Header rows in <thead>
+    // are structural and never auto-dropped, and we refuse to delete
+    // the only remaining body row so the table doesn't end up shapeless.
+    // Caret parks at the last cell of the previous row, or — if the deleted
+    // row was the first body row — the first cell of the next row.
+    const onTableBackspace = (e: KeyboardEvent) => {
+      if (e.key !== 'Backspace') return;
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const hit = getCaretTableCell(root);
+      if (!hit) return;
+      const { sel, cell } = hit;
+      // A real Backspace over a non-collapsed selection should delete
+      // that selection first — defer to the browser.
+      if (!sel.isCollapsed) return;
+      const row = cell.parentElement as HTMLTableRowElement | null;
+      if (!row) return;
+      if (row.closest('thead')) return;
+
+      const allEmpty = Array.from(row.cells).every(
+        (c) => (c.textContent ?? '').trim().length === 0,
+      );
+      if (!allEmpty) return;
+
+      const tbody = row.parentElement;
+      if (!tbody) return;
+      const bodyRows = Array.from(tbody.children).filter(
+        (el): el is HTMLTableRowElement => el.tagName === 'TR',
+      );
+      if (bodyRows.length <= 1) return;
+
+      e.preventDefault();
+      const prev = row.previousElementSibling as HTMLTableRowElement | null;
+      const next = row.nextElementSibling as HTMLTableRowElement | null;
+      row.remove();
+
+      const target =
+        prev?.querySelector<HTMLTableCellElement>('td:last-child, th:last-child') ??
+        next?.querySelector<HTMLTableCellElement>('td, th') ??
+        null;
+      if (target) {
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      notify();
+    };
+    root.addEventListener('keydown', onTableBackspace);
 
     // Enter inside a `.bullet-list` / `.num-list` <li>:
     //   plain Enter   → append a fresh `<li><div></div></li>` after the
@@ -619,6 +940,32 @@ export function useSlideEditing(
     };
     root.addEventListener('keydown', onListItemEnter);
 
+    // Plain Enter in ordinary slide text (paragraphs, callout bodies, grid/flex
+    // columns) → soft line break. The browser default splits the block, and
+    // inside a `.two-col`/flex container the new block auto-places into the NEXT
+    // cell, so the caret appears to jump to the adjacent column and "줄바꿈이
+    // 안 되는" symptom appears. Inserting a <br> keeps the text in the same box.
+    // Lists, tables, code blocks, and single-line slots are handled by their own
+    // guards (which preventDefault first, so e.defaultPrevented short-circuits
+    // here); Shift+Enter falls through to the native <br> path.
+    const onSlideTextEnter = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.defaultPrevented) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const focus = sel.focusNode;
+      const el = focus instanceof Element ? focus : focus?.parentElement ?? null;
+      if (!el || !root.contains(el)) return;
+      // Defer to the dedicated handlers for these contexts.
+      if (el.closest('li, td, th, pre, code, .code-block, .terminal')) return;
+      // Only act inside editable slide content (not chrome / drag handles).
+      if (!el.closest('.slide-inner, .slide-footer')) return;
+      e.preventDefault();
+      document.execCommand('insertLineBreak');
+    };
+    root.addEventListener('keydown', onSlideTextEnter);
+
     // Anchors inside contenteditable would navigate on click — block so the
     // href text can be edited without leaving the page.
     const onAnchorClick = (e: MouseEvent) => {
@@ -660,17 +1007,25 @@ export function useSlideEditing(
       root.removeEventListener('mousedown', onMouseDownSelect);
       root.removeEventListener('dblclick', onDblClick);
       root.removeEventListener('keydown', onTableTab);
+      root.removeEventListener('keydown', onTableBackspace);
       root.removeEventListener('keydown', onListItemEnter);
+      root.removeEventListener('keydown', onSlideTextEnter);
       root.removeEventListener('keydown', onCodeKeydown, true);
       root.removeEventListener('paste', onCodePaste, true);
       root.removeEventListener('drop', onCodeDrop, true);
       root.removeEventListener('beforeinput', onCodeBeforeInput, true);
+      root.removeEventListener('beforeinput', onForceCase, true);
       root.removeEventListener('beforeinput', onListItemDelete, true);
       root.removeEventListener('beforeinput', onAutoLink, true);
+      root.removeEventListener('click', onExportOverlayClick, true);
+      root.removeEventListener('focusout', onEditableBlur);
       editableRegions.forEach((el) => {
         el.contentEditable = 'inherit';
       });
       insertedHandles.forEach((h) => h.remove());
+      insertedResizeHandles.forEach((h) => h.remove());
+      resizeCleanups.forEach((fn) => fn());
+      document.body.classList.remove('col-resizing');
       sortable?.destroy();
     };
   }, [slideRootRef, onChange, onReorder]);

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 교육과정 v5 — brewnet</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:    #F59E0B;
+    --amber-d:  #D97706;
+    --amber-l:  #FCD34D;
+    --amber-bg: #FEF3C7;
+    --blue:     #2563EB;
+    --blue-d:   #1D4ED8;
+    --blue-l:   #93C5FD;
+    --blue-bg:  #DBEAFE;
+    --green:    #10B981;
+    --green-d:  #059669;
+    --green-l:  #6EE7B7;
+    --green-bg: #D1FAE5;
+    --purple:   #8B5CF6;
+    --purple-d: #6D28D9;
+    --purple-bg:#EDE9FE;
+    --text:     #111111;
+    --muted:    #6B7280;
+    --border:   #E5E7EB;
+    --bg:       #FFFFFF;
+    --code-bg:  #F3F4F6;
+    --dark:     #1F2937;
+    --darker:   #111827;
+  }
+
+  body {
+    background: #D1D5DB;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 30px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    padding: 20px 28px 14px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 50%, var(--amber) 100%);
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid var(--text);
+  }
+  .header-left .label {
+    font-size: 9.5px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .header-left .title {
+    font-size: 21px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .header-left .title em {
+    color: var(--amber-d);
+    font-style: normal;
+    font-weight: 900;
+  }
+  .header-left .subtitle {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .header-left .subtitle b { color: var(--amber-d); font-weight: 700; }
+  .header-left .subtitle .ecc {
+    background: var(--purple);
+    color: white;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+  }
+  .header-right {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .header-right .brand {
+    font-size: 14px;
+    color: var(--amber-d);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .header-right .url {
+    font-size: 9.5px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .header-right .version {
+    font-size: 9px;
+    color: var(--blue-d);
+    margin-top: 3px;
+    background: var(--blue-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    font-weight: 700;
+  }
+
+  /* ── Tracks Container ── */
+  .tracks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-height: 0;
+  }
+
+  /* ── Each Track Row ── */
+  .track {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Track Label Box (left side) */
+  .track-label {
+    background: var(--darker);
+    color: white;
+    border-radius: 6px;
+    padding: 7px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .track-label::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .track-label.non-dev::before { background: var(--amber); }
+  .track-label.dev::before     { background: var(--blue); }
+  .track-label.it-pro::before  { background: var(--green); }
+
+  .track-label .ico { font-size: 18px; line-height: 1; margin-bottom: 3px; }
+  .track-label .nm {
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .track-label .nm-en {
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #9CA3AF;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .track-label .stages {
+    font-size: 9.5px;
+    color: white;
+    background: var(--amber);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .track-label.dev .stages    { background: var(--blue); }
+  .track-label.it-pro .stages { background: var(--green); }
+  .track-label .pro {
+    font-size: 8.5px;
+    color: var(--blue-l);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+  .track-label .time {
+    font-size: 9px;
+    color: #9CA3AF;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+
+  /* Track stages container */
+  .stages-row {
+    display: flex;
+    gap: 5px;
+    align-items: stretch;
+    min-height: 0;
+  }
+  .stages-row .stage {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ── Stage Card ── */
+  .stage {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 9px 22px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: relative;
+  }
+  .stage.non-dev { border-top: 3px solid var(--amber); }
+  .stage.dev     { border-top: 3px solid var(--blue); }
+  .stage.it-pro  { border-top: 3px solid var(--green); }
+
+  /* ECC badge — Effective Claude Code 포함 셀 */
+  .stage.ecc-included {
+    background: linear-gradient(135deg, #F5F3FF 0%, #FFF 60%);
+  }
+  .stage.ecc-included::after {
+    content: '📘 ECC';
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    font-size: 8px;
+    background: var(--purple);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    z-index: 2;
+  }
+
+  /* Final project highlight */
+  .stage.final.non-dev {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FFF 100%);
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber-l) inset;
+  }
+  .stage.final.dev {
+    background: linear-gradient(135deg, #EFF6FF 0%, #FFF 100%);
+    border-color: var(--blue);
+    box-shadow: 0 0 0 1px var(--blue-l) inset;
+  }
+  .stage.final.it-pro {
+    background: linear-gradient(135deg, #ECFDF5 0%, #FFF 100%);
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green-l) inset;
+  }
+
+  /* New stage highlight */
+  .stage.new::after {
+    content: 'NEW';
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    font-size: 7.5px;
+    background: var(--amber);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 3px;
+    border-bottom: 1px dashed var(--border);
+    gap: 4px;
+    padding-right: 38px;
+  }
+  .stage:not(.ecc-included):not(.new) .stage-header {
+    padding-right: 0;
+  }
+  .stage-num {
+    font-size: 8px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+  .stage-time {
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--text);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .stage-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+  .stage-title .final-badge {
+    background: var(--amber);
+    color: white;
+    font-size: 7.5px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    margin-left: 3px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .stage-title .final-badge.dev { background: var(--blue); }
+  .stage-title .final-badge.green { background: var(--green); }
+
+  .stage-project {
+    font-size: 8.5px;
+    color: var(--amber-d);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    line-height: 1.3;
+    background: var(--amber-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin: 1px 0;
+    border-left: 2px solid var(--amber);
+  }
+  .stage.dev .stage-project {
+    color: var(--blue-d);
+    background: var(--blue-bg);
+    border-left-color: var(--blue);
+  }
+  .stage.it-pro .stage-project {
+    color: var(--green-d);
+    background: var(--green-bg);
+    border-left-color: var(--green);
+  }
+  .stage-project::before {
+    content: '🎯 ';
+    font-size: 8.5px;
+  }
+
+  .topics {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    margin-top: 1px;
+  }
+  .topic {
+    font-size: 9px;
+    color: var(--text);
+    line-height: 1.32;
+    display: flex;
+    gap: 3px;
+    padding-left: 1px;
+  }
+  .topic::before {
+    content: '▸';
+    color: var(--amber);
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 8px;
+    line-height: 1.5;
+  }
+  .stage.dev .topic::before { color: var(--blue); }
+  .stage.it-pro .topic::before { color: var(--green); }
+  .topic code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    padding: 0 3px;
+    border-radius: 2px;
+    font-size: 8px;
+    color: var(--amber-d);
+  }
+  .topic .kw { color: var(--blue-d); font-weight: 700; }
+  .topic .kw-amber { color: var(--amber-d); font-weight: 700; }
+  .topic .kw-green { color: var(--green-d); font-weight: 700; }
+  .topic .kw-purple { color: var(--purple-d); font-weight: 700; }
+  .topic .ch {
+    color: var(--purple-d);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 8.5px;
+    background: var(--purple-bg);
+    padding: 0 3px;
+    border-radius: 2px;
+  }
+
+  .deliverable {
+    position: absolute;
+    bottom: 4px;
+    left: 9px;
+    right: 9px;
+    font-size: 7.5px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.25;
+    border-top: 1px dotted var(--border);
+    padding-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .deliverable .out {
+    color: var(--text);
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .deliverable .out::before {
+    content: '📦 ';
+    font-size: 8px;
+  }
+  .deliverable .lv {
+    background: var(--code-bg);
+    padding: 0 4px;
+    border-radius: 2px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    font-size: 7.5px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 6px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .legend {
+    display: flex;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid;
+  }
+  .dot-amber { background: var(--amber-bg); border-color: var(--amber); }
+  .dot-blue  { background: var(--blue-bg);  border-color: var(--blue); }
+  .dot-green { background: var(--green-bg); border-color: var(--green); }
+  .footer-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.02em;
+  }
+  .footer-note .em { color: var(--amber-d); font-weight: 700; }
+  .footer-note .pro { color: var(--blue-d); font-weight: 700; }
+  .final-pill {
+    background: var(--amber);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 8.5px;
+  }
+  .new-pill {
+    background: var(--amber);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ecc-pill {
+    background: var(--purple);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .slide { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slide">
+
+  <!-- ════ Header ════ -->
+  <div class="header">
+    <div class="header-left">
+      <div class="label">CLAUDE CODE EDUCATION TRACKS · CURRICULUM v1.1 · 2026</div>
+      <div class="title">클로드 코드 교육과정 — <em>트랙별 학습 흐름</em></div>
+      <div class="subtitle">트랙당 단계별 <b>3h 이론 / 6h 실습</b> · <span class="ecc">📘 ECC</span> Effective Claude Code 이론(CH.0~2+EPILOGUE) 포함 · 각 단계 🎯 핵심 프로젝트</div>
+    </div>
+    <div class="header-right">
+      <div class="brand">☕ BREWNET</div>
+      <div class="url">github.com/claude-code-expert</div>
+      <div class="version">v5 · IT Professional</div>
+    </div>
+  </div>
+
+  <!-- ════ Tracks ════ -->
+  <div class="tracks">
+
+    <!-- ───────── Track 1: 비개발자 (5 stages) ───────── -->
+    <div class="track">
+      <div class="track-label non-dev">
+        <div class="ico">👤</div>
+        <div class="nm">비개발자</div>
+        <div class="nm-en">NON-DEVELOPER</div>
+        <div class="stages">5 STAGES</div>
+        <div class="time">15h · 2.5일</div>
+      </div>
+      <div class="stages-row">
+
+        <!-- Stage 1: 입문 -->
+        <div class="stage non-dev">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 1</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">입문 (Intro)</div>
+          <div class="stage-project">Hello World</div>
+          <div class="topics">
+            <div class="topic">터미널·GitHub 가입·clone</div>
+            <div class="topic">Claude Code 설치·모델 비교</div>
+            <div class="topic"><code>/init</code>·권한 모드·기본 흐름</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">텍스트 Hello World</div>
+            <div class="lv">Lv.1</div>
+          </div>
+        </div>
+
+        <!-- Stage 2: 기본 (ECC 포함) -->
+        <div class="stage non-dev ecc-included">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 2</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">기본 (Basic)</div>
+          <div class="stage-project">ECC 이론 + 32 UI 컴포넌트</div>
+          <div class="topics">
+            <div class="topic"><span class="ch">CH.0</span> 컨텍스트 운용 — 턴·세션·8 슬래시 명령</div>
+            <div class="topic"><span class="ch">CH.1</span> CLAUDE.md — 4계층·7섹션·Progressive Disclosure</div>
+            <div class="topic"><span class="ch">CH.2</span> Skill·Command·Hook 6+8 자동화 패키지</div>
+            <div class="topic">실습: Skill·Cmd 기반 32 UI 자동 생성</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">UI 컴포넌트 갤러리 + ECC 이론 체화</div>
+            <div class="lv">Lv.2~3 + ECC</div>
+          </div>
+        </div>
+
+        <!-- Stage 3: 활용 (NEW) -->
+        <div class="stage non-dev new">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 3</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">활용 (Apply)</div>
+          <div class="stage-project">메뉴판 웹사이트</div>
+          <div class="topics">
+            <div class="topic"><span class="kw-amber">MCP 서버 연동</span> 첫 경험</div>
+            <div class="topic"><span class="kw-amber">엑셀 DB</span> → 자동 메뉴 페이지</div>
+            <div class="topic">사진 업로드·가격 표시·필터</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">매장 메뉴판 사이트</div>
+            <div class="lv">Lv.3 + MCP</div>
+          </div>
+        </div>
+
+        <!-- Stage 4: 실무 프로젝트 -->
+        <div class="stage non-dev">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 4</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">실무 프로젝트</div>
+          <div class="stage-project">TS 10일 학습 사이트</div>
+          <div class="topics">
+            <div class="topic"><span class="kw-amber">TypeScript Step-by-Step</span> 튜토리얼</div>
+            <div class="topic">나만의 Skill·Cmd·Hook 키트</div>
+            <div class="topic"><code>/speckit.specify</code>로 명세화</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">TS 학습 사이트</div>
+            <div class="lv">Lv.3 + SpecKit</div>
+          </div>
+        </div>
+
+        <!-- Stage 5: 고급 주제 (FINAL) -->
+        <div class="stage non-dev final">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 5</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">고급 주제<span class="final-badge">FINAL</span></div>
+          <div class="stage-project">SDD markflow 만들기</div>
+          <div class="topics">
+            <div class="topic"><span class="kw-amber">SDD 워크플로우</span> 본격 적용</div>
+            <div class="topic">spec→plan→tasks→implement</div>
+            <div class="topic"><span class="kw-amber">Vercel 배포</span>·도메인 연결</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">markflow SaaS 배포 🚀</div>
+            <div class="lv">Lv.4~5+7</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ───────── Track 2: 개발자 PRO (4 stages) ───────── -->
+    <div class="track">
+      <div class="track-label dev">
+        <div class="ico">💻</div>
+        <div class="nm">개발자</div>
+        <div class="nm-en">DEVELOPER</div>
+        <div class="stages">4 STAGES</div>
+        <div class="pro">★ PRO</div>
+        <div class="time">12h · 이틀</div>
+      </div>
+      <div class="stages-row">
+
+        <!-- Stage 1: 기본 -->
+        <div class="stage dev">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 1</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">기본 (Basic)</div>
+          <div class="stage-project">간단한 웹 애플리케이션</div>
+          <div class="topics">
+            <div class="topic">환경 통합 — VS Code·IntelliJ·cmux</div>
+            <div class="topic"><span class="kw">CLAUDE.md 4계층</span>·Extended Thinking</div>
+            <div class="topic">대화형 vs <code>claude -p</code>·특수 문법</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">TS/React 카운터·To-do 앱</div>
+            <div class="lv">Lv.1</div>
+          </div>
+        </div>
+
+        <!-- Stage 2: 활용 -->
+        <div class="stage dev">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 2</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">활용 (Apply)</div>
+          <div class="stage-project">32 UI 컴포넌트 (전문)</div>
+          <div class="topics">
+            <div class="topic"><span class="kw">디자인 토큰·BEM·a11y·다크모드</span></div>
+            <div class="topic"><code>frontend-design</code> Skill + 컨벤션</div>
+            <div class="topic">Vitest + Playwright 시각 QA</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">프로덕션급 컴포넌트 라이브러리</div>
+            <div class="lv">Lv.2~3+5</div>
+          </div>
+        </div>
+
+        <!-- Stage 3: 실무 -->
+        <div class="stage dev">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 3</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">실무 (Practice)</div>
+          <div class="stage-project">markflow SaaS + GSD</div>
+          <div class="topics">
+            <div class="topic"><span class="kw">Next.js + Drizzle + PostgreSQL</span> 풀빌드</div>
+            <div class="topic"><span class="kw">GSD</span> — Phase·Verifier·모델 프로파일</div>
+            <div class="topic">Vercel + Railway + Cloudflare Tunnel</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">운영 가능한 markflow SaaS</div>
+            <div class="lv">Lv.3~5+7 + GSD</div>
+          </div>
+        </div>
+
+        <!-- Stage 4: 고급 (FINAL) -->
+        <div class="stage dev final">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 4</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">고급<span class="final-badge dev">FINAL</span></div>
+          <div class="stage-project">하네스 + 내부 구조</div>
+          <div class="topics">
+            <div class="topic"><span class="kw">HKUDS OpenHarness</span> 분석·구축</div>
+            <div class="topic">Planner ⇄ Generator ⇄ Evaluator (GAN)</div>
+            <div class="topic"><span class="kw">클로드 코드 내부 구조</span> 딥다이브</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">개인 하네스 + 동작 이해</div>
+            <div class="lv">Lv.9~10</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ───────── Track 3: IT 프로페셔널 (4 stages) ───────── -->
+    <div class="track">
+      <div class="track-label it-pro">
+        <div class="ico">🌐</div>
+        <div class="nm">IT 프로페셔널</div>
+        <div class="nm-en">IT PROFESSIONAL</div>
+        <div class="stages">4 STAGES</div>
+        <div class="time">12h · 이틀</div>
+      </div>
+      <div class="stages-row">
+
+        <!-- Stage 1: 에센셜 -->
+        <div class="stage it-pro">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 1</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">에센셜 (Essential)</div>
+          <div class="stage-project">Hello World + UI 시작</div>
+          <div class="topics">
+            <div class="topic">설치·환경설정·모델 선택 (압축)</div>
+            <div class="topic">첫 세션 + Skill·Command 기초</div>
+            <div class="topic">UI 컴포넌트 갤러리 진입</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">Hello World + UI 시작</div>
+            <div class="lv">Lv.1~2</div>
+          </div>
+        </div>
+
+        <!-- Stage 2: 이펙티브 (ECC 포함 + NEW 메뉴판) -->
+        <div class="stage it-pro ecc-included">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 2</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">이펙티브 (Effective)</div>
+          <div class="stage-project">ECC + UI 32 + 메뉴판 (MCP)</div>
+          <div class="topics">
+            <div class="topic"><span class="ch">CH.0</span> 컨텍스트 — <code>/clear</code> vs <code>/compact</code></div>
+            <div class="topic"><span class="ch">CH.1</span> CLAUDE.md 4계층·Progressive Disclosure</div>
+            <div class="topic"><span class="ch">CH.2</span> Skill·Cmd·Hook — Advisory vs Enforcement</div>
+            <div class="topic">실습: 32 UI + <span class="kw-green">메뉴판(MCP+엑셀)</span></div>
+          </div>
+          <div class="deliverable">
+            <div class="out">UI 갤러리 + 메뉴판 + ECC 이론</div>
+            <div class="lv">Lv.2~3 + ECC + MCP</div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Practical -->
+        <div class="stage it-pro">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 3</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">Practical</div>
+          <div class="stage-project">TS 10일 학습 사이트</div>
+          <div class="topics">
+            <div class="topic"><span class="kw-green">TypeScript Step-by-Step</span> 튜토리얼 사이트</div>
+            <div class="topic">Skill·Cmd·Hook (입문 키트)</div>
+            <div class="topic"><span class="kw-green">SpecKit</span> — spec→plan→tasks</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">TS 학습 사이트 + 자동화</div>
+            <div class="lv">Lv.3 + SpecKit</div>
+          </div>
+        </div>
+
+        <!-- Stage 4: 어드벤스 (FINAL) -->
+        <div class="stage it-pro final">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 4</span>
+            <span class="stage-time">3h / 6h</span>
+          </div>
+          <div class="stage-title">어드벤스 (Advance)<span class="final-badge green">FINAL</span></div>
+          <div class="stage-project">SDD markflow 만들기</div>
+          <div class="topics">
+            <div class="topic"><span class="kw-green">SDD + SpecKit</span> markflow 풀스택</div>
+            <div class="topic">에디터·미리보기·자동저장·검색</div>
+            <div class="topic"><span class="kw-green">Vercel 배포</span> + 도메인 연결</div>
+          </div>
+          <div class="deliverable">
+            <div class="out">본인 markflow 배포본 🚀</div>
+            <div class="lv">Lv.4~5+7</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════ Footer ════ -->
+  <div class="footer">
+    <div class="legend">
+      <div class="legend-item"><div class="dot dot-amber"></div>비개발자 5단계</div>
+      <div class="legend-item"><div class="dot dot-blue"></div>개발자 <span class="footer-note pro">★ PRO</span> 4단계</div>
+      <div class="legend-item"><div class="dot dot-green"></div>IT 프로페셔널 4단계</div>
+      <div class="legend-item"><span class="final-pill">FINAL</span> 최종 프로젝트</div>
+      <div class="legend-item"><span class="new-pill">NEW</span> 신규</div>
+      <div class="legend-item"><span class="ecc-pill">📘 ECC</span> Effective Claude Code</div>
+    </div>
+    <div class="footer-note">
+      ECC = 컨텍스트 운용·CLAUDE.md 작성법·Skill·Cmd·Hook 자동화 + SDD · 클로드 <span class="pro">내부 구조</span>·<span class="pro">하네스</span>는 개발자 전용
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

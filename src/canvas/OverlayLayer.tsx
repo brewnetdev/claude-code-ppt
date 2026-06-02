@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Moveable, { type OnDrag, type OnResize } from 'moveable';
 import { useDeckStore } from '../scene/store';
+import { linkifyHtml } from '../exporter/linkify';
 import { tryAutoLinkOnSpace } from './autoLinkUrl';
 
 type OverlayBase = {
@@ -242,6 +243,24 @@ function TextOverlayBox({
       sel.addRange(range);
     }
   }, [isEditing]);
+
+  // On edit-mode exit, linkify any bare http(s) URLs the user pasted/imported
+  // or typed without a trailing SPACE (autoLinkUrl only fires on SPACE). Done
+  // at the cleanup edge so the caret/selection is never shifted mid-edit.
+  useEffect(() => {
+    if (!isEditing) return;
+    return () => {
+      const el = editableRef.current;
+      if (!el) return;
+      const before = el.innerHTML;
+      if (!/\bhttps?:\/\//.test(before)) return;
+      const after = linkifyHtml(before, document);
+      if (after !== before) {
+        el.innerHTML = after;
+        onUpdate(overlay.id, { html: after });
+      }
+    };
+  }, [isEditing, overlay.id, onUpdate]);
 
   const flush = () => {
     const el = editableRef.current;

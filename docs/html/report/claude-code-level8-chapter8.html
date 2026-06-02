@@ -1,0 +1,2968 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 8 — 배포 &amp; 셀프호스팅</title>
+<meta name="subtitle" content="Vercel · Railway · Cloudflare · Resend · OAuth — 실 서비스 론칭의 모든 것">
+<meta name="deck-source-hash" content="43bfc244bbb0d77823ff3dc7c8945804">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* === src/canvas/themes/brewnet-dark.css === */
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.08;
+    font-size: 220px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+/* === src/canvas/themes/code-blocks.css === */
+/* Code-block / terminal chrome. brewnet-dark.css already defines `.code-block`
+   so we only fill in `.terminal` + cross-cutting `.code-dots` and tighten
+   `<pre><code>` so shiki output sits flush with the existing dark cards. */
+
+.slide-canvas-host .code-dots {
+  display: flex;
+  gap: 5px;
+}
+.slide-canvas-host .code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.slide-canvas-host .code-dots .dot-r { background: #ef4444; }
+.slide-canvas-host .code-dots .dot-y { background: #f59e0b; }
+.slide-canvas-host .code-dots .dot-g { background: #10b981; }
+
+.slide-canvas-host .terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  /* `.slide-inner` is a column flex container — without an explicit
+     flex-shrink:0 the terminal collapses to header-height when a slide
+     packs multiple terminals, leaving only the dark title band visible
+     with the body clipped by overflow:hidden. Pin to content height. */
+  flex: 0 0 auto;
+}
+
+/* Same pinning for plain code blocks; brewnet-dark's `.code-block` rule
+   doesn't set flex sizing so the same collapse happens for code-heavy
+   slides on multi-block layouts. */
+.slide-canvas-host .code-block {
+  flex: 0 0 auto;
+}
+
+.slide-canvas-host .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0b1220;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.slide-canvas-host .terminal-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.slide-canvas-host .terminal pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  /* Bumped from #cbd5e1 — base color only paints text that *isn't* wrapped
+     in a shiki <span style="color:…">. Once shiki runs that's mostly
+     punctuation, but a brighter fallback also helps unhighlighted plaintext
+     terminals read against the near-black bg. */
+  color: #f1f5f9;
+  padding: 16px 20px;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* shiki injects inline-styled <span>s, but their wrapper <pre class="shiki">
+   would carry shiki's own bg color. We re-host the highlighted code inside
+   our own .code-block / .terminal pre so the outer chrome wins, and tighten
+   the inner <code> reset accordingly. */
+.slide-canvas-host .code-block pre,
+.slide-canvas-host .terminal pre {
+  background: transparent;
+}
+.slide-canvas-host .code-block pre code,
+.slide-canvas-host .terminal pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  display: block;
+  /* shiki bakes inline `style="color:#…"` on every token span, so we can't
+     re-color them via CSS rules. github-dark in particular paints comments
+     at #8b949e — readable but visibly dimmer than the active code. A scoped
+     brightness filter on the <code> wrapper lifts every token uniformly
+     (comments, strings, keywords) without touching the chrome / dots. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+/* Targeted override: shiki's `github-dark` theme paints comment tokens
+   inline as `style="color:#6A737D"` (verified by probing the actual
+   highlighter output — it uses the legacy GitHub-Octicons palette, NOT
+   the newer #8b949e variant). The filter above lifts them proportionally,
+   but #6A737D against #020408 still reads as mid-gray. Repaint to a
+   near-white tone so comments are clearly legible against the terminal
+   bg. `!important` is required because shiki writes the color inline on
+   the span, which would otherwise beat normal CSS specificity. The `i`
+   flag handles upper/lowercase variations across shiki versions. */
+.slide-canvas-host .code-block pre code span[style*="#6A737D" i],
+.slide-canvas-host .terminal pre code span[style*="#6A737D" i],
+.slide-canvas-host .code-block pre code span[style*="#8b949e" i],
+.slide-canvas-host .terminal pre code span[style*="#8b949e" i] {
+  color: #b0b1b2 !important;
+}
+
+
+/* === src/canvas/themes/portfolio.css === */
+/* ─────────────────────────────────────────────────────────────
+   Portfolio template — sibling theme to brewnet-dark.
+   Strategy: re-declare the design tokens under
+   [data-template="portfolio"] and patch only the components
+   whose dark→light conversion is non-trivial (code blocks,
+   tables, cover, callouts). Markup is identical to the
+   presentation template; planRenderer only flips the
+   data-template attribute.
+
+   Reference design: docs/html/portfolio/portfolio.html
+   (white background, blue accent #3D5AF1, dark text on white).
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="portfolio"] {
+  --bg:            #FFFFFF;
+  --text:          #111111;
+  --muted:         #888888;
+  --border:        #DDDDDD;
+  --amber:         #3D5AF1;   /* portfolio brand blue, reused via brewnet's --amber slot */
+  --amber-d:       #2A3EC9;
+  --blue:          #3D5AF1;
+  --cyan:          #0891B2;
+  --green:         #047857;
+  --code-bg:       #F8F9FB;
+  --prompt-bg:     #F0F2F5;
+  --prompt-border: #3D5AF1;
+  --link:          #3D5AF1;
+}
+
+/* Slide shell: white card on neutral page background */
+[data-template="portfolio"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: blue gradient instead of amber */
+[data-template="portfolio"] .slide-topbar {
+  background: linear-gradient(90deg, #3D5AF1 0%, #2A3EC9 50%, transparent 100%);
+}
+
+/* Footer: light border + softer caption color */
+[data-template="portfolio"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="portfolio"] .slide-footer-left,
+[data-template="portfolio"] .slide-footer-right {
+  color: #888888;
+}
+
+/* ── Typography ── */
+[data-template="portfolio"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="portfolio"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="portfolio"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .bullet-list li::before {
+  color: var(--blue);
+}
+[data-template="portfolio"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="portfolio"] .num-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .num-list li::before {
+  background: var(--blue);
+  color: #FFFFFF;
+}
+
+/* ── Tables ── */
+[data-template="portfolio"] .tbl th {
+  background: #F0F2F5;
+  border-bottom: 2px solid var(--blue);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl tr:hover td {
+  background: #F7F8FB;
+}
+
+/* ── Callouts: lighter tint on white BG ── */
+[data-template="portfolio"] .callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+[data-template="portfolio"] .callout-blue {
+  background: rgba(61, 90, 241, 0.06);
+  border: 1px solid rgba(61, 90, 241, 0.30);
+}
+[data-template="portfolio"] .callout-green {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+[data-template="portfolio"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (keeps shiki output readable) ──
+   Code chrome (.code-dots / terminal-header) is stamped by
+   upgradeSlideCodeBlocks — the dark surface contrasts well
+   against the white slide and matches the editor's existing
+   experience. Only adjust the surface so it doesn't bleed
+   into the white card. */
+[data-template="portfolio"] .code-block {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+[data-template="portfolio"] .terminal {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+
+/* ── Badges: solid pill on white BG ── */
+[data-template="portfolio"] .badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #B45309;
+}
+[data-template="portfolio"] .badge-blue {
+  background: rgba(61, 90, 241, 0.12);
+  color: #2A3EC9;
+}
+[data-template="portfolio"] .badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+[data-template="portfolio"] .badge-red {
+  background: rgba(239, 68, 68, 0.10);
+  color: #B91C1C;
+}
+[data-template="portfolio"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="portfolio"] .hl-amber { color: #B45309; font-weight: 700; }
+[data-template="portfolio"] .hl-blue  { color: #2A3EC9; font-weight: 700; }
+[data-template="portfolio"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="portfolio"] .hl-cyan  { color: #0891B2; font-weight: 700; }
+
+/* ── Cover slide: blue background, white type ── */
+[data-template="portfolio"].slide-cover {
+  background: #3D5AF1;
+}
+[data-template="portfolio"].slide-cover::before {
+  background: none;
+}
+[data-template="portfolio"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 4px;
+}
+[data-template="portfolio"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item strong {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .cover-deco {
+  color: rgba(255, 255, 255, 0.18);
+}
+[data-template="portfolio"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="portfolio"].slide-cover .slide-footer-left,
+[data-template="portfolio"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: white bg, large light blue numeral ── */
+[data-template="portfolio"] .slide-section .section-num {
+  color: #E8EAF0;
+}
+
+/* ── Architecture / Step flow nodes (used rarely but covered) ── */
+[data-template="portfolio"] .step-circle {
+  background: var(--blue);
+}
+[data-template="portfolio"] .step-arrow {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-box {
+  background: #F8F9FB;
+  border-color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-line {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="portfolio"] .link {
+  color: var(--link);
+}
+[data-template="portfolio"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: light surface ── */
+[data-template="portfolio"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="portfolio"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="portfolio"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="portfolio"] .divider {
+  background: var(--border);
+}
+
+
+/* === src/canvas/themes/report.css === */
+/* ─────────────────────────────────────────────────────────────
+   Report template — sibling theme to brewnet-dark + portfolio.
+   Strategy: re-declare the design tokens under
+   [data-template="report"] and patch only the components whose
+   business-report intent is non-trivial (tables, callouts,
+   cover, code blocks).
+
+   Reference designs: docs/html/report/{biz,biz-strategy,marketing}-report.html
+   Tone: warm off-white BG (#FAFAF8) with teal accent (#0F766E)
+   for the brewnet "amber" slot. Tables get extra weight (zebra
+   rows, 2px header underline) since report decks are
+   data-centric. Code blocks stay dark for shiki readability —
+   identical to portfolio's strategy.
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="report"] {
+  --bg:            #FAFAF8;
+  --text:          #1A1A18;
+  --muted:         #6B6560;
+  --border:        #D4D0C8;
+  --amber:         #0F766E;   /* report accent: teal-700 in brewnet's --amber slot */
+  --amber-d:       #115E59;
+  --blue:          #1E40AF;
+  --cyan:          #0E7490;
+  --green:         #059669;
+  --code-bg:       #F5F3F0;
+  --prompt-bg:     #EFEDE8;
+  --prompt-border: #0F766E;
+  --link:          #0F766E;
+}
+
+/* Slide shell: cream card on neutral page background */
+[data-template="report"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: teal gradient instead of amber */
+[data-template="report"] .slide-topbar {
+  background: linear-gradient(90deg, #0F766E 0%, #115E59 50%, transparent 100%);
+}
+
+/* Footer: warm border + softer caption color */
+[data-template="report"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="report"] .slide-footer-left,
+[data-template="report"] .slide-footer-right {
+  color: var(--muted);
+}
+
+/* ── Typography ── */
+[data-template="report"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="report"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="report"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="report"] .bullet-list li::before {
+  color: var(--amber);
+}
+[data-template="report"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="report"] .num-list li {
+  color: var(--text);
+}
+[data-template="report"] .num-list li::before {
+  background: var(--amber);
+  color: #FFFFFF;
+}
+
+/* ── Tables (report-grade emphasis) ── */
+[data-template="report"] .tbl th {
+  background: #F0EDE8;
+  border-bottom: 2px solid var(--amber);
+  color: var(--text);
+  font-weight: 700;
+}
+[data-template="report"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="report"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.04);
+}
+[data-template="report"] .tbl tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* ── Callouts: lighter tint on cream BG ── */
+[data-template="report"] .callout-amber {
+  background: rgba(15, 118, 110, 0.06);
+  border: 1px solid rgba(15, 118, 110, 0.40);
+}
+[data-template="report"] .callout-blue {
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.30);
+}
+[data-template="report"] .callout-green {
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.40);
+}
+[data-template="report"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (matches portfolio strategy) ──
+   shiki output reads best on dark surface; we border with the
+   warm card color so the dark block doesn't feel grafted on. */
+[data-template="report"] .code-block {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+[data-template="report"] .terminal {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+
+/* ── Badges: solid pill on cream BG ── */
+[data-template="report"] .badge-amber {
+  background: rgba(15, 118, 110, 0.14);
+  color: #115E59;
+}
+[data-template="report"] .badge-blue {
+  background: rgba(30, 64, 175, 0.12);
+  color: #1E3A8A;
+}
+[data-template="report"] .badge-green {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+[data-template="report"] .badge-red {
+  background: rgba(220, 38, 38, 0.10);
+  color: #B91C1C;
+}
+[data-template="report"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="report"] .hl-amber { color: #115E59; font-weight: 700; }
+[data-template="report"] .hl-blue  { color: #1E3A8A; font-weight: 700; }
+[data-template="report"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="report"] .hl-cyan  { color: #0E7490; font-weight: 700; }
+
+/* ── Cover slide: deep slate BG with teal underline accent ── */
+[data-template="report"].slide-cover {
+  background: #0F172A;
+}
+[data-template="report"].slide-cover::before {
+  background: none;
+}
+[data-template="report"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="report"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 4px;
+}
+[data-template="report"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="report"].slide-cover .cover-meta-item strong {
+  color: #0F766E;
+}
+[data-template="report"].slide-cover .cover-deco {
+  color: rgba(15, 118, 110, 0.25);
+}
+[data-template="report"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="report"].slide-cover .slide-footer-left,
+[data-template="report"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: warm cream with large faded teal numeral ── */
+[data-template="report"] .slide-section .section-num {
+  color: rgba(15, 118, 110, 0.10);
+}
+
+/* ── Architecture / Step flow nodes ── */
+[data-template="report"] .step-circle {
+  background: var(--amber);
+}
+[data-template="report"] .step-arrow {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-box {
+  background: #F5F3F0;
+  border-color: #C5C2BC;
+}
+[data-template="report"] .arch-line {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="report"] .link {
+  color: var(--link);
+}
+[data-template="report"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: warm light surface ── */
+[data-template="report"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="report"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="report"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="report"] .divider {
+  background: var(--border);
+}
+
+</style>
+</head>
+<body>
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="cover-deco" data-slot="number">08</div>
+    <div class="cover-level" data-slot="label">CHAPTER 8</div>
+    <div class="t-hero" data-slot="title">LEVEL 8 — 배포 &amp; 셀프호스팅</div>
+    <div class="cover-subtitle" data-slot="subtitle">메인 프로젝트: Tika 칸반 + markflow SaaS — 실 서비스 론칭 단계 Level 7까지 만든 애플리케이션을 실제 사용자에게 보여줄 차례다.</div>
+    <div class="cover-meta" data-slot="body">
+      <div class="cover-meta-item"><strong>키워드</strong> 환경 분리 · CI/CD · Vercel · Railway · Cloudflare Tunnel · R2 · OAuth · Resend</div>
+      <div class="cover-meta-item"><strong>실습</strong> Tika 칸반 + markflow SaaS — 실 서비스 론칭</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Vercel · Railway · Cloudflare · Resend · OAuth — 실 서비스 론칭의 모든 것</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">INTRO</div>
+    <div class="t-title" data-slot="title">이 장의 목표</div>
+    <div class="t-body" data-slot="body">메인 프로젝트: Tika 칸반 + markflow SaaS — 실 서비스 론칭 단계. Level 7까지 만든 애플리케이션을 실 사용자에게 보여줄 차례다. 8.1에서 환경 분리 전략을 정립하고, 8.2에서 claude -p + GitHub Actions로 CI/CD 자동화를 구성한다. 8.3~8.4는 Vercel + Railway 양 축의 클라우드 배포, 8.5는 Cloudflare 인프라(Tunnel·Pages·Workers·R2) 기반 셀프 호스팅, 8.6은 OAuth + Resend 트랜잭셔널 메일까지 — 배포는 개발의 끝이 아니라 운영의 시작이라는 관점으로 통합한다.</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>핵심 인사이트</strong> 배포는 개발의 끝이 아니라 운영의 시작이다. 모니터링·알림·롤백을 함께 설계해야 진짜 운영이다.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>범위</strong> Vercel(프론트) + Railway(백엔드) + Cloudflare(셀프호스팅) + Resend(메일) + OAuth(인증) 5축을 모두 다룬다.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✓</div>
+      <div class="callout-body"><strong>실전 결과물</strong> tika.example.com 도메인, OAuth 로그인, 트랜잭셔널 메일, 이미지 R2 업로드까지 동작하는 서비스.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">이 장의 목표</span>
+    <span class="slide-footer-right" data-slot="page-num">01</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">ROADMAP</div>
+    <div class="t-title" data-slot="title">학습 흐름 한눈에</div>
+    <div class="t-body" data-slot="body">8.1~8.6 절의 핵심을 한 줄로 정리.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>섹션</th><th>주제</th><th>핵심 키워드</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>8.1</td><td>환경 관리 전략</td><td>dev/staging/prod · 환경 변수 · 도메인 구조</td></tr>
+              <tr><td>8.2</td><td>CI/CD 통합</td><td>claude -p · GitHub Actions · 자동 리뷰 · 자동 수정</td></tr>
+              <tr><td>8.3</td><td>Vercel 배포</td><td>Next.js · Neon · Preview 자동화 · Vercel Functions</td></tr>
+              <tr><td>8.4</td><td>Railway 백엔드</td><td>Docker · DB 프로비저닝 · 헬스체크 · CORS 연동</td></tr>
+              <tr><td>8.5</td><td>Cloudflare 인프라</td><td>DNS · Tunnel · Pages · Workers · R2</td></tr>
+              <tr><td>8.6</td><td>인증 &amp; 메일</td><td>Google/GitHub OAuth · Resend · React Email · DKIM</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">학습 흐름 한눈에</span>
+    <span class="slide-footer-right" data-slot="page-num">02</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">01</div>
+    <div class="t-chapter" data-slot="label">8.1</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">환경 관리 전략</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">dev / staging / prod — Git 워크플로 위에 올라타는 환경 분리</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">환경 분리는 Git 브랜치 전략과 짝을 이룰 때만 의미가 있다.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">ENV TIERS</div>
+    <div class="t-title" data-slot="title">8.1.1 개발 / 스테이징 / 운영 — 세 가지 환경</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">실무에서는 최소 세 가지 환경을 운영하는 것이 일반적이다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>개발(Development)<span class="sub">로컬 또는 격리된 테스트 서버. 핫 리로드 + Debug 로그로 빠른 피드백 루프</span></div></li>
+      <li><div>스테이징(Staging)<span class="sub">운영과 최대한 동일한 구성. QA·이해관계자가 배포 전 최종 검증</span></div></li>
+      <li><div>운영(Production)<span class="sub">실제 사용자가 접근하는 환경. 안정성·로그·롤백 우선</span></div></li>
+      <li><div>환경 분리 없이 발생하는 4가지 문제<span class="sub">불안정 코드 노출 · 테스트 데이터 운영 DB 혼입 · 운영 한정 버그 추적 어려움 · 롤백 지점 모호</span></div></li>
+    </ul>
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="callout-icon">⚠</div>
+      <div class="callout-body"><strong>환경 분리의 본질</strong> DB·도메인·로그가 분리되어야 진짜 분리다. 서버만 분리하고 같은 DB를 보면 운영 사고는 막을 수 없다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.1.1 개발 / 스테이징 / 운영 — 세 가지 환경</span>
+    <span class="slide-footer-right" data-slot="page-num">03</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">VERCEL ENV</div>
+    <div class="t-title" data-slot="title">8.1.1 Vercel 환경 관리 체계</div>
+    <div class="t-body" data-slot="body">Git 워크플로만으로 환경이 자동 분리된다. 별도 설정 없이도 PR/머지 흐름으로 dev/stg/prod가 매핑된다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>환경</th><th>트리거</th><th>URL 형식</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Production</td><td>main 브랜치 push</td><td>your-project.vercel.app</td><td>운영</td></tr>
+              <tr><td>Preview</td><td>PR 생성, 브랜치 push</td><td>your-project-git-branch.vercel.app</td><td>스테이징</td></tr>
+              <tr><td>Development</td><td>vercel dev</td><td>localhost:3000</td><td>로컬 개발</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>권장 브랜치 전략</strong> main(prod) ← develop(staging) ← feature/*(preview). PR을 develop에 머지하면 Preview가, main에 머지하면 Production이 자동 배포된다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.1.1 Vercel 환경 관리 체계</span>
+    <span class="slide-footer-right" data-slot="page-num">04</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">ENV VARS</div>
+    <div class="t-title" data-slot="title">8.1.2 환경 변수 관리 — 환경별 분리</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Settings &gt; Environment Variables에서 Production/Preview/Development 별도 값 지정</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-c41addd6" data-code-source="%23%20Production%20%ED%99%98%EA%B2%BD%0APOSTGRES_URL%3Dpostgres%3A%2F%2Fprod-user%3Axxx%40prod-host%2Ftika_prod%0A%0A%23%20Preview%20%ED%99%98%EA%B2%BD%20(%EC%8A%A4%ED%85%8C%EC%9D%B4%EC%A7%95)%0APOSTGRES_URL%3Dpostgres%3A%2F%2Fstaging-user%3Axxx%40staging-host%2Ftika_staging%0A%0A%23%20Development%20%ED%99%98%EA%B2%BD%20(%EB%A1%9C%EC%BB%AC)%0APOSTGRES_URL%3Dpostgres%3A%2F%2Fdev-user%3Axxx%40localhost%2Ftika_dev" data-code-lang="bash">
+    <pre><code># Production 환경
+POSTGRES_URL=postgres://prod-user:xxx@prod-host/tika_prod
+
+# Preview 환경 (스테이징)
+POSTGRES_URL=postgres://staging-user:xxx@staging-host/tika_staging
+
+# Development 환경 (로컬)
+POSTGRES_URL=postgres://dev-user:xxx@localhost/tika_dev</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>POSTGRES_URL || DATABASE_URL</strong> Tika는 process.env.POSTGRES_URL || process.env.DATABASE_URL 폴백 패턴. Vercel은 Neon이 자동 주입하는 POSTGRES_URL을, 로컬은 .env.local의 DATABASE_URL을 사용한다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.1.2 환경 변수 관리 — 환경별 분리</span>
+    <span class="slide-footer-right" data-slot="page-num">05</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">SECRETS</div>
+    <div class="t-title" data-slot="title">8.1.2 시크릿 누출을 막는 4가지 규칙</div>
+    <div class="t-body" data-slot="body">키 한 번 유출 = 도메인 평판·DB·결제계정 모두 위험. 4중 방어선을 항상 둔다.</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">①</div>
+      <div class="callout-body"><strong>.env*는 .gitignore</strong> 깃 커밋 차단이 1차 방어선. CI에서 git secret scan을 추가로 돌리면 사고 확률을 더 낮출 수 있다.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">②</div>
+      <div class="callout-body"><strong>발급 즉시 비밀 저장소</strong> Resend·Cloudflare·OAuth Secret은 한 번만 노출됨. 1Password / AWS Secrets Manager / Vercel Encrypted Vars로 즉시 이동.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">③</div>
+      <div class="callout-body"><strong>환경별 다른 Credential</strong> 개발 키가 운영 DB를 건드리지 못하도록 분리. 권한 범위(scope)도 환경별 최소 권한으로.</div>
+    </div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>정기 회전(rotation)<span class="sub">분기 1회 권장. 인시던트 발생 시 즉시 회전 — Level 6의 .claude/settings.json deny 룰과 함께 운영</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.1.2 시크릿 누출을 막는 4가지 규칙</span>
+    <span class="slide-footer-right" data-slot="page-num">06</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DOMAINS</div>
+    <div class="t-title" data-slot="title">8.1.3 다중 환경 도메인 구조</div>
+    <div class="t-body" data-slot="body">서비스가 성장하면 환경별 도메인 분리가 표준. 쿠키 스코프 / 보안 격리 / 캐시 분리 3가지 이점을 동시에 얻는다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>환경</th><th>도메인 패턴</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Production</td><td>tika.example.com</td><td>메인</td></tr>
+              <tr><td>Staging</td><td>staging.tika.example.com</td><td>내부·QA</td></tr>
+              <tr><td>Preview</td><td>pr-123-tika.vercel.app</td><td>PR 단위 자동</td></tr>
+              <tr><td>API</td><td>api.tika.example.com</td><td>Railway 백엔드</td></tr>
+              <tr><td>CDN</td><td>cdn.tika.example.com</td><td>R2 정적 자원</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.1.3 다중 환경 도메인 구조</span>
+    <span class="slide-footer-right" data-slot="page-num">07</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">02</div>
+    <div class="t-chapter" data-slot="label">8.2</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">CI/CD 통합</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">claude -p + GitHub Actions — LLM을 파이프라인에 끼워 넣는 가장 단순한 방법</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">PR 자동 리뷰 → 테스트 실패 자동 수정 → Dispatch 알림까지 한 흐름으로.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">HEADLESS</div>
+    <div class="t-title" data-slot="title">8.2.1 claude -p + GitHub Actions</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">비대화형 print mode — 단일 프롬프트 → stdout 응답. CI에서 가장 많이 쓰는 진입점.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-f69fcb83" data-code-source="%23%20.github%2Fworkflows%2Fclaude-review.yml%0Aname%3A%20Claude%20Auto%20Review%0Aon%3A%0A%20%20pull_request%3A%0A%20%20%20%20types%3A%20%5Bopened%2C%20synchronize%5D%0A%0Ajobs%3A%0A%20%20review%3A%0A%20%20%20%20runs-on%3A%20ubuntu-latest%0A%20%20%20%20permissions%3A%0A%20%20%20%20%20%20contents%3A%20read%0A%20%20%20%20%20%20pull-requests%3A%20write%0A%20%20%20%20steps%3A%0A%20%20%20%20%20%20-%20uses%3A%20actions%2Fcheckout%40v4%0A%20%20%20%20%20%20%20%20with%3A%20%7B%20fetch-depth%3A%200%20%7D%0A%20%20%20%20%20%20-%20name%3A%20Install%20Claude%20Code%0A%20%20%20%20%20%20%20%20run%3A%20npm%20install%20-g%20%40anthropic-ai%2Fclaude-code%0A%20%20%20%20%20%20-%20name%3A%20Run%20Claude%20review%0A%20%20%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20%20%20ANTHROPIC_API_KEY%3A%20%24%7B%7B%20secrets.ANTHROPIC_API_KEY%20%7D%7D%0A%20%20%20%20%20%20%20%20%20%20GH_TOKEN%3A%20%24%7B%7B%20secrets.GITHUB_TOKEN%20%7D%7D%0A%20%20%20%20%20%20%20%20run%3A%20%7C%0A%20%20%20%20%20%20%20%20%20%20claude%20-p%20%22Review%20the%20diff%20for%20PR%20%23%24%7B%7B%20github.event.pull_request.number%20%7D%7D.%20Focus%20on%20bugs%2C%20security%2C%20perf.%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--permission-mode%20dontAsk%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--allowed-tools%20%22Read%2CBash(git%20diff%3A*)%2CBash(gh%20pr%20comment%3A*)%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20%3E%20review.md%0A%20%20%20%20%20%20%20%20%20%20gh%20pr%20comment%20%24%7B%7B%20github.event.pull_request.number%20%7D%7D%20-F%20review.md" data-code-lang="yaml">
+    <pre><code># .github/workflows/claude-review.yml
+name: Claude Auto Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Run Claude review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          claude -p &quot;Review the diff for PR #${{ github.event.pull_request.number }}. Focus on bugs, security, perf.&quot; \
+            --permission-mode dontAsk \
+            --allowed-tools &quot;Read,Bash(git diff:*),Bash(gh pr comment:*)&quot; \
+            &gt; review.md
+          gh pr comment ${{ github.event.pull_request.number }} -F review.md</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠</div>
+      <div class="callout-body"><strong>API Key 필수</strong> Pro/Max 요금제의 OAuth 토큰은 CI에서 사용 불가. Console에서 발급한 ANTHROPIC_API_KEY를 GitHub Secrets에 저장.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.2.1 claude -p + GitHub Actions</span>
+    <span class="slide-footer-right" data-slot="page-num">08</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CLI FLAGS</div>
+    <div class="t-title" data-slot="title">8.2.1 claude -p 핵심 옵션</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>옵션</th><th>역할</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>-p "&lt;prompt>"</td><td>단일 프롬프트 비대화형 실행. 종료 시 stdout으로 결과 반환</td></tr>
+              <tr><td>--permission-mode dontAsk</td><td>CI에서는 사람 답변 불가 → 사전 정의된 allow 룰만 사용</td></tr>
+              <tr><td>--allowed-tools</td><td>허용 도구 화이트리스트(deny-by-default 권장)</td></tr>
+              <tr><td>--output-format json</td><td>후처리 파이프라인 연결 시</td></tr>
+              <tr><td>--max-turns N</td><td>토큰 한도 통제 — Level 6 토큰 절감과 결합</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.2.1 claude -p 핵심 옵션</span>
+    <span class="slide-footer-right" data-slot="page-num">09</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">AUTO REVIEW</div>
+    <div class="t-title" data-slot="title">8.2.2 PR 자동 코드 리뷰 워크플로우</div>
+    <div class="two-col ratio-6-4" style="margin-top:14px;">
+      <div>
+        <div class="code-block" data-slot="code" data-block-id="cb-106b8c11" data-code-source="%23%20.github%2Fworkflows%2Fauto-review.yml%0Aname%3A%20Claude%20PR%20Review%0Aon%3A%0A%20%20pull_request%3A%0A%20%20%20%20types%3A%20%5Bopened%2C%20synchronize%2C%20reopened%5D%0A%0Ajobs%3A%0A%20%20review%3A%0A%20%20%20%20if%3A%20github.event.pull_request.draft%20%3D%3D%20false%0A%20%20%20%20runs-on%3A%20ubuntu-latest%0A%20%20%20%20steps%3A%0A%20%20%20%20%20%20-%20uses%3A%20actions%2Fcheckout%40v4%0A%20%20%20%20%20%20%20%20with%3A%20%7B%20fetch-depth%3A%200%20%7D%0A%20%20%20%20%20%20-%20name%3A%20Run%20%2Freview%0A%20%20%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20%20%20ANTHROPIC_API_KEY%3A%20%24%7B%7B%20secrets.ANTHROPIC_API_KEY%20%7D%7D%0A%20%20%20%20%20%20%20%20run%3A%20%7C%0A%20%20%20%20%20%20%20%20%20%20npx%20-y%20%40anthropic-ai%2Fclaude-code%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20-p%20%22%2Freview%20--base%20%24%7B%7B%20github.base_ref%20%7D%7D%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--permission-mode%20dontAsk%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--output-format%20markdown%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20%3E%20review.md%0A%20%20%20%20%20%20-%20name%3A%20Post%20review%0A%20%20%20%20%20%20%20%20uses%3A%20marocchino%2Fsticky-pull-request-comment%40v2%0A%20%20%20%20%20%20%20%20with%3A%0A%20%20%20%20%20%20%20%20%20%20path%3A%20review.md%0A%20%20%20%20%20%20%20%20%20%20header%3A%20claude-review" data-code-lang="yaml">
+        <pre><code># .github/workflows/auto-review.yml
+name: Claude PR Review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Run /review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          npx -y @anthropic-ai/claude-code \
+            -p &quot;/review --base ${{ github.base_ref }}&quot; \
+            --permission-mode dontAsk \
+            --output-format markdown \
+            &gt; review.md
+      - name: Post review
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: review.md
+          header: claude-review</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">리뷰 품질 향상 팁</div>
+        <ul class="bullet-list" data-slot="bullets">
+          <li><div>CLAUDE.md에 리뷰 규칙 명시<span class="sub">심각도 분류 · SQL Injection 항상 체크</span></div></li>
+          <li><div>sticky-pull-request-comment<span class="sub">푸시마다 코멘트 쌓이지 않고 갱신</span></div></li>
+          <li><div>비용 통제<span class="sub">--max-turns 5 + --effort low</span></div></li>
+        </ul>
+        <div class="callout callout-blue" style="margin-top:14px;">
+          <div class="callout-icon">ⓘ</div>
+          <div class="callout-body"><strong>/review 슬래시</strong> Level 6에서 다룬 /review가 그대로 CI에서 호출된다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.2.2 PR 자동 코드 리뷰 워크플로우</span>
+    <span class="slide-footer-right" data-slot="page-num">10</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">AUTO FIX</div>
+    <div class="t-title" data-slot="title">8.2.3 테스트 실패 시 자동 수정 → 재푸시</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">workflow_run 트리거로 실패 로그를 받아 패치 후 자동 푸시. 권한 범위는 좁게.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-720feff0" data-code-source="%23%20.github%2Fworkflows%2Fauto-fix.yml%0Aname%3A%20Auto%20Fix%20on%20Test%20Failure%0Aon%3A%0A%20%20workflow_run%3A%0A%20%20%20%20workflows%3A%20%5B%22CI%20Tests%22%5D%0A%20%20%20%20types%3A%20%5Bcompleted%5D%0A%0Ajobs%3A%0A%20%20fix%3A%0A%20%20%20%20if%3A%20%24%7B%7B%20github.event.workflow_run.conclusion%20%3D%3D%20'failure'%20%7D%7D%0A%20%20%20%20runs-on%3A%20ubuntu-latest%0A%20%20%20%20permissions%3A%0A%20%20%20%20%20%20contents%3A%20write%0A%20%20%20%20%20%20pull-requests%3A%20write%0A%20%20%20%20steps%3A%0A%20%20%20%20%20%20-%20uses%3A%20actions%2Fcheckout%40v4%0A%20%20%20%20%20%20%20%20with%3A%0A%20%20%20%20%20%20%20%20%20%20ref%3A%20%24%7B%7B%20github.event.workflow_run.head_branch%20%7D%7D%0A%20%20%20%20%20%20-%20name%3A%20Download%20failure%20log%0A%20%20%20%20%20%20%20%20run%3A%20gh%20run%20view%20%24%7B%7B%20github.event.workflow_run.id%20%7D%7D%20--log%20%3E%20failure.log%0A%20%20%20%20%20%20%20%20env%3A%20%7B%20GH_TOKEN%3A%20%24%7B%7B%20secrets.GITHUB_TOKEN%20%7D%7D%20%7D%0A%20%20%20%20%20%20-%20name%3A%20Fix%20and%20commit%0A%20%20%20%20%20%20%20%20env%3A%20%7B%20ANTHROPIC_API_KEY%3A%20%24%7B%7B%20secrets.ANTHROPIC_API_KEY%20%7D%7D%20%7D%0A%20%20%20%20%20%20%20%20run%3A%20%7C%0A%20%20%20%20%20%20%20%20%20%20claude%20-p%20%22Read%20failure.log%2C%20identify%20root%20cause%2C%20fix%20the%20failing%20test%20minimally.%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--permission-mode%20dontAsk%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--allowed-tools%20%22Read%2CEdit%2CBash(npm%20test%3A*)%2CBash(git%20add%3A*)%2CBash(git%20commit%3A*)%2CBash(git%20push%3A*)%22" data-code-lang="yaml">
+    <pre><code># .github/workflows/auto-fix.yml
+name: Auto Fix on Test Failure
+on:
+  workflow_run:
+    workflows: [&quot;CI Tests&quot;]
+    types: [completed]
+
+jobs:
+  fix:
+    if: ${{ github.event.workflow_run.conclusion == &#39;failure&#39; }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+      - name: Download failure log
+        run: gh run view ${{ github.event.workflow_run.id }} --log &gt; failure.log
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Fix and commit
+        env: { ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} }
+        run: |
+          claude -p &quot;Read failure.log, identify root cause, fix the failing test minimally.&quot; \
+            --permission-mode dontAsk \
+            --allowed-tools &quot;Read,Edit,Bash(npm test:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*)&quot;</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠</div>
+      <div class="callout-body"><strong>가드레일 3종</strong> 1) bypassPermissions 금지, 화이트리스트 명시 2) 무한 루프 방지(`[claude-fix]` 커밋 메시지 가드) 3) main 직접 푸시 금지 — claude-fix/&lt;run-id&gt; 브랜치로만.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.2.3 테스트 실패 시 자동 수정 → 재푸시</span>
+    <span class="slide-footer-right" data-slot="page-num">11</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">NOTIFY</div>
+    <div class="t-title" data-slot="title">8.2.4 Dispatch + Channels로 결과 알림</div>
+    <div class="two-col ratio-6-4" style="margin-top:14px;">
+      <div>
+        <div class="code-block" data-slot="code" data-block-id="cb-e3d06799" data-code-source="%23%20.github%2Fworkflows%2Fnotify.yml%0A-%20name%3A%20Notify%20Claude%20Channel%0A%20%20env%3A%0A%20%20%20%20CLAUDE_CHANNEL_TOKEN%3A%20%24%7B%7B%20secrets.CLAUDE_CHANNEL_TOKEN%20%7D%7D%0A%20%20run%3A%20%7C%0A%20%20%20%20curl%20-X%20POST%20https%3A%2F%2Fapi.claude.com%2Fv1%2Fchannels%2Fnotify%20%5C%0A%20%20%20%20%20%20-H%20%22Authorization%3A%20Bearer%20%24CLAUDE_CHANNEL_TOKEN%22%20%5C%0A%20%20%20%20%20%20-d%20'%7B%0A%20%20%20%20%20%20%20%20%22title%22%3A%20%22Deploy%20%24%7B%7B%20github.ref_name%20%7D%7D%20%24%7B%7B%20job.status%20%7D%7D%22%2C%0A%20%20%20%20%20%20%20%20%22body%22%3A%20%22Run%20%23%24%7B%7B%20github.run_id%20%7D%7D%20on%20%24%7B%7B%20github.repository%20%7D%7D%22%2C%0A%20%20%20%20%20%20%20%20%22url%22%3A%20%22%24%7B%7B%20github.event.workflow_run.html_url%20%7D%7D%22%0A%20%20%20%20%20%20%7D'" data-code-lang="yaml">
+        <pre><code># .github/workflows/notify.yml
+- name: Notify Claude Channel
+  env:
+    CLAUDE_CHANNEL_TOKEN: ${{ secrets.CLAUDE_CHANNEL_TOKEN }}
+  run: |
+    curl -X POST https://api.claude.com/v1/channels/notify \
+      -H &quot;Authorization: Bearer $CLAUDE_CHANNEL_TOKEN&quot; \
+      -d &#39;{
+        &quot;title&quot;: &quot;Deploy ${{ github.ref_name }} ${{ job.status }}&quot;,
+        &quot;body&quot;: &quot;Run #${{ github.run_id }} on ${{ github.repository }}&quot;,
+        &quot;url&quot;: &quot;${{ github.event.workflow_run.html_url }}&quot;
+      }&#39;</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">통합 시나리오</div>
+        <ul class="num-list" data-slot="bullets">
+          <li><div>PR 생성 → 자동 리뷰 코멘트</div></li>
+          <li><div>머지 → 빌드 실패 시 auto-fix</div></li>
+          <li><div>배포 결과 → 모바일 푸시</div></li>
+          <li><div>Dispatch로 롤백 명령 트리거</div></li>
+        </ul>
+        <div class="callout callout-green" style="margin-top:14px;">
+          <div class="callout-icon">✓</div>
+          <div class="callout-body">Channels는 push 알림, Dispatch는 모바일에서 작업 트리거. 두 기능 결합 시 휴대폰만으로 운영이 가능하다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.2.4 Dispatch + Channels로 결과 알림</span>
+    <span class="slide-footer-right" data-slot="page-num">12</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">03</div>
+    <div class="t-chapter" data-slot="label">8.3</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">Vercel 배포</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">Next.js 풀스택을 단일 플랫폼에서 — Neon 자동 연결까지</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">프론트와 API Routes를 한 곳에서. Preview 자동화로 PR 단위 검증.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">PRE-DEPLOY</div>
+    <div class="t-title" data-slot="title">8.3.1 배포 전 준비사항 체크리스트</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">배포 전 로컬에서 빌드가 정상적으로 되는지 반드시 확인. Vercel에서 빌드 에러는 디버깅이 번거롭다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>GitHub 리포지터리 생성 및 main 브랜치 푸시 완료</div></li>
+      <li><div>로컬 프로덕션 빌드 성공<span class="sub">npm run build</span></div></li>
+      <li><div>TypeScript 타입 체크 통과<span class="sub">npx tsc --noEmit</span></div></li>
+      <li><div>.env.local → .env.example 동기화 (시크릿 제외)</div></li>
+      <li><div>DB 마이그레이션 스크립트 준비<span class="sub">npm run db:migrate</span></div></li>
+      <li><div>DB 호출 페이지에 dynamic = &#39;force-dynamic&#39; 추가</div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.1 배포 전 준비사항 체크리스트</span>
+    <span class="slide-footer-right" data-slot="page-num">13</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">BUILD OUTPUT</div>
+    <div class="t-title" data-slot="title">8.3.1 빌드 + 라우트 정보 확인</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">정적(○) / 동적(ƒ) 라우트가 의도대로 분리되었는지 점검</div>
+    <div class="t-h3">타입 체크 + 프로덕션 빌드</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-34001dc" data-code-source="%23%20%ED%83%80%EC%9E%85%20%EC%B2%B4%ED%81%AC%0Anpx%20tsc%20--noEmit%0A%0A%23%20%ED%94%84%EB%A1%9C%EB%8D%95%EC%85%98%20%EB%B9%8C%EB%93%9C%0Anpm%20run%20build" data-code-lang="bash">
+    <pre><code># 타입 체크
+npx tsc --noEmit
+
+# 프로덕션 빌드
+npm run build</code></pre>
+    </div>
+    <div class="t-h3">빌드 결과 — 라우트 정보</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-b2b6dee7" data-code-source="Route%20(app)%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Size%20%20%20%20%20First%20Load%20JS%0A%E2%94%8C%20%E2%97%8B%20%2F%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2033.4%20kB%20%20%20%20%20%20%20%20%20139%20kB%0A%E2%94%9C%20%E2%97%8B%20%2F_not-found%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20979%20B%20%20%20%20%20%20%20%20%20%20%20106%20kB%0A%E2%94%9C%20%C6%92%20%2Fapi%2Ftickets%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20144%20B%20%20%20%20%20%20%20%20%20%20%20105%20kB%0A%E2%94%9C%20%C6%92%20%2Fapi%2Ftickets%2F%5Bid%5D%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20144%20B%20%20%20%20%20%20%20%20%20%20%20105%20kB%0A%0A%E2%97%8B%20%20(Static)%20%20%20prerendered%20as%20static%20content%0A%C6%92%20%20(Dynamic)%20%20server-rendered%20on%20demand" data-code-lang="plaintext">
+    <pre><code>Route (app)                         Size     First Load JS
+┌ ○ /                               33.4 kB         139 kB
+├ ○ /_not-found                     979 B           106 kB
+├ ƒ /api/tickets                    144 B           105 kB
+├ ƒ /api/tickets/[id]               144 B           105 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.1 빌드 + 라우트 정보 확인</span>
+    <span class="slide-footer-right" data-slot="page-num">14</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">VERCEL CONNECT</div>
+    <div class="t-title" data-slot="title">8.3.2 계정 생성과 프로젝트 연결</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Vercel은 GitHub 저장소와 연동하여 자동 배포를 구성한다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>vercel.com Sign Up<span class="sub">Google 또는 GitHub 계정 권장</span></div></li>
+      <li><div>계정 종류·국가·전화번호 인증</div></li>
+      <li><div>Add New &gt; Project → GitHub 리포지터리 Import</div></li>
+      <li><div>Framework Preset: Next.js 자동 감지</div></li>
+      <li><div>Storage &gt; Create Database &gt; Neon Postgres<span class="sub">Region: Singapore (가장 가까운 위치)</span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:20px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>Neon 자동 환경 변수</strong> POSTGRES_URL, POSTGRES_USER, POSTGRES_HOST 등 7~8개 변수가 자동 생성된다. 추후 Connect Project로 환경 변수 자동 주입.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.2 계정 생성과 프로젝트 연결</span>
+    <span class="slide-footer-right" data-slot="page-num">15</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">NEON ENV</div>
+    <div class="t-title" data-slot="title">8.3.2 Neon 연동 시 자동 생성 환경 변수</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Vercel에서 Neon을 연결하면 다음과 같은 환경 변수가 자동 생성된다.</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-ece86857" data-code-source="POSTGRES_URL%3Dpostgres%3A%2F%2Fneondb_owner%3Axxx%40ep-xxx.ap-southeast-1.aws.neon.tech%2Fneondb%3Fsslmode%3Drequire%0APOSTGRES_URL_NON_POOLING%3Dpostgres%3A%2F%2F...%0APOSTGRES_USER%3Dneondb_owner%0APOSTGRES_HOST%3Dep-xxx.ap-southeast-1.aws.neon.tech%0APOSTGRES_PASSWORD%3Dxxx%0APOSTGRES_DATABASE%3Dneondb" data-code-lang="bash">
+    <pre><code>POSTGRES_URL=postgres://neondb_owner:xxx@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+POSTGRES_URL_NON_POOLING=postgres://...
+POSTGRES_USER=neondb_owner
+POSTGRES_HOST=ep-xxx.ap-southeast-1.aws.neon.tech
+POSTGRES_PASSWORD=xxx
+POSTGRES_DATABASE=neondb</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.2 Neon 연동 시 자동 생성 환경 변수</span>
+    <span class="slide-footer-right" data-slot="page-num">16</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">LAZY INIT</div>
+    <div class="t-title" data-slot="title">8.3.2 DB 연결 코드 패치 — 지연 초기화</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Vercel 빌드 시 DB 연결 시도로 실패하지 않도록 lazy-init Proxy 패턴</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-b5a4f8cf" data-code-source="%2F%2F%20src%2Fserver%2Fdb%2Findex.ts%0Aimport%20%7B%20drizzle%2C%20NodePgDatabase%20%7D%20from%20'drizzle-orm%2Fnode-postgres'%3B%0Aimport%20%7B%20Pool%20%7D%20from%20'pg'%3B%0Aimport%20*%20as%20schema%20from%20'.%2Fschema'%3B%0A%0Alet%20_db%3A%20NodePgDatabase%3Ctypeof%20schema%3E%20%7C%20null%20%3D%20null%3B%0A%0Afunction%20getDb()%3A%20NodePgDatabase%3Ctypeof%20schema%3E%20%7B%0A%20%20if%20(!_db)%20%7B%0A%20%20%20%20const%20pool%20%3D%20new%20Pool(%7B%0A%20%20%20%20%20%20connectionString%3A%20process.env.POSTGRES_URL%20%7C%7C%20process.env.DATABASE_URL%2C%0A%20%20%20%20%7D)%3B%0A%20%20%20%20_db%20%3D%20drizzle(pool%2C%20%7B%20schema%20%7D)%3B%0A%20%20%7D%0A%20%20return%20_db%3B%0A%7D%0A%0Aexport%20const%20db%20%3D%20new%20Proxy(%7B%7D%20as%20NodePgDatabase%3Ctypeof%20schema%3E%2C%20%7B%0A%20%20get(_target%2C%20prop)%20%7B%0A%20%20%20%20return%20(getDb()%20as%20unknown%20as%20Record%3Cstring%20%7C%20symbol%2C%20unknown%3E)%5Bprop%5D%3B%0A%20%20%7D%2C%0A%7D)%3B" data-code-lang="typescript">
+    <pre><code>// src/server/db/index.ts
+import { drizzle, NodePgDatabase } from &#39;drizzle-orm/node-postgres&#39;;
+import { Pool } from &#39;pg&#39;;
+import * as schema from &#39;./schema&#39;;
+
+let _db: NodePgDatabase&lt;typeof schema&gt; | null = null;
+
+function getDb(): NodePgDatabase&lt;typeof schema&gt; {
+  if (!_db) {
+    const pool = new Pool({
+      connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+    });
+    _db = drizzle(pool, { schema });
+  }
+  return _db;
+}
+
+export const db = new Proxy({} as NodePgDatabase&lt;typeof schema&gt;, {
+  get(_target, prop) {
+    return (getDb() as unknown as Record&lt;string | symbol, unknown&gt;)[prop];
+  },
+});</code></pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✓</div>
+      <div class="callout-body"><strong>두 가지 문제 해결</strong> 지연 초기화로 빌드 시 DB 미접속 → 에러 없음. POSTGRES_URL || DATABASE_URL 폴백으로 Vercel/로컬 동시 지원.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.2 DB 연결 코드 패치 — 지연 초기화</span>
+    <span class="slide-footer-right" data-slot="page-num">17</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">FORCE DYNAMIC</div>
+    <div class="t-title" data-slot="title">8.3.3 첫 배포 — force-dynamic으로 정적 생성 회피</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">DB를 호출하는 page.tsx는 빌드 시 prerender를 시도해 ECONNREFUSED 발생 → 동적 렌더링으로 전환</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-225c00a" data-code-source="%2F%2F%20app%2Fpage.tsx%0Aexport%20const%20dynamic%20%3D%20'force-dynamic'%3B%0A%0Aexport%20default%20async%20function%20HomePage()%20%7B%0A%20%20const%20initialData%20%3D%20await%20ticketService.getBoard()%3B%0A%20%20return%20%3CBoard%20initialData%3D%7BinitialData%7D%20%2F%3E%3B%0A%7D" data-code-lang="typescript">
+    <pre><code>// app/page.tsx
+export const dynamic = &#39;force-dynamic&#39;;
+
+export default async function HomePage() {
+  const initialData = await ticketService.getBoard();
+  return &lt;Board initialData={initialData} /&gt;;
+}</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠</div>
+      <div class="callout-body"><strong>왜 SSG가 실패하나</strong> Next.js 기본은 서버 컴포넌트 페이지 SSG. ticketService.getBoard()가 빌드 환경에서 127.0.0.1:5432에 접속 시도 → ECONNREFUSED. force-dynamic은 이 페이지를 빌드 시 prerender하지 않고 요청마다 SSR.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.3 첫 배포 — force-dynamic으로 정적 생성 회피</span>
+    <span class="slide-footer-right" data-slot="page-num">18</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">MIGRATE</div>
+    <div class="t-title" data-slot="title">8.3.3 마이그레이션 + Preview 자동화</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">마이그레이션은 로컬 터미널에서 실행하되 운영 DB(Neon)에 접속한다.</div>
+    <div class="t-h3">마이그레이션 실행</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-c9ad2331" data-code-source="%23%20%EB%B0%B1%EC%97%85%0Acp%20.env.local%20.env.local.backup%0A%0A%23%20.env.local%EC%9D%98%20DATABASE_URL%EC%9D%84%20Neon%20URL%EB%A1%9C%20%EA%B5%90%EC%B2%B4%20%ED%9B%84%0Anpm%20run%20db%3Amigrate%0Anpm%20run%20db%3Aseed" data-code-lang="bash">
+    <pre><code># 백업
+cp .env.local .env.local.backup
+
+# .env.local의 DATABASE_URL을 Neon URL로 교체 후
+npm run db:migrate
+npm run db:seed</code></pre>
+    </div>
+    <div class="t-h3">Preview 자동 트리거</div>
+    <div data-slot="table"><table class="tbl"><thead><tr><th>액션</th><th>결과</th></tr></thead><tbody><tr><td>feature/* push</td><td>Preview 배포</td></tr>
+          <tr><td>PR open/sync</td><td>Vercel Bot이 URL 코멘트</td></tr>
+          <tr><td>main 머지</td><td>Production 자동</td></tr>
+          <tr><td>빌드 실패</td><td>GitHub Checks 표시</td></tr></tbody></table></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.3 마이그레이션 + Preview 자동화</span>
+    <span class="slide-footer-right" data-slot="page-num">19</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">FUNCTIONS</div>
+    <div class="t-title" data-slot="title">8.3.4 Vercel Functions 활용 — 두 런타임</div>
+    <div class="t-body" data-slot="body">Node.js와 Edge — 콜드 스타트와 한도가 다르다. 용도별로 분리하면 비용·속도 모두 최적.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>런타임</th><th>콜드 스타트</th><th>한도</th><th>적합한 용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Node.js</td><td>~250ms</td><td>Hobby 10s / Pro 60s</td><td>DB 쿼리, 외부 API 호출</td></tr>
+              <tr><td>Edge</td><td>~50ms</td><td>25s</td><td>인증, 리다이렉트, A/B 테스트</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.4 Vercel Functions 활용 — 두 런타임</span>
+    <span class="slide-footer-right" data-slot="page-num">20</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">EDGE/BG</div>
+    <div class="t-title" data-slot="title">8.3.4 Edge Runtime + Background Functions</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">Edge — Geo 리다이렉트</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-f2a3abf8" data-code-source="%2F%2F%20app%2Fapi%2Fredirect%2Froute.ts%0Aexport%20const%20runtime%20%3D%20'edge'%3B%0A%0Aexport%20function%20GET(req%3A%20Request)%20%7B%0A%20%20const%20country%20%3D%0A%20%20%20%20(req%20as%20any).geo%3F.country%20%3F%3F%20'US'%3B%0A%20%20const%20target%20%3D%20country%20%3D%3D%3D%20'KR'%0A%20%20%20%20%3F%20'https%3A%2F%2Ftika.kr'%0A%20%20%20%20%3A%20'https%3A%2F%2Ftika.app'%3B%0A%20%20return%20Response.redirect(target%2C%20307)%3B%0A%7D" data-code-lang="typescript">
+        <pre><code>// app/api/redirect/route.ts
+export const runtime = &#39;edge&#39;;
+
+export function GET(req: Request) {
+  const country =
+    (req as any).geo?.country ?? &#39;US&#39;;
+  const target = country === &#39;KR&#39;
+    ? &#39;https://tika.kr&#39;
+    : &#39;https://tika.app&#39;;
+  return Response.redirect(target, 307);
+}</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">after — 응답 후 백그라운드</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-58a7c0fa" data-code-source="import%20%7B%20after%20%7D%20from%20'next%2Fserver'%3B%0A%0Aexport%20async%20function%20POST(req%3A%20Request)%20%7B%0A%20%20const%20body%20%3D%20await%20req.json()%3B%0A%20%20await%20saveImmediately(body)%3B%0A%20%20after(async%20()%20%3D%3E%20%7B%0A%20%20%20%20await%20sendAnalytics(body)%3B%0A%20%20%20%20await%20sendEmail(body.email)%3B%0A%20%20%7D)%3B%0A%20%20return%20Response.json(%7B%20ok%3A%20true%20%7D)%3B%0A%7D" data-code-lang="typescript">
+        <pre><code>import { after } from &#39;next/server&#39;;
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  await saveImmediately(body);
+  after(async () =&gt; {
+    await sendAnalytics(body);
+    await sendEmail(body.email);
+  });
+  return Response.json({ ok: true });
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.3.4 Edge Runtime + Background Functions</span>
+    <span class="slide-footer-right" data-slot="page-num">21</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">04</div>
+    <div class="t-chapter" data-slot="label">8.4</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">Railway 백엔드 배포</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">Express · Spring Boot — 별도 백엔드 운영 시 가장 간편한 선택</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">컨테이너 기반 배포 + 원클릭 DB 프로비저닝 + 헬스체크 자동화.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DOCKERFILE</div>
+    <div class="t-title" data-slot="title">8.4.1 Docker 기반 배포 설정</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Railway는 다음 우선순위로 빌드 설정을 결정한다</div>
+    <div class="t-body" data-slot="body">Dockerfile이 있으면 그대로 사용 nixpacks.toml 이 있으면 Nixpacks 빌드 둘 다 없으면 자동 감지 (Node/Python/Go 등) 대시보드에서 New &gt; GitHub Repository → Git 리포지터리 연결 후 Settings의 Networking &gt; Generate Domain을 클릭하면 자동 도메인을 발급받는다.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-277aa928" data-code-source="%23%20Dockerfile%0AFROM%20node%3A20-alpine%20AS%20deps%0AWORKDIR%20%2Fapp%0ACOPY%20package*.json%20.%2F%0ARUN%20npm%20ci%20--omit%3Ddev%0A%0AFROM%20node%3A20-alpine%20AS%20runner%0AWORKDIR%20%2Fapp%0AENV%20NODE_ENV%3Dproduction%0ACOPY%20--from%3Ddeps%20%2Fapp%2Fnode_modules%20.%2Fnode_modules%0ACOPY%20.%20.%0AEXPOSE%208080%0ACMD%20%5B%22node%22%2C%20%22dist%2Fserver.js%22%5D" data-code-lang="plaintext">
+    <pre><code># Dockerfile
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+EXPOSE 8080
+CMD [&quot;node&quot;, &quot;dist/server.js&quot;]</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>빌드 우선순위</strong> 1) Dockerfile 2) nixpacks.toml 3) 자동 감지 — 명시적 Dockerfile이 가장 예측 가능하다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.1 Docker 기반 배포 설정</span>
+    <span class="slide-footer-right" data-slot="page-num">22</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">RAILWAY CLI</div>
+    <div class="t-title" data-slot="title">8.4.1 Railway CLI로 빠르게 배포</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">CLI 한 줄로 코드 업로드 + 자동 도메인 발급</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-c53f2791" data-code-source="%23%20Railway%20CLI%20%EC%84%A4%EC%B9%98%0Anpm%20i%20-g%20%40railway%2Fcli%0A%0A%23%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20(%EB%B8%8C%EB%9D%BC%EC%9A%B0%EC%A0%80%20OAuth)%0Arailway%20login%0A%0A%23%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%B4%88%EA%B8%B0%ED%99%94%0Arailway%20init%0A%0A%23%20%ED%98%84%EC%9E%AC%20%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC%20%EC%BD%94%EB%93%9C%20%EC%97%85%EB%A1%9C%EB%93%9C%20%2B%20%EB%B0%B0%ED%8F%AC%0Arailway%20up%0A%0A%23%20Settings%20%3E%20Networking%20%3E%20Generate%20Domain%20%EC%9C%BC%EB%A1%9C%20%EC%9E%90%EB%8F%99%20%EB%8F%84%EB%A9%94%EC%9D%B8%20%EB%B0%9C%EA%B8%89" data-code-lang="bash">
+    <pre><code># Railway CLI 설치
+npm i -g @railway/cli
+
+# 로그인 (브라우저 OAuth)
+railway login
+
+# 프로젝트 초기화
+railway init
+
+# 현재 디렉터리 코드 업로드 + 배포
+railway up
+
+# Settings &gt; Networking &gt; Generate Domain 으로 자동 도메인 발급</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.1 Railway CLI로 빠르게 배포</span>
+    <span class="slide-footer-right" data-slot="page-num">23</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DB AUTO</div>
+    <div class="t-title" data-slot="title">8.4.2 데이터베이스 프로비저닝 — 자동 변수 주입</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Railway는 PostgreSQL/Redis/MongoDB/MySQL을 원클릭으로 프로비저닝하고 같은 프로젝트 서비스에 자동 연결</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-2b133041" data-code-source="%23%20Railway%EA%B0%80%20%EC%9E%90%EB%8F%99%20%EC%A3%BC%EC%9E%85%ED%95%98%EB%8A%94%20%ED%99%98%EA%B2%BD%20%EB%B3%80%EC%88%98%20%E2%80%94%20%24%7B%7B%20Postgres.*%20%7D%7D%20%EB%AC%B8%EB%B2%95%0ADATABASE_URL%3D%24%7B%7B%20Postgres.DATABASE_URL%20%7D%7D%0ADATABASE_PUBLIC_URL%3D%24%7B%7B%20Postgres.DATABASE_PUBLIC_URL%20%7D%7D%0APGUSER%3D%24%7B%7B%20Postgres.PGUSER%20%7D%7D%0APGPASSWORD%3D%24%7B%7B%20Postgres.PGPASSWORD%20%7D%7D%0APGHOST%3D%24%7B%7B%20Postgres.PGHOST%20%7D%7D%0APGPORT%3D%24%7B%7B%20Postgres.PGPORT%20%7D%7D%0APGDATABASE%3D%24%7B%7B%20Postgres.PGDATABASE%20%7D%7D" data-code-lang="bash">
+    <pre><code># Railway가 자동 주입하는 환경 변수 — ${{ Postgres.* }} 문법
+DATABASE_URL=${{ Postgres.DATABASE_URL }}
+DATABASE_PUBLIC_URL=${{ Postgres.DATABASE_PUBLIC_URL }}
+PGUSER=${{ Postgres.PGUSER }}
+PGPASSWORD=${{ Postgres.PGPASSWORD }}
+PGHOST=${{ Postgres.PGHOST }}
+PGPORT=${{ Postgres.PGPORT }}
+PGDATABASE=${{ Postgres.PGDATABASE }}</code></pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✓</div>
+      <div class="callout-body"><strong>시크릿 비공개</strong> ${{ Postgres.* }}는 빌드 시점에 치환된다. 코드에 노출되지 않으면서 같은 프로젝트 서비스 간 자동 연결 — 컨테이너 시크릿 관리의 정석.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.2 데이터베이스 프로비저닝 — 자동 변수 주입</span>
+    <span class="slide-footer-right" data-slot="page-num">24</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">HEALTHCHECK</div>
+    <div class="t-title" data-slot="title">8.4.3 헬스 체크와 재시작 정책</div>
+    <div class="two-col ratio-6-4" style="margin-top:14px;">
+      <div>
+        <div class="code-block" data-slot="code" data-block-id="cb-58f42b98" data-code-source="%23%20railway.toml%0A%5Bbuild%5D%0Abuilder%20%3D%20%22DOCKERFILE%22%0A%0A%5Bdeploy%5D%0AhealthcheckPath%20%3D%20%22%2Fhealth%22%0AhealthcheckTimeout%20%3D%2030%0ArestartPolicyType%20%3D%20%22ON_FAILURE%22%0ArestartPolicyMaxRetries%20%3D%2010%0AnumReplicas%20%3D%201" data-code-lang="yaml">
+        <pre><code># railway.toml
+[build]
+builder = &quot;DOCKERFILE&quot;
+
+[deploy]
+healthcheckPath = &quot;/health&quot;
+healthcheckTimeout = 30
+restartPolicyType = &quot;ON_FAILURE&quot;
+restartPolicyMaxRetries = 10
+numReplicas = 1</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">재시작 정책</div>
+        <div data-slot="table"><table class="tbl"><thead><tr><th>정책</th><th>동작</th></tr></thead><tbody><tr><td>ON_FAILURE</td><td>비정상 종료시만 재시작 (권장)</td></tr>
+              <tr><td>ALWAYS</td><td>정상 종료여도 재시작</td></tr>
+              <tr><td>NEVER</td><td>한 번 죽으면 끝 (배치)</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.3 헬스 체크와 재시작 정책</span>
+    <span class="slide-footer-right" data-slot="page-num">25</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">HEALTH ENDPOINT</div>
+    <div class="t-title" data-slot="title">8.4.3 /health 엔드포인트 구현</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">DB 핑까지 포함해야 진짜 헬스. 200/503으로 Railway가 자동 재시작 판단.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-9fb1a02d" data-code-source="import%20express%20from%20'express'%3B%0Aimport%20%7B%20db%20%7D%20from%20'.%2Fdb'%3B%0A%0Aconst%20app%20%3D%20express()%3B%0A%0Aapp.get('%2Fhealth'%2C%20async%20(req%2C%20res)%20%3D%3E%20%7B%0A%20%20try%20%7B%0A%20%20%20%20await%20db.execute('SELECT%201')%3B%20%20%20%20%20%20%20%20%20%20%20%2F%2F%20DB%20%EC%97%B0%EA%B2%B0%20%EA%B2%80%EC%A6%9D%0A%20%20%20%20res.json(%7B%20status%3A%20'ok'%2C%20timestamp%3A%20Date.now()%20%7D)%3B%0A%20%20%7D%20catch%20(e)%20%7B%0A%20%20%20%20res.status(503).json(%7B%20status%3A%20'degraded'%2C%20error%3A%20String(e)%20%7D)%3B%0A%20%20%7D%0A%7D)%3B" data-code-lang="typescript">
+    <pre><code>import express from &#39;express&#39;;
+import { db } from &#39;./db&#39;;
+
+const app = express();
+
+app.get(&#39;/health&#39;, async (req, res) =&gt; {
+  try {
+    await db.execute(&#39;SELECT 1&#39;);           // DB 연결 검증
+    res.json({ status: &#39;ok&#39;, timestamp: Date.now() });
+  } catch (e) {
+    res.status(503).json({ status: &#39;degraded&#39;, error: String(e) });
+  }
+});</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.3 /health 엔드포인트 구현</span>
+    <span class="slide-footer-right" data-slot="page-num">26</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CORS</div>
+    <div class="t-title" data-slot="title">8.4.4 Vercel 프론트와 연동 — CORS</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">Vercel — 환경 변수</div>
+        <div class="terminal" data-slot="code" data-block-id="tb-159649c5" data-code-source="%23%20Vercel%20Settings%20%3E%20Environment%20Variables%0ANEXT_PUBLIC_API_URL%3Dhttps%3A%2F%2Fapi.tika.example.com" data-code-lang="bash">
+        <pre><code># Vercel Settings &gt; Environment Variables
+NEXT_PUBLIC_API_URL=https://api.tika.example.com</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">Railway — CORS 설정</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-b534d64b" data-code-source="import%20cors%20from%20'cors'%3B%0A%0Aapp.use(cors(%7B%0A%20%20origin%3A%20%5B%0A%20%20%20%20'https%3A%2F%2Ftika.example.com'%2C%0A%20%20%20%20'https%3A%2F%2F*.vercel.app'%2C%0A%20%20%20%20'http%3A%2F%2Flocalhost%3A3000'%2C%0A%20%20%5D%2C%0A%20%20credentials%3A%20true%2C%0A%7D))%3B" data-code-lang="typescript">
+        <pre><code>import cors from &#39;cors&#39;;
+
+app.use(cors({
+  origin: [
+    &#39;https://tika.example.com&#39;,
+    &#39;https://*.vercel.app&#39;,
+    &#39;http://localhost:3000&#39;,
+  ],
+  credentials: true,
+}));</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.4 Vercel 프론트와 연동 — CORS</span>
+    <span class="slide-footer-right" data-slot="page-num">27</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">PRICING</div>
+    <div class="t-title" data-slot="title">8.4.4 Vercel vs Railway — 비용 비교</div>
+    <div class="t-body" data-slot="body">용도별로 다르므로 단순 비교 불가. Next.js·정적은 Vercel, 컨테이너·롱러닝은 Railway가 자연스럽다. Railway는 일정 기간만 무료고 결국 한 달 5~10불 정도 비용이 발생하므로 사용하지 않는 서버 리소스는 즉시 삭제하는 것이 좋다.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>플랜</th><th>Vercel</th><th>Railway</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>무료 한도</td><td>100GB 대역폭/월</td><td>$5 크레딧</td></tr>
+              <tr><td>유료 시작</td><td>$20/월(Pro)</td><td>사용량 기반</td></tr>
+              <tr><td>강점</td><td>Next.js · 정적</td><td>컨테이너 · DB · 롱러닝</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.4.4 Vercel vs Railway — 비용 비교</span>
+    <span class="slide-footer-right" data-slot="page-num">28</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">05</div>
+    <div class="t-chapter" data-slot="label">8.5</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">Cloudflare 인프라를 통한 로컬 호스팅</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">DNS · Tunnel · Pages · Workers · R2 — 공인 IP 없이 셀프 호스팅</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">macMini·Raspberry Pi에서 24/7 운영이 가능한 무료 인프라.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DNS METHODS</div>
+    <div class="t-title" data-slot="title">8.5.1 Vercel 도메인 연결 — 두 가지 방식</div>
+    <div class="t-body" data-slot="body">도메인을 Vercel에서 구입하면 네임서버 방식이 한 클릭. 외부 등록 기관 도메인은 DNS 레코드 추가.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>방식</th><th>동작</th><th>권장 상황</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>네임서버 변경</td><td>도메인 NS를 ns1/ns2.vercel-dns.com으로 교체</td><td>Vercel에서 구입한 도메인</td></tr>
+              <tr><td>DNS 레코드 추가</td><td>A/CNAME만 추가</td><td>외부 등록 기관 도메인</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.1 Vercel 도메인 연결 — 두 가지 방식</span>
+    <span class="slide-footer-right" data-slot="page-num">29</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DOMAIN STEPS</div>
+    <div class="t-title" data-slot="title">8.5.1 도메인 연결 단계별 절차</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Settings &gt; Domains에서 시작. SSL은 Let&#39;s Encrypt가 자동 발급한다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>Settings &gt; Domains 이동 → 도메인 입력<span class="sub">예: tika.example.com</span></div></li>
+      <li><div>DNS 레코드 설정<span class="sub">CNAME(서브): cname.vercel-dns.com / A(루트): Vercel Anycast IP</span></div></li>
+      <li><div>DNS 전파 대기<span class="sub">보통 몇 분~24시간. Vercel 도메인이면 1분 이내</span></div></li>
+      <li><div>SSL 인증서 자동 발급 확인<span class="sub">Let&#39;s Encrypt — 별도 설정 불필요</span></div></li>
+      <li><div>Railway 백엔드 도메인은 별도<span class="sub">Settings &gt; Networking &gt; Custom Domain → CNAME 추가 (예: api.tika.example.com)</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.1 도메인 연결 단계별 절차</span>
+    <span class="slide-footer-right" data-slot="page-num">30</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">TUNNEL</div>
+    <div class="t-title" data-slot="title">8.5.2 Cloudflare Tunnel — 작동 원리</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">공인 IP나 포트포워딩 없이 로컬 서버를 인터넷에 안전하게 노출. cloudflared가 outbound 연결만 유지.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-8b80c68" data-code-source="%5B%EB%A1%9C%EC%BB%AC%20%EC%84%9C%EB%B2%84%20%3A3000%5D%0A%20%20%20%E2%94%82%0A%20%20%20%E2%94%82%20outbound%20only%20(TCP%207844)%0A%20%20%20%E2%96%BC%0A%5Bcloudflared%20%EB%8D%B0%EB%AA%AC%5D%20%E2%94%80%E2%94%80%E2%94%80%E2%96%BA%20%5BCloudflare%20Edge%5D%20%E2%94%80%E2%94%80%E2%94%80%E2%96%BA%20%5B%EB%B8%8C%EB%9D%BC%EC%9A%B0%EC%A0%80%20https%3A%2F%2Fapp.example.com%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(%EC%9E%90%EB%8F%99%20SSL%2C%20DDoS%20%EB%B0%A9%EC%96%B4)" data-code-lang="plaintext">
+    <pre><code>[로컬 서버 :3000]
+   │
+   │ outbound only (TCP 7844)
+   ▼
+[cloudflared 데몬] ───► [Cloudflare Edge] ───► [브라우저 https://app.example.com]
+                          (자동 SSL, DDoS 방어)</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>Inbound 포트 미오픈</strong> 방화벽에 들어오는 포트를 열지 않는다. cloudflared가 outbound로 Cloudflare에 연결을 유지하고 들어오는 요청을 그 터널로 역방향 전달 → NAT/공유기 환경에서도 안전하게 노출.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.2 Cloudflare Tunnel — 작동 원리</span>
+    <span class="slide-footer-right" data-slot="page-num">31</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CLOUDFLARED</div>
+    <div class="t-title" data-slot="title">8.5.2 Tunnel 설치 + 라우팅</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">macOS는 brew, Linux는 GitHub Releases. cloudflared tunnel login 으로 OAuth 인증.</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-18638b6f" data-code-source="%23%201)%20%EC%84%A4%EC%B9%98%0Abrew%20install%20cloudflared%20%20%20%20%20%20%20%20%20%20%20%20%23%20macOS%0A%23%20Linux%3A%20%EA%B3%B5%EC%8B%9D%20GitHub%20Releases%EC%97%90%EC%84%9C%20%EB%B0%94%EC%9D%B4%EB%84%88%EB%A6%AC%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C%0A%0A%23%202)%20Cloudflare%20%EA%B3%84%EC%A0%95%20%EC%9D%B8%EC%A6%9D%0Acloudflared%20tunnel%20login%0A%0A%23%203)%20%ED%84%B0%EB%84%90%20%EC%83%9D%EC%84%B1%0Acloudflared%20tunnel%20create%20tika-home%0A%0A%23%204)%20DNS%20%EB%9D%BC%EC%9A%B0%ED%8C%85%20%EC%9E%90%EB%8F%99%20%EC%B6%94%EA%B0%80%0Acloudflared%20tunnel%20route%20dns%20tika-home%20app.example.com%0A%0A%23%205)%20%EC%8B%A4%ED%96%89%0Acloudflared%20tunnel%20run%20tika-home" data-code-lang="bash">
+    <pre><code># 1) 설치
+brew install cloudflared            # macOS
+# Linux: 공식 GitHub Releases에서 바이너리 다운로드
+
+# 2) Cloudflare 계정 인증
+cloudflared tunnel login
+
+# 3) 터널 생성
+cloudflared tunnel create tika-home
+
+# 4) DNS 라우팅 자동 추가
+cloudflared tunnel route dns tika-home app.example.com
+
+# 5) 실행
+cloudflared tunnel run tika-home</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.2 Tunnel 설치 + 라우팅</span>
+    <span class="slide-footer-right" data-slot="page-num">32</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">TUNNEL CONFIG</div>
+    <div class="t-title" data-slot="title">8.5.2 Tunnel 설정 + 자동 시작 서비스</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">ingress 룰로 호스트→서비스 매핑. systemd/launchd로 부팅 시 자동 실행.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-95280896" data-code-source="%23%20~%2F.cloudflared%2Fconfig.yml%0Atunnel%3A%20%3CUUID%3E%0Acredentials-file%3A%20%2FUsers%2Fme%2F.cloudflared%2F%3CUUID%3E.json%0A%0Aingress%3A%0A%20%20-%20hostname%3A%20app.example.com%0A%20%20%20%20service%3A%20http%3A%2F%2Flocalhost%3A3000%0A%20%20-%20hostname%3A%20api.example.com%0A%20%20%20%20service%3A%20http%3A%2F%2Flocalhost%3A8080%0A%20%20-%20service%3A%20http_status%3A404%20%20%20%20%20%20%23%20catchall" data-code-lang="yaml">
+    <pre><code># ~/.cloudflared/config.yml
+tunnel: &lt;UUID&gt;
+credentials-file: /Users/me/.cloudflared/&lt;UUID&gt;.json
+
+ingress:
+  - hostname: app.example.com
+    service: http://localhost:3000
+  - hostname: api.example.com
+    service: http://localhost:8080
+  - service: http_status:404      # catchall</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>Zero Trust Access 결합</strong> 노출된 엔드포인트에 OTP/이메일 화이트리스트 등 IAM-급 정책을 추가할 수 있다. Cloudflare Zero Trust &gt; Access &gt; Applications에서 설정.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.2 Tunnel 설정 + 자동 시작 서비스</span>
+    <span class="slide-footer-right" data-slot="page-num">33</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CF STACK</div>
+    <div class="t-title" data-slot="title">8.5.3 Cloudflare Pages·Workers·R2 — 무료 인프라 3종</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Vercel 대안으로 Cloudflare 스택은 무료 한도가 매우 관대하다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>Pages — 정적 사이트 + Functions<span class="sub">Git 연동 시 자동 빌드 + 글로벌 엣지 배포. 빌드 무제한, 대역폭 무제한</span></div></li>
+      <li><div>Workers — 엣지 함수<span class="sub">JavaScript/TypeScript V8 isolate. 콜드 스타트 ~5ms</span></div></li>
+      <li><div>R2 — S3 호환 객체 스토리지<span class="sub">10GB 무료, 읽기 1000만/월, 쓰기 100만/월</span></div></li>
+      <li><div>Egress 비용 0<span class="sub">AWS S3는 GB당 $0.09, R2는 다운로드 무료 — 이미지·동영상 호스팅 압도적 우위</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 Cloudflare Pages·Workers·R2 — 무료 인프라 3종</span>
+    <span class="slide-footer-right" data-slot="page-num">34</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">WORKER</div>
+    <div class="t-title" data-slot="title">8.5.3 Worker — 이미지 업로드 엔드포인트</div>
+    <div class="two-col ratio-6-4" style="margin-top:14px;">
+      <div>
+        <div class="code-block" data-slot="code" data-block-id="cb-8b5895e" data-code-source="%2F%2F%20apps%2Fworker%2Fsrc%2Findex.ts%0Aexport%20default%20%7B%0A%20%20async%20fetch(req%3A%20Request%2C%20env%3A%20Env)%3A%20Promise%3CResponse%3E%20%7B%0A%20%20%20%20const%20url%20%3D%20new%20URL(req.url)%3B%0A%20%20%20%20if%20(url.pathname%20%3D%3D%3D%20'%2Fhealth')%20%7B%0A%20%20%20%20%20%20return%20Response.json(%7B%20ok%3A%20true%20%7D)%3B%0A%20%20%20%20%7D%0A%20%20%20%20if%20(url.pathname%20%3D%3D%3D%20'%2Fupload'%20%26%26%20req.method%20%3D%3D%3D%20'POST')%20%7B%0A%20%20%20%20%20%20return%20handleUpload(req%2C%20env)%3B%0A%20%20%20%20%7D%0A%20%20%20%20return%20new%20Response('Not%20Found'%2C%20%7B%20status%3A%20404%20%7D)%3B%0A%20%20%7D%0A%7D%3B" data-code-lang="typescript">
+        <pre><code>// apps/worker/src/index.ts
+export default {
+  async fetch(req: Request, env: Env): Promise&lt;Response&gt; {
+    const url = new URL(req.url);
+    if (url.pathname === &#39;/health&#39;) {
+      return Response.json({ ok: true });
+    }
+    if (url.pathname === &#39;/upload&#39; &amp;&amp; req.method === &#39;POST&#39;) {
+      return handleUpload(req, env);
+    }
+    return new Response(&#39;Not Found&#39;, { status: 404 });
+  }
+};</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">wrangler.toml 바인딩</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-73bc9003" data-code-source="name%20%3D%20%22tika-r2-uploader%22%0Amain%20%3D%20%22src%2Findex.ts%22%0Acompatibility_date%20%3D%20%222024-12-01%22%0A%0A%5B%5Br2_buckets%5D%5D%0Abinding%20%3D%20%22BUCKET%22%0Abucket_name%20%3D%20%22tika-images%22%0A%0A%5Bvars%5D%0APUBLIC_URL%20%3D%20%22https%3A%2F%2Fpub-xxx.r2.dev%22%0AALLOWED_ORIGINS%20%3D%20%22https%3A%2F%2Ftika.example.com%22" data-code-lang="yaml">
+        <pre><code>name = &quot;tika-r2-uploader&quot;
+main = &quot;src/index.ts&quot;
+compatibility_date = &quot;2024-12-01&quot;
+
+[[r2_buckets]]
+binding = &quot;BUCKET&quot;
+bucket_name = &quot;tika-images&quot;
+
+[vars]
+PUBLIC_URL = &quot;https://pub-xxx.r2.dev&quot;
+ALLOWED_ORIGINS = &quot;https://tika.example.com&quot;</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 Worker — 이미지 업로드 엔드포인트</span>
+    <span class="slide-footer-right" data-slot="page-num">35</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">R2 DEPLOY</div>
+    <div class="t-title" data-slot="title">8.5.3 R2 버킷 생성 + Worker 배포</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Wrangler CLI로 한 번에 — 무료 티어 안에서 운영 가능</div>
+    <div class="terminal" data-slot="code" data-block-id="tb-ed554a78" data-code-source="%23%20Wrangler%20CLI%20%EC%84%A4%EC%B9%98%0Anpm%20i%20-g%20wrangler%0Awrangler%20login%0A%0A%23%20%EB%B2%84%ED%82%B7%20%EC%83%9D%EC%84%B1%0Awrangler%20r2%20bucket%20create%20tika-images%0A%0A%23%20Worker%20%EB%B0%B0%ED%8F%AC%0Acd%20apps%2Fworker%0Awrangler%20deploy%0A%23%20%3E%20https%3A%2F%2Ftika-r2-uploader.%3Caccount%3E.workers.dev" data-code-lang="bash">
+    <pre><code># Wrangler CLI 설치
+npm i -g wrangler
+wrangler login
+
+# 버킷 생성
+wrangler r2 bucket create tika-images
+
+# Worker 배포
+cd apps/worker
+wrangler deploy
+# &gt; https://tika-r2-uploader.&lt;account&gt;.workers.dev</code></pre>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✓</div>
+      <div class="callout-body"><strong>R2 무료 티어</strong> 저장 10GB · 읽기 1000만/월 · 쓰기 100만/월 · 아웃바운드 무제한. 개인·초기 SaaS에 충분하다.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 R2 버킷 생성 + Worker 배포</span>
+    <span class="slide-footer-right" data-slot="page-num">36</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">SPRING R2</div>
+    <div class="t-title" data-slot="title">8.5.3 Spring Boot R2 연동 — 5가지 필수 설정</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">R2는 S3 API 호환이지만 5가지 옵션을 빠뜨리면 반드시 실패한다 (실전 디버깅 결과).</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-2a8f5f5" data-code-source="%40Bean%0Apublic%20S3Client%20r2S3Client(%40Value(%22%24%7Bapp.r2.access-key-id%7D%22)%20String%20accessKeyId%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%40Value(%22%24%7Bapp.r2.secret-access-key%7D%22)%20String%20secret%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%40Value(%22%24%7Bapp.r2.endpoint%7D%22)%20String%20endpoint)%20%7B%0A%20%20%20%20return%20S3Client.builder()%0A%20%20%20%20%20%20%20%20.region(Region.of(%22auto%22))%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2F%2F%201)%20R2%EB%8A%94%20region%20%EC%97%86%EC%9D%8C%0A%20%20%20%20%20%20%20%20.endpointOverride(URI.create(endpoint))%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2F%2F%202)%20account%20%EC%97%94%EB%93%9C%ED%8F%AC%EC%9D%B8%ED%8A%B8%0A%20%20%20%20%20%20%20%20.credentialsProvider(StaticCredentialsProvider.create(%0A%20%20%20%20%20%20%20%20%20%20%20%20AwsBasicCredentials.create(accessKeyId%2C%20secret)))%0A%20%20%20%20%20%20%20%20.requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)%20%20%2F%2F%203)%20flexible-checksum%20%EB%81%84%EA%B8%B0%0A%20%20%20%20%20%20%20%20.responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)%0A%20%20%20%20%20%20%20%20.serviceConfiguration(S3Configuration.builder()%0A%20%20%20%20%20%20%20%20%20%20%20%20.pathStyleAccessEnabled(true)%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2F%2F%204)%20path-style%20%EA%B0%95%EC%A0%9C%0A%20%20%20%20%20%20%20%20%20%20%20%20.chunkedEncodingEnabled(false)%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%2F%2F%205)%20aws-chunked%20%EB%81%84%EA%B8%B0%0A%20%20%20%20%20%20%20%20%20%20%20%20.build())%0A%20%20%20%20%20%20%20%20.build()%3B%0A%7D" data-code-lang="java">
+    <pre><code>@Bean
+public S3Client r2S3Client(@Value(&quot;${app.r2.access-key-id}&quot;) String accessKeyId,
+                           @Value(&quot;${app.r2.secret-access-key}&quot;) String secret,
+                           @Value(&quot;${app.r2.endpoint}&quot;) String endpoint) {
+    return S3Client.builder()
+        .region(Region.of(&quot;auto&quot;))                                       // 1) R2는 region 없음
+        .endpointOverride(URI.create(endpoint))                          // 2) account 엔드포인트
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create(accessKeyId, secret)))
+        .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)  // 3) flexible-checksum 끄기
+        .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
+        .serviceConfiguration(S3Configuration.builder()
+            .pathStyleAccessEnabled(true)                                // 4) path-style 강제
+            .chunkedEncodingEnabled(false)                               // 5) aws-chunked 끄기
+            .build())
+        .build();
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 Spring Boot R2 연동 — 5가지 필수 설정</span>
+    <span class="slide-footer-right" data-slot="page-num">37</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">R2 GOTCHAS</div>
+    <div class="t-title" data-slot="title">8.5.3 5가지 설정 — 빠뜨리면 발생하는 에러</div>
+    <div class="t-body" data-slot="body">디버깅 시간을 가장 많이 잡아먹는 항목들. 특히 Checksum*.WHEN_REQUIRED는 SDK 2.30+ 에서 가장 많이 놓치는 포인트.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>설정</th><th>빠뜨리면 발생하는 증상</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>region("auto")</td><td>SigV4 scope 불일치 → SignatureDoesNotMatch</td></tr>
+              <tr><td>endpointOverride(account)</td><td>버킷이 URL에 들어가면 NoSuchBucket</td></tr>
+              <tr><td>Checksum*.WHEN_REQUIRED</td><td>STREAMING-UNSIGNED-PAYLOAD-TRAILER 자동 삽입 → R2 거부 (가장 흔한 함정)</td></tr>
+              <tr><td>pathStyleAccessEnabled(true)</td><td>vhost-style은 R2 미지원</td></tr>
+              <tr><td>chunkedEncodingEnabled(false)</td><td>aws-chunked 트레일러 일부 거부</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 5가지 설정 — 빠뜨리면 발생하는 에러</span>
+    <span class="slide-footer-right" data-slot="page-num">38</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">XSS DEFENSE</div>
+    <div class="t-title" data-slot="title">8.5.3 업로드 키 규칙 + Content-Disposition</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Content-Disposition: attachment 강제로 SVG/HTML 인라인 렌더링 차단 → XSS 방어</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-3a09572a" data-code-source="PutObjectRequest%20req%20%3D%20PutObjectRequest.builder()%0A%20%20%20%20.bucket(bucket)%0A%20%20%20%20.key(%22attachments%2F%25d%2F%25s%2F%25s.%25s%22.formatted(year%2C%20month%2C%20UUID.randomUUID()%2C%20ext))%0A%20%20%20%20.contentType(file.getContentType())%0A%20%20%20%20.contentLength(file.getSize())%0A%20%20%20%20.contentDisposition(buildContentDisposition(file.getOriginalFilename()))%0A%20%20%20%20.build()%3B" data-code-lang="java">
+    <pre><code>PutObjectRequest req = PutObjectRequest.builder()
+    .bucket(bucket)
+    .key(&quot;attachments/%d/%s/%s.%s&quot;.formatted(year, month, UUID.randomUUID(), ext))
+    .contentType(file.getContentType())
+    .contentLength(file.getSize())
+    .contentDisposition(buildContentDisposition(file.getOriginalFilename()))
+    .build();</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>두 가지 보안 장치</strong> 1) Content-Disposition: attachment → SVG/HTML 업로드 시 브라우저 인라인 렌더링 차단. 2) stored_key를 서버 UUID로 생성 → 클라이언트가 경로 순회로 다른 객체 덮어쓰기 불가.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.5.3 업로드 키 규칙 + Content-Disposition</span>
+    <span class="slide-footer-right" data-slot="page-num">39</span>
+  </div>
+</div>
+
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">06</div>
+    <div class="t-chapter" data-slot="label">8.6</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:780px; line-height:1.2;">회원 인증과 Resend 트랜잭셔널 메일</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:620px; line-height:1.7;">Google/GitHub OAuth + Resend API + React Email + 도메인 인증</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">SaaS 기본 패키지 — 인증부터 이메일 도메인 평판까지 한 흐름으로.</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">GOOGLE OAUTH</div>
+    <div class="t-title" data-slot="title">8.6.1 Google OAuth — Cloud Console 설정</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">Google Cloud Console에서 OAuth Client를 발급받아 사용한다.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>console.cloud.google.com 로그인<span class="sub">프로젝트 생성</span></div></li>
+      <li><div>APIs &amp; Services &gt; OAuth consent screen<span class="sub">User Type: External / Internal · 앱 이름 · 지원 이메일</span></div></li>
+      <li><div>Credentials &gt; Create Credentials &gt; OAuth client ID<span class="sub">Application type: Web application</span></div></li>
+      <li><div>Authorized redirect URIs 추가<span class="sub">http://localhost:3000/api/auth/callback/google · https://tika.example.com/api/auth/callback/google</span></div></li>
+      <li><div>Client ID / Client Secret 발급<span class="sub">한 번만 노출됨 → 즉시 비밀 저장소에</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.1 Google OAuth — Cloud Console 설정</span>
+    <span class="slide-footer-right" data-slot="page-num">40</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">GOOGLE INTEGRATE</div>
+    <div class="t-title" data-slot="title">8.6.1 Spring Boot + Next.js 통합</div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="t-h3">Spring Security OAuth2</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-8051eac8" data-code-source="%23%20application.yml%0Aspring%3A%0A%20%20security%3A%0A%20%20%20%20oauth2%3A%0A%20%20%20%20%20%20client%3A%0A%20%20%20%20%20%20%20%20registration%3A%0A%20%20%20%20%20%20%20%20%20%20google%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20client-id%3A%20%24%7BGOOGLE_CLIENT_ID%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20client-secret%3A%20%24%7BGOOGLE_CLIENT_SECRET%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20scope%3A%20profile%2C%20email" data-code-lang="yaml">
+        <pre><code># application.yml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile, email</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">Next.js (NextAuth.js)</div>
+        <div class="code-block" data-slot="code" data-block-id="cb-61e1de72" data-code-source="%2F%2F%20app%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute.ts%0Aimport%20GoogleProvider%20from%20%22next-auth%2Fproviders%2Fgoogle%22%3B%0Aimport%20NextAuth%20from%20%22next-auth%22%3B%0A%0Aconst%20handler%20%3D%20NextAuth(%7B%0A%20%20providers%3A%20%5B%0A%20%20%20%20GoogleProvider(%7B%0A%20%20%20%20%20%20clientId%3A%20process.env.GOOGLE_CLIENT_ID!%2C%0A%20%20%20%20%20%20clientSecret%3A%20process.env.GOOGLE_CLIENT_SECRET!%2C%0A%20%20%20%20%7D)%2C%0A%20%20%5D%2C%0A%20%20callbacks%3A%20%7B%0A%20%20%20%20async%20signIn(%7B%20profile%20%7D)%20%7B%0A%20%20%20%20%20%20return%20profile%3F.email_verified%20%3D%3D%3D%20true%3B%0A%20%20%20%20%7D%2C%0A%20%20%7D%2C%0A%7D)%3B" data-code-lang="typescript">
+        <pre><code>// app/api/auth/[...nextauth]/route.ts
+import GoogleProvider from &quot;next-auth/providers/google&quot;;
+import NextAuth from &quot;next-auth&quot;;
+
+const handler = NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  callbacks: {
+    async signIn({ profile }) {
+      return profile?.email_verified === true;
+    },
+  },
+});</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.1 Spring Boot + Next.js 통합</span>
+    <span class="slide-footer-right" data-slot="page-num">41</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">OAUTH CALLBACK</div>
+    <div class="t-title" data-slot="title">8.6.1 콜백 처리 — DB 사용자 매핑</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">email_verified=true이면 별도 인증 메일 없이 즉시 로그인 가능 (Google이 이미 검증)</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-1d549f9b" data-code-source="%40Service%0Apublic%20class%20OAuth2UserService%20extends%20DefaultOAuth2UserService%20%7B%0A%20%20%20%20%40Override%0A%20%20%20%20public%20OAuth2User%20loadUser(OAuth2UserRequest%20req)%20%7B%0A%20%20%20%20%20%20%20%20OAuth2User%20user%20%3D%20super.loadUser(req)%3B%0A%20%20%20%20%20%20%20%20String%20email%20%3D%20user.getAttribute(%22email%22)%3B%0A%20%20%20%20%20%20%20%20Boolean%20verified%20%3D%20user.getAttribute(%22email_verified%22)%3B%0A%20%20%20%20%20%20%20%20if%20(!Boolean.TRUE.equals(verified))%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20throw%20new%20OAuth2AuthenticationException(%22EMAIL_NOT_VERIFIED%22)%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20User%20dbUser%20%3D%20userRepository.findByEmail(email)%0A%20%20%20%20%20%20%20%20%20%20%20%20.orElseGet(()%20-%3E%20registerNewUser(email%2C%20user))%3B%0A%20%20%20%20%20%20%20%20return%20new%20AuthenticatedUser(dbUser%2C%20user.getAttributes())%3B%0A%20%20%20%20%7D%0A%7D" data-code-lang="java">
+    <pre><code>@Service
+public class OAuth2UserService extends DefaultOAuth2UserService {
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest req) {
+        OAuth2User user = super.loadUser(req);
+        String email = user.getAttribute(&quot;email&quot;);
+        Boolean verified = user.getAttribute(&quot;email_verified&quot;);
+        if (!Boolean.TRUE.equals(verified)) {
+            throw new OAuth2AuthenticationException(&quot;EMAIL_NOT_VERIFIED&quot;);
+        }
+        User dbUser = userRepository.findByEmail(email)
+            .orElseGet(() -&gt; registerNewUser(email, user));
+        return new AuthenticatedUser(dbUser, user.getAttributes());
+    }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.1 콜백 처리 — DB 사용자 매핑</span>
+    <span class="slide-footer-right" data-slot="page-num">42</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">GITHUB OAUTH</div>
+    <div class="t-title" data-slot="title">8.6.2 GitHub OAuth — 비공개 이메일 처리</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">이메일이 비공개면 profile.email이 null. /user/emails 엔드포인트를 추가 호출해 primary 이메일 획득.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-7ce1e600" data-code-source="import%20GitHubProvider%20from%20%22next-auth%2Fproviders%2Fgithub%22%3B%0A%0Aconst%20handler%20%3D%20NextAuth(%7B%0A%20%20providers%3A%20%5B%0A%20%20%20%20GitHubProvider(%7B%0A%20%20%20%20%20%20clientId%3A%20process.env.GITHUB_CLIENT_ID!%2C%0A%20%20%20%20%20%20clientSecret%3A%20process.env.GITHUB_CLIENT_SECRET!%2C%0A%20%20%20%20%20%20authorization%3A%20%7B%20params%3A%20%7B%20scope%3A%20%22read%3Auser%20user%3Aemail%22%20%7D%20%7D%2C%0A%20%20%20%20%7D)%2C%0A%20%20%5D%2C%0A%7D)%3B%0A%0Aasync%20function%20fetchPrimaryEmail(accessToken%3A%20string)%20%7B%0A%20%20const%20res%20%3D%20await%20fetch(%22https%3A%2F%2Fapi.github.com%2Fuser%2Femails%22%2C%20%7B%0A%20%20%20%20headers%3A%20%7B%20Authorization%3A%20%60Bearer%20%24%7BaccessToken%7D%60%20%7D%2C%0A%20%20%7D)%3B%0A%20%20const%20emails%20%3D%20await%20res.json()%3B%0A%20%20return%20emails.find((e%3A%20any)%20%3D%3E%20e.primary%20%26%26%20e.verified)%3F.email%20%3F%3F%20null%3B%0A%7D" data-code-lang="typescript">
+    <pre><code>import GitHubProvider from &quot;next-auth/providers/github&quot;;
+
+const handler = NextAuth({
+  providers: [
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      authorization: { params: { scope: &quot;read:user user:email&quot; } },
+    }),
+  ],
+});
+
+async function fetchPrimaryEmail(accessToken: string) {
+  const res = await fetch(&quot;https://api.github.com/user/emails&quot;, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const emails = await res.json();
+  return emails.find((e: any) =&gt; e.primary &amp;&amp; e.verified)?.email ?? null;
+}</code></pre>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>Google vs GitHub 선택</strong> Google: 사용자 풀 가장 큼, email_verified 신뢰 가능 / GitHub: 개발자 친화적, scope 세분화. 개발자 SaaS는 두 개 다 제공이 표준.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.2 GitHub OAuth — 비공개 이메일 처리</span>
+    <span class="slide-footer-right" data-slot="page-num">43</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">RESEND</div>
+    <div class="t-title" data-slot="title">8.6.3 Resend API — 가입과 키 발급</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">SMTP가 아닌 REST API 기반의 트랜잭셔널 메일 서비스. 월 3,000건 무료, DKIM 자동.</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>resend.com 가입<span class="sub">월 3,000건 무료</span></div></li>
+      <li><div>API Keys → 새 키 생성<span class="sub">re_xxxxxxxx... Full Access 권장</span></div></li>
+      <li><div>한 번만 노출됨<span class="sub">즉시 비밀 저장소(.env, AWS Secrets Manager 등)</span></div></li>
+      <li><div>발신 도메인 등록 (운영 필수)<span class="sub">Domains → Add Domain → 자기 도메인</span></div></li>
+      <li><div>DNS 레코드 추가<span class="sub">SPF + DKIM + DMARC 3개 — Resend가 제공하는 값을 그대로 입력</span></div></li>
+    </ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.3 Resend API — 가입과 키 발급</span>
+    <span class="slide-footer-right" data-slot="page-num">44</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">RESEND CLIENT</div>
+    <div class="t-title" data-slot="title">8.6.3 Spring Boot — RestClient 빈 등록</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-63c36497" data-code-source="%40Configuration%0Apublic%20class%20RestClientConfig%20%7B%0A%20%20%20%20%40Bean%0A%20%20%20%20public%20RestClient%20resendRestClient(%0A%20%20%20%20%20%20%20%20%20%20%20%20%40Value(%22%24%7Bapp.email.resend-api-key%7D%22)%20String%20apiKey)%20%7B%0A%20%20%20%20%20%20%20%20SimpleClientHttpRequestFactory%20f%20%3D%20new%20SimpleClientHttpRequestFactory()%3B%0A%20%20%20%20%20%20%20%20f.setConnectTimeout((int)%20Duration.ofSeconds(5).toMillis())%3B%0A%20%20%20%20%20%20%20%20f.setReadTimeout((int)%20Duration.ofSeconds(10).toMillis())%3B%0A%20%20%20%20%20%20%20%20return%20RestClient.builder()%0A%20%20%20%20%20%20%20%20%20%20%20%20.baseUrl(%22https%3A%2F%2Fapi.resend.com%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20.defaultHeader(%22Authorization%22%2C%20%22Bearer%20%22%20%2B%20apiKey)%0A%20%20%20%20%20%20%20%20%20%20%20%20.defaultHeader(%22Content-Type%22%2C%20%22application%2Fjson%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20.requestFactory(f)%0A%20%20%20%20%20%20%20%20%20%20%20%20.build()%3B%0A%20%20%20%20%7D%0A%7D" data-code-lang="java">
+    <pre><code>@Configuration
+public class RestClientConfig {
+    @Bean
+    public RestClient resendRestClient(
+            @Value(&quot;${app.email.resend-api-key}&quot;) String apiKey) {
+        SimpleClientHttpRequestFactory f = new SimpleClientHttpRequestFactory();
+        f.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
+        f.setReadTimeout((int) Duration.ofSeconds(10).toMillis());
+        return RestClient.builder()
+            .baseUrl(&quot;https://api.resend.com&quot;)
+            .defaultHeader(&quot;Authorization&quot;, &quot;Bearer &quot; + apiKey)
+            .defaultHeader(&quot;Content-Type&quot;, &quot;application/json&quot;)
+            .requestFactory(f)
+            .build();
+    }
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.3 Spring Boot — RestClient 빈 등록</span>
+    <span class="slide-footer-right" data-slot="page-num">45</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">ASYNC SEND</div>
+    <div class="t-title" data-slot="title">8.6.3 메일 발송 클라이언트 + 트랜잭션 분리</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">메일 I/O를 트랜잭션 안에서 하면 DB 커넥션 점유 → 풀 고갈. AFTER_COMMIT + @Async로 분리.</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-d546ee6b" data-code-source="%40Component%0Apublic%20class%20VerificationCodeEventListener%20%7B%0A%20%20%20%20private%20final%20ResendEmailClient%20client%3B%0A%0A%20%20%20%20%40Async%0A%20%20%20%20%40TransactionalEventListener(phase%20%3D%20TransactionPhase.AFTER_COMMIT)%0A%20%20%20%20public%20void%20onVerificationCodeGenerated(%0A%20%20%20%20%20%20%20%20%20%20%20%20VerificationCodeGeneratedEvent%20event)%20%7B%0A%20%20%20%20%20%20%20%20client.sendVerificationEmail(%0A%20%20%20%20%20%20%20%20%20%20%20%20event.email()%2C%20event.code()%2C%20event.expiryMinutes())%3B%0A%20%20%20%20%7D%0A%7D" data-code-lang="java">
+    <pre><code>@Component
+public class VerificationCodeEventListener {
+    private final ResendEmailClient client;
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onVerificationCodeGenerated(
+            VerificationCodeGeneratedEvent event) {
+        client.sendVerificationEmail(
+            event.email(), event.code(), event.expiryMinutes());
+    }
+}</code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>이 패턴이 보장하는 것</strong> 1) 커밋된 데이터만 발송(롤백된 회원 정보로 메일 안 감) 2) DB 커넥션 즉시 반환 + 별도 스레드 풀 발송 3) 메일 실패가 비즈니스 트랜잭션을 깨지 않음.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.3 메일 발송 클라이언트 + 트랜잭션 분리</span>
+    <span class="slide-footer-right" data-slot="page-num">46</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">REACT EMAIL</div>
+    <div class="t-title" data-slot="title">8.6.4 React Email — 컴포넌트 기반 템플릿</div>
+    <div class="two-col ratio-6-4" style="margin-top:14px;">
+      <div>
+        <div class="code-block" data-slot="code" data-block-id="cb-133011d5" data-code-source="%2F%2F%20emails%2Fverification.tsx%0Aimport%20%7B%20Body%2C%20Container%2C%20Head%2C%20Html%2C%20Preview%2C%20Text%20%7D%0A%20%20from%20'%40react-email%2Fcomponents'%3B%0A%0Ainterface%20Props%20%7B%20code%3A%20string%3B%20expiryMinutes%3A%20number%3B%20%7D%0A%0Aexport%20default%20function%20VerificationEmail(%0A%20%20%20%20%7B%20code%2C%20expiryMinutes%20%7D%3A%20Props)%20%7B%0A%20%20return%20(%0A%20%20%20%20%3CHtml%3E%0A%20%20%20%20%20%20%3CHead%20%2F%3E%0A%20%20%20%20%20%20%3CPreview%3ETika%20%EC%9D%B4%EB%A9%94%EC%9D%BC%20%EC%9D%B8%EC%A6%9D%20%EC%BD%94%EB%93%9C%3C%2FPreview%3E%0A%20%20%20%20%20%20%3CBody%20style%3D%7B%7B%20background%3A%20'%23f9fafb'%20%7D%7D%3E%0A%20%20%20%20%20%20%20%20%3CContainer%20style%3D%7B%7B%20maxWidth%3A%20480%2C%20padding%3A%2032%20%7D%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%3CText%20style%3D%7B%7B%20fontSize%3A%2024%2C%20fontWeight%3A%20700%20%7D%7D%3ETika%3C%2FText%3E%0A%20%20%20%20%20%20%20%20%20%20%3CText%3E%EC%9D%B4%EB%A9%94%EC%9D%BC%20%EC%9D%B8%EC%A6%9D%20%EC%BD%94%EB%93%9C%3C%2FText%3E%0A%20%20%20%20%20%20%20%20%20%20%3CText%20style%3D%7B%7B%20fontSize%3A%2036%2C%20letterSpacing%3A%208%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20'%232563eb'%20%7D%7D%3E%7Bcode%7D%3C%2FText%3E%0A%20%20%20%20%20%20%20%20%20%20%3CText%20style%3D%7B%7B%20fontSize%3A%2013%2C%20color%3A%20'%239ca3af'%20%7D%7D%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%EC%9D%B4%20%EC%BD%94%EB%93%9C%EB%8A%94%20%7BexpiryMinutes%7D%EB%B6%84%20%ED%9B%84%20%EB%A7%8C%EB%A3%8C%EB%90%A9%EB%8B%88%EB%8B%A4.%0A%20%20%20%20%20%20%20%20%20%20%3C%2FText%3E%0A%20%20%20%20%20%20%20%20%3C%2FContainer%3E%0A%20%20%20%20%20%20%3C%2FBody%3E%0A%20%20%20%20%3C%2FHtml%3E%0A%20%20)%3B%0A%7D" data-code-lang="tsx">
+        <pre><code>// emails/verification.tsx
+import { Body, Container, Head, Html, Preview, Text }
+  from &#39;@react-email/components&#39;;
+
+interface Props { code: string; expiryMinutes: number; }
+
+export default function VerificationEmail(
+    { code, expiryMinutes }: Props) {
+  return (
+    &lt;Html&gt;
+      &lt;Head /&gt;
+      &lt;Preview&gt;Tika 이메일 인증 코드&lt;/Preview&gt;
+      &lt;Body style={{ background: &#39;#f9fafb&#39; }}&gt;
+        &lt;Container style={{ maxWidth: 480, padding: 32 }}&gt;
+          &lt;Text style={{ fontSize: 24, fontWeight: 700 }}&gt;Tika&lt;/Text&gt;
+          &lt;Text&gt;이메일 인증 코드&lt;/Text&gt;
+          &lt;Text style={{ fontSize: 36, letterSpacing: 8,
+              color: &#39;#2563eb&#39; }}&gt;{code}&lt;/Text&gt;
+          &lt;Text style={{ fontSize: 13, color: &#39;#9ca3af&#39; }}&gt;
+            이 코드는 {expiryMinutes}분 후 만료됩니다.
+          &lt;/Text&gt;
+        &lt;/Container&gt;
+      &lt;/Body&gt;
+    &lt;/Html&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3">장점</div>
+        <ul class="bullet-list" data-slot="bullets">
+          <li><div>컴포넌트 재사용<span class="sub">헤더·CTA·푸터 분리</span></div></li>
+          <li><div>프리뷰 도구<span class="sub">npx react-email dev</span></div></li>
+          <li><div>인라인 CSS 자동<span class="sub">메일 클라 호환</span></div></li>
+        </ul>
+        <div class="callout callout-blue" style="margin-top:14px;">
+          <div class="callout-icon">ⓘ</div>
+          <div class="callout-body">render(&lt;Email /&gt;)로 정적 HTML로 변환 후 Resend의 react: 옵션에 직접 전달 가능.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.4 React Email — 컴포넌트 기반 템플릿</span>
+    <span class="slide-footer-right" data-slot="page-num">47</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">RESEND SDK</div>
+    <div class="t-title" data-slot="title">8.6.4 Resend Node SDK로 직접 발송</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-398f0bc2" data-code-source="import%20%7B%20Resend%20%7D%20from%20'resend'%3B%0Aimport%20VerificationEmail%20from%20'.%2Femails%2Fverification'%3B%0A%0Aconst%20resend%20%3D%20new%20Resend(process.env.RESEND_API_KEY)%3B%0A%0Aawait%20resend.emails.send(%7B%0A%20%20from%3A%20'noreply%40tika.example.com'%2C%0A%20%20to%3A%20user.email%2C%0A%20%20subject%3A%20'%5BTika%5D%20%EC%9D%B4%EB%A9%94%EC%9D%BC%20%EC%9D%B8%EC%A6%9D%20%EC%BD%94%EB%93%9C'%2C%0A%20%20react%3A%20VerificationEmail(%7B%20code%2C%20expiryMinutes%3A%205%20%7D)%2C%0A%7D)%3B%0A%0A%2F%2F%20%EB%AF%B8%EB%A6%AC%EB%B3%B4%EA%B8%B0%20%EA%B0%9C%EB%B0%9C%20%EC%84%9C%EB%B2%84%0A%2F%2F%20%24%20npx%20react-email%20dev%0A%2F%2F%20http%3A%2F%2Flocalhost%3A3000%20%EC%97%90%EC%84%9C%20%EB%AA%A8%EB%93%A0%20%ED%85%9C%ED%94%8C%EB%A6%BF%20%EB%9D%BC%EC%9D%B4%EB%B8%8C%20%ED%94%84%EB%A6%AC%EB%B7%B0" data-code-lang="typescript">
+    <pre><code>import { Resend } from &#39;resend&#39;;
+import VerificationEmail from &#39;./emails/verification&#39;;
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+await resend.emails.send({
+  from: &#39;noreply@tika.example.com&#39;,
+  to: user.email,
+  subject: &#39;[Tika] 이메일 인증 코드&#39;,
+  react: VerificationEmail({ code, expiryMinutes: 5 }),
+});
+
+// 미리보기 개발 서버
+// $ npx react-email dev
+// http://localhost:3000 에서 모든 템플릿 라이브 프리뷰</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.4 Resend Node SDK로 직접 발송</span>
+    <span class="slide-footer-right" data-slot="page-num">48</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">DOMAIN AUTH</div>
+    <div class="t-title" data-slot="title">8.6.5 도메인 인증 — SPF/DKIM/DMARC</div>
+    <div class="t-body" data-slot="body">운영 발신은 자기 도메인 등록 + 3개 DNS 레코드 필수. 그렇지 않으면 스팸함 직행.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>레코드</th><th>값</th><th>역할</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>SPF (TXT @)</td><td>v=spf1 include:amazonses.com ~all</td><td>발신 서버 화이트리스트</td></tr>
+              <tr><td>DKIM (TXT resend._domainkey)</td><td>Resend 제공 공개키</td><td>메일 본문 서명 검증</td></tr>
+              <tr><td>DMARC (TXT _dmarc)</td><td>v=DMARC1; p=none; rua=...</td><td>정책 + 보고서 수신</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">⚠</div>
+      <div class="callout-body"><strong>DMARC 단계적 강화</strong> 처음부터 p=reject 쓰면 정상 메일까지 차단. p=none(보고서만) → p=quarantine(스팸함) → p=reject(거부) 순서로 단계 적용.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.5 도메인 인증 — SPF/DKIM/DMARC</span>
+    <span class="slide-footer-right" data-slot="page-num">49</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">WEBHOOKS</div>
+    <div class="t-title" data-slot="title">8.6.5 발송 모니터링 — Resend Webhooks</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">bounce/complaint 자동 차단으로 도메인 평판 보호</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-8891406e" data-code-source="%40PostMapping(%22%2Fwebhooks%2Fresend%22)%0Apublic%20ResponseEntity%3CVoid%3E%20onResendEvent(%0A%20%20%20%20%20%20%20%20%40RequestBody%20ResendEvent%20event%2C%0A%20%20%20%20%20%20%20%20%40RequestHeader(%22svix-signature%22)%20String%20sig)%20%7B%0A%20%20%20%20if%20(!verifySignature(sig%2C%20event))%20%7B%0A%20%20%20%20%20%20%20%20return%20ResponseEntity.status(401).build()%3B%0A%20%20%20%20%7D%0A%20%20%20%20switch%20(event.type())%20%7B%0A%20%20%20%20%20%20%20%20case%20%22email.bounced%22%20%20%20%20-%3E%20blockUser(event.data().to())%3B%0A%20%20%20%20%20%20%20%20case%20%22email.complained%22%20-%3E%20blockUser(event.data().to())%3B%0A%20%20%20%20%20%20%20%20case%20%22email.delivered%22%20%20-%3E%20log.info(%22delivered%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20event.data().email_id())%3B%0A%20%20%20%20%7D%0A%20%20%20%20return%20ResponseEntity.ok().build()%3B%0A%7D" data-code-lang="java">
+    <pre><code>@PostMapping(&quot;/webhooks/resend&quot;)
+public ResponseEntity&lt;Void&gt; onResendEvent(
+        @RequestBody ResendEvent event,
+        @RequestHeader(&quot;svix-signature&quot;) String sig) {
+    if (!verifySignature(sig, event)) {
+        return ResponseEntity.status(401).build();
+    }
+    switch (event.type()) {
+        case &quot;email.bounced&quot;    -&gt; blockUser(event.data().to());
+        case &quot;email.complained&quot; -&gt; blockUser(event.data().to());
+        case &quot;email.delivered&quot;  -&gt; log.info(&quot;delivered {}&quot;,
+                                       event.data().email_id());
+    }
+    return ResponseEntity.ok().build();
+}</code></pre>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.5 발송 모니터링 — Resend Webhooks</span>
+    <span class="slide-footer-right" data-slot="page-num">50</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">KPI</div>
+    <div class="t-title" data-slot="title">8.6.5 발송 지표 KPI — 모니터링 임계값</div>
+    <div class="t-body" data-slot="body">도메인 평판은 한 번 망가지면 회복이 어렵다. 임계값을 넘으면 즉시 발송 일시 중단 + 원인 분석.</div>
+    <div data-slot="table" style="flex:1; margin-top:14px;">
+      <table class="tbl">
+        <thead>
+          <tr><th>지표</th><th>정상 범위</th><th>경보 기준</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Delivered Rate</td><td>> 98%</td><td>&lt; 95%면 도메인 평판 점검</td></tr>
+              <tr><td>Bounce Rate</td><td>&lt; 2%</td><td>> 5%면 이메일 검증 강화</td></tr>
+              <tr><td>Complaint Rate</td><td>&lt; 0.1%</td><td>> 0.3%면 발신 일시 중단</td></tr>
+              <tr><td>Open Rate</td><td>20~40%</td><td>너무 높으면 봇 트래픽 의심</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">8.6.5 발송 지표 KPI — 모니터링 임계값</span>
+    <span class="slide-footer-right" data-slot="page-num">51</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">WRAP-UP</div>
+    <div class="t-title" data-slot="title">마무리 — 배포는 운영의 시작</div>
+    <div class="t-body" data-slot="body">배포는 개발의 끝이 아니라 운영의 시작이다. 서버·로그 모니터링을 통해 문제를 빠르게 발견하고, 실시간 알림을 통해 즉시 대응하며 원 클릭 롤백 계획을 항상 준비해두어야 한다.</div>
+    <div class="callout callout-amber" style="margin-top:14px;">
+      <div class="callout-icon">★</div>
+      <div class="callout-body"><strong>8.1~8.2 운영 자동화</strong> 환경 분리는 Git 브랜치와 짝을 이룰 때 의미 / claude -p는 CI/CD에 LLM을 끼우는 가장 단순한 방법.</div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>8.3~8.4 클라우드 배포</strong> Vercel은 Next.js 풀스택을 단일 플랫폼에서 / 별도 백엔드는 Railway가 가장 빠르다.</div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px;">
+      <div class="callout-icon">✓</div>
+      <div class="callout-body"><strong>8.5~8.6 셀프호스팅 + 인증</strong> Cloudflare Tunnel + R2로 공인 IP 없이 셀프 호스팅 / OAuth + Resend + DKIM은 SaaS 기본 패키지.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">마무리 — 배포는 운영의 시작</span>
+    <span class="slide-footer-right" data-slot="page-num">52</span>
+  </div>
+</div>
+
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">REFERENCES</div>
+    <div class="t-title" data-slot="title">참고 자료</div>
+    <ul class="bullet-list" data-slot="bullets">
+      <li><div>vercel.com/docs<span class="sub"><a class="link" href="https://vercel.com/docs">https://vercel.com/docs</a> — Next.js · Functions · Domains</span></div></li>
+      <li><div>docs.railway.com<span class="sub"><a class="link" href="https://docs.railway.com">https://docs.railway.com</a> — Dockerfile · Health · DB</span></div></li>
+      <li><div>developers.cloudflare.com/cloudflare-one/connections/connect-networks<span class="sub"><a class="link" href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks">https://developers.cloudflare.com/cloudflare-one/connections/connect-networks</a> — 공인 IP 없이 노출</span></div></li>
+      <li><div>developers.cloudflare.com/r2<span class="sub"><a class="link" href="https://developers.cloudflare.com/r2">https://developers.cloudflare.com/r2</a> — S3 호환 객체 스토리지</span></div></li>
+      <li><div>developers.cloudflare.com/pages<span class="sub"><a class="link" href="https://developers.cloudflare.com/pages">https://developers.cloudflare.com/pages</a> — 정적 호스팅 + Functions</span></div></li>
+      <li><div>resend.com/docs<span class="sub"><a class="link" href="https://resend.com/docs">https://resend.com/docs</a> — 트랜잭셔널 메일 API</span></div></li>
+      <li><div>react.email<span class="sub"><a class="link" href="https://react.email">https://react.email</a> — 컴포넌트 기반 메일 템플릿</span></div></li>
+      <li><div>next-auth.js.org<span class="sub"><a class="link" href="https://next-auth.js.org">https://next-auth.js.org</a></span></div></li>
+      <li><div>code.claude.com/docs/en/headless<span class="sub"><a class="link" href="https://code.claude.com/docs/en/headless">https://code.claude.com/docs/en/headless</a></span></div></li>
+      <li><div>code.claude.com/docs/en/dispatch<span class="sub"><a class="link" href="https://code.claude.com/docs/en/dispatch">https://code.claude.com/docs/en/dispatch</a></span></div></li>
+    </ul>
+    <div class="callout callout-blue" style="margin-top:24px;">
+      <div class="callout-icon">ⓘ</div>
+      <div class="callout-body"><strong>주요 인증·자동화 레퍼런스</strong> react.email next-auth.js.org code.claude.com/docs/en/headless code.claude.com/docs/en/dispatch — 인증·메일·헤드리스 자동화 핵심 문서.</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">참고 자료</span>
+    <span class="slide-footer-right" data-slot="page-num">53</span>
+  </div>
+</div>
+</body>
+</html>

@@ -1,75 +1,55 @@
 import { useEffect, useRef, useState } from 'react';
-import { highlightCode, SUPPORTED_LANGS } from '../highlight/highlighter';
+import { SUPPORTED_LANGS } from '../highlight/highlighter';
 import { DATA_BLOCK_ID } from '../scene/blockId';
-import { useDeckStore } from '../scene/store';
+import { applyCodeBlockToEl, isCodeBlockEl, readCodeLang, readCodeSource } from './codeBlockHtml';
 
-// Scope to the main canvas only — sidebar thumbnails reuse `.slide-canvas-host`
-// with the same data-block-id values, so a class-based selector would patch a
-// thumbnail (and never the live editor) when the thumbnail appears earlier in
-// DOM order.
-function findBlock(blockId: string): HTMLElement | null {
+// Deck helpers (main-canvas resolution). Scope to the main canvas only —
+// sidebar thumbnails reuse `.slide-canvas-host` with the same data-block-id
+// values, so a class-based selector would patch a thumbnail.
+export function findMainCanvasBlock(blockId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(
     `[data-canvas-role="main"] [${DATA_BLOCK_ID}="${blockId}"]`,
   );
 }
 
-function readSource(el: HTMLElement): string {
-  const enc = el.getAttribute('data-code-source') ?? '';
-  try {
-    return decodeURIComponent(enc);
-  } catch {
-    return enc;
-  }
-}
-
-function readLang(el: HTMLElement): string {
-  return el.getAttribute('data-code-lang') ?? 'plaintext';
-}
-
-// Identify shiki-driven blocks via the data-code-source attribute. Pre-existing
-// brewnet blocks without this attribute are not source-editable here.
 export function isCodeBlock(blockId: string): boolean {
-  const el = findBlock(blockId);
-  return !!el && el.hasAttribute('data-code-source');
+  return isCodeBlockEl(findMainCanvasBlock(blockId));
 }
 
 type Status = 'idle' | 'applying' | 'applied' | 'error';
 
 type Props = {
-  blockId: string;
+  // Resolves the live code-block element to edit. Deck passes a main-canvas
+  // lookup; the document editor passes its selected iframe code block.
+  getEl: () => HTMLElement | null;
+  // Changes whenever the target block changes (selection / slide / revision),
+  // so drafts re-seed from the freshly resolved element.
+  seedKey: string;
 };
 
-export function CodeBlockEditPanel({ blockId }: Props) {
-  const revision = useDeckStore((s) => s.revision);
-  const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
-
-  // Draft state — what's in the inputs right now.
+// Language + source editor for a shiki code block. Surface-agnostic: it edits
+// whatever element getEl() returns and commits via an `input` event (caught by
+// useSlideEditing on the deck, useDocumentEditing in the doc iframe).
+export function CodeBlockEditPanel({ getEl, seedKey }: Props) {
   const [source, setSource] = useState('');
   const [lang, setLang] = useState('plaintext');
-
-  // Applied state — what we last successfully wrote to the live slide.
-  // Drift between draft and applied is what `dirty` measures, so the user
-  // always knows whether their edit has reached the canvas.
   const [appliedSource, setAppliedSource] = useState('');
   const [appliedLang, setAppliedLang] = useState('plaintext');
-
   const [status, setStatus] = useState<Status>('idle');
   const statusTimerRef = useRef<number | null>(null);
 
-  // Re-seed both draft and applied from the live DOM when selection / slide /
-  // revision changes. Without this, switching blocks would carry stale text
-  // from the previous block into the editor.
   useEffect(() => {
-    const el = findBlock(blockId);
+    const el = getEl();
     if (!el) return;
-    const nextSource = readSource(el);
-    const nextLang = readLang(el);
+    const nextSource = readCodeSource(el);
+    const nextLang = readCodeLang(el);
     setSource(nextSource);
     setLang(nextLang);
     setAppliedSource(nextSource);
     setAppliedLang(nextLang);
     setStatus('idle');
-  }, [blockId, slideId, revision]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seedKey]);
 
   useEffect(() => {
     return () => {
@@ -80,23 +60,18 @@ export function CodeBlockEditPanel({ blockId }: Props) {
   const dirty = source !== appliedSource || lang !== appliedLang;
 
   const apply = async () => {
-    const el = findBlock(blockId);
+    const el = getEl();
     if (!el) {
-      setStatus('error');
-      return;
-    }
-    const code = el.querySelector('pre > code');
-    if (!code) {
       setStatus('error');
       return;
     }
     setStatus('applying');
     try {
-      el.setAttribute('data-code-source', encodeURIComponent(source));
-      el.setAttribute('data-code-lang', lang);
-      const html = await highlightCode(source, lang);
-      code.innerHTML = html;
-      el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+      const ok = await applyCodeBlockToEl(el, source, lang);
+      if (!ok) {
+        setStatus('error');
+        return;
+      }
       setAppliedSource(source);
       setAppliedLang(lang);
       setStatus('applied');
@@ -163,15 +138,15 @@ export function CodeBlockEditPanel({ blockId }: Props) {
       </div>
       <div className="text-[10px] leading-relaxed">
         {status === 'applied' ? (
-          <span className="text-emerald-400">✓ 슬라이드에 적용됨</span>
+          <span className="text-emerald-400">✓ 적용됨</span>
         ) : status === 'error' ? (
           <span className="text-red-400">⚠ 적용 실패 (블록 또는 코드 영역을 찾지 못함)</span>
         ) : status === 'applying' ? (
           <span className="text-editor-dim">하이라이팅 중…</span>
         ) : dirty ? (
-          <span className="text-amber-400">● 수정됨 — Apply 버튼을 눌러 슬라이드에 반영</span>
+          <span className="text-amber-400">● 수정됨 — Apply 버튼을 눌러 반영</span>
         ) : (
-          <span className="text-editor-dim">슬라이드와 동일한 상태</span>
+          <span className="text-editor-dim">동일한 상태</span>
         )}
       </div>
     </div>

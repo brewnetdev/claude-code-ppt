@@ -1,0 +1,3897 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Kit Playground — 컴포넌트 & 다이얼로그 통합 (74)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f17; --panel:#0f1521; --panel2:#121a28; --border:#1e2838;
+  --text:#e8edf5; --dim:#8b97aa; --accent:#f59e0b; --accent2:#60a5fa; --ok:#34d399;
+}
+html,body{height:100%}
+body{font-family:'Inter','Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+.uk-app{display:grid;grid-template-columns:300px 1fr;height:100vh}
+
+/* sidebar */
+.uk-side{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.uk-brand{padding:20px 22px 14px}
+.uk-brand h1{font-size:18px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.uk-brand h1 .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ff9f43)}
+.uk-brand p{font-size:11px;color:var(--dim);margin-top:5px;font-family:'JetBrains Mono',monospace}
+.uk-searchwrap{padding:4px 16px 12px}
+.uk-searchwrap input{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:inherit}
+.uk-searchwrap input:focus{border-color:var(--accent2)}
+.uk-searchwrap input::placeholder{color:#5b6677}
+.uk-menu{flex:1;overflow-y:auto;padding:6px 10px 28px}
+.uk-menu::-webkit-scrollbar{width:8px}
+.uk-menu::-webkit-scrollbar-thumb{background:#243042;border-radius:8px}
+.uk-group{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.uk-group-tag{background:var(--border);color:var(--dim);border-radius:20px;padding:1px 8px;font-size:10px;font-family:'JetBrains Mono',monospace}
+.uk-sub{padding:8px 12px 4px;font-size:10px;font-weight:600;letter-spacing:.04em;color:#5f6b7d}
+.uk-item{display:flex;align-items:baseline;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:8px;color:var(--dim);padding:8px 12px;font-size:13.5px;cursor:pointer;font-family:inherit;border-left:2px solid transparent}
+.uk-item:hover{background:var(--panel2);color:var(--text)}
+.uk-item.active{background:rgba(245,158,11,.12);color:var(--accent);border-left-color:var(--accent);font-weight:600}
+.uk-item-ko{font-size:11px;color:#566173}
+.uk-item.active .uk-item-ko{color:var(--accent)}
+
+/* main */
+.uk-main{overflow-y:auto;min-height:0;background:var(--bg)}
+.uk-head{padding:30px 40px 0;max-width:1100px;margin:0 auto}
+.uk-crumb{font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.uk-title-row{display:flex;align-items:baseline;gap:12px}
+.uk-title-row h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.uk-title-ko{font-size:16px;color:var(--dim)}
+.uk-desc{color:var(--dim);font-size:14.5px;line-height:1.65;margin-top:10px;max-width:760px}
+.uk-deps{margin-top:12px;display:inline-block;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--accent2);background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:6px;padding:4px 10px}
+.uk-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.uk-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;font-family:inherit;transition:.15s}
+.uk-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.uk-btn.primary{background:linear-gradient(135deg,var(--accent),#e08600);color:#1a1205;border-color:transparent}
+.uk-btn.primary:hover{filter:brightness(1.08);color:#1a1205}
+
+.uk-tabs{display:flex;gap:24px;padding:0 40px;margin:24px auto 0;max-width:1100px;border-bottom:1px solid var(--border)}
+.uk-tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);font-size:13.5px;font-weight:600;padding:12px 2px;cursor:pointer;font-family:inherit;margin-bottom:-1px}
+.uk-tab:hover{color:var(--text)}
+.uk-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.uk-panels{padding:24px 40px 60px;max-width:1100px;margin:0 auto}
+.uk-panel{display:none}
+.uk-panel.active{display:block}
+.uk-preview{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+.uk-frame{width:100%;height:480px;border:0;display:block;background:#fff}
+.uk-code{position:relative;background:#0d1320;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.uk-code pre{margin:0;padding:20px 20px 22px;overflow-x:auto}
+.uk-code code{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:#c9d4e3;white-space:pre}
+.uk-copy{position:absolute;top:12px;right:12px;background:var(--panel2);border:1px solid var(--border);color:var(--dim);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;z-index:2}
+.uk-copy:hover{border-color:var(--accent2);color:var(--accent2)}
+.uk-copy.ok{color:var(--ok);border-color:var(--ok)}
+
+</style>
+</head>
+<body>
+<div class="uk-app">
+  <aside class="uk-side">
+    <div class="uk-brand">
+      <h1><span class="dot"></span> UI Kit Playground</h1>
+      <p>74 components · copy &amp; paste ready</p>
+    </div>
+    <div class="uk-searchwrap">
+      <input id="uk-search" type="search" placeholder="컴포넌트 검색 (한글/영문)…" autocomplete="off">
+    </div>
+    <nav class="uk-menu" id="uk-menu"></nav>
+  </aside>
+  <main class="uk-main"><div id="uk-view"></div></main>
+</div>
+
+<script id="data-catalog">const CATALOG = [
+  { id: 'accordion', num: 1, name: 'Accordion', nameKo: '아코디언', cat: 'container',
+    desc: '제목을 클릭하면 섹션이 펼쳐지거나 접히는 컴포넌트. 좁은 공간에 많은 정보를 단계적으로 노출할 수 있다.',
+    usecase: 'FAQ · 상품 상세 설명 · 설정 메뉴',
+    feature: '콘텐츠 토글 / 단계적 정보 노출 (Progressive Disclosure)',
+    html: `<div class="accordion">
+  <div class="accordion-item">
+    <button class="accordion-header">결제는 어떻게 하나요?</button>
+    <div class="accordion-body">신용카드, 계좌이체, 간편결제를 지원합니다.</div>
+  </div>
+  <div class="accordion-item">
+    <button class="accordion-header">배송은 얼마나 걸리나요?</button>
+    <div class="accordion-body">평일 오후 2시 이전 주문 시 당일 출고됩니다.</div>
+  </div>
+  <div class="accordion-item">
+    <button class="accordion-header">환불 정책이 궁금합니다</button>
+    <div class="accordion-body">수령 후 7일 이내 무료 반품 가능합니다.</div>
+  </div>
+</div>`,
+    css: `.accordion-item { border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px; overflow: hidden; background: #fff; }
+.accordion-header {
+  width: 100%; text-align: left; background: #fff; border: none;
+  padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.accordion-header::after { content: '+'; color: #64748b; transition: transform .2s; }
+.accordion-item.open .accordion-header::after { transform: rotate(45deg); }
+.accordion-body { display: none; padding: 4px 14px 12px; color: #64748b; font-size: 12px; }
+.accordion-item.open .accordion-body { display: block; }`,
+    js: `document.querySelectorAll('.accordion-header').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.parentElement.classList.toggle('open');
+  });
+});` },
+
+  { id: 'bento', num: 2, name: 'Bento Menu', nameKo: '벤토 메뉴', cat: 'nav',
+    desc: '도시락(벤토) 칸막이처럼 격자 형태로 항목을 나열한 메뉴. 여러 앱/기능을 한 화면에 노출할 때 사용.',
+    usecase: 'Google 앱 런처 · MS 365 앱 스위처',
+    feature: '그리드 형태의 앱·기능 진입점 제공',
+    html: `<div class="bento-wrap">
+  <button class="bento-trigger" aria-label="앱 메뉴 열기">
+    <span class="brow"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></span>
+    <span class="brow"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></span>
+    <span class="brow"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></span>
+  </button>
+  <div class="bento-popover">
+    <div class="bapp" title="메일">📧</div>
+    <div class="bapp" title="캘린더">📅</div>
+    <div class="bapp" title="드라이브">📁</div>
+    <div class="bapp" title="문서">📝</div>
+    <div class="bapp" title="채팅">💬</div>
+    <div class="bapp" title="지도">🗺️</div>
+  </div>
+</div>`,
+    css: `.bento-wrap { position: relative; display: inline-block; }
+.bento-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 6px; cursor: pointer; display: flex; flex-direction: column; gap: 3px;
+}
+.bento-trigger .brow { display: flex; gap: 3px; }
+.bento-trigger .bdot { width: 5px; height: 5px; background: #0f172a; border-radius: 1px; }
+.bento-popover {
+  display: none; position: absolute; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08);
+  grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; z-index: 10;
+}
+.bento-wrap.open .bento-popover { display: grid; }
+.bento-popover .bapp {
+  width: 48px; height: 48px; background: #f1f5f9; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;
+}
+.bento-popover .bapp:hover { background: #e0e7ff; }`,
+    js: `document.querySelectorAll('.bento-trigger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.bento-wrap.open').forEach(w => w.classList.remove('open'));
+});` },
+
+  { id: 'breadcrumb', num: 3, name: 'Breadcrumb', nameKo: '브레드크럼', cat: 'nav',
+    desc: '사이트 계층 구조에서 현재 위치를 표시하고 상위 경로로 돌아갈 수 있게 하는 링크 경로.',
+    usecase: '이커머스 카테고리 · 문서/위키 네비게이션',
+    feature: '현재 위치 표시 / 상위 경로 역추적',
+    html: `<nav class="breadcrumb" aria-label="breadcrumb">
+  <a href="#">홈</a>
+  <span class="sep">/</span>
+  <a href="#">전자제품</a>
+  <span class="sep">/</span>
+  <a href="#">노트북</a>
+  <span class="sep">/</span>
+  <span class="current">맥북 프로 16</span>
+</nav>`,
+    css: `.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: #64748b; flex-wrap: wrap;
+}
+.breadcrumb a { color: #6366f1; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .sep { color: #cbd5e1; }
+.breadcrumb .current { color: #0f172a; font-weight: 500; }`,
+    js: '' },
+
+  { id: 'button', num: 4, name: 'Button', nameKo: '버튼', cat: 'input',
+    desc: '라벨이 붙은 클릭 가능한 영역. 액션을 명확하게 트리거하는 가장 기본적인 입력 컴포넌트.',
+    usecase: '제출 · 저장 · 결제 · CTA',
+    feature: '사용자 액션 트리거 / 시각적 위계(Primary/Secondary/Danger) 표현',
+    html: `<button class="btn btn-primary">저장</button>
+<button class="btn btn-secondary">취소</button>
+<button class="btn btn-danger">삭제</button>
+<button class="btn btn-primary" disabled>비활성</button>`,
+    css: `.btn {
+  padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; font-family: inherit;
+  transition: all .15s ease;
+}
+.btn-primary { background: #6366f1; color: #fff; }
+.btn-primary:hover { background: #4f46e5; }
+.btn-secondary { background: #fff; color: #0f172a; border-color: #e2e8f0; }
+.btn-secondary:hover { background: #f8fafc; }
+.btn-danger { background: #f43f5e; color: #fff; }
+.btn-danger:hover { background: #e11d48; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }`,
+    js: `document.querySelectorAll('.btn:not(:disabled)').forEach(btn => {
+  btn.addEventListener('click', () => console.log('Clicked:', btn.textContent));
+});` },
+
+  { id: 'card', num: 5, name: 'Card', nameKo: '카드', cat: 'container',
+    desc: '이미지·텍스트·버튼 등 이질적인 콘텐츠를 하나의 직사각형 단위로 묶어 진입점 역할을 하는 모듈.',
+    usecase: '상품 목록 · 블로그 미리보기 · 대시보드 위젯',
+    feature: '콘텐츠 묶음 + 클릭 진입점 / 그리드 레이아웃의 기본 단위',
+    html: `<div class="product-card">
+  <div class="pc-image"></div>
+  <div class="pc-body">
+    <h3 class="pc-title">맥북 프로 16</h3>
+    <p class="pc-desc">M3 Pro · 36GB · 512GB</p>
+    <div class="pc-price">₩3,490,000</div>
+  </div>
+</div>
+<div class="product-card">
+  <div class="pc-image" style="background:linear-gradient(135deg,#fde68a,#fca5a5);"></div>
+  <div class="pc-body">
+    <h3 class="pc-title">아이패드 프로</h3>
+    <p class="pc-desc">M4 · 11형 · 256GB</p>
+    <div class="pc-price">₩1,499,000</div>
+  </div>
+</div>`,
+    css: `.product-card {
+  width: 160px; background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+  transition: box-shadow .15s ease;
+}
+.product-card:hover { box-shadow: 0 4px 12px rgba(15,23,42,.08); }
+.product-card .pc-image { height: 90px; background: linear-gradient(135deg,#c7d2fe,#a5f3fc); }
+.product-card .pc-body { padding: 10px; }
+.product-card .pc-title { font-size: 13px; font-weight: 600; margin: 0 0 4px; }
+.product-card .pc-desc { font-size: 12px; color: #64748b; margin: 0 0 6px; }
+.product-card .pc-price { font-size: 13px; font-weight: 700; color: #6366f1; }`,
+    js: '' },
+
+  { id: 'carousel', num: 6, name: 'Carousel', nameKo: '캐러셀', cat: 'container',
+    desc: '같은 영역에서 슬라이드를 좌우로 넘기며 여러 콘텐츠를 순환 노출. 화면 면적 절약이 가장 큰 장점.',
+    usecase: '랜딩 페이지 배너 · 상품 이미지 갤러리',
+    feature: '콘텐츠 순환 노출 / 자동·수동 슬라이드 전환',
+    html: `<div class="carousel" id="carousel-demo">
+  <div class="carousel-track">
+    <div class="carousel-slide s1">슬라이드 1</div>
+    <div class="carousel-slide s2">슬라이드 2</div>
+    <div class="carousel-slide s3">슬라이드 3</div>
+  </div>
+  <div class="carousel-controls">
+    <button class="carousel-btn prev">‹</button>
+    <div class="carousel-dots">
+      <span class="carousel-dot active" data-i="0"></span>
+      <span class="carousel-dot" data-i="1"></span>
+      <span class="carousel-dot" data-i="2"></span>
+    </div>
+    <button class="carousel-btn next">›</button>
+  </div>
+</div>`,
+    css: `.carousel { width: 100%; max-width: 320px; position: relative; }
+.carousel-track { display: flex; overflow: hidden; border-radius: 8px; background: #f1f5f9; }
+.carousel-slide {
+  min-width: 100%; height: 100px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 700; color: #fff;
+  transition: margin-left .3s ease;
+}
+.carousel-slide.s1 { background: linear-gradient(135deg,#6366f1,#a855f7); }
+.carousel-slide.s2 { background: linear-gradient(135deg,#14b8a6,#06b6d4); }
+.carousel-slide.s3 { background: linear-gradient(135deg,#f59e0b,#f43f5e); }
+.carousel-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.carousel-btn {
+  background: #fff; border: 1px solid #e2e8f0;
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: 14px;
+}
+.carousel-dots { display: flex; gap: 6px; }
+.carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; cursor: pointer; }
+.carousel-dot.active { background: #6366f1; }`,
+    js: `(function() {
+  const car = document.getElementById('carousel-demo');
+  if (!car) return;
+  const slides = car.querySelectorAll('.carousel-slide');
+  const dots = car.querySelectorAll('.carousel-dot');
+  let idx = 0;
+  function go(i) {
+    idx = (i + slides.length) % slides.length;
+    slides[0].style.marginLeft = (-idx * 100) + '%';
+    dots.forEach((d, j) => d.classList.toggle('active', j === idx));
+  }
+  car.querySelector('.prev').addEventListener('click', () => go(idx - 1));
+  car.querySelector('.next').addEventListener('click', () => go(idx + 1));
+  dots.forEach(d => d.addEventListener('click', () => go(+d.dataset.i)));
+})();` },
+
+  { id: 'checkbox', num: 7, name: 'Checkbox', nameKo: '체크박스', cat: 'input',
+    desc: '독립적으로 켜고 끌 수 있는 사각형 체크 박스. 목록에서 0~N개 항목의 다중 선택을 표현한다.',
+    usecase: '필터 · 약관 동의 · 할 일 목록',
+    feature: '독립적 boolean 다중 선택 / 부분 선택(indeterminate) 상태 표현',
+    html: `<div class="cb-group">
+  <label class="cb-label"><input type="checkbox" checked> 이용약관 동의 (필수)</label>
+  <label class="cb-label"><input type="checkbox" checked> 개인정보 수집 동의 (필수)</label>
+  <label class="cb-label"><input type="checkbox"> 마케팅 정보 수신 (선택)</label>
+  <label class="cb-label"><input type="checkbox" disabled> 비활성 항목</label>
+</div>`,
+    css: `.cb-group { display: flex; flex-direction: column; gap: 8px; }
+.cb-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #0f172a; cursor: pointer;
+}
+.cb-label input[type="checkbox"] { accent-color: #6366f1; width: 16px; height: 16px; }`,
+    js: '' },
+
+  { id: 'comment', num: 8, name: 'Comment', nameKo: '댓글', cat: 'info',
+    desc: '사용자가 입력한 텍스트를 시간순으로 누적해서 보여주는 영역. 아바타·이름·시간 메타가 함께 표시된다.',
+    usecase: '블로그·뉴스 댓글 · 코드 리뷰 코멘트',
+    feature: '시간순 사용자 입력 표시 / 답글·좋아요 등 인터랙션 부착',
+    html: `<div class="comment-list">
+  <div class="comment">
+    <div class="comment-avatar">홍</div>
+    <div class="comment-body">
+      <span class="comment-author">홍길동</span>
+      <span class="comment-time">3분 전</span>
+      <div class="comment-text">정말 유익한 글이네요 👍</div>
+    </div>
+  </div>
+  <div class="comment">
+    <div class="comment-avatar b">김</div>
+    <div class="comment-body">
+      <span class="comment-author">김개발</span>
+      <span class="comment-time">12분 전</span>
+      <div class="comment-text">동의합니다. 저도 같은 경험이 있어요.</div>
+    </div>
+  </div>
+</div>`,
+    css: `.comment-list { width: 100%; max-width: 320px; }
+.comment {
+  display: flex; gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.comment:last-child { border-bottom: none; }
+.comment-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.comment-avatar.b { background: linear-gradient(135deg,#14b8a6,#06b6d4); }
+.comment-body { font-size: 12px; flex: 1; }
+.comment-author { font-weight: 700; color: #0f172a; margin-right: 6px; }
+.comment-time { color: #94a3b8; font-size: 11px; }
+.comment-text { color: #475569; margin-top: 2px; }`,
+    js: '' },
+
+  { id: 'doner', num: 9, name: 'Döner Menu', nameKo: '되너 메뉴', cat: 'nav',
+    desc: '길이가 점점 짧아지는 가로선 3개로 표현되는 아이콘. 필터·정렬 옵션 패널의 진입점을 의미한다.',
+    usecase: '상품 리스트 필터 · 지도 검색 옵션',
+    feature: '필터·정렬 패널 토글 / 햄버거와 의미 구분',
+    html: `<div class="doner-wrap">
+  <button class="doner-trigger" aria-label="필터 열기">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="doner-panel">
+    <div class="filter-title">정렬</div>
+    <label><input type="radio" name="sort" checked> 인기순</label>
+    <label><input type="radio" name="sort"> 최신순</label>
+    <label><input type="radio" name="sort"> 가격순</label>
+  </div>
+</div>`,
+    css: `.doner-wrap { position: relative; }
+.doner-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 9px 12px; display: flex; flex-direction: column; gap: 3px; cursor: pointer;
+}
+.doner-trigger span { height: 2px; background: #0f172a; border-radius: 1px; }
+.doner-trigger span:nth-child(1) { width: 18px; }
+.doner-trigger span:nth-child(2) { width: 14px; }
+.doner-trigger span:nth-child(3) { width: 10px; }
+.doner-panel {
+  display: none; position: absolute; top: 100%; left: 0; margin-top: 6px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08);
+  padding: 8px; min-width: 160px; z-index: 10;
+}
+.doner-wrap.open .doner-panel { display: block; }
+.doner-panel .filter-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  color: #64748b; padding: 4px 8px;
+}
+.doner-panel label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 4px 8px; cursor: pointer;
+}`,
+    js: `document.querySelectorAll('.doner-trigger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.doner-wrap.open').forEach(w => w.classList.remove('open'));
+});` },
+
+  { id: 'dropdown', num: 10, name: 'Dropdown', nameKo: '드롭다운', cat: 'input',
+    desc: '클릭 시 옵션 목록이 아래로 펼쳐지며 한 항목을 선택하는 컴포넌트.',
+    usecase: '국가/지역 선택 · 정렬 기준 변경',
+    feature: '긴 옵션 목록의 단일 선택 / 화면 공간 절약',
+    html: `<div class="dropdown" id="dd-demo">
+  <button class="dropdown-trigger">
+    <span class="dd-value">한국</span>
+  </button>
+  <div class="dropdown-menu">
+    <div class="dropdown-item">한국</div>
+    <div class="dropdown-item">일본</div>
+    <div class="dropdown-item">미국</div>
+    <div class="dropdown-item">독일</div>
+  </div>
+</div>`,
+    css: `.dropdown { position: relative; }
+.dropdown-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; min-width: 140px;
+}
+.dropdown-trigger::after { content: '▾'; margin-left: auto; color: #94a3b8; font-size: 10px; }
+.dropdown-menu {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); overflow: hidden; z-index: 10;
+}
+.dropdown.open .dropdown-menu { display: block; }
+.dropdown-item { padding: 8px 14px; font-size: 13px; cursor: pointer; }
+.dropdown-item:hover { background: #f1f5f9; }`,
+    js: `(function() {
+  document.querySelectorAll('.dropdown').forEach(dd => {
+    const trigger = dd.querySelector('.dropdown-trigger');
+    const value = dd.querySelector('.dd-value');
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown.open').forEach(d => d !== dd && d.classList.remove('open'));
+      dd.classList.toggle('open');
+    });
+    dd.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (value) value.textContent = item.textContent;
+        dd.classList.remove('open');
+      });
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+  });
+})();` },
+
+  { id: 'feed', num: 11, name: 'Feed', nameKo: '피드', cat: 'info',
+    desc: '다수 사용자/소스의 활동을 시간순(또는 알고리즘 순)으로 흘려보여주는 스트림. 텍스트·이미지·영상이 혼재.',
+    usecase: '소셜 미디어 타임라인 · 알림 센터',
+    feature: '시간순 스트림 / 무한 스크롤·페이지네이션',
+    html: `<div class="feed">
+  <div class="feed-post">
+    <div class="feed-post-head">
+      <div class="feed-avatar"></div>
+      <span class="feed-name">@codevillain</span>
+      <span class="feed-time">2분 전</span>
+    </div>
+    <div class="feed-text">새 강의 영상이 업로드되었습니다 🎬</div>
+  </div>
+  <div class="feed-post">
+    <div class="feed-post-head">
+      <div class="feed-avatar" style="background:#fbbf24;"></div>
+      <span class="feed-name">@dev_kim</span>
+      <span class="feed-time">15분 전</span>
+    </div>
+    <div class="feed-text">Claude Code로 작업 시간을 절반으로 줄였어요!</div>
+  </div>
+</div>`,
+    css: `.feed { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 8px; }
+.feed-post {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 8px; padding: 10px 12px;
+}
+.feed-post-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.feed-avatar { width: 24px; height: 24px; border-radius: 50%; background: #c7d2fe; }
+.feed-name { font-size: 12px; font-weight: 700; }
+.feed-time { font-size: 11px; color: #94a3b8; margin-left: auto; }
+.feed-text { font-size: 12px; color: #475569; }`,
+    js: '' },
+
+  { id: 'form', num: 12, name: 'Form', nameKo: '폼', cat: 'input',
+    desc: '여러 입력 필드를 묶어 한 번에 제출하는 단위. 검증·에러 메시지·제출 상태 관리가 핵심 책임.',
+    usecase: '회원가입 · 결제 정보 입력 · 문의하기',
+    feature: '필드 묶음 + 유효성 검증 + 제출 처리',
+    html: `<form class="form" id="form-demo" novalidate>
+  <div class="form-field">
+    <label class="form-label">이메일</label>
+    <input type="email" class="form-input" name="email" placeholder="you@example.com">
+    <div class="form-error"></div>
+  </div>
+  <div class="form-field">
+    <label class="form-label">비밀번호 (8자 이상)</label>
+    <input type="password" class="form-input" name="password" placeholder="••••••••">
+    <div class="form-error"></div>
+  </div>
+  <button type="submit" class="form-submit">가입하기</button>
+</form>`,
+    css: `.form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; }
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-label { font-size: 12px; font-weight: 600; }
+.form-input {
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 8px 12px; font-size: 13px; font-family: inherit;
+}
+.form-input:focus { outline: none; border-color: #6366f1; }
+.form-input.error { border-color: #f43f5e; }
+.form-error { font-size: 11px; color: #f43f5e; min-height: 14px; }
+.form-submit {
+  background: #6366f1; color: #fff; border: none;
+  padding: 9px 14px; border-radius: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}`,
+    js: `(function() {
+  const form = document.getElementById('form-demo');
+  if (!form) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const email = form.email, pw = form.password;
+    let ok = true;
+    [email, pw].forEach(f => {
+      f.classList.remove('error');
+      f.nextElementSibling.textContent = '';
+    });
+    if (!email.value.includes('@')) {
+      email.classList.add('error');
+      email.nextElementSibling.textContent = '올바른 이메일을 입력하세요';
+      ok = false;
+    }
+    if (pw.value.length < 8) {
+      pw.classList.add('error');
+      pw.nextElementSibling.textContent = '비밀번호는 8자 이상이어야 합니다';
+      ok = false;
+    }
+    if (ok) alert('가입 요청이 전송되었습니다');
+  });
+})();` },
+
+  { id: 'hamburger', num: 13, name: 'Hamburger Menu', nameKo: '햄버거 메뉴', cat: 'nav',
+    desc: '동일한 길이의 가로선 3개로 표현되는 아이콘. 보통 좌측 상단에 위치하며 주요 네비게이션 메뉴를 토글한다.',
+    usecase: '모바일 웹의 사이드 네비게이션 토글',
+    feature: '메인 네비게이션 표시/숨김 토글',
+    html: `<div class="hamburger-wrap">
+  <button class="hamburger-trigger" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="hamburger-drawer">
+    <a href="#">홈</a>
+    <a href="#">상품</a>
+    <a href="#">장바구니</a>
+    <a href="#">마이페이지</a>
+    <a href="#">로그아웃</a>
+  </div>
+</div>`,
+    css: `.hamburger-wrap { position: relative; }
+.hamburger-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 9px 12px; display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+}
+.hamburger-trigger span { width: 18px; height: 2px; background: #0f172a; border-radius: 1px; }
+.hamburger-drawer {
+  display: none; position: absolute; top: 100%; left: 0; margin-top: 6px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); min-width: 160px; z-index: 10;
+}
+.hamburger-wrap.open .hamburger-drawer { display: block; }
+.hamburger-drawer a {
+  display: block; padding: 9px 14px; font-size: 13px; color: #0f172a;
+  text-decoration: none; border-bottom: 1px solid #f1f5f9;
+}
+.hamburger-drawer a:last-child { border-bottom: none; }
+.hamburger-drawer a:hover { background: #f8fafc; }`,
+    js: `document.querySelectorAll('.hamburger-trigger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.hamburger-wrap.open').forEach(w => w.classList.remove('open'));
+});` },
+
+  { id: 'icon', num: 14, name: 'Icon', nameKo: '아이콘', cat: 'info',
+    desc: '의미를 압축한 작은 이미지/문자. 정보 표시 또는 액션 트리거(아이콘 버튼)로 쓰인다.',
+    usecase: '툴바 · 메뉴 항목 · 상태 표시',
+    feature: '의미의 시각적 압축 / 텍스트 없는 액션 전달',
+    html: `<div class="icon-row">
+  <button class="icon-btn">🏠</button>
+  <button class="icon-btn primary">🔍</button>
+  <button class="icon-btn success">✓</button>
+  <button class="icon-btn warn">⚠</button>
+  <button class="icon-btn">⚙️</button>
+</div>`,
+    css: `.icon-row { display: flex; gap: 14px; align-items: center; }
+.icon-btn {
+  width: 36px; height: 36px; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+}
+.icon-btn:hover { background: #f1f5f9; }
+.icon-btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; }
+.icon-btn.success { background: #14b8a6; color: #fff; border-color: #14b8a6; }
+.icon-btn.warn    { background: #f59e0b; color: #fff; border-color: #f59e0b; }`,
+    js: '' },
+
+  { id: 'input', num: 15, name: 'Input Field', nameKo: '입력 필드', cat: 'input',
+    desc: '한 줄 또는 여러 줄 텍스트를 입력받는 가장 기본적인 컴포넌트. 검색바도 입력 필드의 한 종류다.',
+    usecase: '로그인 · 검색 · 댓글 작성',
+    feature: '텍스트 입력 / 플레이스홀더·라벨·에러 메시지 처리',
+    html: `<div class="input-group">
+  <label class="input-label" for="ipt-name">이름</label>
+  <input id="ipt-name" type="text" class="input-field" placeholder="홍길동">
+  <span class="input-hint">2자 이상 입력하세요</span>
+</div>`,
+    css: `.input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 280px; }
+.input-label { font-size: 12px; font-weight: 600; }
+.input-field {
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 8px 12px; font-size: 13px; font-family: inherit;
+}
+.input-field:focus {
+  outline: none; border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.input-hint { font-size: 11px; color: #94a3b8; }`,
+    js: '' },
+
+  { id: 'kebab', num: 16, name: 'Kebab Menu', nameKo: '케밥 메뉴', cat: 'nav',
+    desc: '세로로 쌓인 점 3개. 행/카드 단위의 부가 옵션(수정·삭제·공유 등)을 모아둔 메뉴 트리거.',
+    usecase: '테이블 행 액션 · 모바일 리스트 항목 옵션',
+    feature: '컨텍스트 메뉴 토글 / 보조 액션 모음',
+    html: `<div class="kebab-wrap">
+  <button class="kebab-trigger" aria-label="더보기">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="kebab-menu">
+    <a href="#">수정</a>
+    <a href="#">복제</a>
+    <a href="#">공유</a>
+    <a href="#" class="danger">삭제</a>
+  </div>
+</div>`,
+    css: `.kebab-wrap { position: relative; }
+.kebab-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; cursor: pointer;
+}
+.kebab-trigger span { width: 4px; height: 4px; background: #0f172a; border-radius: 50%; }
+.kebab-menu {
+  display: none; position: absolute; top: 100%; right: 0; margin-top: 6px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); min-width: 140px; z-index: 10;
+}
+.kebab-wrap.open .kebab-menu { display: block; }
+.kebab-menu a {
+  display: block; padding: 8px 12px; font-size: 12px;
+  color: #0f172a; text-decoration: none;
+}
+.kebab-menu a:hover { background: #f1f5f9; }
+.kebab-menu a.danger { color: #f43f5e; }`,
+    js: `document.querySelectorAll('.kebab-trigger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.kebab-wrap.open').forEach(w => w.classList.remove('open'));
+});` },
+
+  { id: 'loader', num: 17, name: 'Loader', nameKo: '로더 / 스피너', cat: 'info',
+    desc: '백그라운드 처리가 진행 중임을 알려 사용자가 기다려야 함을 시각화. 스피너·도트·바 등 다양한 형태.',
+    usecase: '데이터 fetching · 파일 업로드 중',
+    feature: '처리 중 상태 시각화 / 이탈 방지',
+    html: `<div class="loader-row">
+  <div class="loader-spinner"></div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <div class="loader-bar"></div>
+</div>`,
+    css: `.loader-row { display: flex; gap: 18px; align-items: center; }
+.loader-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid #e2e8f0; border-top-color: #6366f1;
+  border-radius: 50%; animation: loader-spin .8s linear infinite;
+}
+@keyframes loader-spin { to { transform: rotate(360deg); } }
+.loader-dots { display: flex; gap: 5px; }
+.loader-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #6366f1; animation: loader-bounce 1s infinite;
+}
+.loader-dots span:nth-child(2) { animation-delay: .15s; }
+.loader-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes loader-bounce {
+  0%, 80%, 100% { transform: scale(.6); opacity: .4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+.loader-bar {
+  width: 80px; height: 4px;
+  background: #e2e8f0; border-radius: 2px;
+  overflow: hidden; position: relative;
+}
+.loader-bar::after {
+  content: ''; position: absolute;
+  width: 30%; height: 100%; background: #6366f1;
+  border-radius: 2px; animation: loader-slide 1.2s ease-in-out infinite;
+}
+@keyframes loader-slide { 0% { left: -30%; } 100% { left: 100%; } }`,
+    js: '' },
+
+  { id: 'meatballs', num: 18, name: 'Meatballs Menu', nameKo: '미트볼 메뉴', cat: 'nav',
+    desc: '가로로 늘어선 점 3개. 케밥과 유사하지만 카드/패널 상단 등 가로 영역에 배치되는 경우가 많다.',
+    usecase: '카드 헤더의 더보기 · 메시지 옵션',
+    feature: '추가 옵션 메뉴 토글 / 가로 배치형 컨텍스트 메뉴',
+    html: `<div class="meatballs-wrap">
+  <button class="meatballs-trigger" aria-label="옵션">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="meatballs-menu">
+    <a href="#">상세 보기</a>
+    <a href="#">즐겨찾기 추가</a>
+    <a href="#">신고하기</a>
+  </div>
+</div>`,
+    css: `.meatballs-wrap { position: relative; }
+.meatballs-trigger {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 10px 8px; display: flex; gap: 4px; cursor: pointer;
+}
+.meatballs-trigger span { width: 4px; height: 4px; background: #0f172a; border-radius: 50%; }
+.meatballs-menu {
+  display: none; position: absolute; top: 100%; left: 0; margin-top: 6px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); min-width: 140px; z-index: 10;
+}
+.meatballs-wrap.open .meatballs-menu { display: block; }
+.meatballs-menu a {
+  display: block; padding: 8px 12px; font-size: 12px;
+  color: #0f172a; text-decoration: none;
+}
+.meatballs-menu a:hover { background: #f1f5f9; }`,
+    js: `document.querySelectorAll('.meatballs-trigger').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.meatballs-wrap.open').forEach(w => w.classList.remove('open'));
+});` },
+
+  { id: 'modal', num: 19, name: 'Modal', nameKo: '모달', cat: 'container',
+    desc: '현재 흐름을 막고 응답을 강제하는 다이얼로그. 닫기 전까지 배경 인터랙션이 비활성화된다.',
+    usecase: '삭제 확인 · 로그인 팝업 · 결제 확인',
+    feature: '차단형 의사결정 강제 / 포커스 트랩·ESC 닫기',
+    html: `<button class="modal-trigger-btn" id="modal-open">계정 삭제</button>
+<div class="modal-backdrop" id="modal-bd">
+  <div class="modal-box">
+    <h3 class="modal-title">정말 삭제하시겠습니까?</h3>
+    <p class="modal-text">계정과 관련된 모든 데이터가 영구적으로 제거됩니다. 이 작업은 되돌릴 수 없습니다.</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" id="modal-cancel">취소</button>
+      <button class="modal-btn modal-btn-confirm" id="modal-confirm">삭제</button>
+    </div>
+  </div>
+</div>`,
+    css: `.modal-trigger-btn {
+  background: #6366f1; color: #fff; border: none;
+  padding: 8px 16px; border-radius: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,23,42,.4);
+  align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-backdrop.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 10px;
+  padding: 24px; width: 320px; max-width: calc(100vw - 32px);
+  box-shadow: 0 20px 50px rgba(0,0,0,.2);
+}
+.modal-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
+.modal-text { font-size: 13px; color: #64748b; margin: 0 0 16px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btn {
+  padding: 7px 14px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; cursor: pointer; border: none;
+}
+.modal-btn-cancel { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; }
+.modal-btn-confirm { background: #f43f5e; color: #fff; }`,
+    js: `(function() {
+  const bd = document.getElementById('modal-bd');
+  const open = document.getElementById('modal-open');
+  const cancel = document.getElementById('modal-cancel');
+  const confirm = document.getElementById('modal-confirm');
+  if (!bd) return;
+  open.addEventListener('click', () => bd.classList.add('open'));
+  cancel.addEventListener('click', () => bd.classList.remove('open'));
+  confirm.addEventListener('click', () => {
+    alert('삭제되었습니다');
+    bd.classList.remove('open');
+  });
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') bd.classList.remove('open'); });
+})();` },
+
+  { id: 'notification', num: 20, name: 'Notification', nameKo: '알림', cat: 'info',
+    desc: '새로운 이벤트·메시지·시스템 결과를 전달하는 비차단형 알림. 배지·토스트·배너 등 다양한 형태.',
+    usecase: '새 메시지 배지 · 저장 완료 토스트',
+    feature: '비차단형 정보 전달 / 자동 사라짐 타이머',
+    html: `<div class="noti-row">
+  <div class="noti-bell">
+    🔔
+    <span class="noti-badge">3</span>
+  </div>
+  <div class="noti-toast">
+    <span class="ic">✅</span>
+    <span>저장되었습니다</span>
+  </div>
+  <div class="noti-toast error">
+    <span class="ic">⚠️</span>
+    <span>네트워크 오류</span>
+  </div>
+</div>`,
+    css: `.noti-row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.noti-bell {
+  position: relative; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 8px;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+}
+.noti-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: #f43f5e; color: #fff;
+  font-size: 10px; font-weight: 700;
+  border-radius: 10px; padding: 1px 6px;
+  min-width: 18px; text-align: center;
+}
+.noti-toast {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-left: 3px solid #14b8a6; border-radius: 6px;
+  padding: 10px 14px; display: flex; gap: 10px; align-items: center;
+  font-size: 12px; box-shadow: 0 4px 12px rgba(15,23,42,.06);
+}
+.noti-toast.error { border-left-color: #f43f5e; }
+.noti-toast .ic { font-size: 16px; }`,
+    js: `document.querySelectorAll('.noti-bell').forEach(b => {
+  b.addEventListener('click', () => {
+    const badge = b.querySelector('.noti-badge');
+    if (badge) badge.remove();
+  });
+});` },
+
+  { id: 'pagination', num: 21, name: 'Pagination', nameKo: '페이지네이션', cat: 'nav',
+    desc: '대량 콘텐츠를 페이지 단위로 나누어 탐색하게 하는 컴포넌트. 현재 페이지와 전체 페이지 수를 함께 표시.',
+    usecase: '게시판 · 검색 결과 · 테이블',
+    feature: '대량 데이터의 페이지 분할 탐색 / 위치 표시',
+    html: `<div class="pagination" id="pg-demo">
+  <button class="pg-btn" data-act="prev">‹</button>
+  <button class="pg-btn active" data-i="1">1</button>
+  <button class="pg-btn" data-i="2">2</button>
+  <button class="pg-btn" data-i="3">3</button>
+  <button class="pg-btn" data-i="4">4</button>
+  <button class="pg-btn" data-i="5">5</button>
+  <button class="pg-btn" data-act="next">›</button>
+</div>`,
+    css: `.pagination { display: flex; gap: 4px; align-items: center; }
+.pg-btn {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+  min-width: 32px; height: 32px; padding: 0 8px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.pg-btn:hover:not(:disabled) { background: #f1f5f9; }
+.pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pg-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }`,
+    js: `(function() {
+  const pg = document.getElementById('pg-demo');
+  if (!pg) return;
+  const total = 5;
+  let cur = 1;
+  function set(n) {
+    cur = Math.max(1, Math.min(total, n));
+    pg.querySelectorAll('.pg-btn[data-i]').forEach(b => {
+      b.classList.toggle('active', +b.dataset.i === cur);
+    });
+    pg.querySelector('[data-act="prev"]').disabled = cur === 1;
+    pg.querySelector('[data-act="next"]').disabled = cur === total;
+  }
+  pg.addEventListener('click', e => {
+    const b = e.target.closest('.pg-btn');
+    if (!b) return;
+    if (b.dataset.act === 'prev') set(cur - 1);
+    else if (b.dataset.act === 'next') set(cur + 1);
+    else if (b.dataset.i) set(+b.dataset.i);
+  });
+  set(1);
+})();` },
+
+  { id: 'picker', num: 22, name: 'Picker', nameKo: '피커 (날짜)', cat: 'input',
+    desc: '날짜·시간 등 포맷이 정해진 값을 표준화된 UI로 선택. 자유 입력 대비 데이터 무결성을 확보한다.',
+    usecase: '예약 시스템 · 일정 등록 · 생년월일 입력',
+    feature: '표준 포맷 강제 / 입력 오류 감소',
+    html: `<div class="picker-wrap" id="picker-demo">
+  <input type="text" class="picker-input" id="picker-input" readonly placeholder="날짜 선택">
+  <div class="picker-calendar">
+    <div class="picker-header">
+      <button data-act="prev">‹</button>
+      <span class="month"></span>
+      <button data-act="next">›</button>
+    </div>
+    <div class="picker-grid"></div>
+  </div>
+</div>`,
+    css: `.picker-wrap { position: relative; }
+.picker-input {
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 8px 12px; font-size: 13px; cursor: pointer;
+  background: #fff; width: 160px;
+}
+.picker-calendar {
+  display: none; position: absolute; top: 100%; left: 0; margin-top: 4px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); padding: 12px; z-index: 10;
+}
+.picker-wrap.open .picker-calendar { display: block; }
+.picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.picker-header button {
+  background: transparent; border: none;
+  font-size: 14px; cursor: pointer; color: #64748b; padding: 4px 8px;
+}
+.picker-header .month { font-size: 13px; font-weight: 700; }
+.picker-grid { display: grid; grid-template-columns: repeat(7, 28px); gap: 2px; }
+.picker-grid .pday-head {
+  font-size: 10px; font-weight: 600;
+  color: #94a3b8; text-align: center; padding: 4px 0;
+}
+.picker-grid .pday {
+  width: 28px; height: 28px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; cursor: pointer;
+}
+.picker-grid .pday:hover { background: #f1f5f9; }
+.picker-grid .pday.selected { background: #6366f1; color: #fff; font-weight: 700; }
+.picker-grid .pday.empty { visibility: hidden; }`,
+    js: `(function() {
+  const wrap = document.getElementById('picker-demo');
+  if (!wrap) return;
+  const input = wrap.querySelector('.picker-input');
+  const grid = wrap.querySelector('.picker-grid');
+  const monthEl = wrap.querySelector('.month');
+  const today = new Date();
+  let view = new Date(today.getFullYear(), today.getMonth(), 1);
+  let selected = null;
+  function render() {
+    monthEl.textContent = view.getFullYear() + '년 ' + (view.getMonth() + 1) + '월';
+    grid.innerHTML = '';
+    ['일','월','화','수','목','금','토'].forEach(d => {
+      const h = document.createElement('div');
+      h.className = 'pday-head'; h.textContent = d;
+      grid.appendChild(h);
+    });
+    const firstDay = view.getDay();
+    const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    for (let i = 0; i < firstDay; i++) {
+      const e = document.createElement('div');
+      e.className = 'pday empty'; grid.appendChild(e);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const day = document.createElement('div');
+      day.className = 'pday'; day.textContent = d;
+      if (selected && selected.getFullYear() === view.getFullYear() &&
+          selected.getMonth() === view.getMonth() && selected.getDate() === d) {
+        day.classList.add('selected');
+      }
+      day.addEventListener('click', () => {
+        selected = new Date(view.getFullYear(), view.getMonth(), d);
+        input.value = selected.toISOString().slice(0, 10);
+        wrap.classList.remove('open');
+        render();
+      });
+      grid.appendChild(day);
+    }
+  }
+  input.addEventListener('click', e => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+  wrap.querySelector('[data-act="prev"]').addEventListener('click', e => {
+    e.stopPropagation();
+    view.setMonth(view.getMonth() - 1); render();
+  });
+  wrap.querySelector('[data-act="next"]').addEventListener('click', e => {
+    e.stopPropagation();
+    view.setMonth(view.getMonth() + 1); render();
+  });
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+  render();
+})();` },
+
+  { id: 'progress', num: 23, name: 'Progress Bar', nameKo: '진행 바', cat: 'info',
+    desc: '전체 단계 중 현재 어디까지 진행되었는지 비율로 시각화. 로더와 달리 진행도가 정량적으로 측정 가능할 때 사용.',
+    usecase: '파일 업로드 · 결제 스텝 · 회원가입 단계',
+    feature: '정량적 진행률 표시 / 단계 라벨링',
+    html: `<div class="progress-wrap">
+  <div class="progress-row"><span>업로드 중</span><span id="prg-pct">0%</span></div>
+  <div class="progress"><div class="progress-bar" id="prg-bar" style="width: 0%;"></div></div>
+  <div class="progress-steps">
+    <div class="step done">정보 입력</div>
+    <div class="step done">배송지</div>
+    <div class="step">결제</div>
+    <div class="step">완료</div>
+  </div>
+</div>`,
+    css: `.progress-wrap { width: 100%; max-width: 280px; }
+.progress-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: #64748b; margin-bottom: 4px;
+}
+.progress {
+  width: 100%; height: 8px;
+  background: #e2e8f0; border-radius: 4px; overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg,#14b8a6,#6366f1);
+  transition: width .3s ease; border-radius: 4px;
+}
+.progress-steps {
+  display: flex; justify-content: space-between; margin-top: 10px;
+}
+.progress-steps .step { font-size: 10px; color: #94a3b8; text-align: center; }
+.progress-steps .step.done { color: #6366f1; font-weight: 700; }`,
+    js: `(function() {
+  const bar = document.getElementById('prg-bar');
+  const pct = document.getElementById('prg-pct');
+  if (!bar) return;
+  let v = 0;
+  setInterval(() => {
+    v = (v + 7) % 100;
+    bar.style.width = v + '%';
+    pct.textContent = v + '%';
+  }, 600);
+})();` },
+
+  { id: 'radio', num: 24, name: 'Radio Buttons', nameKo: '라디오 버튼', cat: 'input',
+    desc: '원형 토글 그룹. 체크박스와 달리 그룹 내에서 단 하나만 선택 가능한 상호 배타적 선택지를 표현.',
+    usecase: '결제 방법 선택 · 설문 단답형 응답',
+    feature: '상호 배타적 단일 선택 (mutually exclusive)',
+    html: `<div class="radio-group">
+  <label class="radio-label"><input type="radio" name="pay" value="card" checked> 신용카드</label>
+  <label class="radio-label"><input type="radio" name="pay" value="bank"> 계좌이체</label>
+  <label class="radio-label"><input type="radio" name="pay" value="kakao"> 카카오페이</label>
+  <label class="radio-label"><input type="radio" name="pay" value="naver"> 네이버페이</label>
+</div>`,
+    css: `.radio-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; cursor: pointer;
+}
+.radio-label input[type="radio"] {
+  accent-color: #6366f1; width: 16px; height: 16px;
+}`,
+    js: '' },
+
+  { id: 'search', num: 25, name: 'Search Field', nameKo: '검색 필드', cat: 'input',
+    desc: '시스템 내 콘텐츠를 찾기 위한 전용 입력 필드. 돋보기 아이콘과 자동완성·최근 검색어 기능이 결합된다.',
+    usecase: '사이트 검색 · 명령 팔레트(Cmd+K)',
+    feature: '콘텐츠 검색 / 자동완성·최근 검색어 표시',
+    html: `<div class="search-field" id="search-demo">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" placeholder="검색어를 입력하세요">
+  <div class="search-suggest">
+    <div>Claude Code 강의</div>
+    <div>Claude Code MCP</div>
+    <div>Claude Code Skills</div>
+    <div>Claude Code Hooks</div>
+  </div>
+</div>`,
+    css: `.search-field { position: relative; width: 100%; max-width: 280px; }
+.search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 13px; color: #94a3b8;
+}
+.search-input {
+  width: 100%; border: 1px solid #e2e8f0; border-radius: 20px;
+  padding: 8px 12px 8px 32px; font-size: 13px; font-family: inherit;
+}
+.search-input:focus {
+  outline: none; border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.search-suggest {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08); overflow: hidden; z-index: 10;
+}
+.search-field.open .search-suggest { display: block; }
+.search-suggest div { padding: 8px 14px; font-size: 12px; cursor: pointer; }
+.search-suggest div:hover { background: #f1f5f9; }`,
+    js: `(function() {
+  const sf = document.getElementById('search-demo');
+  if (!sf) return;
+  const input = sf.querySelector('.search-input');
+  input.addEventListener('focus', () => sf.classList.add('open'));
+  input.addEventListener('blur', () => setTimeout(() => sf.classList.remove('open'), 150));
+  sf.querySelectorAll('.search-suggest div').forEach(d => {
+    d.addEventListener('click', () => {
+      input.value = d.textContent;
+      sf.classList.remove('open');
+    });
+  });
+})();` },
+
+  { id: 'sidebar', num: 26, name: 'Sidebar', nameKo: '사이드바', cat: 'nav',
+    desc: '화면 측면에 고정되는 네비게이션/콘텐츠 패널. 항상 보이거나 토글 가능하며 데스크톱 앱에서 주요 메뉴 역할.',
+    usecase: '관리자 콘솔 · VS Code 탐색기 · 메일함',
+    feature: '상시 네비게이션 / 접기·고정 가능 패널',
+    html: `<div class="sidebar-demo">
+  <nav class="sidebar">
+    <div class="sidebar-item active" data-tab="home">🏠 홈</div>
+    <div class="sidebar-item" data-tab="inbox">📥 받은편지함</div>
+    <div class="sidebar-item" data-tab="sent">📤 보낸편지함</div>
+    <div class="sidebar-item" data-tab="trash">🗑 휴지통</div>
+  </nav>
+  <div class="sidebar-content" id="sidebar-content">홈 화면입니다.</div>
+</div>`,
+    css: `.sidebar-demo {
+  display: flex; width: 100%; max-width: 320px; height: 120px;
+  border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;
+}
+.sidebar {
+  width: 90px; background: #f8fafc;
+  border-right: 1px solid #e2e8f0; padding: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sidebar-item {
+  padding: 6px 8px; font-size: 11px; color: #64748b;
+  cursor: pointer; border-radius: 4px; font-weight: 500;
+}
+.sidebar-item:hover { background: #e2e8f0; }
+.sidebar-item.active { background: #6366f1; color: #fff; }
+.sidebar-content { flex: 1; padding: 12px; font-size: 12px; color: #64748b; }`,
+    js: `(function() {
+  const map = {
+    home: '홈 화면입니다.',
+    inbox: '받은편지함 (12개의 새 메일)',
+    sent: '보낸편지함 (최근 7일 32개)',
+    trash: '휴지통 (30일 후 자동 삭제)'
+  };
+  document.querySelectorAll('.sidebar-item').forEach(it => {
+    it.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+      it.classList.add('active');
+      document.getElementById('sidebar-content').textContent = map[it.dataset.tab];
+    });
+  });
+})();` },
+
+  { id: 'slider', num: 27, name: 'Slider Controls', nameKo: '슬라이더', cat: 'input',
+    desc: '손잡이를 드래그하여 연속적인 값(또는 범위)을 설정. 정확한 숫자 입력보다 감각적인 조절에 적합.',
+    usecase: '볼륨·밝기 · 가격 범위 필터',
+    feature: '연속값 입력 / 범위(min~max) 입력',
+    html: `<div class="slider-group">
+  <div class="slider-row">
+    <span>볼륨</span>
+    <span class="slider-value" id="sld-val">60</span>
+  </div>
+  <input type="range" class="slider-input" min="0" max="100" value="60" id="sld-input">
+</div>`,
+    css: `.slider-group { width: 100%; max-width: 240px; }
+.slider-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: #64748b; margin-bottom: 6px;
+}
+.slider-value { font-weight: 700; color: #6366f1; }
+.slider-input { width: 100%; accent-color: #6366f1; }`,
+    js: `(function() {
+  const sld = document.getElementById('sld-input');
+  const val = document.getElementById('sld-val');
+  if (!sld) return;
+  sld.addEventListener('input', () => val.textContent = sld.value);
+})();` },
+
+  { id: 'stepper', num: 28, name: 'Stepper', nameKo: '스테퍼', cat: 'input',
+    desc: '+/− 버튼으로 사전에 정의된 단위만큼 값을 증감. 슬라이더와 달리 이산값(정수 수량 등)을 정확히 입력.',
+    usecase: '장바구니 수량 · 인원수 선택',
+    feature: '이산값 증감 / 최소·최대값 제약',
+    html: `<div class="stepper" id="stepper-demo">
+  <button data-act="-" aria-label="감소">−</button>
+  <div class="stepper-value">1</div>
+  <button data-act="+" aria-label="증가">+</button>
+</div>`,
+    css: `.stepper {
+  display: flex; align-items: center;
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  overflow: hidden; width: fit-content; background: #fff;
+}
+.stepper button {
+  background: #fff; border: none;
+  width: 32px; height: 32px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.stepper button:hover:not(:disabled) { background: #f1f5f9; }
+.stepper button:disabled { color: #cbd5e1; cursor: not-allowed; }
+.stepper .stepper-value {
+  min-width: 40px; text-align: center;
+  font-size: 13px; font-weight: 600;
+  border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;
+  padding: 6px 8px;
+}`,
+    js: `(function() {
+  const st = document.getElementById('stepper-demo');
+  if (!st) return;
+  const val = st.querySelector('.stepper-value');
+  const minus = st.querySelector('[data-act="-"]');
+  const plus = st.querySelector('[data-act="+"]');
+  const MIN = 1, MAX = 99;
+  function update() {
+    const n = +val.textContent;
+    minus.disabled = n <= MIN;
+    plus.disabled = n >= MAX;
+  }
+  minus.addEventListener('click', () => {
+    const n = +val.textContent;
+    if (n > MIN) { val.textContent = n - 1; update(); }
+  });
+  plus.addEventListener('click', () => {
+    const n = +val.textContent;
+    if (n < MAX) { val.textContent = n + 1; update(); }
+  });
+  update();
+})();` },
+
+  { id: 'tag', num: 29, name: 'Tag', nameKo: '태그', cat: 'info',
+    desc: '콘텐츠를 분류·검색하기 위한 작은 키워드 라벨. 보통 클릭 가능하며 필터·이동의 트리거로도 쓰인다.',
+    usecase: '블로그 분류 · 이슈 트래커 라벨 · 상품 속성',
+    feature: '분류·검색용 메타데이터 / 필터 트리거',
+    html: `<div class="tag-row" id="tag-demo">
+  <span class="tag">React</span>
+  <span class="tag teal">TypeScript</span>
+  <span class="tag amber">Performance</span>
+  <span class="tag removable">
+    UI <button class="tag-remove" data-remove>×</button>
+  </span>
+  <span class="tag teal removable">
+    Frontend <button class="tag-remove" data-remove>×</button>
+  </span>
+</div>`,
+    css: `.tag-row { display: flex; gap: 6px; flex-wrap: wrap; max-width: 320px; }
+.tag {
+  background: #e0e7ff; color: #4338ca;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 500;
+}
+.tag.teal { background: #ccfbf1; color: #0f766e; }
+.tag.amber { background: #fef3c7; color: #92400e; }
+.tag.removable { display: inline-flex; align-items: center; gap: 6px; }
+.tag-remove {
+  background: rgba(67,56,202,.2); border: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  font-size: 10px; cursor: pointer; padding: 0;
+  color: #4338ca;
+  display: inline-flex; align-items: center; justify-content: center;
+}`,
+    js: `document.querySelectorAll('[data-remove]').forEach(b => {
+  b.addEventListener('click', () => b.parentElement.remove());
+});` },
+
+  { id: 'tabbar', num: 30, name: 'Tab Bar', nameKo: '탭 바', cat: 'nav',
+    desc: '모바일 앱 하단에 고정되어 주요 섹션 간 빠른 전환을 제공. 보통 3~5개 항목이 적정 개수다.',
+    usecase: 'iOS/Android 앱의 메인 네비게이션',
+    feature: '주요 섹션 즉시 전환 / 현재 위치 시각 표시',
+    html: `<div class="tabbar" id="tabbar-demo">
+  <button class="tabbar-btn active" data-tab="home">
+    <span class="ic">🏠</span><span>홈</span>
+  </button>
+  <button class="tabbar-btn" data-tab="search">
+    <span class="ic">🔍</span><span>검색</span>
+  </button>
+  <button class="tabbar-btn" data-tab="cart">
+    <span class="ic">🛒</span><span>장바구니</span>
+  </button>
+  <button class="tabbar-btn" data-tab="me">
+    <span class="ic">👤</span><span>마이</span>
+  </button>
+</div>`,
+    css: `.tabbar {
+  display: flex; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 6px; width: 100%; max-width: 320px; gap: 4px;
+}
+.tabbar-btn {
+  flex: 1; background: transparent; border: none;
+  padding: 6px 4px; font-size: 11px; color: #64748b;
+  cursor: pointer; border-radius: 8px; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.tabbar-btn:hover { background: #f1f5f9; }
+.tabbar-btn.active { background: #eef2ff; color: #6366f1; font-weight: 600; }
+.tabbar-btn .ic { font-size: 18px; }`,
+    js: `document.querySelectorAll('#tabbar-demo .tabbar-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('.tabbar-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});` },
+
+  { id: 'tooltip', num: 31, name: 'Tooltip', nameKo: '툴팁', cat: 'info',
+    desc: '호버·포커스 시 잠깐 떠오르는 짧은 보조 설명. 아이콘 버튼처럼 라벨이 없는 요소에 의미를 부여한다.',
+    usecase: '아이콘 버튼 설명 · 폼 필드 도움말',
+    feature: '보조 정보 비동기 노출 / 접근성 보강',
+    html: `<div class="tooltip-row">
+  <div class="tooltip-target">
+    저장 ⓘ
+    <span class="tooltip-tip">Ctrl + S 로도 저장됩니다</span>
+  </div>
+  <div class="tooltip-target">
+    내보내기
+    <span class="tooltip-tip">PDF / CSV 지원</span>
+  </div>
+</div>`,
+    css: `.tooltip-row { display: flex; gap: 14px; }
+.tooltip-target {
+  position: relative; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 6px;
+  padding: 8px 14px; font-size: 13px; cursor: help;
+}
+.tooltip-target .tooltip-tip {
+  visibility: hidden; opacity: 0;
+  position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #0f172a; color: #fff;
+  font-size: 11px; padding: 4px 8px;
+  border-radius: 4px; white-space: nowrap;
+  transition: opacity .15s ease; pointer-events: none;
+}
+.tooltip-target .tooltip-tip::after {
+  content: ''; position: absolute;
+  top: 100%; left: 50%; transform: translateX(-50%);
+  border: 4px solid transparent; border-top-color: #0f172a;
+}
+.tooltip-target:hover .tooltip-tip { visibility: visible; opacity: 1; }`,
+    js: '' },
+
+  { id: 'toggle', num: 32, name: 'Toggle', nameKo: '토글 / 스위치', cat: 'input',
+    desc: 'on/off 두 상태를 즉시 전환하는 스위치. 체크박스와 달리 변경 즉시 효과가 적용되는 설정값에 어울린다.',
+    usecase: '다크모드 · 알림 켜기/끄기 · 설정 화면',
+    feature: '즉시 반영 boolean / 시스템 설정 토글',
+    html: `<div class="toggle-row">
+  <label class="toggle">
+    <input type="checkbox" checked>
+    <span class="toggle-slider"></span>
+  </label>
+  <label class="toggle">
+    <input type="checkbox">
+    <span class="toggle-slider"></span>
+  </label>
+  <label class="toggle">
+    <input type="checkbox" checked>
+    <span class="toggle-slider"></span>
+  </label>
+</div>`,
+    css: `.toggle-row { display: flex; gap: 14px; align-items: center; }
+.toggle {
+  position: relative; display: inline-block;
+  width: 44px; height: 24px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: #cbd5e1; border-radius: 24px;
+  cursor: pointer; transition: .2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; background: #fff;
+  border-radius: 50%; top: 3px; left: 3px;
+  transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.toggle input:checked + .toggle-slider { background: #6366f1; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(20px); }`,
+    js: '' }
+];
+
+function escapeHtml(s) {
+  return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+};</script>
+<script id="data-uixbase">const UIXBASE = [
+            { 
+                id: 1, name: "Accordion", 
+                desc: "섹션을 클릭하여 내용을 펼치거나 접을 수 있습니다. (Native <details> 태그 활용)",
+                html: `<div class="border rounded-lg shadow-sm bg-white overflow-hidden w-full">
+  <details class="group border-b border-slate-200">
+    <summary class="list-none p-4 cursor-pointer flex justify-between items-center font-medium hover:bg-slate-50 select-none">
+      <span>Q. 환불 정책은 어떻게 되나요?</span>
+      <span class="transition-transform duration-300 group-open:rotate-180">
+        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+      </span>
+    </summary>
+    <div class="p-4 text-sm text-slate-600 bg-slate-50/50">
+      구매 후 7일 이내에 요청하시면 전액 환불이 가능합니다.
+    </div>
+  </details>
+  <details class="group">
+    <summary class="list-none p-4 cursor-pointer flex justify-between items-center font-medium hover:bg-slate-50 select-none">
+      <span>Q. 배송 기간은 얼마나 걸리나요?</span>
+      <span class="transition-transform duration-300 group-open:rotate-180">
+        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+      </span>
+    </summary>
+    <div class="p-4 text-sm text-slate-600 bg-slate-50/50">
+      평균적으로 주문 후 2~3 영업일 이내에 배송됩니다.
+    </div>
+  </details>
+</div>`,
+                css: `/* 기본 Tailwind CSS 유틸리티 클래스를 사용합니다. */
+/* details 태그의 기본 화살표 숨김 처리가 필요합니다. */
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}`
+            },
+            { 
+                id: 2, name: "Bento Menu", 
+                desc: "격자 형태의 네비게이션 메뉴입니다. 호버 시 반응합니다.",
+                html: `<div class="grid grid-cols-3 gap-3 p-4 bg-slate-100 rounded-2xl w-64 mx-auto">
+  <div class="aspect-square bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-blue-600">
+    <i data-lucide="mail" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Mail</span>
+  </div>
+  <div class="col-span-2 bg-blue-600 text-white rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer flex flex-col items-center justify-center gap-1">
+    <i data-lucide="calendar" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Schedule Meeting</span>
+  </div>
+  <div class="aspect-square bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-blue-600">
+    <i data-lucide="map" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Map</span>
+  </div>
+  <div class="aspect-square bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-blue-600">
+    <i data-lucide="music" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Music</span>
+  </div>
+  <div class="aspect-square bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-blue-600">
+    <i data-lucide="settings" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Set</span>
+  </div>
+</div>`,
+                css: `/* Tailwind Utility Classes Only */
+/* Grid Layout: grid-cols-3, gap-3 */
+/* Hover Effects: hover:scale-105, transition-all */`
+            },
+            { 
+                id: 3, name: "Breadcrumb", 
+                desc: "현재 페이지의 경로를 보여줍니다.",
+                html: `<nav class="flex" aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+    <li class="inline-flex items-center">
+      <a href="#" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600">
+        <i data-lucide="home" class="w-3 h-3 me-2"></i>Home
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 mx-1"></i>
+        <a href="#" class="text-sm font-medium text-slate-500 hover:text-blue-600">Components</a>
+      </div>
+    </li>
+    <li aria-current="page">
+      <div class="flex items-center">
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 mx-1"></i>
+        <span class="text-sm font-medium text-slate-900">Breadcrumb</span>
+      </div>
+    </li>
+  </ol>
+</nav>`,
+                css: `/* Tailwind Utility Classes Only */`
+            },
+            { 
+                id: 4, name: "Button", 
+                desc: "클릭 시 리플 효과 혹은 상태 변화를 보여줍니다.",
+                html: `<div class="flex flex-col gap-4 items-center w-full">
+  <button class="w-full px-5 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 active:scale-95 transition-all shadow-sm">
+    Primary Action
+  </button>
+  <button class="w-full px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:text-blue-600 active:bg-slate-100 transition-all flex items-center justify-center gap-2 shadow-sm">
+    <i data-lucide="download" class="w-4 h-4"></i> Download
+  </button>
+  <button disabled class="w-full px-5 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-medium cursor-not-allowed">
+    Disabled
+  </button>
+</div>`,
+                css: `/* Button States handled by Tailwind */
+/* hover:bg-slate-800 */
+/* active:scale-95 (Click effect) */
+/* disabled:cursor-not-allowed */`
+            },
+            { 
+                id: 5, name: "Card", 
+                desc: "정보를 담는 컨테이너입니다. 호버 인터랙션이 포함되어 있습니다.",
+                html: `<div class="w-full bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
+  <div class="h-32 bg-slate-100 flex items-center justify-center overflow-hidden">
+    <i data-lucide="image" class="w-12 h-12 text-slate-300 group-hover:scale-110 transition-transform duration-500"></i>
+  </div>
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">ARTICLE</span>
+      <span class="text-xs text-slate-400">5 min read</span>
+    </div>
+    <h5 class="mb-2 text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Understanding UI Patterns</h5>
+    <p class="mb-4 text-sm text-slate-500">Cards provide a flexible container for grouping related content and actions.</p>
+  </div>
+</div>`,
+                css: `/* Parent Group Hover Effects */
+/* .group-hover:scale-110 (Image Zoom) */
+/* .group-hover:text-blue-600 (Title Color) */`
+            },
+            { 
+                id: 6, name: "Carousel", 
+                desc: "좌우 버튼을 클릭하여 슬라이드를 이동시킵니다. (무한 스크롤 X, 범위 제한)",
+                html: `<div class="relative w-full max-w-[320px] overflow-hidden rounded-xl border border-slate-200 bg-white">
+  <div id="carousel-track" class="flex transition-transform duration-500 ease-out" style="transform: translateX(0%);">
+    <div class="min-w-full h-48 bg-blue-50 flex flex-col items-center justify-center text-center p-6">
+      <span class="text-4xl font-bold text-blue-200 mb-2">1</span>
+      <p class="text-sm font-medium text-slate-700">First Slide</p>
+    </div>
+    <div class="min-w-full h-48 bg-green-50 flex flex-col items-center justify-center text-center p-6">
+      <span class="text-4xl font-bold text-green-200 mb-2">2</span>
+      <p class="text-sm font-medium text-slate-700">Second Slide</p>
+    </div>
+    <div class="min-w-full h-48 bg-purple-50 flex flex-col items-center justify-center text-center p-6">
+      <span class="text-4xl font-bold text-purple-200 mb-2">3</span>
+      <p class="text-sm font-medium text-slate-700">Third Slide</p>
+    </div>
+  </div>
+  
+  <button id="prev-btn" class="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed">
+    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+  </button>
+  <button id="next-btn" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed">
+    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+  </button>
+  
+  <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+    <div class="w-2 h-2 rounded-full bg-slate-800 indicator"></div>
+    <div class="w-2 h-2 rounded-full bg-slate-300 indicator"></div>
+    <div class="w-2 h-2 rounded-full bg-slate-300 indicator"></div>
+  </div>
+</div>`,
+                css: `/* Hide scrollbar if overflow allows scrolling manually */
+.no-scrollbar::-webkit-scrollbar { 
+    display: none; 
+}
+.no-scrollbar { 
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+}`,
+                script: () => {
+                    const track = document.getElementById('carousel-track');
+                    const prevBtn = document.getElementById('prev-btn');
+                    const nextBtn = document.getElementById('next-btn');
+                    const indicators = document.querySelectorAll('.indicator');
+                    let currentIndex = 0;
+                    const totalSlides = 3;
+
+                    function update() {
+                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                        // Update buttons
+                        prevBtn.disabled = currentIndex === 0;
+                        nextBtn.disabled = currentIndex === totalSlides - 1;
+                        // Update indicators
+                        indicators.forEach((ind, i) => {
+                            ind.classList.toggle('bg-slate-800', i === currentIndex);
+                            ind.classList.toggle('bg-slate-300', i !== currentIndex);
+                        });
+                    }
+
+                    nextBtn.addEventListener('click', () => {
+                        if (currentIndex < totalSlides - 1) {
+                            currentIndex++;
+                            update();
+                        }
+                    });
+
+                    prevBtn.addEventListener('click', () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            update();
+                        }
+                    });
+                    
+                    update(); // Init
+                }
+            },
+            { 
+                id: 7, name: "Checkbox", 
+                desc: "선택 및 해제가 가능합니다.",
+                html: `<div class="flex flex-col gap-3 p-4 bg-white rounded-lg border border-slate-200 w-full">
+  <label class="flex items-center gap-3 cursor-pointer group">
+    <input type="checkbox" class="peer w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+    <span class="text-sm font-medium text-slate-700 peer-checked:text-slate-900 peer-checked:font-bold transition-all">Accept Terms</span>
+  </label>
+  <label class="flex items-center gap-3 cursor-pointer group">
+    <input type="checkbox" checked class="peer w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+    <span class="text-sm font-medium text-slate-700 peer-checked:text-slate-900 peer-checked:font-bold transition-all">Subscribe</span>
+  </label>
+</div>`,
+                css: `/* Tailwind "peer" class used for state styling */
+/* peer-checked:text-slate-900 */
+/* peer-checked:font-bold */`
+            },
+            { id: 8, name: "Comment", desc: "댓글 UI 예시입니다.", html: `<div class="flex gap-3 w-full bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+  <div class="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 overflow-hidden">
+    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+  </div>
+  <div class="flex-1">
+    <div class="flex items-center justify-between mb-1">
+      <h4 class="text-sm font-bold text-slate-900">Alex Johnson</h4>
+      <span class="text-xs text-slate-500">2h ago</span>
+    </div>
+    <p class="text-sm text-slate-600 leading-relaxed">This component library is exactly what I needed. Great work!</p>
+    <div class="flex gap-4 mt-3">
+      <button class="text-xs font-medium text-slate-500 hover:text-blue-600 flex items-center gap-1 transition-colors"><i data-lucide="thumbs-up" class="w-3 h-3"></i> Like</button>
+      <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors">Reply</button>
+    </div>
+  </div>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 9, name: "Döner Menu", desc: "필터나 정렬 옵션 등에 주로 쓰이는 메뉴 아이콘입니다.", html: `<div class="relative bg-white p-3 rounded-lg border border-slate-200 flex items-center justify-between w-64 shadow-sm">
+  <span class="text-sm font-medium text-slate-600">Filter Options</span>
+  <button class="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition active:bg-slate-200">
+    <i data-lucide="more-vertical" class="w-5 h-5"></i>
+  </button>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { 
+                id: 10, name: "Dropdown", 
+                desc: "버튼을 클릭하여 메뉴를 열고 닫습니다. 외부 클릭 시 닫힙니다.",
+                html: `<div class="relative w-full max-w-[200px]">
+  <button id="dropdown-btn" class="inline-flex w-full justify-between items-center rounded-md bg-white px-4 py-2.5 text-sm font-medium text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">
+    <span>Options</span>
+    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform duration-200" id="dropdown-icon"></i>
+  </button>
+  
+  <div id="dropdown-menu" class="hidden absolute right-0 left-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-200 opacity-0 translate-y-2">
+    <div class="py-1">
+      <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600">Edit Profile</a>
+      <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600">Preferences</a>
+      <div class="border-t border-slate-100 my-1"></div>
+      <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Sign out</a>
+    </div>
+  </div>
+</div>`,
+                css: `/* Tailwind Transitions for Dropdown */
+/* transition-all duration-200 */
+/* opacity-0 translate-y-2 (Hidden State) */`,
+                script: () => {
+                    const btn = document.getElementById('dropdown-btn');
+                    const menu = document.getElementById('dropdown-menu');
+                    const icon = document.getElementById('dropdown-icon');
+                    
+                    const toggle = () => {
+                        const isHidden = menu.classList.contains('hidden');
+                        if (isHidden) {
+                            menu.classList.remove('hidden');
+                            // Small delay for transition to work
+                            setTimeout(() => {
+                                menu.classList.remove('opacity-0', 'translate-y-2');
+                            }, 10);
+                            icon.style.transform = 'rotate(180deg)';
+                        } else {
+                            menu.classList.add('opacity-0', 'translate-y-2');
+                            setTimeout(() => {
+                                menu.classList.add('hidden');
+                            }, 200);
+                            icon.style.transform = 'rotate(0deg)';
+                        }
+                    };
+
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggle();
+                    });
+
+                    // Close on outside click
+                    document.addEventListener('click', (e) => {
+                        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                            menu.classList.add('opacity-0', 'translate-y-2');
+                            setTimeout(() => menu.classList.add('hidden'), 200);
+                            icon.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                }
+            },
+            { id: 11, name: "Feed", desc: "SNS 뉴스피드 형태입니다.", html: `<div class="w-full space-y-3">
+  <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors cursor-pointer">
+    <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">UI</div>
+        <div class="text-sm font-medium">System Update</div>
+        <span class="ml-auto text-xs text-slate-400">10m</span>
+    </div>
+    <p class="text-xs text-slate-500 line-clamp-2">Version 2.0 has been deployed. Check out the new dashboard features.</p>
+  </div>
+  <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-300 transition-colors cursor-pointer">
+    <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">MK</div>
+        <div class="text-sm font-medium">Marketing Team</div>
+         <span class="ml-auto text-xs text-slate-400">1h</span>
+    </div>
+    <p class="text-xs text-slate-500 line-clamp-2">New campaign assets are ready for review in the shared folder.</p>
+  </div>
+</div>`, css: `/* line-clamp-2 for text truncation */` },
+            { id: 12, name: "Form", desc: "기본적인 입력 폼 구조입니다.", html: `<form class="w-full bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4" onsubmit="event.preventDefault(); alert('Form Submitted!');">
+  <div>
+    <label class="block text-xs font-bold text-slate-700 mb-1">EMAIL ADDRESS</label>
+    <input type="email" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="you@example.com" required>
+  </div>
+  <div>
+    <label class="block text-xs font-bold text-slate-700 mb-1">MESSAGE</label>
+    <textarea class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" rows="3" placeholder="Tell us more..."></textarea>
+  </div>
+  <button type="submit" class="w-full bg-slate-900 text-white rounded-md py-2 text-sm font-medium hover:bg-slate-800 active:scale-[0.98] transition-all">Send Message</button>
+</form>`, css: `/* Focus ring handled by Tailwind */
+/* focus:ring-2 focus:ring-blue-500 */` },
+            { 
+                id: 13, name: "Hamburger Menu", 
+                desc: "아이콘 클릭 시 사이드 메뉴가 열리고, 닫기 버튼으로 닫힙니다.",
+                html: `<div class="relative w-full h-64 bg-slate-100 rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+  <div class="bg-white p-4 flex justify-between items-center shadow-sm z-10">
+    <span class="font-bold text-slate-900">My App</span>
+    <button id="menu-trigger" class="p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-md transition">
+      <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+  </div>
+  
+  <div class="p-4 text-slate-400 text-sm flex-1 flex items-center justify-center">App Content Area</div>
+
+  <div id="mobile-menu" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-20 hidden transition-opacity opacity-0">
+    <div id="menu-panel" class="absolute right-0 top-0 bottom-0 w-64 bg-white shadow-xl transform translate-x-full transition-transform duration-300 flex flex-col">
+       <div class="p-4 flex justify-end border-b border-slate-100">
+         <button id="menu-close" class="p-2 text-slate-500 hover:bg-slate-100 rounded-md">
+           <i data-lucide="x" class="w-6 h-6"></i>
+         </button>
+       </div>
+       <nav class="p-4 space-y-1">
+         <a href="#" class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">Home</a>
+         <a href="#" class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">Profile</a>
+         <a href="#" class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">Settings</a>
+       </nav>
+    </div>
+  </div>
+</div>`,
+                css: `/* Mobile Menu Transitions */
+/* Panel Slide: translate-x-full -> translate-x-0 */
+/* Overlay Fade: opacity-0 -> opacity-100 */`,
+                script: () => {
+                    const trigger = document.getElementById('menu-trigger');
+                    const close = document.getElementById('menu-close');
+                    const overlay = document.getElementById('mobile-menu');
+                    const panel = document.getElementById('menu-panel');
+
+                    trigger.addEventListener('click', () => {
+                        overlay.classList.remove('hidden');
+                        // Allow display:block to apply before changing opacity for transition
+                        requestAnimationFrame(() => {
+                            overlay.classList.remove('opacity-0');
+                            panel.classList.remove('translate-x-full');
+                        });
+                    });
+
+                    const closeMenu = () => {
+                        panel.classList.add('translate-x-full');
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                        }, 300);
+                    };
+
+                    close.addEventListener('click', closeMenu);
+                    overlay.addEventListener('click', (e) => {
+                        if(e.target === overlay) closeMenu();
+                    });
+                }
+            },
+            { id: 14, name: "Icon", desc: "의미를 전달하는 시각적 요소들입니다.", html: `<div class="flex gap-6 items-center justify-center w-full p-6">
+  <div class="flex flex-col items-center gap-2 group cursor-pointer">
+    <div class="p-3 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors">
+        <i data-lucide="bell" class="w-5 h-5 text-blue-600"></i>
+    </div>
+    <span class="text-xs text-slate-500 font-medium">Alert</span>
+  </div>
+  <div class="flex flex-col items-center gap-2 group cursor-pointer">
+     <div class="p-3 bg-red-50 rounded-full group-hover:bg-red-100 transition-colors">
+        <i data-lucide="trash-2" class="w-5 h-5 text-red-500"></i>
+    </div>
+    <span class="text-xs text-slate-500 font-medium">Delete</span>
+  </div>
+  <div class="flex flex-col items-center gap-2 group cursor-pointer">
+     <div class="p-3 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
+        <i data-lucide="check" class="w-5 h-5 text-green-500"></i>
+    </div>
+    <span class="text-xs text-slate-500 font-medium">Done</span>
+  </div>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 15, name: "Input Field", desc: "포커스 시 링 효과가 나타나는 입력 필드입니다.", html: `<div class="space-y-4 w-full">
+  <div>
+    <label class="block text-xs font-medium text-slate-700 mb-1">Username</label>
+    <input type="text" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-300" placeholder="Enter username">
+  </div>
+  <div class="relative">
+    <label class="block text-xs font-medium text-slate-700 mb-1">Search</label>
+    <div class="pointer-events-none absolute bottom-2.5 left-3 flex items-center">
+       <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+    </div>
+    <input type="text" class="block w-full rounded-md border border-slate-300 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Search...">
+  </div>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 16, name: "Kebab Menu", desc: "수평 점 세 개로 표현되는 메뉴 트리거입니다.", html: `<div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center justify-between w-full shadow-sm">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 font-bold text-xs">P</div>
+    <div class="flex flex-col">
+        <span class="text-sm font-medium text-slate-900">Project Alpha</span>
+        <span class="text-xs text-slate-400">Edited 2m ago</span>
+    </div>
+  </div>
+  <button class="text-slate-400 hover:text-slate-700 p-2 rounded-full hover:bg-slate-100 transition-colors">
+    <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+  </button>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 17, name: "Loader", desc: "CSS 애니메이션을 이용한 로딩 상태 표시입니다.", html: `<div class="flex flex-col items-center gap-8">
+  <div class="flex items-center gap-4">
+      <div class="animate-spin rounded-full h-6 w-6 border-[3px] border-slate-200 border-t-blue-600"></div>
+      <span class="text-xs text-slate-500">Processing...</span>
+  </div>
+  
+  <div class="w-full space-y-3 bg-white p-4 rounded-lg border border-slate-100">
+    <div class="flex gap-3">
+        <div class="w-10 h-10 bg-slate-200 rounded-full animate-pulse"></div>
+        <div class="flex-1 space-y-2 py-1">
+            <div class="h-2 bg-slate-200 rounded animate-pulse w-1/4"></div>
+            <div class="h-2 bg-slate-200 rounded animate-pulse w-3/4"></div>
+        </div>
+    </div>
+  </div>
+</div>`, css: `/* Tailwind Animations: */
+/* animate-spin */
+/* animate-pulse */` },
+            { id: 18, name: "Meatballs Menu", desc: "목록 내의 항목 별 동작을 위한 메뉴입니다.", html: `<table class="w-full border border-slate-200 rounded-lg overflow-hidden">
+    <tr class="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase">
+      <th class="text-left p-3 font-medium">File Name</th>
+      <th class="p-3 w-10"></th>
+    </tr>
+    <tr class="bg-white border-b border-slate-100 group">
+      <td class="p-3 text-sm text-slate-700 flex items-center gap-2">
+        <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i> report.pdf
+      </td>
+      <td class="p-2 text-center">
+        <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+        </button>
+      </td>
+    </tr>
+    <tr class="bg-white group">
+      <td class="p-3 text-sm text-slate-700 flex items-center gap-2">
+        <i data-lucide="image" class="w-4 h-4 text-slate-400"></i> design.png
+      </td>
+      <td class="p-2 text-center">
+        <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+        </button>
+      </td>
+    </tr>
+</table>`, css: `/* Show/Hide button on row hover */
+/* opacity-0 group-hover:opacity-100 */` },
+            { 
+                id: 19, name: "Modal", 
+                desc: "Open 버튼을 눌러 모달을 띄우고, 닫기 버튼이나 배경을 눌러 닫을 수 있습니다.",
+                html: `<div class="w-full flex justify-center items-center h-48 relative">
+  <button id="modal-open" class="px-4 py-2 bg-slate-900 text-white rounded-md text-sm font-medium hover:bg-slate-800 transition">
+    Open Modal
+  </button>
+
+  <div id="modal-overlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 rounded-xl">
+    <div id="modal-content" class="bg-white rounded-lg shadow-2xl p-6 max-w-[280px] w-full transform scale-95 transition-transform duration-300">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex items-center gap-2 text-red-600">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            <h3 class="text-lg font-bold text-slate-900">Confirm</h3>
+        </div>
+        <button id="modal-close" class="text-slate-400 hover:text-slate-600 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+        Are you sure you want to delete this item? This action cannot be undone.
+      </p>
+      <div class="flex justify-end gap-2">
+        <button id="modal-cancel" class="px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 rounded hover:bg-slate-200 transition">Cancel</button>
+        <button class="px-3 py-2 text-xs font-medium text-white bg-red-600 rounded hover:bg-red-700 transition shadow-sm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>`,
+                css: `/* Modal Animations */
+/* Overlay: opacity-0 -> opacity-100 */
+/* Content: scale-95 -> scale-100 */`,
+                script: () => {
+                    const openBtn = document.getElementById('modal-open');
+                    const overlay = document.getElementById('modal-overlay');
+                    const content = document.getElementById('modal-content');
+                    const closeBtns = [
+                        document.getElementById('modal-close'), 
+                        document.getElementById('modal-cancel')
+                    ];
+
+                    openBtn.addEventListener('click', () => {
+                        overlay.classList.remove('hidden');
+                        requestAnimationFrame(() => {
+                            overlay.classList.remove('opacity-0');
+                            content.classList.remove('scale-95');
+                            content.classList.add('scale-100');
+                        });
+                    });
+
+                    const closeModal = () => {
+                        overlay.classList.add('opacity-0');
+                        content.classList.remove('scale-100');
+                        content.classList.add('scale-95');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                        }, 300);
+                    };
+
+                    closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) closeModal();
+                    });
+                }
+            },
+            { id: 20, name: "Badge", desc: "상태나 알림 수를 표시합니다.", html: `<div class="flex gap-6 items-center">
+  <div class="relative">
+    <div class="p-2 bg-white border border-slate-200 rounded-lg text-slate-600 shadow-sm">
+      <i data-lucide="bell" class="w-5 h-5"></i>
+    </div>
+    <span class="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 rounded-full bg-red-500 ring-2 ring-white text-[10px] font-bold text-white flex items-center justify-center">3</span>
+  </div>
+  
+  <div class="flex gap-2">
+      <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">New</span>
+      <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+  </div>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 21, name: "Pagination", desc: "페이지 이동을 위한 버튼 그룹입니다.", html: `<div class="flex items-center gap-1">
+  <button class="p-2 rounded-md border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 disabled:opacity-50 transition" disabled>
+    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+  </button>
+  <button class="w-9 h-9 flex items-center justify-center rounded-md bg-slate-900 text-white text-sm font-medium shadow-sm">1</button>
+  <button class="w-9 h-9 flex items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 text-sm font-medium transition">2</button>
+  <button class="w-9 h-9 flex items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 text-sm font-medium transition">3</button>
+  <span class="w-9 h-9 flex items-center justify-center text-slate-400 text-sm">...</span>
+  <button class="p-2 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+  </button>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { 
+                id: 22, name: "Picker", 
+                desc: "색상 선택 시 활성화 상태가 변경되는 인터랙티브 피커입니다.",
+                html: `<div class="flex flex-col gap-4 w-full items-center">
+  <div class="relative w-full">
+    <label class="block text-xs font-medium text-slate-700 mb-1">Date</label>
+    <div class="relative">
+        <input type="date" class="block w-full rounded-md border border-slate-300 py-2 px-3 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
+    </div>
+  </div>
+  
+  <div class="bg-white p-3 rounded-xl border border-slate-200 w-full">
+      <label class="block text-xs font-medium text-slate-700 mb-2">Color Picker</label>
+      <div class="flex items-center gap-3" id="color-options">
+        <button class="w-8 h-8 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-blue-500 transition-all hover:scale-110" data-color="blue"></button>
+        <button class="w-8 h-8 rounded-full bg-red-500 transition-all hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-red-500" data-color="red"></button>
+        <button class="w-8 h-8 rounded-full bg-green-500 transition-all hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-green-500" data-color="green"></button>
+        <button class="w-8 h-8 rounded-full bg-purple-500 transition-all hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-purple-500" data-color="purple"></button>
+      </div>
+  </div>
+</div>`,
+                css: `/* Tailwind Utility Classes Only */`,
+                script: () => {
+                    const buttons = document.querySelectorAll('#color-options button');
+                    buttons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            // Reset all
+                            buttons.forEach(b => {
+                                b.className = `w-8 h-8 rounded-full transition-all hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-${b.dataset.color}-500 bg-${b.dataset.color}-500`;
+                            });
+                            // Active this
+                            this.className = `w-8 h-8 rounded-full transition-all scale-110 ring-2 ring-offset-2 ring-${this.dataset.color}-500 bg-${this.dataset.color}-500`;
+                        });
+                    });
+                }
+            },
+            { 
+                id: 23, name: "Progress Bar", 
+                desc: "Simulate 버튼을 눌러 진행 상태를 시뮬레이션할 수 있습니다.",
+                html: `<div class="w-full space-y-6">
+  <div>
+    <div class="flex justify-between mb-1">
+      <span class="text-xs font-bold text-slate-700">Downloading Update</span>
+      <span id="progress-text" class="text-xs font-medium text-blue-600">0%</span>
+    </div>
+    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+      <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+    </div>
+  </div>
+  <button id="start-progress" class="w-full py-2 bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded hover:bg-slate-50 active:scale-95 transition">
+    Simulate Download
+  </button>
+</div>`,
+                css: `/* Tailwind Utility Classes Only */`,
+                script: () => {
+                    const bar = document.getElementById('progress-bar');
+                    const text = document.getElementById('progress-text');
+                    const btn = document.getElementById('start-progress');
+                    
+                    btn.addEventListener('click', () => {
+                        let width = 0;
+                        btn.disabled = true;
+                        btn.innerText = "Downloading...";
+                        
+                        const interval = setInterval(() => {
+                            if (width >= 100) {
+                                clearInterval(interval);
+                                btn.disabled = false;
+                                btn.innerText = "Done (Click to Reset)";
+                                width = 100;
+                            } else {
+                                width += Math.random() * 10;
+                                if(width > 100) width = 100;
+                            }
+                            bar.style.width = width + '%';
+                            text.innerText = Math.floor(width) + '%';
+                            
+                            if (width === 100) {
+                                setTimeout(() => {
+                                     btn.onclick = () => {
+                                         bar.style.width = '0%';
+                                         text.innerText = '0%';
+                                         btn.innerText = "Simulate Download";
+                                         btn.onclick = null; // Remove temp handler to fall back to main listener
+                                     }
+                                }, 500);
+                            }
+                        }, 200);
+                    });
+                }
+            },
+            { id: 24, name: "Radio Buttons", desc: "단일 선택만 가능한 폼 요소입니다.", html: `<div class="flex flex-col gap-3 w-full">
+  <label class="flex items-center justify-between p-3 border border-blue-500 bg-blue-50 rounded-lg cursor-pointer transition-all">
+    <div class="flex items-center gap-3">
+        <input type="radio" name="plan" checked class="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+        <span class="text-sm font-bold text-slate-900">Pro Plan</span>
+    </div>
+    <span class="text-xs font-medium text-blue-600">$12/mo</span>
+  </label>
+  <label class="flex items-center justify-between p-3 border border-slate-200 rounded-lg cursor-pointer hover:border-slate-300 transition-all">
+    <div class="flex items-center gap-3">
+        <input type="radio" name="plan" class="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+        <span class="text-sm font-medium text-slate-600">Basic Plan</span>
+    </div>
+    <span class="text-xs font-medium text-slate-500">$0/mo</span>
+  </label>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 25, name: "Search Field", desc: "아이콘과 함께 사용되는 검색창입니다.", html: `<div class="relative w-full">
+  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+    <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+  </div>
+  <input type="search" class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-200 rounded-full bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all shadow-sm" placeholder="Search documentation..." required>
+  <button type="submit" class="absolute right-1.5 bottom-1.5 bg-slate-900 text-white hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-200 font-medium rounded-full text-xs px-3 py-1.5 transition-colors">Go</button>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { id: 26, name: "Sidebar", desc: "탐색 링크를 담는 수직 영역입니다.", html: `<div class="w-full max-w-[200px] bg-slate-900 rounded-xl flex flex-col text-slate-300 p-3 shadow-lg">
+  <div class="text-white font-bold mb-6 px-2 flex items-center gap-2 pt-2">
+      <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-[10px]">UI</div> 
+      Dashboard
+  </div>
+  <ul class="space-y-1 text-sm flex-1">
+    <li class="bg-white/10 text-white px-3 py-2 rounded-md cursor-pointer flex items-center gap-2 border-l-2 border-blue-500">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+    </li>
+    <li class="hover:bg-white/5 hover:text-white px-3 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-colors">
+        <i data-lucide="users" class="w-4 h-4"></i> Team
+    </li>
+    <li class="hover:bg-white/5 hover:text-white px-3 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-colors">
+        <i data-lucide="folder" class="w-4 h-4"></i> Projects
+    </li>
+  </ul>
+  <div class="mt-4 flex items-center gap-2 text-xs pt-4 border-t border-slate-800 px-2">
+    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-400 to-purple-400"></div>
+    <span>Jane Doe</span>
+  </div>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { 
+                id: 27, name: "Slider Controls", 
+                desc: "슬라이더를 드래그하면 상단 수치 값이 실시간으로 변경됩니다.",
+                html: `<div class="w-full space-y-6">
+  <div>
+    <div class="flex justify-between mb-2">
+        <label for="range1" class="text-xs font-bold text-slate-700">VOLUME</label>
+        <span id="range1-val" class="text-xs font-bold text-blue-600">70%</span>
+    </div>
+    <input id="range1" type="range" min="0" max="100" value="70" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+  </div>
+</div>`,
+                css: `/* Custom Range Slider Styling (Needed even with Tailwind) */
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px; 
+    width: 16px; 
+    border-radius: 50%; 
+    background: #2563eb; 
+    cursor: pointer; 
+    margin-top: -6px; 
+}
+input[type=range]::-webkit-slider-runnable-track { 
+    width: 100%; 
+    height: 4px; 
+    cursor: pointer; 
+    background: #e2e8f0; 
+    border-radius: 2px; 
+}`,
+                script: () => {
+                    const range = document.getElementById('range1');
+                    const val = document.getElementById('range1-val');
+                    range.addEventListener('input', (e) => {
+                        val.innerText = e.target.value + '%';
+                    });
+                }
+            },
+            { 
+                id: 28, name: "Stepper", 
+                desc: "+, - 버튼을 눌러 수량을 조절할 수 있습니다.",
+                html: `<div class="flex items-center gap-3">
+    <label class="text-sm font-medium text-slate-600">Quantity:</label>
+    <div class="flex items-center border border-slate-300 rounded-lg w-max overflow-hidden shadow-sm">
+      <button id="step-minus" class="px-3 py-2 bg-white hover:bg-slate-50 border-r border-slate-300 text-slate-600 active:bg-slate-100 transition">
+        <i data-lucide="minus" class="w-3 h-3"></i>
+      </button>
+      <input id="step-input" type="text" value="1" class="w-12 text-center text-sm font-bold text-slate-900 focus:outline-none border-none py-2" readonly>
+      <button id="step-plus" class="px-3 py-2 bg-white hover:bg-slate-50 border-l border-slate-300 text-slate-600 active:bg-slate-100 transition">
+        <i data-lucide="plus" class="w-3 h-3"></i>
+      </button>
+    </div>
+</div>`,
+                css: `/* Tailwind Utility Classes Only */`,
+                script: () => {
+                    const input = document.getElementById('step-input');
+                    document.getElementById('step-minus').addEventListener('click', () => {
+                        let v = parseInt(input.value);
+                        if(v > 1) input.value = v - 1;
+                    });
+                    document.getElementById('step-plus').addEventListener('click', () => {
+                        let v = parseInt(input.value);
+                        if(v < 99) input.value = v + 1;
+                    });
+                }
+            },
+            { id: 29, name: "Tag", desc: "분류를 위한 라벨입니다. 삭제 가능한 태그도 포함됩니다.", html: `<div class="flex flex-wrap gap-2">
+  <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200">Design</span>
+  <span class="bg-blue-50 text-blue-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-200">Development</span>
+  <span class="bg-purple-50 text-purple-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-purple-200 flex items-center gap-1 cursor-pointer hover:bg-purple-100 transition">
+    Feature <i data-lucide="x" class="w-3 h-3"></i>
+  </span>
+</div>`, css: `/* Tailwind Utility Classes Only */` },
+            { 
+                id: 30, name: "Tab Bar", 
+                desc: "하단 탭을 클릭하여 활성화 상태를 변경합니다.",
+                html: `<div class="w-full max-w-[280px] bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm flex flex-col h-40">
+  <div id="tab-content" class="flex-1 bg-slate-50 flex items-center justify-center text-slate-400 text-sm p-4 text-center">
+    Home View
+  </div>
+  
+  <div class="grid grid-cols-3 border-t border-slate-200 bg-white">
+    <button class="tab-btn flex flex-col items-center justify-center py-3 text-blue-600 relative hover:bg-slate-50 transition" data-target="Home View">
+      <i data-lucide="home" class="w-5 h-5 mb-1"></i>
+      <span class="text-[10px] font-medium">Home</span>
+      <span class="absolute top-0 left-0 right-0 h-0.5 bg-blue-600"></span>
+    </button>
+    <button class="tab-btn flex flex-col items-center justify-center py-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition" data-target="Favorites View">
+      <i data-lucide="heart" class="w-5 h-5 mb-1"></i>
+      <span class="text-[10px] font-medium">Likes</span>
+    </button>
+    <button class="tab-btn flex flex-col items-center justify-center py-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition" data-target="Profile View">
+      <i data-lucide="user" class="w-5 h-5 mb-1"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </button>
+  </div>
+</div>`,
+                css: `/* Tailwind Utility Classes Only */`,
+                script: () => {
+                    const btns = document.querySelectorAll('.tab-btn');
+                    const content = document.getElementById('tab-content');
+                    
+                    btns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            // Reset styles
+                            btns.forEach(b => {
+                                b.classList.remove('text-blue-600');
+                                b.classList.add('text-slate-400');
+                                const line = b.querySelector('.bg-blue-600');
+                                if(line) line.remove();
+                            });
+                            
+                            // Active style
+                            this.classList.remove('text-slate-400');
+                            this.classList.add('text-blue-600');
+                            
+                            // Add Top Line
+                            const line = document.createElement('span');
+                            line.className = "absolute top-0 left-0 right-0 h-0.5 bg-blue-600";
+                            this.appendChild(line);
+                            
+                            // Change Content
+                            content.innerText = this.dataset.target;
+                            // Lucide icons re-render might remove inner SVG content if handled by lib, 
+                            // but here we modify classes only, icons are preserved.
+                        });
+                    });
+                }
+            },
+            { id: 31, name: "Tooltip", desc: "마우스 오버 시 툴팁이 나타납니다.", html: `<div class="flex items-center justify-center h-20 pt-6">
+  <div class="relative group">
+    <button class="p-2 bg-white border border-slate-200 text-slate-600 rounded-md shadow-sm hover:border-slate-400 transition">
+      <i data-lucide="help-circle" class="w-5 h-5"></i>
+    </button>
+    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-slate-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg transform translate-y-1 group-hover:translate-y-0 duration-200">
+      Help Information
+      <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+    </div>
+  </div>
+</div>`, css: `/* Group Hover Logic for Tooltip */
+/* group-hover:opacity-100 */
+/* group-hover:translate-y-0 */` },
+            { 
+                id: 32, name: "Toggle", 
+                desc: "스위치를 클릭하여 On/Off 상태를 전환합니다.",
+                html: `<div class="flex flex-col gap-4">
+  <label class="relative inline-flex items-center cursor-pointer">
+    <input type="checkbox" id="toggle-1" class="sr-only peer">
+    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+    <span class="ml-3 text-sm font-medium text-slate-700 select-none">Notifications</span>
+  </label>
+</div>`, css: `/* Tailwind Utility Classes Only */` 
+            }
+        ];</script>
+<script id="data-alert">const ALERT_DEMOS = {
+  toast: {
+    title: 'Toast / Snackbar',
+    desc: '화면 구석에 슬라이드 형태로 나타났다가 자동으로 사라지는 알림. 사용자의 작업 흐름을 방해하지 않으면서 중요한 정보를 전달합니다.',
+    url: 'myapp.io/dashboard',
+    render(body) {
+      body.innerHTML = `
+        <button class="trigger-btn" onclick="demos.toast.fire()">🔔 Toast 띄우기</button>
+        <div class="toast-container" id="toastContainer"></div>
+        <div class="placeholder-lines">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+        </div>
+      `;
+    },
+    fire() {
+      const types = [
+        { cls: '', icon: '✅', msg: '파일이 성공적으로 저장되었습니다.' },
+        { cls: 'error', icon: '❌', msg: '네트워크 연결에 실패했습니다.' },
+        { cls: 'warning', icon: '⚠️', msg: '저장 공간이 90%를 초과했습니다.' },
+      ];
+      const t = types[Math.floor(Math.random() * types.length)];
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `toast ${t.cls}`;
+      el.style.position = 'relative';
+      el.innerHTML = `
+        <span class="toast-icon">${t.icon}</span>
+        <span>${t.msg}</span>
+        <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+        <div class="toast-progress"></div>
+      `;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    },
+    code: `toast('파일이 저장되었습니다.', {\n  type: 'success',\n  duration: 3000,\n  position: 'top-right'\n});`
+  },
+
+  banner: {
+    title: 'Top Banner',
+    desc: '페이지 상단에 전체 너비로 표시되는 배너 알림. 시스템 공지, 점검 안내, 긴급 경고 등에 효과적입니다.',
+    url: 'myapp.io/settings',
+    render(body) {
+      body.innerHTML = `
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="trigger-btn" onclick="demos.banner.fire('danger')">🔴 긴급 배너</button>
+          <button class="trigger-btn" onclick="demos.banner.fire('warning')" style="background:linear-gradient(135deg,#ffa502,#e59400)">🟡 경고 배너</button>
+          <button class="trigger-btn" onclick="demos.banner.fire('info')" style="background:linear-gradient(135deg,#3742fa,#2a32c9)">🔵 안내 배너</button>
+        </div>
+        <div class="placeholder-lines" style="margin-top:40px">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+        </div>
+      `;
+    },
+    fire(type) {
+      const msgs = {
+        danger: '⚠️ 긴급: 서버 점검이 10분 후 시작됩니다. 작업을 저장해주세요.',
+        warning: '⚡ 주의: 브라우저 버전이 오래되어 일부 기능이 제한될 수 있습니다.',
+        info: '🚀 새 버전 v2.4.0이 출시되었습니다. 새로운 기능을 확인해보세요!'
+      };
+      document.querySelectorAll('.banner').forEach(b => b.remove());
+      const body = document.querySelector('.demo-body');
+      const el = document.createElement('div');
+      el.className = `banner ${type}`;
+      el.innerHTML = `${msgs[type]}<span class="banner-close" onclick="this.parentElement.remove()">×</span>`;
+      body.prepend(el);
+    },
+    code: `<div class="banner danger">\n  ⚠️ 서버 점검이 10분 후 시작됩니다.\n  <button onclick="dismiss()">×</button>\n</div>`
+  },
+
+  inline: {
+    title: 'Inline Alert',
+    desc: '컨텐츠 흐름 안에 자연스럽게 포함되는 경고 메시지. 관련 요소 바로 옆에 배치하여 맥락을 유지합니다.',
+    url: 'myapp.io/form',
+    render(body) {
+      body.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:16px; align-items:center; width:100%;">
+          <button class="trigger-btn" onclick="demos.inline.fire()">📌 Inline Alert 표시</button>
+          <div id="inlineContainer" style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:500px;"></div>
+        </div>
+      `;
+    },
+    fire() {
+      const alerts = [
+        { cls: 'danger', icon: '🚫', title: '결제 실패', msg: '카드 정보를 확인하고 다시 시도해주세요.' },
+        { cls: 'warning', icon: '⚠️', title: '비밀번호 만료 예정', msg: '3일 내에 비밀번호를 변경해주세요.' },
+        { cls: 'success', icon: '✅', title: '인증 완료', msg: '이메일 인증이 성공적으로 완료되었습니다.' },
+      ];
+      const a = alerts[Math.floor(Math.random() * alerts.length)];
+      const container = document.getElementById('inlineContainer');
+      container.innerHTML = '';
+      const el = document.createElement('div');
+      el.className = `inline-alert ${a.cls}`;
+      el.innerHTML = `
+        <span class="inline-alert-icon">${a.icon}</span>
+        <div>
+          <div class="inline-alert-title">${a.title}</div>
+          <div>${a.msg}</div>
+        </div>
+      `;
+      container.appendChild(el);
+    },
+    code: `<div class="inline-alert danger">\n  <span>🚫</span>\n  <div>\n    <strong>결제 실패</strong>\n    <p>카드 정보를 확인해주세요.</p>\n  </div>\n</div>`
+  },
+
+  slideover: {
+    title: 'Slide-over Panel',
+    desc: '화면 옆에서 슬라이드하며 나타나는 패널. 삭제 확인, 상세 경고 등 추가 정보가 필요한 경고에 적합합니다.',
+    url: 'myapp.io/projects',
+    render(body) {
+      body.innerHTML = `
+        <button class="trigger-btn" onclick="demos.slideover.fire()">📋 Slide Panel 열기</button>
+        <div class="placeholder-lines">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+        </div>
+      `;
+    },
+    fire() {
+      const body = document.querySelector('.demo-body');
+      document.querySelectorAll('.slideover-overlay,.slideover').forEach(e => e.remove());
+      const overlay = document.createElement('div');
+      overlay.className = 'slideover-overlay';
+      overlay.onclick = () => { overlay.remove(); panel.remove(); };
+      const panel = document.createElement('div');
+      panel.className = 'slideover';
+      panel.innerHTML = `
+        <div class="slideover-header">
+          <h3>🗑️ 프로젝트 삭제</h3>
+          <button class="slideover-close" onclick="document.querySelectorAll('.slideover-overlay,.slideover').forEach(e=>e.remove())">×</button>
+        </div>
+        <div class="slideover-body">
+          <p style="margin-bottom:16px"><strong>"Tika 프로젝트"</strong>를 정말 삭제하시겠습니까?</p>
+          <p>이 작업은 되돌릴 수 없으며, 다음 항목이 영구적으로 삭제됩니다:</p>
+          <ul style="margin-top:12px;padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+            <li>모든 태스크 (42개)</li>
+            <li>첨부 파일 (128MB)</li>
+            <li>팀 멤버 설정</li>
+            <li>연결된 웹훅</li>
+          </ul>
+        </div>
+        <div class="slideover-footer">
+          <button class="btn-cancel" onclick="document.querySelectorAll('.slideover-overlay,.slideover').forEach(e=>e.remove())">취소</button>
+          <button class="btn-danger" onclick="document.querySelectorAll('.slideover-overlay,.slideover').forEach(e=>e.remove())">삭제하기</button>
+        </div>
+      `;
+      body.appendChild(overlay);
+      body.appendChild(panel);
+    },
+    code: `<SlidePanel open={showPanel} onClose={close}>\n  <h3>프로젝트 삭제</h3>\n  <p>이 작업은 되돌릴 수 없습니다.</p>\n  <button onClick={handleDelete}>삭제</button>\n</SlidePanel>`
+  },
+
+  shake: {
+    title: 'Shake Effect',
+    desc: '잘못된 입력 시 필드가 흔들리는 효과. iOS의 비밀번호 오류 애니메이션처럼 직관적이고 시각적인 피드백을 제공합니다.',
+    url: 'myapp.io/login',
+    render(body) {
+      body.innerHTML = `
+        <div class="shake-demo">
+          <div class="shake-input-group">
+            <label>이메일</label>
+            <input class="shake-input" type="email" placeholder="email@example.com" id="shakeEmail">
+            <span class="shake-error-text" id="emailError">올바른 이메일을 입력해주세요.</span>
+          </div>
+          <div class="shake-input-group">
+            <label>비밀번호</label>
+            <input class="shake-input" type="password" placeholder="••••••••" id="shakePassword">
+            <span class="shake-error-text" id="passError">비밀번호가 일치하지 않습니다.</span>
+          </div>
+          <button class="shake-btn" onclick="demos.shake.fire()">로그인</button>
+        </div>
+      `;
+    },
+    fire() {
+      const email = document.getElementById('shakeEmail');
+      const pass = document.getElementById('shakePassword');
+      [email, pass].forEach(el => {
+        el.classList.remove('error');
+        void el.offsetWidth;
+        el.classList.add('error');
+      });
+      document.getElementById('emailError').classList.add('show');
+      document.getElementById('passError').classList.add('show');
+      setTimeout(() => {
+        [email, pass].forEach(el => el.classList.remove('error'));
+      }, 600);
+    },
+    code: `input.classList.add('error');\n// CSS:\n.error {\n  animation: shake 0.5s ease;\n  border-color: red;\n}`
+  },
+
+  fullscreen: {
+    title: 'Full-screen Takeover',
+    desc: '전체 화면을 덮는 강력한 경고. 결제 실패, 보안 경고, 세션 만료 등 반드시 확인이 필요한 경우에 사용합니다.',
+    url: 'myapp.io/billing',
+    render(body) {
+      body.innerHTML = `
+        <button class="trigger-btn" onclick="demos.fullscreen.fire()">🛑 Full-screen 경고</button>
+        <div class="placeholder-lines">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+        </div>
+      `;
+    },
+    fire() {
+      const body = document.querySelector('.demo-body');
+      const el = document.createElement('div');
+      el.className = 'fullscreen-overlay';
+      el.innerHTML = `
+        <div class="fullscreen-card">
+          <div class="fullscreen-icon">🔒</div>
+          <h3>세션이 만료되었습니다</h3>
+          <p>보안을 위해 30분 이상 활동이 없어 자동으로 로그아웃 되었습니다. 다시 로그인해주세요.</p>
+          <div class="fullscreen-actions">
+            <button style="background:var(--surface-hover);color:var(--text);border:1px solid var(--border)" onclick="this.closest('.fullscreen-overlay').remove()">홈으로</button>
+            <button style="background:var(--accent);color:white;box-shadow:0 4px 16px rgba(255,107,61,0.3)" onclick="this.closest('.fullscreen-overlay').remove()">다시 로그인</button>
+          </div>
+        </div>
+      `;
+      body.appendChild(el);
+    },
+    code: `<FullscreenAlert\n  icon="🔒"\n  title="세션 만료"\n  message="다시 로그인해주세요."\n  actions={[\n    { label: '로그인', primary: true }\n  ]}\n/>`
+  },
+
+  popover: {
+    title: 'Popover Warning',
+    desc: '요소에 마우스를 올리거나 클릭했을 때 말풍선 형태로 경고를 표시합니다. 맥락적인 힌트 제공에 효과적입니다.',
+    url: 'myapp.io/editor',
+    render(body) {
+      body.innerHTML = `
+        <div class="popover-demo">
+          <div class="popover-trigger" onclick="demos.popover.toggle(this, 0)">
+            🗑️ 삭제
+            <div class="popover" id="pop0">
+              <div class="popover-title">⚠️ 주의</div>
+              삭제된 항목은 30일 후 영구 삭제됩니다. 휴지통에서 복구할 수 있습니다.
+            </div>
+          </div>
+          <div class="popover-trigger" onclick="demos.popover.toggle(this, 1)">
+            🔓 권한 변경
+            <div class="popover" id="pop1">
+              <div class="popover-title">⚠️ 보안 경고</div>
+              공개 권한으로 변경하면 링크를 가진 모든 사용자가 접근할 수 있습니다.
+            </div>
+          </div>
+          <div class="popover-trigger" onclick="demos.popover.toggle(this, 2)">
+            📤 내보내기
+            <div class="popover" id="pop2">
+              <div class="popover-title">ℹ️ 안내</div>
+              대용량 파일은 내보내기에 최대 5분이 소요될 수 있습니다.
+            </div>
+          </div>
+        </div>
+      `;
+    },
+    toggle(el, id) {
+      const pop = document.getElementById('pop' + id);
+      document.querySelectorAll('.popover.show').forEach(p => { if (p !== pop) p.classList.remove('show'); });
+      pop.classList.toggle('show');
+    },
+    code: `<Popover trigger="click">\n  <Button>🗑️ 삭제</Button>\n  <PopoverContent>\n    ⚠️ 삭제된 항목은 30일 후 영구 삭제\n  </PopoverContent>\n</Popover>`
+  },
+
+  command: {
+    title: 'Command Bar Alert',
+    desc: 'Spotlight / ⌘K 스타일의 모던한 경고 바. 화면 중앙 상단에 나타나 세련된 느낌을 줍니다.',
+    url: 'myapp.io/workspace',
+    render(body) {
+      body.innerHTML = `
+        <button class="trigger-btn" onclick="demos.command.fire()">⌨️ Command Bar 경고</button>
+        <div class="placeholder-lines">
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+          <div class="placeholder-line"></div>
+        </div>
+      `;
+    },
+    fire() {
+      const body = document.querySelector('.demo-body');
+      document.querySelectorAll('.command-overlay').forEach(e => e.remove());
+      const el = document.createElement('div');
+      el.className = 'command-overlay';
+      el.onclick = (e) => { if (e.target === el) el.remove(); };
+      el.innerHTML = `
+        <div class="command-bar">
+          <div class="command-bar-header">
+            <span class="command-bar-icon">⚠️</span>
+            <div class="command-bar-content">
+              <div class="command-bar-title">저장되지 않은 변경사항이 있습니다</div>
+              <div class="command-bar-desc">이 페이지를 떠나면 변경사항이 모두 사라집니다.</div>
+            </div>
+          </div>
+          <div class="command-bar-actions">
+            <button style="background:var(--surface-hover);color:var(--text)" onclick="this.closest('.command-overlay').remove()">
+              저장하지 않고 나가기 <span class="kbd">Esc</span>
+            </button>
+            <button style="background:var(--accent);color:white" onclick="this.closest('.command-overlay').remove()">
+              저장하기 <span class="kbd">⌘S</span>
+            </button>
+          </div>
+        </div>
+      `;
+      body.appendChild(el);
+    },
+    code: `<CommandAlert\n  title="저장되지 않은 변경사항"\n  description="나가면 변경사항이 사라집니다."\n  actions={[\n    { label: '나가기', key: 'Esc' },\n    { label: '저장', key: '⌘S', primary: true }\n  ]}\n/>`
+  },
+
+  notifications: {
+    title: 'Notification List',
+    desc: '알림 목록 형태로 여러 경고를 한 번에 보여주는 패턴. 중요도에 따라 색상과 순서를 구분합니다.',
+    url: 'myapp.io/notifications',
+    render(body) {
+      body.innerHTML = `
+        <div class="notif-list" id="notifList">
+          <div class="notif-item">
+            <div class="notif-dot red"></div>
+            <div class="notif-content">
+              <div class="notif-title">배포 실패</div>
+              <div class="notif-desc">main 브랜치 빌드에서 에러가 발생했습니다.</div>
+            </div>
+            <div class="notif-time">2분 전</div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot yellow"></div>
+            <div class="notif-content">
+              <div class="notif-title">CPU 사용률 경고</div>
+              <div class="notif-desc">서버 cpu-02의 사용률이 85%를 초과했습니다.</div>
+            </div>
+            <div class="notif-time">15분 전</div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot green"></div>
+            <div class="notif-content">
+              <div class="notif-title">SSL 인증서 갱신 완료</div>
+              <div class="notif-desc">*.myapp.io 인증서가 갱신되었습니다.</div>
+            </div>
+            <div class="notif-time">1시간 전</div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot blue"></div>
+            <div class="notif-content">
+              <div class="notif-title">새로운 팀원 합류</div>
+              <div class="notif-desc">김개발님이 Backend 팀에 합류했습니다.</div>
+            </div>
+            <div class="notif-time">3시간 전</div>
+          </div>
+        </div>
+      `;
+    },
+    code: `<NotificationList>\n  <Notification\n    type="error"\n    title="배포 실패"\n    time="2분 전"\n  />\n</NotificationList>`
+  },
+
+  confetti: {
+    title: 'Destructive Confetti',
+    desc: '삭제 같은 위험한 액션 실행 시 빨간 파티클이 터지는 효과. 시각적 임팩트로 "이건 되돌릴 수 없다"는 느낌을 줍니다.',
+    url: 'myapp.io/danger-zone',
+    render(body) {
+      body.innerHTML = `
+        <div class="confetti-demo">
+          <p style="color:var(--text-dim);margin-bottom:20px;font-size:14px;">버튼을 클릭하면 파티클 효과가 발생합니다</p>
+          <button class="confetti-btn" onclick="demos.confetti.fire(event)">💥 프로젝트 삭제</button>
+        </div>
+      `;
+    },
+    fire(e) {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const demoBody = document.querySelector('.demo-body');
+      const bodyRect = demoBody.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2 - bodyRect.left;
+      const cy = rect.top + rect.height / 2 - bodyRect.top;
+      const colors = ['#ff4757', '#ff6b81', '#ff9f43', '#ee5a24', '#c44569'];
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const angle = (Math.PI * 2 * i) / 30;
+        const velocity = 60 + Math.random() * 100;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        p.style.cssText = `
+          position:absolute;
+          left:${cx}px;top:${cy}px;
+          width:${4 + Math.random() * 6}px;
+          height:${4 + Math.random() * 6}px;
+          background:${colors[Math.floor(Math.random() * colors.length)]};
+          border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+          --tx:${tx}px;--ty:${ty}px;
+          animation:particleFly ${0.5 + Math.random() * 0.5}s ease-out forwards;
+          pointer-events:none;
+        `;
+        demoBody.appendChild(p);
+        setTimeout(() => p.remove(), 1200);
+      }
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = '', 150);
+    },
+    code: `function destructiveConfetti(el) {\n  for (let i = 0; i < 30; i++) {\n    const angle = (Math.PI * 2 * i) / 30;\n    createParticle(el, angle);\n  }\n}`
+  }
+};</script>
+<script type="text/css" id="alert-css">:root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-hover: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #7a7a90;
+    --accent: #ff6b3d;
+    --accent-glow: rgba(255, 107, 61, 0.15);
+    --danger: #ff4757;
+    --success: #2ed573;
+    --warning: #ffa502;
+    --info: #3742fa;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Layout ─── */
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 24px;
+    margin-bottom: 8px;
+  }
+
+  .sidebar h1 {
+    font-size: 22px;
+    font-weight: 700;
+    padding: 0 24px;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, var(--accent), #ff9f43);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .menu-group {
+    margin-bottom: 24px;
+  }
+
+  .menu-group-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 24px;
+    margin-bottom: 8px;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .menu-item:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
+  .menu-item.active {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .menu-item .icon {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .menu-item .badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 6px;
+    background: var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+  }
+
+  /* ─── Main Content ─── */
+  .main {
+    padding: 48px;
+    position: relative;
+  }
+
+  .demo-header {
+    margin-bottom: 40px;
+  }
+
+  .demo-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .demo-header p {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .demo-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-height: 500px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .demo-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .demo-dot:nth-child(1) { background: #ff5f57; }
+  .demo-dot:nth-child(2) { background: #febc2e; }
+  .demo-dot:nth-child(3) { background: #28c840; }
+
+  .demo-url {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 6px 16px;
+    border-radius: 6px;
+    margin-left: 8px;
+  }
+
+  .demo-body {
+    padding: 32px;
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .trigger-btn {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent), #e55a2b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(255, 107, 61, 0.3);
+  }
+
+  .trigger-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(255, 107, 61, 0.4);
+  }
+
+  .trigger-btn:active {
+    transform: translateY(0);
+  }
+
+  /* ─── Code Block ─── */
+  .code-section {
+    margin-top: 24px;
+  }
+
+  .code-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .code-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .code-block {
+    display: none;
+    margin-top: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .code-block.show { display: block; }
+
+  .code-block pre {
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    overflow-x: auto;
+  }
+
+  .code-block .kw { color: var(--accent); }
+  .code-block .str { color: var(--success); }
+  .code-block .cm { color: #555; }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 1. Toast ─── */
+  /* ═══════════════════════════════════════════ */
+  .toast-container {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: #1e1e2e;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    min-width: 300px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-left: 3px solid var(--success);
+  }
+
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+
+  .toast-icon { font-size: 18px; }
+  .toast-close {
+    margin-left: auto;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    font-size: 18px;
+  }
+  .toast-close:hover { opacity: 1; }
+
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--success);
+    border-radius: 0 0 0 10px;
+    animation: toastProgress 3s linear forwards;
+  }
+
+  .toast.error .toast-progress { background: var(--danger); }
+  .toast.warning .toast-progress { background: var(--warning); }
+
+  @keyframes toastIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 2. Top Banner ─── */
+  /* ═══════════════════════════════════════════ */
+  .banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: bannerSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+  }
+
+  .banner.danger {
+    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    color: white;
+  }
+
+  .banner.warning {
+    background: linear-gradient(90deg, #ffa502, #ffbe42);
+    color: #1a1a2e;
+  }
+
+  .banner.info {
+    background: linear-gradient(90deg, #3742fa, #5f6cff);
+    color: white;
+  }
+
+  .banner-close {
+    margin-left: auto;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 20px;
+    transition: opacity 0.2s;
+  }
+  .banner-close:hover { opacity: 1; }
+
+  @keyframes bannerSlide {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 3. Inline Alert ─── */
+  /* ═══════════════════════════════════════════ */
+  .inline-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: inlineFade 0.4s ease;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .inline-alert.danger {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    color: #ff6b7a;
+  }
+
+  .inline-alert.success {
+    background: rgba(46, 213, 115, 0.1);
+    border: 1px solid rgba(46, 213, 115, 0.3);
+    color: #5ae88c;
+  }
+
+  .inline-alert.warning {
+    background: rgba(255, 165, 2, 0.1);
+    border: 1px solid rgba(255, 165, 2, 0.3);
+    color: #ffbe42;
+  }
+
+  .inline-alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .inline-alert-title { font-weight: 600; margin-bottom: 4px; }
+
+  @keyframes inlineFade {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 4. Slide-over Panel ─── */
+  /* ═══════════════════════════════════════════ */
+  .slideover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 90;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .slideover {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 380px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 100;
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slideover-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .slideover-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .slideover-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+  .slideover-close:hover { background: var(--surface-hover); color: var(--text); }
+
+  .slideover-body {
+    padding: 24px;
+    flex: 1;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .slideover-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .slideover-footer button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn-cancel {
+    background: var(--surface-hover);
+    color: var(--text);
+    border: 1px solid var(--border) !important;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 5. Shake Effect ─── */
+  /* ═══════════════════════════════════════════ */
+  .shake-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 320px;
+  }
+
+  .shake-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .shake-input-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .shake-input {
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .shake-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .shake-input.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.15);
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  .shake-error-text {
+    font-size: 12px;
+    color: var(--danger);
+    display: none;
+  }
+
+  .shake-error-text.show { display: block; }
+
+  .shake-btn {
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 6. Full-screen Takeover ─── */
+  /* ═══════════════════════════════════════════ */
+  .fullscreen-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.92);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .fullscreen-card {
+    text-align: center;
+    padding: 48px;
+    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .fullscreen-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 71, 87, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 24px;
+    border: 2px solid rgba(255, 71, 87, 0.3);
+  }
+
+  .fullscreen-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .fullscreen-card p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 400px;
+  }
+
+  .fullscreen-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .fullscreen-actions button {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 7. Popover ─── */
+  /* ═══════════════════════════════════════════ */
+  .popover-demo {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .popover-trigger {
+    padding: 12px 20px;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .popover-trigger:hover { border-color: var(--accent); }
+
+  .popover {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e2e;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    min-width: 240px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    animation: popoverIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: none;
+    z-index: 50;
+  }
+
+  .popover::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1e1e2e;
+  }
+
+  .popover.show { display: block; }
+
+  .popover-title {
+    font-weight: 600;
+    color: var(--warning);
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  @keyframes popoverIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 8. Command Bar ─── */
+  /* ═══════════════════════════════════════════ */
+  .command-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 80px;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .command-bar {
+    width: 520px;
+    background: #1a1a28;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    overflow: hidden;
+    animation: commandIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .command-bar-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .command-bar-icon {
+    color: var(--warning);
+    font-size: 20px;
+  }
+
+  .command-bar-content {
+    flex: 1;
+  }
+
+  .command-bar-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .command-bar-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .command-bar-actions {
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .command-bar-actions button {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .command-bar-actions .kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-left: 8px;
+    color: var(--text-dim);
+  }
+
+  @keyframes commandIn {
+    from { transform: scale(0.96) translateY(-10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 9. Notification Drawer ─── */
+  /* ═══════════════════════════════════════════ */
+  .notif-list {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .notif-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #1a1a28;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: notifSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .notif-item:nth-child(2) { animation-delay: 0.08s; }
+  .notif-item:nth-child(3) { animation-delay: 0.16s; }
+  .notif-item:nth-child(4) { animation-delay: 0.24s; }
+
+  .notif-item:hover {
+    background: var(--surface-hover);
+    border-color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .notif-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .notif-dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(255,71,87,0.5); }
+  .notif-dot.yellow { background: var(--warning); box-shadow: 0 0 8px rgba(255,165,2,0.5); }
+  .notif-dot.green { background: var(--success); box-shadow: 0 0 8px rgba(46,213,115,0.5); }
+  .notif-dot.blue { background: var(--info); box-shadow: 0 0 8px rgba(55,66,250,0.5); }
+
+  .notif-content { flex: 1; }
+  .notif-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .notif-desc { font-size: 12px; color: var(--text-dim); }
+  .notif-time { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  @keyframes notifSlide {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ═══════════════════════════════════════════ */
+  /* ─── 10. Destructive Confetti ─── */
+  /* ═══════════════════════════════════════════ */
+  .confetti-demo {
+    text-align: center;
+  }
+
+  .confetti-btn {
+    padding: 14px 32px;
+    background: transparent;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .confetti-btn:hover {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+  }
+
+  .particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @keyframes particleFly {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+  }
+
+  /* ─── Placeholder content ─── */
+  .placeholder-lines {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+    opacity: 0.3;
+  }
+
+  .placeholder-line {
+    height: 12px;
+    background: var(--border);
+    border-radius: 6px;
+  }
+
+  .placeholder-line:nth-child(1) { width: 80%; }
+  .placeholder-line:nth-child(2) { width: 100%; }
+  .placeholder-line:nth-child(3) { width: 65%; }
+  .placeholder-line:nth-child(4) { width: 90%; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: auto;
+      z-index: 1000;
+      display: flex;
+      overflow-x: auto;
+      padding: 12px;
+      gap: 4px;
+    }
+    .sidebar-title, .sidebar h1, .menu-group-label { display: none; }
+    .menu-group { display: flex; gap: 4px; margin: 0; }
+    .menu-item {
+      padding: 8px 14px;
+      white-space: nowrap;
+      font-size: 13px;
+      border-left: none;
+      border-radius: 8px;
+    }
+    .menu-item.active {
+      border-left: none;
+      border-radius: 8px;
+    }
+    .main { padding: 24px 16px 100px; }
+  }</script>
+<script id="uk-app">
+(function(){
+  'use strict';
+  var ALERT_CSS = document.getElementById('alert-css').textContent;
+  var FONTS = '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">';
+  var TW = 'https://cdn.tailwindcss.com';
+  var LU = 'https://unpkg.com/lucide@latest';
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fnBody(fn){ var s = fn.toString(); return s.slice(s.indexOf('{')+1, s.lastIndexOf('}')).replace(/^\n+/,'').replace(/\s+$/,''); }
+
+  // ---- standalone document builders (preview === download === copy-all) ----
+  function docPage(o){
+    o = o || {};
+    return [
+      '<!doctype html>','<html lang="ko">','<head>','<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      FONTS, (o.head||''),
+      (o.css ? '<style>\n'+o.css+'\n</style>' : ''),
+      '<style>html,body{margin:0}body{padding:28px;font-family:Inter,"Noto Sans KR",system-ui,sans-serif;background:#ffffff;color:#0f172a}</style>',
+      '</head>','<body>', (o.body||''),
+      (o.js ? '<script>\n'+o.js+'\n<\/script>' : ''),
+      '</body>','</html>'
+    ].join('\n');
+  }
+
+  function alertPage(k){
+    var d = ALERT_DEMOS[k];
+    var fns = [];
+    for (var key in d){ if (typeof d[key] === 'function') fns.push(d[key].toString()); }
+    var demosSrc = "const demos = { '"+k+"': {\n      "+fns.join(',\n      ')+"\n    } };";
+    return [
+      '<!doctype html>','<html lang="ko">','<head>','<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      FONTS, '<style>\n'+ALERT_CSS+'\n</style>',
+      '<style>html,body{margin:0}.main{padding:0}.demo-area{margin:0}</style>',
+      '</head>','<body>',
+      '<main class="main"><div class="demo-area">',
+      '<div class="demo-toolbar"><div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-url">'+(d.url||'preview')+'</div></div>',
+      '<div class="demo-body" id="demoBody"></div>',
+      '</div></main>',
+      '<script>\n'+demosSrc+'\ndemos[\''+k+'\'].render(document.getElementById(\'demoBody\'));\n<\/script>',
+      '</body>','</html>'
+    ].join('\n');
+  }
+
+  // ---- normalize all three sources into one item list ----
+  var items = [];
+  var CAT_LABEL = { input:'입력 (Input)', nav:'내비게이션 (Navigation)', info:'정보 (Information)', container:'컨테이너 (Container)' };
+
+  // 1) Vanilla catalog (no deps)
+  CATALOG.forEach(function(c){
+    items.push({
+      group:'vanilla', sub: CAT_LABEL[c.cat] || c.cat,
+      key:'v-'+c.id, catKey:c.cat, name:c.name, nameKo:c.nameKo||'', desc:c.desc||'',
+      htmlSrc:c.html||'', cssSrc:c.css||'', jsSrc:c.js||'',
+      deps:'',
+      build:function(){ return docPage({ css:this.cssSrc, body:this.htmlSrc, js:this.jsSrc }); }
+    });
+  });
+
+  // 2) Tailwind / Lucide set
+  UIXBASE.forEach(function(c){
+    var jsBody = c.script ? fnBody(c.script) : '';
+    items.push({
+      group:'tailwind', sub:'Tailwind + Lucide',
+      key:'t-'+c.id, name:c.name, nameKo:'', desc:c.desc||'',
+      htmlSrc:c.html||'',
+      cssSrc:(c.css && c.css.trim()) ? c.css.trim() : '/* Tailwind 유틸리티 클래스만 사용 — 별도 CSS 불필요 */',
+      jsSrc:(jsBody ? jsBody+'\n\n' : '') + 'lucide.createIcons(); // 아이콘 렌더',
+      deps:'Tailwind CSS + Lucide (CDN 자동 포함)',
+      build:function(){
+        return docPage({
+          head:'<script src="'+TW+'"><\/script>\n<script src="'+LU+'"><\/script>',
+          body:this.htmlSrc,
+          js:(jsBody ? jsBody+'\n' : '') + 'lucide.createIcons();'
+        });
+      }
+    });
+  });
+
+  // 3) Feedback / alert patterns (engine-driven, no deps)
+  Object.keys(ALERT_DEMOS).forEach(function(k){
+    var d = ALERT_DEMOS[k];
+    var tmp = document.createElement('div');
+    try { d.render(tmp); } catch(e){}
+    var markup = tmp.innerHTML.trim();
+    var fnsrc = [];
+    for (var key in d){ if (typeof d[key] === 'function') fnsrc.push('// ['+k+'] '+key+'\n'+d[key].toString()); }
+    items.push({
+      group:'alert', sub:'Feedback & Notification',
+      key:'a-'+k, name:d.title, nameKo:'', desc:d.desc||'',
+      htmlSrc:'<!-- 트리거 + 컨테이너 마크업. 아래 JS(엔진)와 함께 동작합니다 -->\n'+markup,
+      cssSrc:ALERT_CSS,
+      jsSrc:fnsrc.join('\n\n'),
+      deps:'순수 CSS/JS (의존성 없음) — 아래 CSS와 JS 엔진을 함께 사용',
+      build:function(){ return alertPage(k); }
+    });
+  });
+
+  // ---- sidebar ----
+  var GROUPS = [
+    { id:'vanilla',  label:'기본 컴포넌트 · Vanilla (CSS/JS)', tag:'32' },
+    { id:'tailwind', label:'기본 컴포넌트 · Tailwind + Lucide', tag:'32' },
+    { id:'alert',    label:'피드백 · 알림 패턴 (다이얼로그 외)', tag:'10' }
+  ];
+  var menu = document.getElementById('uk-menu');
+  var current = null;
+
+  function buildMenu(query){
+    query = (query||'').trim().toLowerCase();
+    menu.innerHTML = '';
+    GROUPS.forEach(function(g){
+      var list = items.filter(function(it){
+        if (it.group !== g.id) return false;
+        if (!query) return true;
+        return (it.name+' '+it.nameKo+' '+it.sub).toLowerCase().indexOf(query) >= 0;
+      });
+      if (!list.length) return;
+      if (g.id === 'vanilla'){
+        var order = { input:0, nav:1, info:2, container:3 };
+        list = list.slice().sort(function(a,b){ return (order[a.catKey]!=null?order[a.catKey]:9) - (order[b.catKey]!=null?order[b.catKey]:9); });
+      }
+      var gh = document.createElement('div');
+      gh.className = 'uk-group';
+      gh.innerHTML = '<span>'+esc(g.label)+'</span><span class="uk-group-tag">'+list.length+'</span>';
+      menu.appendChild(gh);
+      var lastSub = null;
+      list.forEach(function(it){
+        if (g.id === 'vanilla' && it.sub !== lastSub){
+          lastSub = it.sub;
+          var sh = document.createElement('div');
+          sh.className = 'uk-sub';
+          sh.textContent = it.sub;
+          menu.appendChild(sh);
+        }
+        var b = document.createElement('button');
+        b.className = 'uk-item' + (current && current.key === it.key ? ' active' : '');
+        b.dataset.key = it.key;
+        b.innerHTML = '<span class="uk-item-name">'+esc(it.name)+'</span>'+(it.nameKo?'<span class="uk-item-ko">'+esc(it.nameKo)+'</span>':'');
+        b.addEventListener('click', function(){ openItem(it.key); });
+        menu.appendChild(b);
+      });
+    });
+  }
+
+  // ---- main view ----
+  var view = document.getElementById('uk-view');
+  var activeTab = 'preview';
+
+  function openItem(key){
+    var it = items.filter(function(x){ return x.key === key; })[0];
+    if (!it) return;
+    current = it;
+    activeTab = 'preview';
+    Array.prototype.forEach.call(menu.querySelectorAll('.uk-item'), function(b){
+      b.classList.toggle('active', b.dataset.key === key);
+    });
+    var groupLabel = (GROUPS.filter(function(g){return g.id===it.group;})[0]||{}).label || '';
+    view.innerHTML =
+      '<div class="uk-head">'
+      + '<div class="uk-crumb">'+esc(groupLabel)+' / '+esc(it.sub)+'</div>'
+      + '<div class="uk-title-row"><h1>'+esc(it.name)+'</h1>'+(it.nameKo?'<span class="uk-title-ko">'+esc(it.nameKo)+'</span>':'')+'</div>'
+      + '<p class="uk-desc">'+esc(it.desc)+'</p>'
+      + (it.deps?'<div class="uk-deps">⛓ '+esc(it.deps)+'</div>':'')
+      + '<div class="uk-actions">'
+      +   '<button class="uk-btn primary" id="uk-dl">⬇ 전체 .html 다운로드</button>'
+      +   '<button class="uk-btn" id="uk-copyall">📋 전체 코드 복사 (그대로 동작)</button>'
+      + '</div>'
+      + '</div>'
+      + '<div class="uk-tabs">'
+      +   '<button class="uk-tab active" data-tab="preview">Preview</button>'
+      +   '<button class="uk-tab" data-tab="html">HTML</button>'
+      +   '<button class="uk-tab" data-tab="css">CSS</button>'
+      +   '<button class="uk-tab" data-tab="js">JS</button>'
+      + '</div>'
+      + '<div class="uk-panels">'
+      +   '<div class="uk-panel active" data-panel="preview"><div class="uk-preview" id="uk-preview"></div></div>'
+      +   '<div class="uk-panel" data-panel="html"><div class="uk-code"><button class="uk-copy" data-c="html">복사</button><pre><code>'+esc(it.htmlSrc)+'</code></pre></div></div>'
+      +   '<div class="uk-panel" data-panel="css"><div class="uk-code"><button class="uk-copy" data-c="css">복사</button><pre><code>'+esc(it.cssSrc)+'</code></pre></div></div>'
+      +   '<div class="uk-panel" data-panel="js"><div class="uk-code"><button class="uk-copy" data-c="js">복사</button><pre><code>'+esc(it.jsSrc||'/* JS 없음 */')+'</code></pre></div></div>'
+      + '</div>';
+
+    document.getElementById('uk-preview').appendChild(makeFrame(it));
+
+    Array.prototype.forEach.call(view.querySelectorAll('.uk-tab'), function(t){
+      t.addEventListener('click', function(){
+        activeTab = t.dataset.tab;
+        Array.prototype.forEach.call(view.querySelectorAll('.uk-tab'), function(x){ x.classList.remove('active'); });
+        Array.prototype.forEach.call(view.querySelectorAll('.uk-panel'), function(p){ p.classList.remove('active'); });
+        t.classList.add('active');
+        view.querySelector('[data-panel="'+activeTab+'"]').classList.add('active');
+      });
+    });
+    Array.prototype.forEach.call(view.querySelectorAll('.uk-copy'), function(btn){
+      btn.addEventListener('click', function(){
+        var map = { html:it.htmlSrc, css:it.cssSrc, js:it.jsSrc };
+        copy(map[btn.dataset.c]||'', btn);
+      });
+    });
+    document.getElementById('uk-dl').addEventListener('click', function(){ download(it); });
+    document.getElementById('uk-copyall').addEventListener('click', function(e){ copy(it.build(), e.currentTarget); });
+  }
+
+  function makeFrame(it){
+    var ifr = document.createElement('iframe');
+    ifr.className = 'uk-frame';
+    ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-modals allow-popups allow-forms');
+    ifr.srcdoc = it.build();
+    function fit(){ try { var h = ifr.contentDocument.body.scrollHeight; if (h > 40) ifr.style.height = Math.min(Math.max(h + 36, 380), 980) + 'px'; } catch(e){} }
+    ifr.addEventListener('load', function(){ fit(); setTimeout(fit, 400); setTimeout(fit, 1000); });
+    return ifr;
+  }
+
+  function copy(text, btn){
+    var done = function(){ if(!btn) return; var o = btn.textContent; btn.textContent = '복사됨!'; btn.classList.add('ok'); setTimeout(function(){ btn.textContent = o; btn.classList.remove('ok'); }, 1400); };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallback(text); done(); });
+    } else { fallback(text); done(); }
+  }
+  function fallback(text){ var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); }
+
+  function download(it){
+    var blob = new Blob([it.build()], { type:'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = it.key + '.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // ---- search ----
+  var search = document.getElementById('uk-search');
+  search.addEventListener('input', function(){ buildMenu(search.value); });
+
+  // ---- boot ----
+  buildMenu('');
+  openItem(items[0].key);
+})();
+
+</script>
+</body>
+</html>

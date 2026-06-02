@@ -137,14 +137,14 @@ export function PresentationView({ onExit }: Props) {
         <PresentationOverlays overlays={overlays} />
       </div>
 
-      <div className="pointer-events-none fixed bottom-4 right-6 select-none rounded bg-black/60 px-3 py-1 font-mono text-xs text-white/80">
+      <div className="fixed bottom-4 right-6 select-none rounded bg-black/60 px-3 py-1 font-mono text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:opacity-100">
         {currentIndex + 1} / {slides.length} · ← → 이동 · Esc 종료
       </div>
 
       <button
         type="button"
         onClick={onExit}
-        className="fixed top-4 right-4 rounded border border-white/30 bg-black/60 px-3 py-1 text-xs text-white/80 transition hover:bg-white/10"
+        className="fixed top-4 right-4 rounded border border-white/30 bg-black/60 px-3 py-1 text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:bg-white/10 hover:opacity-100"
         title="Exit presentation (Esc)"
       >
         ✕ 종료
