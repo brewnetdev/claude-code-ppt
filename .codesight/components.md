@@ -1,0 +1,33 @@
+# Components
+
+- **WikiPage** — `docs/seo/page.tsx`
+- **App** — `src/App.tsx`
+- **DocumentCanvas** — props: editable — `src/canvas/DocumentCanvas.tsx`
+- **OverlayLayer** — props: items, selectedId, onSelect, onUpdate — `src/canvas/OverlayLayer.tsx`
+- **SlideCanvas** — `src/canvas/SlideCanvas.tsx`
+- **SlideRenderer** — props: slideId — `src/canvas/SlideRenderer.tsx`
+- **BlockFormatPanel** — props: blockId — `src/editor/BlockFormatPanel.tsx`
+- **CodeBlockEditPanel** — props: getEl, seedKey — `src/editor/CodeBlockEditPanel.tsx`
+- **CodeBlockTemplates** — `src/editor/CodeBlockTemplates.tsx`
+- **ColorPickerPopover** — props: value, onChange, allowNone — `src/editor/ColorPicker.tsx`
+- **ColorSwatchButton** — props: value, onChange, label, allowNone — `src/editor/ColorPicker.tsx`
+- **DeckLibraryView** — props: onOpen, onOpenResource, onOpenRecent, initialTab — `src/editor/DeckLibraryView.tsx`
+- **DeckWatermarkSection** — `src/editor/DeckWatermarkSection.tsx`
+- **DocumentPresentationView** — props: onExit — `src/editor/DocumentPresentationView.tsx`
+- **DocumentPropertiesSection** — `src/editor/DocumentPropertiesSection.tsx`
+- **ExportDropdown** — props: busy, disabled, onExportHtml — `src/editor/ExportDropdown.tsx`
+- **HelpModal** — props: open, onClose — `src/editor/HelpModal.tsx`
+- **IconPicker** — props: className, onPick — `src/editor/IconPicker.tsx`
+- **ImportFromDeckModal** — props: open, onClose, activeDeckId — `src/editor/ImportFromDeckModal.tsx`
+- **PresentationView** — props: onExit — `src/editor/PresentationView.tsx`
+- **PropertiesPanel** — props: editorKind — `src/editor/PropertiesPanel.tsx`
+- **SlideBackgroundSection** — `src/editor/SlideBackgroundSection.tsx`
+- **SlideListSidebar** — props: arrowKeysEnabled — `src/editor/SlideListSidebar.tsx`
+- **SlideThumbnail** — props: slideId, width — `src/editor/SlideThumbnail.tsx`
+- **StaleCacheBanner** — props: activeDeck — `src/editor/StaleCacheBanner.tsx`
+- **TemplatePicker** — props: open, onClose, onSelect — `src/editor/TemplatePicker.tsx`
+- **TextBlockTemplates** — `src/editor/TextBlockTemplates.tsx`
+- **TextFormatPanel** — `src/editor/TextFormatPanel.tsx`
+- **TextOverlayPropertiesSection** — props: slideId, overlay — `src/editor/TextOverlayPropertiesSection.tsx`
+- **Toolbar** — props: onPresent, onExitToLibrary, activeDeck, activeResource, editorKind, librarySection, docEditable, onToggleDocEditable — `src/editor/Toolbar.tsx`
+- **WatermarkControls** — props: enabled, text, toggleLabel, onToggle, onTextChange, onTextBlur, onApply — `src/editor/WatermarkControls.tsx`
