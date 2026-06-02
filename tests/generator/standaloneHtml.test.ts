@@ -1,32 +1,38 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { loadInlineCss } from '../../src/generator/inlineThemeCss';
+import { renderPlan } from '../../src/generator/planRenderer';
+import { validateSlidePlan } from '../../src/generator/slidePlan';
 
-// The CLI `slideplan render` produces a standalone HTML deck with all
-// theme CSS inlined into a single <style> block. These tests guard that
-// invariant against accidental drops — if `THEME_CSS_PATHS` shrinks or
-// `loadInlineCss` regresses, the standalone output silently loses its
-// per-template visuals (amber/blue/teal accents, table emphasis, etc.).
+// The standalone-deck pipeline (`slideplan render`/`publish`) inlines every
+// theme in THEME_CSS_PATHS into a single <style> block via loadInlineCss(),
+// and renderPlan() tags each slide div with the plan's template. These tests
+// guard both invariants *directly against the generator* — not against a
+// committed docs/html/<template>/*.html artefact.
 //
-// We assert against committed build artefacts in docs/html/<template>/
-// rather than re-running the CLI, so the test stays fast and the artefacts
-// are demonstrably the same files served by the editor library.
+// We deliberately do NOT read a built deck here: the committed report decks are
+// produced by the editor's export path (which applies theme CSS at runtime, not
+// inline), so asserting CLI-inlining behaviour against them is a category error
+// — that mismatch is exactly what previously made this file flap. Asserting on
+// loadInlineCss()/renderPlan() keeps the regression guard honest and fast: if
+// THEME_CSS_PATHS shrinks or loadInlineCss regresses, the per-template visuals
+// (report teal accent, table zebra rows, terminal chrome) silently vanish and
+// these assertions fail instead.
 
 const ROOT = resolve(__dirname, '../..');
 
-function readArtefact(relPath: string): string {
-  return readFileSync(resolve(ROOT, relPath), 'utf8');
+function loadReportPlan() {
+  const raw = JSON.parse(
+    readFileSync(resolve(ROOT, 'tests/generator/fixtures/sample-report-plan.json'), 'utf8'),
+  );
+  const v = validateSlidePlan(raw);
+  if (!v.ok) throw new Error(`report fixture failed validation: ${v.errors.join('; ')}`);
+  return v.plan;
 }
 
-function styleBlock(html: string): string {
-  const m = html.match(/<style>([\s\S]*?)<\/style>/);
-  if (!m) throw new Error('no <style> block in standalone HTML');
-  return m[1];
-}
-
-describe('standalone HTML — report sample', () => {
-  const html = readArtefact('docs/html/report/claude-code-curriculum-v1-report.html');
-  const css = styleBlock(html);
+describe('standalone HTML — inlined theme CSS', () => {
+  const css = loadInlineCss();
 
   it('inlines report.css selectors', () => {
     expect(css).toMatch(/\[data-template="report"\]\s*\{/);
@@ -40,13 +46,22 @@ describe('standalone HTML — report sample', () => {
     expect(css).toMatch(/tbody tr:nth-child\(even\) td/);
   });
 
-  it('every slide carries data-template="report"', () => {
-    const matches = html.match(/data-template="report"/g) ?? [];
-    expect(matches.length).toBeGreaterThan(0);
-  });
-
   it('inlines code-blocks.css (.code-block / .terminal class definitions)', () => {
     expect(css).toMatch(/\.code-block/);
     expect(css).toMatch(/\.terminal/);
+  });
+});
+
+describe('standalone HTML — report template tagging', () => {
+  const slides = renderPlan(loadReportPlan());
+
+  it('renders every fixture slide', () => {
+    expect(slides.length).toBeGreaterThan(0);
+  });
+
+  it('every rendered slide carries data-template="report"', () => {
+    for (const slide of slides) {
+      expect(slide.html).toMatch(/data-template="report"/);
+    }
   });
 });
