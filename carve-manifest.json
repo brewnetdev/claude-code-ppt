@@ -1,0 +1,147 @@
+{
+  "version": "1.1.1",
+  "files": [
+    "flight-rules.md",
+    "evaluation-criteria.md",
+    "sprint-contract.md",
+    "CLAUDE.md",
+    "HARNESS-GUIDE.md",
+    ".claude/hooks/carve-block-destructive.sh",
+    ".claude/hooks/carve-protect-secrets.sh",
+    ".claude/hooks/carve-pre-commit-lint.sh",
+    ".claude/hooks/carve-pre-push-test.sh",
+    ".claude/hooks/carve-auto-format.sh",
+    ".claude/hooks/carve-slack-notify.sh",
+    ".claude/hooks/carve-precompact-handoff.sh",
+    ".claude/hooks/carve-anti-slop.sh",
+    ".claude/skills/SKILL.md",
+    ".claude/skills/svg-image.md",
+    ".claude/skills/card-news.md",
+    ".claude/skills/html-report.md",
+    ".claude/skills/html-presentation.md",
+    ".claude/skills/clean-html/SKILL.md",
+    ".claude/skills/clean-html/scripts/check-slop.mjs",
+    ".claude/hooks/carve-codesight-refresh.sh",
+    ".claude/skills/lsp/SKILL.md",
+    ".claude/commands/carve-lsp.md",
+    ".claude/skills/handoff/SKILL.md",
+    ".claude/commands/carve-handoff.md",
+    ".claude/skills/memory/SKILL.md",
+    ".claude/commands/carve-memory.md",
+    ".claude/skills/commit/SKILL.md",
+    ".claude/commands/carve-commit.md",
+    ".claude/skills/changelog/SKILL.md",
+    ".claude/commands/carve-changelog.md",
+    ".claude/skills/review/SKILL.md",
+    ".claude/commands/carve-review.md",
+    ".claude/skills/pr/SKILL.md",
+    ".claude/commands/carve-pr.md",
+    ".claude/agents/squad-review.md",
+    ".claude/commands/squad-review.md",
+    ".claude/agents/squad-plan.md",
+    ".claude/commands/squad-plan.md",
+    ".claude/agents/squad-refactor.md",
+    ".claude/commands/squad-refactor.md",
+    ".claude/agents/squad-qa.md",
+    ".claude/commands/squad-qa.md",
+    ".claude/agents/squad-debug.md",
+    ".claude/commands/squad-debug.md",
+    ".claude/agents/squad-docs.md",
+    ".claude/commands/squad-docs.md",
+    ".claude/agents/squad-gitops.md",
+    ".claude/commands/squad-gitops.md",
+    ".claude/agents/squad-audit.md",
+    ".claude/commands/squad-audit.md",
+    ".claude/agents/squad-evaluator.md",
+    ".claude/commands/squad-evaluator.md",
+    ".claude/skills/verify/SKILL.md",
+    ".claude/commands/carve-verify.md",
+    ".claude/skills/security-scan/SKILL.md",
+    ".claude/commands/carve-security-scan.md",
+    ".claude/skills/test-gen/SKILL.md",
+    ".claude/commands/carve-test-gen.md",
+    ".claude/skills/tdd/SKILL.md",
+    ".claude/commands/carve-tdd.md",
+    ".claude/skills/caveman/SKILL.md",
+    ".claude/commands/carve-caveman.md",
+    ".claude/skills/write-a-skill/SKILL.md",
+    ".claude/commands/carve-write-a-skill.md",
+    ".claude/skills/zoom-out/SKILL.md",
+    ".claude/commands/carve-zoom-out.md",
+    ".claude/skills/model-route/SKILL.md",
+    ".claude/commands/carve-model-route.md",
+    ".claude/skills/parallel-agents/SKILL.md",
+    ".claude/commands/carve-parallel-agents.md",
+    ".claude/skills/evaluator-tuning/SKILL.md",
+    ".claude/commands/carve-evaluator-tuning.md",
+    ".claude/skills/harness-audit/SKILL.md",
+    ".claude/commands/carve-harness-audit.md",
+    ".claude/skills/coordinator/SKILL.md",
+    ".claude/commands/carve-coordinator.md",
+    ".claude/skills/codesight/SKILL.md",
+    ".claude/commands/carve-codesight.md",
+    ".claude/skills/harness-architect/SKILL.md",
+    ".claude/commands/carve-harness-architect.md",
+    ".claude/commands/squad.md",
+    ".claude/hooks/squad-router.sh",
+    ".claude/hooks/subagent-chain.sh"
+  ],
+  "backups": [
+    "CLAUDE.md.bak",
+    ".claude/skills/clean-html/SKILL.md.bak"
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "command": "bash .claude/hooks/carve-block-destructive.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "command": "bash .claude/hooks/carve-protect-secrets.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "command": "bash .claude/hooks/carve-pre-commit-lint.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "command": "bash .claude/hooks/carve-pre-push-test.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "command": "bash .claude/hooks/carve-auto-format.sh"
+    },
+    {
+      "event": "Stop",
+      "command": "bash .claude/hooks/carve-slack-notify.sh"
+    },
+    {
+      "event": "PreCompact",
+      "command": "bash .claude/hooks/carve-precompact-handoff.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "command": "bash .claude/hooks/carve-anti-slop.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "command": "bash .claude/hooks/carve-codesight-refresh.sh"
+    },
+    {
+      "event": "UserPromptSubmit",
+      "command": "bash .claude/hooks/squad-router.sh"
+    },
+    {
+      "event": "SubagentStart",
+      "command": "bash .claude/hooks/subagent-chain.sh"
+    },
+    {
+      "event": "SubagentStop",
+      "command": "bash .claude/hooks/subagent-chain.sh"
+    }
+  ],
+  "mcps": [
+    "codesight",
+    "cclsp"
+  ]
+}
