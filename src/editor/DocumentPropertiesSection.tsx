@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  applyDocCodeStyle,
   applyDocImageStyle,
   clearDocImageSelection,
   createDocLink,
   deleteSelectedDocCodeBlock,
   deleteSelectedDocImage,
   execDocCommand,
+  getDocCodeState,
   getDocImageState,
   getDocSelectionState,
   getDocWatermark,
@@ -15,6 +17,7 @@ import {
   insertDocImage,
   setDocWatermark,
   wrapSelectionStyle,
+  type DocCodeState,
   type DocImageState,
   type DocSelectionState,
 } from '../canvas/documentEditingBridge';
@@ -70,11 +73,22 @@ export function DocumentPropertiesSection() {
   // data-block-id of the currently selected code block (null = none). Doubles as
   // the CodeBlockEditPanel seedKey so it re-seeds when the selection changes.
   const [codeBlockId, setCodeBlockId] = useState<string | null>(null);
+  const [code, setCode] = useState<DocCodeState>({
+    selected: false,
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 0,
+  });
+  // Local draft for the width field so the user can clear it and type freely.
+  // null = not editing → the input mirrors the store. While editing we show the
+  // raw string (no per-keystroke clamping); the range clamp happens on blur.
+  const [widthDraft, setWidthDraft] = useState<string | null>(null);
 
   useEffect(() => {
     const sync = () => {
       setSel(getDocSelectionState());
       setImg(getDocImageState());
+      setCode(getDocCodeState());
       setCodeBlockId(getSelectedDocCodeBlock()?.getAttribute('data-block-id') ?? null);
       // Keep the checkbox honest with the live document (handles the iframe not
       // being ready at first mount, and baked-in watermarks). Don't clobber the
@@ -251,15 +265,72 @@ export function DocumentPropertiesSection() {
         </Group>
       ) : null}
 
-      {codeBlockId ? (
+      {code.selected ? (
         <Group label="Code (선택됨)">
-          {/* Same editor component the slide deck uses — resolves the selected
-              iframe code block. */}
-          <CodeBlockEditPanel getEl={() => getSelectedDocCodeBlock()} seedKey={codeBlockId} />
+          {/* Source/language editor only for shiki code blocks (those carry a
+              data-block-id). A bare <pre> has no block id — it still gets the
+              spacing controls below, just not the source panel. */}
+          {codeBlockId ? (
+            <CodeBlockEditPanel getEl={() => getSelectedDocCodeBlock()} seedKey={codeBlockId} />
+          ) : null}
+          {/* Vertical spacing — close the gap above/below or pad the inside,
+              instead of fighting it with blank lines. 0 overrides the block's
+              own CSS margin/padding; clearing the field reverts to default. */}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <label className="flex items-center gap-1 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs" title="위 여백 (0이면 위 간격 제거)">
+              <span className="font-mono text-editor-dim">↑여백</span>
+              <input
+                type="number"
+                value={code.marginTop}
+                onFocus={(e) => e.target.select()}
+                onMouseDown={(e) => e.preventDefault()}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  applyDocCodeStyle({ marginTop: Number.isFinite(n) ? n : null });
+                  setCode(getDocCodeState());
+                }}
+                className="w-12 bg-transparent text-right text-editor-text outline-none"
+              />
+            </label>
+            <label className="flex items-center gap-1 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs" title="아래 여백 (0이면 아래 간격 제거)">
+              <span className="font-mono text-editor-dim">↓여백</span>
+              <input
+                type="number"
+                value={code.marginBottom}
+                onFocus={(e) => e.target.select()}
+                onMouseDown={(e) => e.preventDefault()}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  applyDocCodeStyle({ marginBottom: Number.isFinite(n) ? n : null });
+                  setCode(getDocCodeState());
+                }}
+                className="w-12 bg-transparent text-right text-editor-text outline-none"
+              />
+            </label>
+            <label className="flex items-center gap-1 rounded border border-editor-border bg-editor-bg px-1.5 py-1 text-xs" title="안쪽 상하 여백 (코드와 박스 테두리 사이 간격)">
+              <span className="font-mono text-editor-dim">안쪽</span>
+              <input
+                type="number"
+                min={0}
+                value={code.padding}
+                onFocus={(e) => e.target.select()}
+                onMouseDown={(e) => e.preventDefault()}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  applyDocCodeStyle({ padding: Number.isFinite(n) && n >= 0 ? n : null });
+                  setCode(getDocCodeState());
+                }}
+                className="w-12 bg-transparent text-right text-editor-text outline-none"
+              />
+            </label>
+          </div>
+          <p className="mt-1 text-[10px] text-editor-dim">
+            ↑/↓여백 = 블록 바깥 위·아래 간격, 안쪽 = 코드와 테두리 사이 상하 간격.
+          </p>
           <button
             type="button"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => { deleteSelectedDocCodeBlock(); setCodeBlockId(null); }}
+            onClick={() => { deleteSelectedDocCodeBlock(); setCodeBlockId(null); setCode(getDocCodeState()); }}
             className="mt-2 w-full rounded border border-red-500/40 px-2 py-1.5 text-[11px] text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
           >
             코드 블록 삭제
@@ -274,14 +345,34 @@ export function DocumentPropertiesSection() {
             min={MIN_WIDTH}
             max={MAX_WIDTH}
             step={10}
-            value={docWidth ?? ''}
+            value={widthDraft ?? (docWidth ?? '')}
             placeholder="auto"
-            onFocus={(e) => e.target.select()}
+            onFocus={(e) => {
+              setWidthDraft(docWidth != null ? String(docWidth) : '');
+              e.currentTarget.select();
+            }}
             onChange={(e) => {
+              const v = e.target.value;
+              setWidthDraft(v);
+              // Live-preview only once the typed value is within range, so
+              // intermediate keystrokes (1 → 14 → 140 on the way to 1400) aren't
+              // snapped to MIN or shrink the canvas mid-typing.
+              const n = Number(v);
+              if (v.trim() !== '' && Number.isFinite(n) && n >= MIN_WIDTH && n <= MAX_WIDTH) {
+                setDocWidth(n);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
+            onBlur={(e) => {
+              // Commit with the range clamp; an empty field leaves the width
+              // unchanged. Clearing the draft snaps the input back to the store.
               const n = Number(e.target.value);
-              if (Number.isFinite(n) && n > 0) {
+              if (e.target.value.trim() !== '' && Number.isFinite(n) && n > 0) {
                 setDocWidth(Math.max(MIN_WIDTH, Math.min(n, MAX_WIDTH)));
               }
+              setWidthDraft(null);
             }}
             className="w-20 rounded border border-editor-border bg-editor-bg px-2 py-1 text-xs text-editor-text outline-none"
           />

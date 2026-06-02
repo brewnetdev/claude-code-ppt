@@ -60,6 +60,9 @@ export function useResourceAutoSave(enabled: boolean): void {
           lang: resource.lang,
           bodyClassName: resource.bodyClassName,
           title: resource.title,
+          // Persist the chosen canvas width onto the file (data-doc-width) so
+          // reopening from the source restores it.
+          docWidth,
         });
         await writeFileHandle(handle, html);
         await recordWrittenMtime(resource.id, handle);

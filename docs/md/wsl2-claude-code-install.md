@@ -12,6 +12,8 @@
 ```bash
 # (요약) PowerShell 관리자
 wsl --install              # WSL2 + Ubuntu, 재부팅
+wsl -l -v                    # 설치된 배포판과 VERSION(2여야 함) 확인
+wsl --set-default-version 2  # (혹시 1이면) 기본 버전을 2로
 
 # WSL(Ubuntu) 터미널 안에서
 curl -fsSL https://claude.ai/install.sh | bash

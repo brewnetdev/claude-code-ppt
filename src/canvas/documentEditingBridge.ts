@@ -250,6 +250,13 @@ export function clearDocImageSelection(): void {
   setSelectedDocImage(null);
 }
 
+// The currently selected image (or null). Used by keyboard handling to move the
+// native caret relative to a class-selected image (arrow keys) or push it onto
+// its own line (Enter), since a class-based selection carries no native caret.
+export function getSelectedDocImage(): HTMLImageElement | null {
+  return selectedImg && selectedImg.isConnected ? selectedImg : null;
+}
+
 // Delete the selected image from the document and commit. Returns false if none.
 export function deleteSelectedDocImage(): boolean {
   if (!selectedImg) return false;
@@ -491,6 +498,64 @@ export function clearDocCodeSelection(): void {
   const doc = activeDoc();
   doc?.querySelectorAll(`.${CODE_SELECTED_CLASS}`).forEach((e) => e.classList.remove(CODE_SELECTED_CLASS));
   selectedCode = null;
+}
+
+export type DocCodeState = {
+  selected: boolean;
+  marginTop: number;
+  marginBottom: number;
+  padding: number;
+};
+
+// Read the selected code block's vertical spacing (outer margin + inner vertical
+// padding) for the Properties panel. Mirrors getDocImageState.
+export function getDocCodeState(): DocCodeState {
+  if (!selectedCode || !selectedCode.isConnected) {
+    selectedCode = null;
+    return { selected: false, marginTop: 0, marginBottom: 0, padding: 0 };
+  }
+  const win = selectedCode.ownerDocument.defaultView;
+  const cs = win?.getComputedStyle(selectedCode);
+  const px = (v?: string) => Math.round(parseFloat(v ?? '0') || 0);
+  return {
+    selected: true,
+    marginTop: px(cs?.marginTop),
+    marginBottom: px(cs?.marginBottom),
+    padding: px(cs?.paddingTop),
+  };
+}
+
+// Adjust the selected code block's outer gap (marginTop/marginBottom) and inner
+// vertical padding. Each field: number (px) or null to revert to the document's
+// own CSS. Written as inline style so it round-trips into the saved HTML; the
+// padding sets top+bottom together (horizontal padding is left to the block CSS).
+export function applyDocCodeStyle(patch: {
+  marginTop?: number | null;
+  marginBottom?: number | null;
+  padding?: number | null;
+}): boolean {
+  if (!selectedCode || !selectedCode.isConnected) return false;
+  const el = selectedCode;
+  if (patch.marginTop !== undefined) {
+    el.style.marginTop = patch.marginTop != null ? `${patch.marginTop}px` : '';
+    // CSS margins collapse with the adjacent sibling, so the visible gap is
+    // max(this margin, neighbour's facing margin) — which means a small/0 value
+    // can't tighten the gap (the neighbour wins). Neutralize the previous
+    // sibling's bottom margin so this value IS the exact gap; revert on clear.
+    const prev = el.previousElementSibling as HTMLElement | null;
+    if (prev) prev.style.marginBottom = patch.marginTop != null ? '0px' : '';
+  }
+  if (patch.marginBottom !== undefined) {
+    el.style.marginBottom = patch.marginBottom != null ? `${patch.marginBottom}px` : '';
+    const next = el.nextElementSibling as HTMLElement | null;
+    if (next) next.style.marginTop = patch.marginBottom != null ? '0px' : '';
+  }
+  if (patch.padding !== undefined) {
+    el.style.paddingTop = patch.padding != null ? `${patch.padding}px` : '';
+    el.style.paddingBottom = patch.padding != null ? `${patch.padding}px` : '';
+  }
+  notifyInput();
+  return true;
 }
 
 // Delete the selected code block from the document and commit. Returns false if none.

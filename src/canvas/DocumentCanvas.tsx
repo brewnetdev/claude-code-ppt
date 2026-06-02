@@ -40,6 +40,10 @@ export function DocumentCanvas({ editable = true }: DocumentCanvasProps) {
   // right edge of the currently selected content block, or null when none.
   const [blockHandle, setBlockHandle] = useState<BlockHandle | null>(null);
   const [blockDragging, setBlockDragging] = useState(false);
+  // Measured pixel height of the iframe's content. We size the iframe to this
+  // (rather than h-full) so the OUTER container is the scroller — see the
+  // measurement effect below for why.
+  const [contentHeight, setContentHeight] = useState<number | null>(null);
 
   // Default width when a document opens: as wide as the viewport allows, capped
   // at 1100px (a comfortable reading measure).
@@ -76,26 +80,81 @@ export function DocumentCanvas({ editable = true }: DocumentCanvasProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resource?.id]);
 
+  // Size the iframe to its content height so the OUTER container (containerRef)
+  // is the scroller — NOT the iframe's own <body>. A contenteditable <body> that
+  // is also its own scroll container triggers a Chromium quirk: editing at a
+  // block boundary (end of a paragraph, right after an image) briefly resolves
+  // the selection to the body root (offset 0) and the browser "reveals" it by
+  // scrolling the container to the very top. Letting a plain (non-editable)
+  // outer <div> scroll the full-height iframe sidesteps that path entirely.
+  //
+  // The iframe runs no scripts (sandboxed without allow-scripts), so we measure
+  // from the parent: documentElement.scrollHeight after load, then a parent-side
+  // ResizeObserver on <body> keeps it current as content / images / width reflow.
+  const measureContentHeight = useCallback(() => {
+    const doc = frameRef.current?.contentDocument;
+    if (!doc?.body) return;
+    const h = Math.ceil(doc.documentElement.scrollHeight);
+    if (h > 0) setContentHeight(h);
+  }, []);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    let ro: ResizeObserver | null = null;
+
+    const onLoad = () => {
+      measureContentHeight();
+      const body = frame.contentDocument?.body;
+      if (body && 'ResizeObserver' in window) {
+        ro = new ResizeObserver(() => measureContentHeight());
+        ro.observe(body);
+      }
+    };
+
+    // Same srcdoc-readiness gotcha as useDocumentEditing: a fresh iframe's
+    // initial about:blank document is already 'complete'. Only attach to the
+    // real srcdoc document.
+    const href = frame.contentWindow?.location?.href ?? '';
+    if (frame.contentDocument?.readyState === 'complete' && href !== 'about:blank') {
+      onLoad();
+    } else {
+      frame.addEventListener('load', onLoad, { once: true });
+    }
+
+    return () => {
+      frame.removeEventListener('load', onLoad);
+      ro?.disconnect();
+    };
+  }, [resource?.id, revision, measureContentHeight]);
+
   // Apply undo/redo in place rather than reloading the iframe. `revision` is
   // bumped only by undo/redo (always incrementing); a fresh load / resource
   // switch resets it to 0, which we skip. Swapping body.innerHTML keeps the
-  // iframe document (and its scroll position) intact — no white flash, no jump
-  // to the top. Scroll is captured and restored around the swap in case the
-  // restored content's height differs.
+  // iframe document intact — no white flash. Scroll now lives on the OUTER
+  // container, so we capture/restore it there (and re-apply the iframe height
+  // synchronously first, so the container's scrollHeight is correct before we
+  // restore scrollTop).
   const prevRevisionRef = useRef(revision);
   useEffect(() => {
     const prev = prevRevisionRef.current;
     prevRevisionRef.current = revision;
     if (revision <= prev) return; // initial mount, or resource switch (reset to 0)
-    const doc = frameRef.current?.contentDocument;
-    if (!doc?.body) return;
-    const scroller = doc.scrollingElement ?? doc.documentElement;
-    const top = scroller?.scrollTop ?? 0;
-    const left = scroller?.scrollLeft ?? 0;
+    const frame = frameRef.current;
+    const doc = frame?.contentDocument;
+    const container = containerRef.current;
+    if (!doc?.body || !frame) return;
+    const top = container?.scrollTop ?? 0;
+    const left = container?.scrollLeft ?? 0;
     doc.body.innerHTML = useResourceStore.getState().bodyHtml;
-    if (scroller) {
-      scroller.scrollTop = top;
-      scroller.scrollLeft = left;
+    const h = Math.ceil(doc.documentElement.scrollHeight);
+    if (h > 0) {
+      frame.style.height = `${h}px`; // immediate, same-frame
+      setContentHeight(h);
+    }
+    if (container) {
+      container.scrollTop = top;
+      container.scrollLeft = left;
     }
   }, [revision]);
 
@@ -129,16 +188,12 @@ export function DocumentCanvas({ editable = true }: DocumentCanvasProps) {
     window.addEventListener('mouseup', onUp);
   }, []);
 
-  // Clamp the pinned width down if the viewport shrinks below it.
-  useEffect(() => {
-    const onWinResize = () => {
-      const max = (containerRef.current?.clientWidth ?? 0) - 16;
-      const w = useResourceStore.getState().docWidth;
-      if (w !== null && max > MIN_WIDTH && w > max) setWidthPx(max);
-    };
-    window.addEventListener('resize', onWinResize);
-    return () => window.removeEventListener('resize', onWinResize);
-  }, [setWidthPx]);
+  // NOTE: we deliberately do NOT clamp the chosen width down to the editor pane
+  // on window resize. Doing so mutated the persisted docWidth (and auto-save then
+  // wrote the shrunken value back), so a width wider than the current pane —
+  // e.g. a saved 1478px opened on a narrower screen — was permanently lost on the
+  // first resize/layout. The width is the user's setting; when it exceeds the
+  // pane the outer container (overflow-auto) just scrolls horizontally.
 
   // Position the per-block width handle over the selected block's right edge.
   // The iframe fills the stage 1:1 (no transform), so a block's
@@ -164,20 +219,23 @@ export function DocumentCanvas({ editable = true }: DocumentCanvasProps) {
     setBlockHandle({ left: r.right, top: r.top + r.height / 2, height: Math.max(28, r.height) });
   }, [editable]);
 
-  // Recompute on selection changes, iframe scroll, and window resize. Re-bind
-  // when the document is re-seeded so the scroll listener targets the live frame.
+  // Recompute on selection changes, container scroll, and window resize. The
+  // iframe no longer scrolls internally (the outer container does), so the
+  // handle is glued to its block via absolute positioning within the stage and
+  // scrolls along with it; we still recompute on container scroll so layout
+  // shifts and the visibility clamp stay honest.
   useEffect(() => {
     if (!editable) clearDocBlockSelection();
     recomputeBlockHandle();
-    const win = frameRef.current?.contentWindow;
+    const container = containerRef.current;
     const onChange = () => recomputeBlockHandle();
     window.addEventListener(DOC_SELECTION_EVENT, onChange);
     window.addEventListener('resize', onChange);
-    win?.addEventListener('scroll', onChange, true);
+    container?.addEventListener('scroll', onChange, { passive: true });
     return () => {
       window.removeEventListener(DOC_SELECTION_EVENT, onChange);
       window.removeEventListener('resize', onChange);
-      win?.removeEventListener('scroll', onChange, true);
+      container?.removeEventListener('scroll', onChange);
     };
   }, [recomputeBlockHandle, resource?.id, revision, editable]);
 
@@ -227,22 +285,33 @@ export function DocumentCanvas({ editable = true }: DocumentCanvasProps) {
     <div
       ref={containerRef}
       data-canvas-role="document"
-      className="flex h-full w-full justify-center overflow-auto bg-editor-bg p-6"
+      className="flex h-full w-full items-start justify-center overflow-auto bg-editor-bg p-6"
     >
       <div
         ref={stageRef}
-        className="relative h-full shrink-0"
-        style={{ width: widthPx !== null ? `${widthPx}px` : 'min(1100px, 100%)' }}
+        className="relative shrink-0"
+        style={{
+          width: widthPx !== null ? `${widthPx}px` : 'min(1100px, 100%)',
+          // Fill the viewport at minimum so a short document still reads as a
+          // page; grows past it as content height (the iframe) demands, which
+          // is what makes the outer container scroll.
+          minHeight: '100%',
+        }}
       >
         <iframe
           ref={frameRef}
           key={resource.id}
           title={resource.title}
           srcDoc={srcDoc}
-          className="h-full w-full rounded border border-editor-border bg-white shadow-sm"
-          // Kill pointer-events mid-drag so window mousemove isn't swallowed by
-          // the iframe document.
-          style={{ pointerEvents: dragging || blockDragging ? 'none' : 'auto' }}
+          className="block w-full rounded border border-editor-border bg-white shadow-sm"
+          // Height tracks measured content so the iframe never scrolls
+          // internally — the outer container does. 600px is a brief pre-measure
+          // placeholder, replaced on the load event.
+          style={{
+            height: `${contentHeight ?? 600}px`,
+            minHeight: '100%',
+            pointerEvents: dragging || blockDragging ? 'none' : 'auto',
+          }}
           // Same-origin sandbox: allow same-origin so the parent can reach
           // contentDocument for editing; omit allow-scripts — resource JS was
           // already stripped and we don't want it executing.

@@ -218,13 +218,9 @@ export function App() {
       const entry: ResourceEntry = { ...stored.entry, raw: stored.raw };
       setLibrarySection('resources');
       if (entry.kind === 'flow-html' && stored.doc) {
+        // loadDocument applies stored.doc.width directly (→ DocumentCanvas's
+        // default-seeding effect sees the restored value and doesn't override).
         loadDocument(entry, stored.doc);
-        // loadDocument resets width to null (→ default); restore the saved
-        // column width synchronously so DocumentCanvas's default-seeding effect
-        // sees a non-null value and doesn't override it.
-        if (stored.doc.width != null) {
-          useResourceStore.getState().setDocWidth(stored.doc.width);
-        }
         setDocEditable(true);
         setActiveDeck(null);
         setActiveDeckId(null);

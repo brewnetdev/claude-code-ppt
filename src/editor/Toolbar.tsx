@@ -155,7 +155,7 @@ export function Toolbar({
 
   // ── Document-mode full-document HTML (head + edited body) ──────────────────
   const currentDocHtml = (): string | null => {
-    const { resource, bodyHtml } = useResourceStore.getState();
+    const { resource, bodyHtml, docWidth } = useResourceStore.getState();
     if (!resource) return null;
     return assembleHtmlDocument({
       headHtml: resource.headHtml,
@@ -163,6 +163,8 @@ export function Toolbar({
       lang: resource.lang,
       bodyClassName: resource.bodyClassName,
       title: resource.title,
+      // Persist the chosen canvas width onto the file so reopening restores it.
+      docWidth,
     });
   };
 

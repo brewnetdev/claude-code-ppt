@@ -45,6 +45,9 @@ type ResourceState = {
     bodyHtml: string;
     lang: string;
     bodyClassName: string;
+    // Persisted editor canvas width (from the file's data-doc-width, or the
+    // recents snapshot). null/undefined → the editor seeds its default.
+    width?: number | null;
   }) => void;
   commitBody: (html: string) => void;
   setDocWidth: (w: number | null) => void;
@@ -75,7 +78,9 @@ export const useResourceStore = create<ResourceState>((set, get) => ({
       },
       bodyHtml: parts.bodyHtml,
       revision: 0,
-      docWidth: null,
+      // Restore the persisted width if present; null lets DocumentCanvas seed
+      // its default (viewport-fit).
+      docWidth: parts.width ?? null,
       past: [],
       future: [],
     }),

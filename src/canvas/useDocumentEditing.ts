@@ -4,6 +4,7 @@ import {
   clearDocBlockSelection,
   clearDocCodeSelection,
   clearDocImageSelection,
+  getSelectedDocImage,
   setActiveDocFrame,
   setSelectedDocBlock,
   setSelectedDocCodeBlock,
@@ -13,6 +14,12 @@ import {
 
 // Atomic containers resized as a whole (rather than their inner blocks).
 const RESIZABLE_ATOMIC = 'table, figure, blockquote, pre';
+
+// "Box" containers (note / callout / danger admonitions) the caret can get
+// trapped inside. Pressing Enter at the very start or end of one should escape
+// it into a normal paragraph OUTSIDE the box, so the user can keep writing
+// before/after it instead of adding lines within the box's inner tags.
+const BOX_ESCAPE_SELECTOR = '.note, .callout, .danger';
 
 // Resolve the click target to a resizable block. We deliberately pick the
 // INNERMOST block-level element wrapping the click — not the top-level child of
@@ -40,6 +47,25 @@ function findResizableBlock(target: HTMLElement, body: HTMLElement): HTMLElement
       return el;
     }
     el = el.parentElement;
+  }
+  return null;
+}
+
+// The image immediately AFTER a collapsed caret, or null. Used so that pressing
+// Enter with the caret in front of an image (e.g. after ArrowLeft off a selected
+// image) pushes the image down a line instead of breaking some stale block.
+function imageAfterCaret(sel: Selection | null): HTMLImageElement | null {
+  if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return null;
+  const node = sel.anchorNode;
+  if (!node) return null;
+  if (node.nodeType === 1) {
+    const child = (node as Element).childNodes[sel.anchorOffset];
+    if (child && child.nodeName === 'IMG') return child as HTMLImageElement;
+  } else if (node.nodeType === 3) {
+    if (sel.anchorOffset === (node.textContent?.length ?? 0)) {
+      const next = node.nextSibling;
+      if (next && next.nodeName === 'IMG') return next as HTMLImageElement;
+    }
   }
   return null;
 }
@@ -134,6 +160,92 @@ export function useDocumentEditing(
       // snapshot store the Toolbar buttons use, and preventDefault so the
       // browser's native (per-keystroke) contenteditable undo doesn't fight it.
       const onKeyDown = (e: KeyboardEvent) => {
+        // A class-selected image carries no native caret, so the browser's own
+        // arrow/Enter handling acts on a STALE caret (typically in the block
+        // above) — the image never moves and Enter breaks the wrong block.
+        // Intercept these keys while an image is selected and drive the caret
+        // explicitly off the image.
+        const selImg = editable ? getSelectedDocImage() : null;
+        if (selImg && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.shiftKey) {
+          e.preventDefault();
+          const r = doc.createRange();
+          if (e.key === 'ArrowLeft') r.setStartBefore(selImg);
+          else r.setStartAfter(selImg);
+          r.collapse(true);
+          const s = win.getSelection();
+          s?.removeAllRanges();
+          s?.addRange(r);
+          // Hand control back to normal text editing — the caret now sits
+          // before/after the image.
+          clearDocImageSelection();
+          window.dispatchEvent(new CustomEvent(DOC_SELECTION_EVENT));
+          return;
+        }
+
+        // Enter with an image selected (or the caret parked right in front of
+        // one) pushes that image onto its own line — a <br> before the image —
+        // instead of inserting a break in whatever block the stale caret held.
+        if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && editable) {
+          const sel = win.getSelection();
+          const targetImg = selImg ?? imageAfterCaret(sel);
+          if (targetImg) {
+            e.preventDefault();
+            const br = doc.createElement('br');
+            targetImg.parentNode?.insertBefore(br, targetImg);
+            const r = doc.createRange();
+            r.setStartBefore(targetImg);
+            r.collapse(true);
+            sel?.removeAllRanges();
+            sel?.addRange(r);
+            clearDocImageSelection();
+            window.dispatchEvent(new CustomEvent(DOC_SELECTION_EVENT));
+            scheduleCommit();
+            return;
+          }
+        }
+
+        // Enter at the very START or END of a box container (note / callout /
+        // danger) escapes the box into a fresh paragraph OUTSIDE it — before the
+        // box when the caret is at its start, after it when at its end. In the
+        // middle of the box, Enter falls through to the default (a new line
+        // within the box). Shift+Enter is left untouched.
+        if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && editable) {
+          const sel = win.getSelection();
+          if (sel && sel.rangeCount > 0 && sel.isCollapsed) {
+            const a = sel.anchorNode;
+            const el = a ? (a.nodeType === 1 ? (a as Element) : a.parentElement) : null;
+            const box = el?.closest<HTMLElement>(BOX_ESCAPE_SELECTOR) ?? null;
+            if (box && doc.body.contains(box)) {
+              const caret = sel.getRangeAt(0);
+              // "At start/end" = no visible text between that box edge and the
+              // caret (whitespace-only counts as empty so trailing spaces / the
+              // formatting indentation in the source don't block the escape).
+              const before = doc.createRange();
+              before.selectNodeContents(box);
+              before.setEnd(caret.startContainer, caret.startOffset);
+              const after = doc.createRange();
+              after.selectNodeContents(box);
+              after.setStart(caret.endContainer, caret.endOffset);
+              const atStart = before.toString().trim() === '';
+              const atEnd = after.toString().trim() === '';
+              if (atStart || atEnd) {
+                e.preventDefault();
+                const p = doc.createElement('p');
+                p.appendChild(doc.createElement('br'));
+                if (atEnd) box.insertAdjacentElement('afterend', p);
+                else box.insertAdjacentElement('beforebegin', p);
+                const r = doc.createRange();
+                r.setStart(p, 0);
+                r.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(r);
+                scheduleCommit();
+                return;
+              }
+            }
+          }
+        }
+
         // Enter inside a blockquote exits the quote into a normal paragraph
         // (rather than extending/repeating the quote). Shift+Enter still adds a
         // line break within the quote for multi-line quotes.
@@ -199,12 +311,17 @@ export function useDocumentEditing(
       };
 
       // Selection routing: clicking an <img> selects it (size/align controls);
-      // clicking a code block selects it (language/source panel); clicking
-      // elsewhere clears both. Properties listens via DOC_SELECTION_EVENT.
+      // clicking a code block selects it (language/source panel + spacing);
+      // clicking elsewhere clears both. Properties listens via DOC_SELECTION_EVENT.
       const onClick = (ev: MouseEvent) => {
         if (!editable) return;
         const t = ev.target as HTMLElement | null;
-        const codeEl = t?.closest<HTMLElement>('.code-block, .terminal') ?? null;
+        // Prefer the shiki chrome wrapper (.code-block/.terminal); fall back to a
+        // bare <pre> so plain code blocks also get the spacing controls. (closest
+        // on a target inside a wrapper still matches the wrapper first, so an
+        // inner <pre> never shadows its .code-block ancestor.)
+        const codeEl =
+          t?.closest<HTMLElement>('.code-block, .terminal') ?? t?.closest<HTMLElement>('pre') ?? null;
         if (t && t.tagName === 'IMG') {
           setSelectedDocImage(t as HTMLImageElement);
           clearDocCodeSelection();

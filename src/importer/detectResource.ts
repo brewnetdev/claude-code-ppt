@@ -43,6 +43,9 @@ export type SplitDocument = {
   lang: string;
   // Inline color from <body style="background:…"> / computed surface, if any.
   bodyClassName: string;
+  // Editor canvas width persisted on the source via <body data-doc-width="…">.
+  // null when the file has no such marker (→ the editor seeds a default).
+  width: number | null;
 };
 
 // Build the <head> contents the iframe needs: <style>, <link rel=stylesheet>,
@@ -63,8 +66,12 @@ export function splitHtmlDocument(html: string): SplitDocument {
   const lang = doc.documentElement.getAttribute('lang') ?? '';
   const bodyClassName = doc.body?.className ?? '';
   const bodyHtml = doc.body?.innerHTML ?? html;
+  // Restore the editor canvas width if the file was saved with one. Read off the
+  // body tag (not bodyHtml, which is innerHTML and excludes the tag's attrs).
+  const widthAttr = doc.body?.getAttribute('data-doc-width')?.trim() ?? '';
+  const width = /^\d+$/.test(widthAttr) ? Number(widthAttr) : null;
 
-  return { headHtml: headParts.join('\n'), bodyHtml, lang, bodyClassName };
+  return { headHtml: headParts.join('\n'), bodyHtml, lang, bodyClassName, width };
 }
 
 // Checklist styling. Shipped inside every assembled document (not just the
@@ -125,9 +132,18 @@ export function assembleHtmlDocument(input: {
   // the content fills the chosen canvas width. Omitted on save/export so the
   // standalone file keeps its original measure.
   fillWidth?: boolean;
+  // Editor canvas width (px) to persist on the saved file as
+  // <body data-doc-width="…">, so reopening from the source restores it.
+  // Omitted (or null) writes no marker. View-state only — never affects the
+  // document's own layout/measure when opened standalone in a browser.
+  docWidth?: number | null;
 }): string {
   const langAttr = input.lang ? ` lang="${input.lang}"` : '';
   const bodyClassAttr = input.bodyClassName ? ` class="${input.bodyClassName}"` : '';
+  const docWidthAttr =
+    input.docWidth != null && input.docWidth > 0
+      ? ` data-doc-width="${Math.round(input.docWidth)}"`
+      : '';
   const titleTag = input.title ? `<title>${escapeHtml(input.title)}</title>` : '';
   // `html body` raises specificity above the source's bare `body` rule; the
   // !important + explicit margins win over `@media only screen { body { ... } }`.
@@ -142,7 +158,7 @@ ${input.headHtml}
 <style>${CHECKLIST_CSS}</style>
 <style>${fillWidthCss}</style>
 </head>
-<body${bodyClassAttr}>
+<body${bodyClassAttr}${docWidthAttr}>
 ${input.bodyHtml}
 </body>
 </html>`;
