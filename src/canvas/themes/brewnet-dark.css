@@ -217,6 +217,26 @@
   }
   .link:hover { color: #1D4ED8; }
 
+  /* Unify every slide anchor (incl. auto-detected / class-less links) on the
+     brand link color so they match `.link` (e.g. github.com/...lecture) instead
+     of the browser's default dark blue. `:where()` keeps the rule at zero
+     specificity, so `.link`, `.slide-logo-url`, `.slide-logo-text`, etc. still
+     win with their own colors; only un-classed anchors fall back to this. */
+  :where(.slide a) { color: var(--link); }
+  :where(.slide a:hover) { color: #1D4ED8; }
+
+  /* Watermark is decorative text, never a link. Some decks have a stray <a>
+     baked inside the `.cc-watermark` span (legacy / re-export); neutralize its
+     link styling so it renders as plain watermark text (same as the email line)
+     regardless of the generic `.slide a` color above. */
+  .cc-watermark a {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    pointer-events: none;
+    cursor: inherit;
+  }
+
   /* ── 불릿 리스트 ── */
   .bullet-list {
     list-style: none;

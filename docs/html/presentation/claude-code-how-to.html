@@ -226,6 +226,20 @@
   }
   .link:hover { color: #1D4ED8; }
 
+  /* Unify every slide anchor (incl. auto-detected / class-less links) on the
+     brand link color so they match `.link` instead of the browser default. */
+  :where(.slide a) { color: var(--link); }
+  :where(.slide a:hover) { color: #1D4ED8; }
+
+  /* Watermark is decorative text, never a link — neutralize any stray <a>. */
+  .cc-watermark a {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    pointer-events: none;
+    cursor: inherit;
+  }
+
   /* ── 불릿 리스트 ── */
   .bullet-list {
     list-style: none;
@@ -899,10 +913,9 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
         <div class="t-h2" style="margin-top:0;">💻 강의 자료</div>
         <div class="callout callout-blue" style="margin-top:8px; padding:14px 16px;">
           <span class="callout-icon">🔗</span>
-          <span class="callout-body" style="font-size:14px;">
-            <strong>GitHub</strong><br>
-            <a class="link" href="https://github.com/claude-code-expert/lecture" target="_blank" rel="noopener noreferrer">github.com/claude-code-expert/lecture</a>
-          </span>
+          <span class="callout-body" style="">
+            <strong style="font-size: 14px;">GitHub</strong><br>
+            <a class="link" href="https://github.com/claude-code-expert/lecture" target="_blank" rel="noopener noreferrer" style="font-size: 14px;">github.com/claude-code-expert/lecture</a><br><a href="https://run-ai.kr/learn/terminal" target="_blank" rel="noopener noreferrer" style="font-size: 14px;"></a><span data-highlight="1" style="color: rgb(96, 165, 250); font-weight: 700;"><a href="https://run-ai.kr/learn/terminal" target="_blank" rel="noopener noreferrer" style="font-size: 14px;">https://run-ai.kr/learn/terminal</a><span style="font-size: 14px;"> - 초보자를 위한 터미널 기초&nbsp;</span><br><span style="font-size: 14px;"><a href="https://run-ai.kr/learn/github" target="_blank" rel="noopener noreferrer">https://run-ai.kr/learn/github</a>&nbsp;- 초보자를 위한 Github&nbsp; 기초&nbsp;</span></span><span style="font-size: 14px;"></span></span>
         </div>
 
         <div class="t-h2" style="margin-top:22px;">🚀 커뮤니티</div>
@@ -1275,7 +1288,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
     <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
     <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
   </div>
-  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">https://run-ai.kr</span>
   <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
   <div class="slide-inner" spellcheck="false">
     <div class="cover-deco" data-slot="number" data-block-id="bh29uMeGZ">00</div>
@@ -2231,7 +2244,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
     <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
     <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
   </div>
-  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">https://run-ai.kr</span>
   <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
   <div class="slide-inner" spellcheck="false">
     <div class="cover-deco" data-slot="number" data-block-id="bGzlOzMR9">01</div>
@@ -3290,7 +3303,7 @@ tsconfig에 <span class="str">@markflow/*</span> alias가 있으니 그걸 써�
     <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
     <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
   </div>
-  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">https://run-ai.kr</span>
   <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
   <div class="slide-inner" spellcheck="false">
     <div class="cover-deco" data-slot="number" data-block-id="bLEZPM4BD">02</div>
@@ -4136,7 +4149,7 @@ cmd=$(<span class="yellow">jq</span> -r <span class="red">'.tool_input.command /
     <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
     <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
   </div>
-  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">https://run-ai.kr</span>
   <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
   <div class="slide-inner" spellcheck="false">
     <div class="cover-deco" data-slot="number" data-block-id="brnnUcUUe">03</div>
@@ -4932,7 +4945,7 @@ npx codesight --hook</pre>
     <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
     <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
   </div>
-  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">https://run-ai.kr</span>
   <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
   <div class="slide-inner" spellcheck="false">
     <div class="section-num" data-slot="number" style="width: 116px; height: 96px; position: absolute; left: 60px; top: 173px;" data-block-id="b7l1Uwbv8"></div>

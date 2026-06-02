@@ -940,6 +940,32 @@ export function useSlideEditing(
     };
     root.addEventListener('keydown', onListItemEnter);
 
+    // Plain Enter in ordinary slide text (paragraphs, callout bodies, grid/flex
+    // columns) → soft line break. The browser default splits the block, and
+    // inside a `.two-col`/flex container the new block auto-places into the NEXT
+    // cell, so the caret appears to jump to the adjacent column and "줄바꿈이
+    // 안 되는" symptom appears. Inserting a <br> keeps the text in the same box.
+    // Lists, tables, code blocks, and single-line slots are handled by their own
+    // guards (which preventDefault first, so e.defaultPrevented short-circuits
+    // here); Shift+Enter falls through to the native <br> path.
+    const onSlideTextEnter = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.defaultPrevented) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const focus = sel.focusNode;
+      const el = focus instanceof Element ? focus : focus?.parentElement ?? null;
+      if (!el || !root.contains(el)) return;
+      // Defer to the dedicated handlers for these contexts.
+      if (el.closest('li, td, th, pre, code, .code-block, .terminal')) return;
+      // Only act inside editable slide content (not chrome / drag handles).
+      if (!el.closest('.slide-inner, .slide-footer')) return;
+      e.preventDefault();
+      document.execCommand('insertLineBreak');
+    };
+    root.addEventListener('keydown', onSlideTextEnter);
+
     // Anchors inside contenteditable would navigate on click — block so the
     // href text can be edited without leaving the page.
     const onAnchorClick = (e: MouseEvent) => {
@@ -983,6 +1009,7 @@ export function useSlideEditing(
       root.removeEventListener('keydown', onTableTab);
       root.removeEventListener('keydown', onTableBackspace);
       root.removeEventListener('keydown', onListItemEnter);
+      root.removeEventListener('keydown', onSlideTextEnter);
       root.removeEventListener('keydown', onCodeKeydown, true);
       root.removeEventListener('paste', onCodePaste, true);
       root.removeEventListener('drop', onCodeDrop, true);
