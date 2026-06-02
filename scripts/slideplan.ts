@@ -22,6 +22,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadInlineCss } from '../src/generator/inlineThemeCss';
 import { renderPlan } from '../src/generator/planRenderer';
 import { parseMarkdown } from '../src/generator/parseMarkdown';
 import { detectFeatures } from '../src/generator/quality/detector';
@@ -34,27 +35,6 @@ const SCORE_HARD_GATE = 0.85;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = resolve(__dirname, '..');
-
-const THEME_CSS_PATHS = [
-  'src/canvas/themes/brewnet-dark.css',
-  'src/canvas/themes/code-blocks.css',
-  'src/canvas/themes/portfolio.css',
-  'src/canvas/themes/report.css',
-];
-
-function stripEditorOverrides(css: string): string {
-  const marker = css.indexOf('body {\n  margin: 0 !important;');
-  if (marker === -1) return css;
-  return css.slice(0, marker).trimEnd() + '\n';
-}
-
-function loadInlineCss(): string {
-  return THEME_CSS_PATHS.map((p) => {
-    const raw = readFileSync(resolve(ROOT, p), 'utf8');
-    const cleaned = p.endsWith('brewnet-dark.css') ? stripEditorOverrides(raw) : raw;
-    return `/* === ${p} === */\n${cleaned}`;
-  }).join('\n\n');
-}
 
 function escapeAttr(v: string): string {
   return v

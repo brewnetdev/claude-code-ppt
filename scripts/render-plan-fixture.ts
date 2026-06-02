@@ -4,15 +4,17 @@
 // Usage:  npx tsx scripts/render-plan-fixture.ts
 // Output: .quality-runs/plan-renderer-check/sample-plan.html
 //
-// The output is self-contained: brewnet-dark + code-blocks CSS are inlined
-// and the editor-iframe override block is stripped so slides stack as a
-// real deck. The runtime upgrade pass (shiki + macOS dots chrome) does
+// The output is self-contained: every theme in THEME_CSS_PATHS (see
+// src/generator/inlineThemeCss.ts) is inlined and the editor-iframe override
+// block is stripped so slides stack as a real deck. The runtime upgrade pass
+// (shiki + macOS dots chrome) does
 // NOT run here — to see those effects, register this file in BUILTIN_DECKS
 // and open it through the editor instead.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadInlineCss } from '../src/generator/inlineThemeCss';
 import { renderPlan } from '../src/generator/planRenderer';
 import { validateSlidePlan } from '../src/generator/slidePlan';
 
@@ -23,25 +25,6 @@ const ROOT = resolve(__dirname, '..');
 const FIXTURE_PATH = resolve(ROOT, 'tests/generator/fixtures/sample-plan.json');
 const OUT_DIR = resolve(ROOT, '.quality-runs/plan-renderer-check');
 const OUT_HTML = resolve(OUT_DIR, 'sample-plan.html');
-
-const THEME_CSS_PATHS = [
-  'src/canvas/themes/brewnet-dark.css',
-  'src/canvas/themes/code-blocks.css',
-];
-
-function stripEditorOverrides(css: string): string {
-  const marker = css.indexOf('body {\n  margin: 0 !important;');
-  if (marker === -1) return css;
-  return css.slice(0, marker).trimEnd() + '\n';
-}
-
-function loadInlineCss(): string {
-  return THEME_CSS_PATHS.map((p) => {
-    const raw = readFileSync(resolve(ROOT, p), 'utf8');
-    const cleaned = p.endsWith('brewnet-dark.css') ? stripEditorOverrides(raw) : raw;
-    return `/* === ${p} === */\n${cleaned}`;
-  }).join('\n\n');
-}
 
 function wrapDeck(title: string, css: string, slidesHtml: string): string {
   return `<!DOCTYPE html>
