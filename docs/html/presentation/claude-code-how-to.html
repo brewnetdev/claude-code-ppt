@@ -5594,6 +5594,79 @@ npx codesight --hook</pre>
 </section>
 <section class="export-slide" data-index="91">
 <div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">EPILOGUE · 더 배우기 · HARNESS</div>
+    <div class="t-title" data-slot="title">하네스를 배우고 싶다면?</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">모델은 에이전트, 코드는 하네스 — 기본 구성요소와 두 오픈 레퍼런스</div>
+
+    <!-- 하네스의 기본 구성 -->
+    <div data-slot="body" style="border-radius:10px; padding:12px 16px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.30); margin-bottom:14px;">
+      <div style="font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700; color:var(--amber); letter-spacing:0.08em; margin-bottom:8px;">하네스의 기본 구성 — 모델을 둘러싸 행동을 잡아주는 메커니즘</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">규칙 · CLAUDE.md</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">스킬 · Skills</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">명령 · Commands</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">훅 · Hooks</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">서브에이전트 · Subagents</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">MCP</span>
+        <span style="font-size:12px; color:var(--text); padding:4px 10px; border:1px solid var(--border); border-radius:6px;">메모리 · 권한</span>
+      </div>
+      <div style="font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.5;">CH.1~2에서 배운 CLAUDE.md · Skill · Command · Hook 에 서브에이전트 · MCP · 메모리 · 권한을 더해 묶은 것이 곧 하네스.</div>
+    </div>
+
+    <!-- 두 레퍼런스 카드 -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+
+      <div style="border-radius:10px; padding:13px 16px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.40);">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+          <span style="font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:700; color:#93C5FD;">OpenHarness</span>
+          <span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted);">홍콩대 HKUDS · Star 13.4k · Fork 2.2k</span>
+        </div>
+        <a href="https://github.com/HKUDS/OpenHarness" target="_blank" rel="noopener noreferrer" style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); text-decoration:none;">github.com/HKUDS/OpenHarness</a>
+        <div style="font-size:12px; color:var(--text); margin:7px 0; line-height:1.5;">오픈소스 <b>Python 에이전트 프레임워크</b> — “모델은 에이전트, 코드는 하네스”를 코드로 보여준다.</div>
+        <div style="font-size:11.5px; color:#93C5FD; font-weight:700; margin-bottom:4px;">기본 구성 · 10개 서브시스템</div>
+        <ul style="margin:0 0 0 16px; padding:0; font-size:12px; color:var(--text); line-height:1.55;">
+          <li>Engine(에이전트 루프) · Tools(43+) · Commands(54+)</li>
+          <li>Skills · Hooks · Permissions · MCP</li>
+          <li>Memory(세션 간) · Coordinator(멀티에이전트) · Config</li>
+        </ul>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:7px; line-height:1.5;">→ 하네스가 <b>돌아가는 원리를 학습·연구</b>하는 레퍼런스(멀티 프로바이더 · Claude·OpenAI·Ollama). 내 프로젝트의 하네스를 <b>직접 구성해주는 도구는 아니다</b>.</div>
+      </div>
+
+      <div style="border-radius:10px; padding:13px 16px; background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.50);">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+          <span style="font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:700; color:#FCD34D;">carve-harness</span>
+          <span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted);">개발자 전용 · 실전 프로젝트용</span>
+        </div>
+        <a href="https://github.com/claude-code-expert/carve-harness" target="_blank" rel="noopener noreferrer" style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); text-decoration:none;">github.com/claude-code-expert/carve-harness</a>
+        <div style="font-size:12px; color:var(--text); margin:7px 0; line-height:1.5;"><b>TypeScript CLI</b> — 프로젝트를 분석해 <b>필요한 것만</b> <code>.claude/</code>에 맞춤 설치.</div>
+        <div style="font-size:11.5px; color:#FCD34D; font-weight:700; margin-bottom:4px;">기본 구성 · Claude Code 네이티브</div>
+        <ul style="margin:0 0 0 16px; padding:0; font-size:12px; color:var(--text); line-height:1.55;">
+          <li>Skills: handoff · memory · commit · review · pr</li>
+          <li>Hooks: block-destructive · protect-secrets · lint · test</li>
+          <li>Subagents: Squad 9종 · MCP: codesight · LSP</li>
+        </ul>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:7px; line-height:1.5;">→ <b>신규 세팅은 물론 진행 중인 프로젝트에도 적용</b>. 분석→추천→선택 설치(minimal/standard/full)로 그 프로젝트에 <b>필요한 필수 구성</b>만.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:11px; font-size:12px; color:var(--muted); text-align:center;">한 줄 요약 — <b style="color:#93C5FD;">원리 학습은 OpenHarness</b> · <b style="color:#FCD34D;">실전 구성·적용은 carve-harness</b></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">EPILOGUE · 하네스 더 배우기 — OpenHarness · carve-harness</span>
+    <span class="slide-footer-right" data-slot="page-num">59</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="92">
+<div class="export-stage">
 <div class="slide slide-cover">
   <div class="slide-topbar"></div>
   <div class="slide-logo">
@@ -5623,7 +5696,7 @@ npx codesight --hook</pre>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="92">
+<section class="export-slide" data-index="93">
 <div class="export-stage">
 <div class="slide slide-cover">
   <div class="slide-topbar"></div>

@@ -57,4 +57,14 @@ codesight·LSP MCP가 `.claude/settings.json`에 등록돼 있다. 모든 스킬
 - 스킬: 핸드오프·메모리·커밋·체인지로그·리뷰·PR (자연어로 트리거).
 - 깊은 작업은 Squad 서브에이전트(`/squad <member>`)에 위임.
 
+## 슬라이드 덱 편집 — 에디터 캐시 주의 (반복 사고 방지)
+이 저장소는 **슬라이드 에디터 앱**이다. `docs/html/...`의 덱 HTML을 직접 수정해도 **에디터 화면에는 자동 반영되지 않는다.**
+- 에디터는 덱을 **localStorage/IndexedDB에 캐시**하고, 다시 열 때 **캐시본을 소스보다 우선** 로드한다(`src/App.tsx` `loadDeckFromLocalStorage`). 한 번 연 덱은 디스크 HTML을 고쳐도 옛 버전이 계속 보인다.
+- "원본 갱신" 배너는 HTML의 `<meta name="deck-source-hash">` 로만 감지한다(`src/library/deckRegistry.ts`). **이 meta가 없는 덱은 배너가 아예 안 뜬다.**
+- **소스 HTML 수정 후 반영 절차** ↓ (셋 다 챙길 것)
+  1. **에디터에 반영** — 툴바의 **Reset** 버튼(“편집 내역을 지우고 원본으로 리셋”)을 눌러 캐시를 비우고 소스를 다시 파싱한다. ⚠️ 에디터에서 직접 한 편집은 사라진다.
+  2. **dev 서버면** 브라우저 새로고침으로 Vite(`import.meta.glob`)가 바뀐 HTML을 다시 읽게 한 뒤 Reset. **빌드본이면** 재빌드/재시작이 필요하다.
+  3. **웹 뷰어(`docs/html-export/...`)는 별도 산출물** — 소스 수정 후 `export-html-deck` 스킬(`node .claude/skills/export-html-deck/scripts/export-deck.js`)로 **다시 빌드**해야 갱신된다.
+- 덱 슬라이드 추가·수정 시 사용자에게 위 1~3 중 어디서 보는지 먼저 확인하고, 해당 경로를 함께 안내한다.
+
 자세한 규칙: `flight-rules.md` · 품질 기준: `evaluation-criteria.md`
