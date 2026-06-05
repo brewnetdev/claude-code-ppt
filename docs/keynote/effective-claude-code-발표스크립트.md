@@ -61,7 +61,7 @@
 
 ### S13. CH.0·P2 CLAUDE.md의 정체와 위치 ⏱ ~60초
 > 여기 중요한 오해 하나를 짚겠습니다. CLAUDE.md를 흔히 "시스템 프롬프트"라고 부르지만, **기술적으로는 시스템 프롬프트가 아닙니다.** 세션 시작 시 **첫 user 메시지로 주입되는 메모리**이고, 결과적으로 모델이 매 턴 보게 되는 거예요.
-> 위치는 네 가지 스코프(scope, 적용 범위)가 있습니다. **User(전역)** `~/.claude/CLAUDE.md`는 내 모든 프로젝트 공통, **Project** `<repo>/CLAUDE.md`는 이 프로젝트 협업자 전체(Git 커밋 권장), **Local** `CLAUDE.local.md`는 나만(gitignore), **Subfolder**는 해당 폴더 작업 시에만 자동 로드됩니다. 우선순위는 **하위가 상위를 덮어쓰기 — Subfolder > Local > Project > User** 순이에요.
+> 위치는 네 가지 스코프(scope, 적용 범위)가 있습니다. **User(전역)** `~/.claude/CLAUDE.md`는 내 모든 프로젝트 공통, **Project** `<repo>/CLAUDE.md`는 이 프로젝트 협업자 전체(Git 커밋 권장), **Local** `CLAUDE.local.md`는 나만(gitignore), **Subfolder**는 해당 폴더 작업 시에만 자동 로드됩니다. 예를들어 프로젝트 구조가 프론트엔드, 백엔드가 같이 공존하는 모노레포 구조이거나 멀티 프로젝트 구조 (API, Batch, Queue Worker 등)일 때 각 폴더 구조 하위에도 메인 클로드 문서가 위치해야 합니다. 우선순위는 **하위가 상위를 덮어쓰기 — Subfolder > Local > Project > User** 순이에요.
 
 ### S14. CH.0·P2 CLAUDE.md 작성 예시 ⏱ ~40초
 > 실제 예시입니다. Tech Stack, Architecture, Rules 같은 섹션으로 나눠서, "Next.js 16, Drizzle ORM, PostgreSQL을 쓴다", "서버 모듈은 특정 위치에서만 import한다", "TypeScript에서 any 금지", "main 브랜치 직접 push 금지" 같은 **이 프로젝트만의 구체적인 규칙**을 적습니다. 새 프로젝트라면 `/init` 명령으로 구조를 분석한 초안을 자동 생성한 뒤 이렇게 다듬어 쓰면 됩니다. CLAUDE.md 작성법은 챕터 1에서 본격적으로 깊게 다룹니다.
@@ -368,3 +368,154 @@
 4. **카파시(S44–45)** — Andrej Karpathy. 스크립트에 'OpenAI 창립 멤버·테슬라 AI 디렉터' 한 줄 배경을 보강했습니다(슬라이드엔 없던 청중 이해용 보충, 사실 확인됨).
 5. **실습(러키드로우) 안내** — 본 덱은 이론편이라 따라하기·실습 단계가 없습니다. 사용자 요청대로 오프닝(S1)에서 "러키드로우 실습까지 3시간 과정의 압축본, 못한 부분은 슬라이드·튜토리얼로 자습"을 명시했고, 각 챕터 오프닝은 "이 챕터에서 배우는 것" 형식으로 통일했습니다.
 6. **연락처·링크** — brewnet.dev@gmail.com, run-ai.kr, github.com/claude-code-expert/lecture 는 슬라이드(S2·S92) 기재값과 일치.
+
+---
+
+## 📖 용어 사전 (Glossary · 발표자용)
+
+> 슬라이드 장표에 등장하지만 본문 내레이션에서 충분히 풀이되지 않는 용어를 **챕터별로** 모았습니다. 강의 중 해당 용어가 화면에 뜨면 **풀 네임 → 한 줄 뜻 → (필요 시) 비유** 순으로 짧게 전달하세요. `S##`는 처음 등장하는 슬라이드 번호입니다.
+
+### CH.0 — 컨텍스트 운용
+
+| 용어 | 풀 네임 / 영문 | 한 줄 설명 |
+|---|---|---|
+| 턴 (S9) | Turn | '내 메시지 1개 + 클로드 응답 1개'의 한 쌍. 대화의 최소 단위. |
+| 세션 (S9) | Session | `claude` 실행부터 종료까지. 여러 턴이 누적되는 작업 단위. |
+| session_id (S9) | Session ID | 각 세션에 자동으로 붙는 고유 식별자. `--resume`로 특정 세션을 되살릴 때 기준이 됨. |
+| 컨텍스트 (S9) | Context | 매 추론 순간 모델이 실제로 보는 토큰 전체(시스템 프롬프트+도구 정의+CLAUDE.md+누적 턴). |
+| 토큰 (S10) | Token | AI가 한 번에 처리하는 글자 묶음. 대략 영어 4글자·한글 1~2글자 ≈ 1토큰. 입력·출력 모두 토큰으로 과금. |
+| 컨텍스트 윈도우 (S10) | Context Window | 모델이 한 번에 볼 수 있는 토큰 총량. Sonnet·Opus 기본 200K, 확장 시 1M. |
+| 정적/동적 (S10) | STATIC / SESSION | 정적=세션 시작 때 1회 로드(시스템 프롬프트·도구 정의·CLAUDE.md), 동적=매 턴 쌓이는 대화. |
+| 시스템 프롬프트 (S10) | System Prompt | 모델 동작을 규정하는 내장 지침(약 11K). Anthropic 비공개·수정 불가. |
+| 도구 정의 (S10) | Tool Definitions | 모델이 쓸 수 있는 도구(Read·Edit·Bash 등)의 명세(약 13K). 컨텍스트에 항상 포함. |
+| CLAUDE.md (S10) | — | 세션 시작 시 자동 주입되는 프로젝트 규칙 문서. 우리가 영향력을 행사하는 핵심 레버. |
+| zero knowledge (S6) | — | 새 세션마다 클로드가 아무 사전 지식 없는 백지 상태에서 시작한다는 뜻. |
+| 휘발성 (S11) | Volatility | 세션이 끝나면 누적 컨텍스트가 전부 사라지는 성질. CLAUDE.md만 예외로 재로드됨. |
+| `/context` (S18) | — | 현재 컨텍스트 사용량을 영역별로 시각화하는 명령. |
+| `/clear` (S18) | — | 대화 히스토리를 완전 삭제(시스템·도구·CLAUDE.md는 재로드). 주제가 바뀔 때 사용. |
+| `/compact` (S18) | — | 누적 대화를 요약본으로 압축. 맥락 유지하며 공간 확보. 같은 작업 지속 시 사용. |
+| `/memory` (S18) | — | CLAUDE.md를 편집기로 바로 여는 명령. |
+| `/init` (S18) | — | 프로젝트를 분석해 CLAUDE.md 초안을 자동 생성. |
+| `--continue` / `/resume` (S18) | — | 직전 세션 또는 특정 세션을 이어서 여는 명령. |
+| `/status` · `/cost` (S18) | — | 각각 모델·세션 정보 / 누적 토큰·비용을 확인. |
+| auto-compact (S20) | — | 사용률 약 95%에서 자동 발동하는 압축. 그 전에 직접 `/compact` 하는 게 품질에 유리. |
+| scope (S13) | 적용 범위 | CLAUDE.md가 적용되는 범위. User(전역)·Project·Local·Subfolder 4종. 하위가 상위를 덮어씀. |
+| gitignore (S13) | — | Git이 추적하지 않도록 지정하는 목록. `CLAUDE.local.md`는 여기 넣어 '나만' 보게 함. |
+| `--append-system-prompt` (S16) | — | 내장 시스템 프롬프트를 교체하지 않고 **뒤에 덧붙이는** 옵션. |
+| Output Styles (S16) | — | 응답의 톤·형식만 바꾸는 설정. 시스템 프롬프트 자체는 못 바꿈. |
+| 온디맨드 파일 (S16) | On-demand / Lazy load | 미리 안 읽고 **접근하는 순간** 지연 로드되는 파일. 평소 토큰을 아낌. |
+| 프롬프트 캐싱 (S16) | Prompt Caching | 시스템 프롬프트 등을 캐시해 첫 턴만 전액, 이후 약 1/10 비용. 설정 변경 시 캐시가 깨짐. |
+| MCP (S16) | Model Context Protocol | 외부 도구·데이터 소스를 클로드에 연결하는 표준 프로토콜. |
+| HANDOFF.md (S22) | — | 세션을 넘겨 작업을 잇기 위한 인계 문서(수동, 자동 주입 안 됨). |
+| MEMORY.md (S22) | — | 장기 의사결정 로그. CLAUDE.md가 비대해지지 않게 분리(수동). |
+| PRD / TRD / DESIGN (S22) | Product/Technical Requirements, Design Doc | 제품·기술 요구사항·설계 문서. 본 과정 범위 밖(『클로드 코드 마스터』에서 다룸). |
+
+### CH.1 — CLAUDE.md 실전 작성법
+
+| 용어 | 풀 네임 / 영문 | 한 줄 설명 |
+|---|---|---|
+| 하네스 (S25) | Harness | 모델을 둘러싸 행동을 잡아 주는 장치 전체(CLAUDE.md·Skill·Hook 등). '모델 + 하네스 = AI 에이전트'. |
+| 레버리지 포인트 (S25) | Leverage Point | 작은 입력으로 큰 영향을 내는 지점. CLAUDE.md는 한 줄로 모든 세션에 영향. |
+| 권고 / 강제 (S43) | Advisory / Enforcement | 권고=모델이 참고하나 무시 가능(확률적). 강제=코드로 100% 차단(결정론적, Hook). |
+| linter (S31) | 린터 | 코드 스타일·문법 오류를 자동 검사·교정하는 도구. 들여쓰기·따옴표 등은 LLM이 아닌 linter에 맡김. |
+| Prettier / ESLint (S31) | — | 대표적 JS/TS 포맷터(Prettier)·정적 분석기(ESLint). |
+| `.claude/rules/` (S31) | — | 도메인별 규칙을 `.md`로 나눠 두는 폴더. 특정 경로 작업 시에만 조건부 로드. |
+| frontmatter (S40) | 머리말 메타데이터 | 파일 맨 위 `---` 사이의 설정 영역(name·description·paths 등). |
+| paths (S40) | — | frontmatter에서 규칙이 적용될 파일 경로를 지정하는 필드. 조건부 로드의 기준. |
+| 서브에이전트 (S34) | Subagent | 별도로 분리돼 도는 보조 AI. `/init`이 코드베이스 분석에 전용 서브에이전트를 씀. |
+| Progressive Disclosure (S38) | 점진적 공개 | 평소엔 가볍게, 필요할 때만 깊이 읽는 설계. '사전이 아닌 인덱스'. |
+| @import (S39) | — | CLAUDE.md 본문에 박지 않고 `@docs/API.md`처럼 외부 문서를 포인터로 참조. |
+| monorepo (S39) | 모노레포 | 여러 패키지를 한 저장소에 둔 구조. 패키지별 CLAUDE.md를 lazy load. |
+| Andrej Karpathy / 카파시 (S44) | — | OpenAI 창립 멤버·전 테슬라 AI 디렉터. 행동 원칙 중심의 50줄 CLAUDE.md 사례로 인용. |
+| User-level (S45) | — | `~/.claude/CLAUDE.md`. 내 모든 프로젝트에 공통 적용되는 전역 설정. |
+| alias (S42) | import alias | 상대 경로 대신 쓰는 모듈 경로 별칭(예: `@/lib/...`). 경로 꼬임을 막음. |
+| `#` 단축키 (S42) | — | 입력창에서 `#`을 치면 교훈을 빠르게 메모, 클로드가 어느 파일에 추가할지 물어봄. |
+| Tech Stack / Architecture / Conventions / Critical Constraints / References (S36) | — | 표준 7섹션의 핵심: 기술스택·구조·(해야 할)관례·(절대 금지)제약·참조 포인터. |
+| sanitize (S37) | — | 사용자 입력의 위험 요소(악성 HTML 등)를 제거·무해화하는 처리. |
+| innerHTML / any (S37) | — | XSS 위험이 큰 DOM API(`innerHTML`)·타입 안전성을 깨는 TS 타입(`any`). 보통 금지 대상. |
+| Next.js / Drizzle ORM / PostgreSQL (S14) | — | 예시 기술스택: React 프레임워크 / TS용 ORM / 오픈소스 관계형 DB. |
+
+### CH.2 — Skills · Commands · Hooks
+
+| 용어 | 풀 네임 / 영문 | 한 줄 설명 |
+|---|---|---|
+| Command (S52) | 슬래시 명령 | 사용자가 `/이름`으로 직접 호출하는 단축 프롬프트. 100% 실행. '단축키'. |
+| Skill (S52) | — | 클로드가 자율 발동하거나 사용자가 부르는 작업 매뉴얼. description으로 트리거. '매뉴얼'. |
+| Hook (S52) | 훅 | 라이프사이클 이벤트가 자동 트리거하는 셸 스크립트. 유일하게 차단(exit 2) 가능. '과속 방지턱'. |
+| 라이프사이클 이벤트 (S52) | Lifecycle Event | 세션 시작/종료·도구 실행 전후 등 정해진 시점. Hook이 여기에 걸림. |
+| settings.json (S55) | — | `.claude/settings.json`. Hook 등록·MCP·권한 등 프로젝트 설정 파일. |
+| stdin (S55) | Standard Input · 표준 입력 | 프로그램에 들어가는 기본 입력 통로. Hook은 stdin으로 이벤트 JSON을 받음. |
+| stdout (S67) | Standard Output · 표준 출력 | 프로그램의 기본 출력 통로(정상 결과). 화면에 그대로 보이는 일반 메시지. |
+| stderr (S67) | Standard Error · 표준 에러 | 오류·진단 전용 출력 통로. Hook이 `>&2`로 stderr에 쓰면 그 내용이 클로드에게 전달돼 재시도 유도. |
+| `>&2` (S67) | — | 출력을 stderr로 보내는 셸 리다이렉션 표기. 에러 메시지는 stdout이 아닌 여기로. |
+| JSON (S55) | JavaScript Object Notation | 키-값 구조의 데이터 표현 형식. Hook 입력·설정 파일의 표준 포맷. |
+| jq (S62) | — | 셸에서 JSON을 파싱·추출하는 커맨드라인 도구. Hook이 stdin JSON에서 명령어를 뽑을 때 사용. 별도 설치 필요. |
+| exit code (S60) | 종료 코드 | 스크립트가 끝날 때 반환하는 숫자. **0=성공, 1=비차단 경고, 2=차단**. 정책 강제는 항상 exit 2. |
+| webhook (S61) | — | 이벤트 발생 시 지정 URL로 자동 알림을 보내는 방식. Slack 알림 Hook이 이걸로 동작. |
+| Slack (S61) | — | 팀 메신저. Stop Hook에서 webhook으로 '응답 완료' 알림을 보내는 예시 대상. |
+| secret (S67) | — | 외부에 노출되면 안 되는 민감값(API 키·토큰·webhook URL). 하드코딩 금지, 환경변수로. |
+| chmod / chmod +x / chmod 777 (S61) | change mode | 파일 권한 변경 명령. `+x`=실행 권한 부여(스크립트 필수), `777`=모두 허용(위험, 차단 대상). |
+| `rm -rf` (S48) | remove, recursive+force | 폴더·파일을 되묻지 않고 강제 삭제. `rm -rf /`는 시스템 파괴. Hook 차단 1순위. |
+| force push (S48) | `git push --force` | 원격 이력을 강제로 덮어쓰는 push. 협업 이력을 날릴 수 있어 차단 대상. |
+| `git reset --hard` (S62) | — | 변경분까지 폐기하며 특정 커밋으로 되돌림. 복구 불가라 위험 패턴. |
+| sudo / dd (S62) | superuser do / data duplicator | 관리자 권한 실행(sudo)·디스크 저수준 복사(dd). 오용 시 치명적이라 위험 패턴으로 감지. |
+| matcher (S67) | — | Hook이 어떤 도구/명령에 반응할지 거르는 패턴. 오타 나면 Hook이 안 걸림(`/hooks`로 확인). |
+| `if` 필드 (S63) | — | 2026년 추가. `"if": "Bash(git push *)"`처럼 권한 규칙 문법으로 Hook을 더 좁게 매칭. |
+| `hook` vs `hooks` (S63) | — | settings.json 키는 반드시 **복수 `hooks`** + 배열. 단수 `hook`이면 설정 전체가 무시됨. |
+| allowed-tools (S55) | — | Command/Skill frontmatter에서 그 작업이 쓸 수 있는 도구를 제한하는 필드. |
+| `$ARGUMENTS` (S56) | — | Command/Skill 본문에서 사용자가 넘긴 입력을 받는 자리표시자. |
+| Conventional Commits (S58) | — | `feat:`·`fix:` 등 type을 붙이는 커밋 메시지 표준. `/commit`이 자동 생성. |
+| Keep a Changelog (S58) | — | 변경 이력 작성 표준 포맷. `/changelog`가 이 형식으로 생성. |
+| gh / draft / PR (S58) | GitHub CLI / 초안 / Pull Request | `gh`=GitHub 터미널 도구, draft=초안 PR, PR=브랜치 병합 요청. `/pr`이 자동 발행. |
+| biome (S61) | — | Prettier+ESLint를 합친 빠른 포맷터·린터. 자동 포맷 Hook의 대안. |
+| PreToolUse / PostToolUse / UserPromptSubmit / Stop / PreCompact / SessionStart·End (S60) | — | 대표 Hook 이벤트: 도구 실행 전·후, 프롬프트 제출, 1턴 완료, /compact 직전, 세션 시작·종료. |
+| description (S56) | — | Skill frontmatter의 핵심 필드. "언제 이 스킬을 쓰는지"를 적어야 클로드가 자동 발동 판단. |
+
+### CH.3 — 토큰 효율화 (LSP & codesight)
+
+| 용어 | 풀 네임 / 영문 | 한 줄 설명 |
+|---|---|---|
+| grep (S70) | — | 텍스트로 코드를 검색하는 기본 도구. 본문째 반환해 토큰이 많고 주석·문자열까지 섞여 부정확. |
+| LSP (S72) | Language Server Protocol | 편집기와 언어 서버 사이의 통신 표준(MS, 2016, v3.17). 본문 대신 '위치 좌표'만 반환. '색인 카드'. |
+| 언어 서버 (S72) | Language Server | 실제 코드 분석을 수행하는 엔진. LSP는 그 결과를 전달만 함. |
+| vtsls / pyright (S72) | — | 각각 TypeScript·Python의 언어 서버 구현체. |
+| goToDefinition / findReferences / getDiagnostics / hover (S72) | — | LSP 핵심 기능: 정의로 점프 / 전체 참조 찾기 / 타입 에러 확인 / 심볼 정보 미리보기. |
+| 심볼 테이블 (S73) | Symbol Table | 언어 서버가 파싱해 만든 심볼(함수·변수…) 위치 색인. goToDefinition이 여기서 즉시 조회. |
+| codesight (S77) | — | 프로젝트 구조를 AST로 파싱해 마크다운 '요약 지도'로 만드는 AI 컨텍스트 생성기. v1.14.0, MIT. |
+| AST (S77) | Abstract Syntax Tree · 추상 구문 트리 | 코드를 문법 구조로 분해한 트리. codesight가 이걸로 정밀 파싱. |
+| compiler API (S77) | — | 컴파일러가 제공하는 분석 인터페이스. codesight가 TS를 정밀 파싱할 때 사용. |
+| 폴백 (S77) | fallback | 주 방법이 안 될 때의 대체 처리. TS 외 언어는 정규식으로 폴백 파싱. |
+| Routes / Schema / Components / 의존성 그래프 (S77) | — | codesight가 감지하는 구조 요소: 라우팅·DB 스키마·UI 컴포넌트·모듈 의존 관계. |
+| MCP server (S78) | — | 클로드가 실시간으로 쿼리하는 외부 도구 서버. codesight `--mcp`가 이 형태로 동작. |
+| `.codesight/` (S78) | — | `npx codesight` 실행 시 생성되는 구조 맵 산출 폴더. |
+| `--init` / `--mcp` / `--hook` (S78) | — | codesight 옵션: 정적 맵 1회 주입 / 실시간 쿼리 / 커밋마다 자동 갱신. |
+| cclsp (S74) | — | `npx cclsp@latest setup` 위저드로 붙이는 LSP용 MCP. 다중·미지원 언어에 적합. |
+| Serena (S74) | — | 심볼 편집·세션 메모리·온보딩까지 포함한 종합 LSP 툴킷. 빌트인과 중복 피하려 `--context` 필수. |
+| npx / uv (S74) | — | npx=설치 없이 npm 패키지 실행 / uv=빠른 Python 패키지·도구 관리자. |
+| `/plugin` · 마켓플레이스 (S74) | Marketplace | 공식 빌트인 LSP 플러그인을 설치하는 명령·배포처. v2.0.74부터 정식 지원. |
+| 세션 캐싱 (S78) | Session Caching | 첫 호출만 스캔하고 같은 세션에선 결과를 재사용해 비용을 아끼는 방식. |
+
+### 에필로그 — 엔지니어링 진화 · SDD · GSD
+
+| 용어 | 풀 네임 / 영문 | 한 줄 설명 |
+|---|---|---|
+| Prompt Engineering (S84) | 프롬프트 엔지니어링 | 잘 묻는 법(few-shot·CoT 등)에 집중하는 1단계. |
+| few-shot (S84) | — | 예시 몇 개를 함께 줘서 원하는 출력 형태를 유도하는 프롬프트 기법. |
+| CoT (S84) | Chain of Thought · 사고 연쇄 | 추론 과정을 단계적으로 풀어내게 유도해 정확도를 높이는 기법. |
+| Context Engineering (S84) | 컨텍스트 엔지니어링 | 모델 시야를 통제하는 2단계(CLAUDE.md·/context·/compact). 오늘 과정의 핵심 범위. |
+| Harness Engineering (S84) | 하네스 엔지니어링 | 자동화·안전망을 갖추는 4단계. '모델 + 하네스 = AI 에이전트'. |
+| SDD (S83) | Spec-Driven Development · 명세 주도 개발 | 명세가 진실의 원천이 되어 코드를 생성하는 방법론. |
+| Vibe Coding (S85) | — | "대충 느낌으로 해줘" 식 즉흥 개발. SDD가 벗어나려는 대상. |
+| Spec Kit (S85) | — | GitHub이 제시한 SDD 도구. 슬래시 명령으로 명세를 생성. 가벼운 단일 세션. |
+| Constitution / Spec / Plan (S85) | 헌법 / 명세 / 계획 | SDD 3요소: 불변 법칙 / '무엇'(요구사항) / '어떻게'(구현 설계). |
+| `/speckit.*` (S88) | — | Spec Kit 명령군: constitution·specify·plan·tasks·implement(+clarify·analyze·checklist). |
+| TDD (S87) | Test-Driven Development · 테스트 주도 개발 | 테스트를 먼저 작성해 동작을 검증하는 개발법. SDD와 시너지(명세 항목→테스트 케이스). |
+| TS strict (S85) | TypeScript strict mode | 엄격한 타입 검사 모드. Constitution 예시 규칙. |
+| UAT (S91) | User Acceptance Testing · 사용자 수용 테스트 | 사용자가 직접 요구 충족 여부를 확인하는 검증 단계. |
+| GSD (S90) | Get Shit Done | Spec Kit 진화형. 50+ 명령·Wave 병렬·단계별 컨텍스트 격리. 복잡한 장기 프로젝트용. |
+| Context Rot (S90) | — | 컨텍스트 윈도우가 차며 응답 품질이 떨어지는 현상. GSD가 단계별 격리로 해결. |
+| Wave (S90) | — | GSD에서 여러 작업을 묶어 병렬 실행하는 단위. |
+| Phase (S91) | — | GSD 프로젝트를 나눈 큰 단계. 각 Phase를 새 200K 컨텍스트에서 격리 실행. |
+| `/gsd-*` (S91) | — | GSD 명령군: new-project·discuss-phase·plan-phase·execute-phase·verify-work·ship(+quick·fast). |
+
+> **활용 팁** — `⏩` 슬라이드에서 시간이 빠듯하면 이 표의 '풀 네임 + 한 줄 설명'만 읽어 주고 넘어가도 전달이 됩니다. 처음 나오는 용어는 반드시 **풀어서 한 번** 말하고, 두 번째부터는 약어로 진행하세요.
