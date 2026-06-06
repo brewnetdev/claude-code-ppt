@@ -4,6 +4,7 @@ import {
   applyHighlight,
   clearHighlights,
   selectionInsideCanvas,
+  toggleCmd,
   wrapWithStyle,
 } from '../../src/editor/textFormatActions';
 
@@ -318,6 +319,9 @@ describe('regression: wrapWithStyle does not accumulate spans on repeated apply'
     const spans = editable.querySelectorAll('span');
     expect(spans.length).toBe(1);
     expect((spans[0] as HTMLElement).style.fontSize).toBe('24px');
+    // Re-apply must preserve the text — a collapsed live range previously
+    // orphaned it, leaving an empty styled span.
+    expect(spans[0].textContent).toBe('hello');
   });
 
   it('applying color over an existing color span does not nest', () => {
@@ -336,6 +340,9 @@ describe('regression: wrapWithStyle does not accumulate spans on repeated apply'
 
     const spans = editable.querySelectorAll('span');
     expect(spans.length).toBe(1);
+    expect(spans[0].textContent).toBe('hello');
+    const c = (spans[0] as HTMLElement).style.color.toLowerCase();
+    expect(['#0000ff', 'rgb(0, 0, 255)']).toContain(c);
   });
 });
 
@@ -494,5 +501,87 @@ describe('regression: wrapWithStyle preserves parent color on partial selection'
     expect(inner.style.color.toLowerCase()).toMatch(
       /rgb\(255, 0, 0\)|#ff0000|red/i,
     );
+  });
+});
+
+// TF-1 — Clear must not strip styles from a PARTIALLY-selected ancestor. The
+// old code used range.intersectsNode (touches), so clearing an inner word wiped
+// the wrapping block's color, blackening neighboring un-selected text. Clear now
+// mirrors wrapWithStyle's isElementFullyInRange gate.
+describe('regression: clearHighlights preserves partially-selected ancestor styles (TF-1)', () => {
+  beforeEach(() =>
+    buildOverlayDom(
+      '<div style="color: rgb(241, 245, 249);">intro ' +
+        '<span data-highlight="1" style="color: rgb(245, 158, 11); font-weight: 700;">KEY</span>' +
+        ' outro</div>',
+    ),
+  );
+
+  it('clears the fully-selected highlight but keeps the block color of un-selected text', () => {
+    const span = editable.querySelector('span[data-highlight]') as HTMLElement;
+    const t = span.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(t, 0);
+    range.setEnd(t, 3); // exactly "KEY" — the whole span, but only part of the div
+    const sel = dom.window.getSelection()!;
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    clearHighlights();
+
+    // The highlight on KEY is removed…
+    expect(editable.querySelector('span[data-highlight]')).toBeNull();
+    // …but the surrounding <div> is only PARTIALLY selected, so its color survives.
+    const div = editable.querySelector('div') as HTMLElement;
+    expect(div.style.color.replace(/\s+/g, '')).toBe('rgb(241,245,249)');
+    expect(div.textContent).toBe('intro KEY outro');
+  });
+});
+
+// TF-3 — applyHighlight had no anti-accumulation cleanup (unlike wrapWithStyle),
+// so re-highlighting the same text nested <span data-highlight> inside
+// <span data-highlight>, bloating the DOM and breaking later Clear/color edits.
+describe('regression: applyHighlight does not nest highlight spans (TF-3)', () => {
+  beforeEach(() => buildOverlayDom('word'));
+
+  it('re-highlighting the same text replaces instead of nesting', () => {
+    selectFirstTextRange(editable, 0, 4);
+    applyHighlight('#34D399');
+
+    const first = editable.querySelector('span[data-highlight]') as HTMLElement;
+    const t = first.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(t, 0);
+    range.setEnd(t, 4);
+    const sel = dom.window.getSelection()!;
+    sel.removeAllRanges();
+    sel.addRange(range);
+    applyHighlight('#60A5FA');
+
+    const spans = editable.querySelectorAll('span[data-highlight]');
+    expect(spans.length).toBe(1);
+    expect(editable.querySelector('span span')).toBeNull(); // no nesting
+    expect(spans[0].textContent).toBe('word');
+    const color = (spans[0] as HTMLElement).style.color.toLowerCase();
+    expect(['#60a5fa', 'rgb(96, 165, 250)']).toContain(color);
+  });
+});
+
+// TF-4 — toggleCmd called document.execCommand unguarded; it throws where
+// execCommand is undefined/disabled (some embedded webviews, and JSDOM), so a
+// bold/italic/underline click could throw uncaught. It must no-op safely.
+describe('regression: toggleCmd is resilient when execCommand is unavailable (TF-4)', () => {
+  beforeEach(() => buildOverlayDom('hello'));
+
+  it('does not throw when document.execCommand is missing', () => {
+    selectFirstTextRange(editable, 0, 5);
+    const docAny = document as unknown as { execCommand?: unknown };
+    const saved = docAny.execCommand;
+    docAny.execCommand = undefined; // simulate a webview where it is disabled
+    try {
+      expect(() => toggleCmd('bold')).not.toThrow();
+    } finally {
+      docAny.execCommand = saved;
+    }
   });
 });

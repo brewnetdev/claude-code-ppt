@@ -49,22 +49,33 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;');
 }
 
+// Reduce any unsupported/unknown language to the safe builtin `plaintext`.
+// Exported so callers that bake the language into markup (data-code-lang) use
+// the SAME value shiki actually highlights with — and can't inject via the
+// attribute when a future caller passes a dynamic/untrusted lang.
+export function normalizeLang(lang: string): string {
+  return LANG_SET.has(lang) ? lang : 'plaintext';
+}
+
 // Returns the inner HTML of shiki's `<code>` element so callers can drop it
 // into their own `<pre><code>` wrapper. shiki normally produces a full
 // `<pre class="shiki ..."><code>...</code></pre>`; we strip the outer pre
 // because brewnet's `.code-block` and `.terminal` already provide the box.
 export async function highlightCode(source: string, lang: string): Promise<string> {
+  // Trim trailing newlines so shiki doesn't emit a trailing empty
+  // `<span class="line"></span>`, which renders as a ghost blank line under the
+  // box's `white-space: pre-wrap`. Interior blank lines are preserved.
+  const src = source.replace(/\n+$/, '');
   try {
     const hl = await getHighlighter();
-    const safeLang = LANG_SET.has(lang) ? lang : 'plaintext';
-    const html = hl.codeToHtml(source, {
-      lang: safeLang as BundledLanguage,
+    const html = hl.codeToHtml(src, {
+      lang: normalizeLang(lang) as BundledLanguage,
       theme: THEME,
     });
     const match = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
-    return match ? match[1] : escapeHtml(source);
+    return match ? match[1] : escapeHtml(src);
   } catch {
-    return escapeHtml(source);
+    return escapeHtml(src);
   }
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { parseHexColorInput } from './hexColor';
 
 // Standard editor palette: row 1 is grayscale (pure black → pure white), and
 // rows 2-5 are saturated primary hues at four intensities. The previous
@@ -27,11 +28,11 @@ const ROWS: { label: string; colors: string[] }[] = [
   },
 ];
 
-const HEX_RE = /^#?([0-9a-fA-F]{6})$/;
-
-function normalizeHex(input: string): string | null {
-  const m = HEX_RE.exec(input.trim());
-  return m ? `#${m[1].toUpperCase()}` : null;
+// Seed the hex draft from a value, but only when it's a real hex color — a
+// non-hex value (e.g. an imported `rgb(0,0,0)`) must not dump junk into the box.
+function hexDraftFromValue(value: string | null): string {
+  const parsed = value ? parseHexColorInput(value) : null;
+  return parsed ? parsed.replace('#', '') : '';
 }
 
 type Props = {
@@ -44,19 +45,20 @@ type Props = {
 
 // Inline popover. Caller is responsible for showing/hiding.
 export function ColorPickerPopover({ value, onChange, allowNone = true }: Props) {
-  const [hexDraft, setHexDraft] = useState(() => (value ?? '').replace('#', ''));
+  const [hexDraft, setHexDraft] = useState(() => hexDraftFromValue(value));
 
   useEffect(() => {
-    setHexDraft((value ?? '').replace('#', ''));
+    setHexDraft(hexDraftFromValue(value));
   }, [value]);
 
   const handleHex = (raw: string) => {
-    const cleaned = raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
-    setHexDraft(cleaned);
-    if (cleaned.length === 6) {
-      const hex = normalizeHex(cleaned);
-      if (hex) onChange(hex);
-    }
+    // Display: keep only hex chars (max 6) so the box never shows junk.
+    setHexDraft(raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6));
+    // Commit: validate the ORIGINAL input. Cleaning-then-accepting would turn a
+    // pasted "rgb(255,0,0)" into "#B25500"; parseHexColorInput rejects non-hex
+    // and accepts complete 3/6-digit hex only.
+    const parsed = parseHexColorInput(raw);
+    if (parsed) onChange(parsed);
   };
 
   return (
