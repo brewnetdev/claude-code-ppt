@@ -5,7 +5,6 @@ import {
   BUILTIN_DECKS,
   COURSE_OUTLINE,
   countSlides,
-  getDeckById,
   OUTLINE_DECK_IDS,
   type CourseLevel,
   type DeckRegistryEntry,
@@ -100,10 +99,18 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
   // Level cards (Lv.1~Lv.10) in course-outline order, each tagged with its
   // stage category. Levels with no backing deck render as a non-clickable
   // "발표자료 준비 중" card so the full curriculum (목차) is always visible.
-  const levelItems = useMemo(
-    () => COURSE_OUTLINE.flatMap((s) => s.levels.map((l) => ({ ...l, category: s.name }))),
-    [],
-  );
+  const levelItems = useMemo(() => {
+    // Resolve each level's backing deck + slide count ONCE here (reusing the
+    // already-memoized decksWithMeta) so LevelCard never re-runs countSlides —
+    // a regex scan over multi-MB deck HTML — on every render.
+    const byId = new Map(decksWithMeta.map((d) => [d.id, d]));
+    return COURSE_OUTLINE.flatMap((s) =>
+      s.levels.map((l) => {
+        const deck = l.deckId ? byId.get(l.deckId) : undefined;
+        return { ...l, category: s.name, deck, slideCount: deck?.slideCount ?? 0 };
+      }),
+    );
+  }, [decksWithMeta]);
   // Non-level decks (커리큘럼 리포트 · 발표 소개 등) — kept in a separate section.
   const visibleOther = useMemo(
     () => decksWithMeta.filter((d) => !OUTLINE_DECK_IDS.has(d.id) && !hiddenIds.includes(d.id)),
@@ -211,11 +218,14 @@ function LevelCard({
   item,
   onOpen,
 }: {
-  item: CourseLevel & { category: string };
+  item: CourseLevel & {
+    category: string;
+    deck?: DeckRegistryEntry & { slideCount: number };
+    slideCount: number;
+  };
   onOpen: (deck: DeckRegistryEntry) => void;
 }) {
-  const deck = item.deckId ? getDeckById(item.deckId) : undefined;
-  const slideCount = deck ? countSlides(deck.html) : 0;
+  const { deck, slideCount } = item;
 
   const header = (
     <div className="mb-3 flex items-center justify-between gap-2">

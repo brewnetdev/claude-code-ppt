@@ -163,14 +163,12 @@ export type CourseLevel = {
 };
 
 export type CourseStage = {
-  badge: string; // ①..⑥
   name: string;
   levels: CourseLevel[];
 };
 
 export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
   {
-    badge: '①',
     name: '설치 · 개발 환경',
     levels: [
       {
@@ -182,7 +180,6 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     ],
   },
   {
-    badge: '②',
     name: '기초 개념',
     levels: [
       {
@@ -200,7 +197,6 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     ],
   },
   {
-    badge: '③',
     name: '개발',
     levels: [
       {
@@ -218,7 +214,6 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     ],
   },
   {
-    badge: '④',
     name: '배포 · 운영',
     levels: [
       {
@@ -236,7 +231,6 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     ],
   },
   {
-    badge: '⑤',
     name: '자동화 · 활용',
     levels: [
       {
@@ -247,7 +241,6 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     ],
   },
   {
-    badge: '⑥',
     name: '고급',
     levels: [
       {
@@ -270,19 +263,3 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
 export const OUTLINE_DECK_IDS: ReadonlySet<string> = new Set(
   COURSE_OUTLINE.flatMap((s) => s.levels.map((l) => l.deckId).filter((id): id is string => !!id)),
 );
-
-// deckId → 카테고리(단계명). The library shows the original card grid; this lets
-// each card carry a category tag (설치·개발 환경 / 기초 개념 / 개발 / …) derived
-// from the course outline. Mapped by TOPIC (see COURSE_OUTLINE note), not by the
-// deck's on-disk file number.
-const DECK_CATEGORY: ReadonlyMap<string, string> = new Map(
-  COURSE_OUTLINE.flatMap((s) =>
-    s.levels
-      .filter((l) => l.deckId)
-      .map((l) => [l.deckId as string, s.name] as const),
-  ),
-);
-
-export function getDeckCategory(id: string): string | undefined {
-  return DECK_CATEGORY.get(id);
-}

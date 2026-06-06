@@ -62,29 +62,45 @@ export function notifyInput(range: Range): void {
   host.dispatchEvent(new InputEvent('input', { bubbles: true }));
 }
 
+// Snapshot a range's boundary points so it can be rebuilt after a cleanup pass.
+type RangeBoundaries = { sc: Node; so: number; ec: Node; eo: number };
+function snapshotBoundaries(range: Range): RangeBoundaries {
+  return {
+    sc: range.startContainer,
+    so: range.startOffset,
+    ec: range.endContainer,
+    eo: range.endOffset,
+  };
+}
+
 // Re-derive a range from snapshotted boundaries. Unwrapping spans during a
 // cleanup pass can collapse the *live* selection range under some engines
 // (observed in JSDOM: the range collapses to after the re-parented text), which
 // then makes surroundContents wrap an empty range and orphan the text. The
 // boundary text nodes survive the unwrap (children are re-parented, not
 // removed), so rebuilding from their saved offsets restores the intended range.
-function rebuiltRange(
-  sc: Node,
-  so: number,
-  ec: Node,
-  eo: number,
-  fallback: Range,
-): Range {
-  if (!sc.isConnected || !ec.isConnected) return fallback;
+function rebuiltRange(b: RangeBoundaries, fallback: Range): Range {
+  if (!b.sc.isConnected || !b.ec.isConnected) return fallback;
   try {
-    const r = (sc.ownerDocument ?? document).createRange();
-    r.setStart(sc, so);
-    r.setEnd(ec, eo);
+    const r = (b.sc.ownerDocument ?? document).createRange();
+    r.setStart(b.sc, b.so);
+    r.setEnd(b.ec, b.eo);
     if (r.collapsed && !fallback.collapsed) return fallback;
     return r;
   } catch {
     return fallback;
   }
+}
+
+// Unwrap a <span> that has no remaining inline style or class: lift its children
+// out and remove it. No-op for anything else. Shared by every cleanup pass so
+// the "what counts as a removable wrapper" rule lives in exactly one place.
+function unwrapBareSpan(el: HTMLElement): void {
+  if (el.tagName !== 'SPAN' || el.getAttribute('style') || el.className) return;
+  const parent = el.parentNode;
+  if (!parent) return;
+  while (el.firstChild) parent.insertBefore(el.firstChild, el);
+  parent.removeChild(el);
 }
 
 // WYSIWYG highlight: write the swatch hex straight into inline `style` and
@@ -93,10 +109,7 @@ export function applyHighlight(color: string): void {
   const range = selectionInsideCanvas();
   if (!range) return;
 
-  const sc = range.startContainer;
-  const so = range.startOffset;
-  const ec = range.endContainer;
-  const eo = range.endOffset;
+  const snap = snapshotBoundaries(range);
 
   // Anti-accumulation (matches wrapWithStyle): strip any existing highlight that
   // is FULLY inside the selection before wrapping, so re-highlighting the same
@@ -117,16 +130,11 @@ export function applyHighlight(color: string): void {
         touched = true;
       }
       if (!touched) continue;
-      if (el.tagName === 'SPAN' && !el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) continue;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
+      unwrapBareSpan(el);
     }
   }
 
-  const wrapRange = rebuiltRange(sc, so, ec, eo, range);
+  const wrapRange = rebuiltRange(snap, range);
   const span = document.createElement('span');
   span.style.color = color;
   span.style.fontWeight = '700';
@@ -199,12 +207,7 @@ function applyPatchToCells(
         }
       }
       if (!touched) return;
-      if (el.tagName === 'SPAN' && !el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) return;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
+      unwrapBareSpan(el);
     });
     for (const k of keys) {
       const v = patch[k];
@@ -279,10 +282,7 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
   // Snapshot the selection boundaries BEFORE the cleanup pass mutates the DOM.
   // Unwrapping a fully-selected span can collapse the live range (JSDOM), which
   // would make the wrap below surround an empty range and orphan the text.
-  const sc = range.startContainer;
-  const so = range.startOffset;
-  const ec = range.endContainer;
-  const eo = range.endOffset;
+  const snap = snapshotBoundaries(range);
 
   // Cleanup pass: strip every key that's being set or removed from
   // descendants that are FULLY contained by the range. Partial-overlap
@@ -307,12 +307,7 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
         }
       }
       if (!touched) continue;
-      if (el.tagName === 'SPAN' && !el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) continue;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
+      unwrapBareSpan(el);
     }
   }
 
@@ -325,7 +320,7 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
   // Cleanup may have unwrapped spans, restructuring the DOM. Rebuild the range
   // from the saved boundaries (the text nodes are re-parented, not removed) so
   // the wrap targets the real selection even if the live range collapsed.
-  const wrapRange = rebuiltRange(sc, so, ec, eo, range);
+  const wrapRange = rebuiltRange(snap, range);
   const span = document.createElement('span');
   if (typeof patch.color === 'string') span.style.color = patch.color;
   if (typeof patch.fontSize === 'string') span.style.fontSize = patch.fontSize;
@@ -394,12 +389,7 @@ export function clearHighlights(): void {
 
     if (!touched) continue;
 
-    if (el.tagName === 'SPAN' && !el.className && !el.getAttribute('style')) {
-      const parent = el.parentNode;
-      if (!parent) continue;
-      while (el.firstChild) parent.insertBefore(el.firstChild, el);
-      parent.removeChild(el);
-    }
+    unwrapBareSpan(el);
   }
   notifyInput(range);
 }
