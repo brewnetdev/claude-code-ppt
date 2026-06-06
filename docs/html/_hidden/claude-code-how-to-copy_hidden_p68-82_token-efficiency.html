@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>이펙티브 클로드 코드 기본 - 인프런편</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
+<style>
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .slide-logo-text:hover { text-decoration: underline; }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* Unify every slide anchor (incl. auto-detected / class-less links) on the
+     brand link color so they match `.link` (e.g. github.com/...lecture) instead
+     of the browser's default dark blue. `:where()` keeps the rule at zero
+     specificity, so `.link`, `.slide-logo-url`, `.slide-logo-text`, etc. still
+     win with their own colors; only un-classed anchors fall back to this. */
+  :where(.slide a) { color: var(--link); }
+  :where(.slide a:hover) { color: #1D4ED8; }
+
+  /* Watermark is decorative text, never a link. Some decks have a stray <a>
+     baked inside the `.cc-watermark` span (legacy / re-export); neutralize its
+     link styling so it renders as plain watermark text (same as the email line)
+     regardless of the generic `.slide a` color above. */
+  .cc-watermark a {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    pointer-events: none;
+    cursor: inherit;
+  }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 36px;
+    transform: none;
+    opacity: 0.07;
+    font-size: 188px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+
+
+  /* ────────────────────────────────────────────
+     CURRICULUM OVERVIEW (page 3) — dark theme
+  ──────────────────────────────────────────── */
+  .curriculum-slide .slide-inner { padding: 28px 44px 50px; }
+
+  .curr-head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:12px; }
+  .curr-label { font-size:10px; font-family:'JetBrains Mono', monospace; letter-spacing:0.18em; color:var(--muted); font-weight:600; margin-bottom:5px; }
+  .curr-title { font-size:25px; font-weight:900; color:var(--text); letter-spacing:-0.02em; line-height:1.15; }
+  .curr-title em { color:var(--amber); font-style:normal; }
+  .curr-sub { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.45; }
+  .curr-sub b { color:var(--amber); font-weight:700; }
+  .curr-ecc { background:#7C3AED; color:#fff; padding:1px 6px; border-radius:3px; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:9px; }
+  .curr-head-right { text-align:right; font-family:'JetBrains Mono', monospace; }
+  .curr-brand { font-size:14px; color:var(--amber); font-weight:700; letter-spacing:0.05em; }
+  .curr-url { font-size:9.5px; color:var(--muted); margin-top:2px; }
+  .curr-ver { font-size:9px; color:var(--blue); margin-top:4px; background:rgba(96,165,250,0.15); padding:1px 6px; border-radius:3px; display:inline-block; font-weight:700; }
+
+  .curr-tracks { flex:1; display:flex; flex-direction:column; gap:8px; min-height:0; }
+  .curr-track { display:grid; grid-template-columns:98px 1fr; gap:7px; flex:1; min-height:0; }
+
+  .curr-tlabel { border-radius:7px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; overflow:hidden; background:#060B16; border:1px solid var(--border); }
+  .curr-tlabel::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .curr-tlabel.non-dev::before { background:var(--amber); }
+  .curr-tlabel.dev::before { background:var(--blue); }
+  .curr-tlabel.it-pro::before { background:var(--green); }
+  .curr-tlabel .ico { font-size:18px; line-height:1; margin-bottom:3px; }
+  .curr-tlabel .nm { font-size:13px; font-weight:900; color:var(--text); line-height:1.1; margin-bottom:2px; }
+  .curr-tlabel .nm-en { font-size:7.5px; font-family:'JetBrains Mono', monospace; color:#64748B; letter-spacing:0.06em; margin-bottom:4px; line-height:1.2; }
+  .curr-tlabel .stg { font-size:9px; color:#020617; padding:2px 7px; border-radius:3px; font-family:'JetBrains Mono', monospace; font-weight:700; margin-bottom:3px; }
+  .curr-tlabel.non-dev .stg { background:var(--amber); }
+  .curr-tlabel.dev .stg { background:var(--blue); }
+  .curr-tlabel.it-pro .stg { background:var(--green); }
+  .curr-tlabel .pro { font-size:8px; color:var(--blue); font-family:'JetBrains Mono', monospace; letter-spacing:0.1em; font-weight:700; }
+  .curr-tlabel .time { font-size:8.5px; color:#64748B; font-family:'JetBrains Mono', monospace; margin-top:2px; }
+
+  .curr-stages { display:flex; gap:6px; align-items:stretch; min-height:0; }
+  .curr-stage { flex:1; min-width:0; border:1px solid var(--border); border-radius:7px; padding:7px 9px 21px; background:#060B16; display:flex; flex-direction:column; gap:3px; position:relative; }
+  /* track/stage 구분은 균일한 테두리로만 — 상단 컬러 액센트·채움 제거 */
+  .curr-stage.ecc::after { content:'📘 ECC'; position:absolute; top:6px; right:7px; font-size:7.5px; background:#7C3AED; color:#fff; padding:1px 5px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; z-index:2; }
+  .curr-stage.new::after { content:'NEW'; position:absolute; top:6px; right:7px; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.final { border-color:#475569; }
+  /* 현재 덱(이펙티브 클로드 코드 기본) 강의 영역 강조 — IT 프로페셔널 트랙만, 보라 테두리 + 글로우 */
+  .curr-stage.it-pro.ecc { border-color:#7C3AED; border-width:2px; box-shadow:0 0 0 1px rgba(124,58,237,0.45), 0 0 16px rgba(124,58,237,0.40); background:#0C0A1E; }
+  /* IT 프로페셔널 4개 과정 상단 NEW 배지 (::before, ECC 배지와 공존) */
+  .curr-stage.it-pro::before { content:'NEW'; position:absolute; top:6px; right:7px; z-index:3; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.it-pro:not(.ecc):not(.new) .curr-shead { padding-right:42px; }
+  .curr-stage.it-pro.ecc::before { right:46px; }
+  .curr-stage.it-pro.ecc .curr-shead { padding-right:86px; }
+
+  .curr-shead { display:flex; align-items:center; justify-content:space-between; padding-bottom:3px; border-bottom:1px dashed var(--border); gap:4px; padding-right:42px; }
+  .curr-stage:not(.ecc):not(.new) .curr-shead { padding-right:0; }
+  .curr-snum { font-size:8px; color:var(--muted); font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.08em; flex-shrink:0; }
+  .curr-stime { font-size:8px; font-family:'JetBrains Mono', monospace; background:var(--border); color:var(--text); padding:1px 5px; border-radius:3px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+  .curr-stitle { font-size:12px; font-weight:900; color:var(--text); letter-spacing:-0.02em; margin-top:2px; line-height:1.2; }
+  .curr-stitle .fb { color:#020617; font-size:7.5px; padding:1px 4px; border-radius:2px; margin-left:3px; font-weight:700; letter-spacing:0.05em; vertical-align:middle; }
+  .curr-stitle .fb.amber { background:var(--amber); }
+  .curr-stitle .fb.blue { background:var(--blue); }
+  .curr-stitle .fb.green { background:var(--green); }
+
+  /* 🎯 프로젝트 — 컬러 액센트 콜아웃 대신 중성 아웃라인 칩(태그) */
+  .curr-proj { align-self:flex-start; display:inline-block; font-size:8.5px; font-family:'JetBrains Mono', monospace; font-weight:700; line-height:1.3; padding:2px 8px; border-radius:4px; margin:2px 0; border:1px solid #334155; background:transparent; color:var(--text); }
+  .curr-proj::before { content:'🎯 '; font-size:8.5px; }
+
+  .curr-topics { display:flex; flex-direction:column; gap:1px; flex:1; margin-top:1px; list-style:none; padding:0; }
+  .curr-topics li { font-size:9px; color:#CBD5E1; line-height:1.32; display:flex; gap:3px; padding-left:1px; }
+  .curr-topics li > div { min-width:0; }
+  .curr-topics li::before { content:'▸'; font-weight:700; flex-shrink:0; font-size:8px; line-height:1.5; margin-top:0; }
+  .curr-stage.non-dev .curr-topics li::before { color:var(--amber); }
+  .curr-stage.dev .curr-topics li::before { color:var(--blue); }
+  .curr-stage.it-pro .curr-topics li::before { color:var(--green); }
+  .curr-topics li code { font-family:'JetBrains Mono', monospace; background:var(--code-bg); padding:0 3px; border-radius:2px; font-size:8px; color:var(--amber); }
+  .curr-topics li .ch { color:#C4B5FD; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:8.5px; background:rgba(124,58,237,0.25); padding:0 3px; border-radius:2px; }
+  .curr-topics li .kw { color:var(--blue); font-weight:700; }
+  .curr-topics li .kw-amber { color:var(--amber); font-weight:700; }
+  .curr-topics li .kw-green { color:var(--green); font-weight:700; }
+
+  .curr-deliv { position:absolute; bottom:4px; left:9px; right:9px; font-size:7.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; line-height:1.25; border-top:1px dotted var(--border); padding-top:3px; display:flex; align-items:center; gap:4px; }
+  .curr-deliv .out { color:var(--text); font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .curr-deliv .out::before { content:'📦 '; font-size:8px; }
+  .curr-deliv .lv { background:var(--code-bg); padding:0 4px; border-radius:2px; font-weight:600; color:var(--muted); white-space:nowrap; font-size:7.5px; }
+
+  .curr-foot { display:flex; justify-content:space-between; align-items:center; padding-top:8px; margin-top:6px; border-top:1px solid var(--border); }
+  .curr-legend { display:flex; gap:12px; font-family:'JetBrains Mono', monospace; font-size:9px; align-items:center; flex-wrap:wrap; color:var(--muted); }
+  .curr-legend .li { display:flex; align-items:center; gap:4px; }
+  .curr-dot { width:8px; height:8px; border-radius:50%; border:1.5px solid; }
+  .curr-dot.amber { border-color:var(--amber); background:rgba(245,158,11,0.2); }
+  .curr-dot.blue { border-color:var(--blue); background:rgba(96,165,250,0.2); }
+  .curr-dot.green { border-color:var(--green); background:rgba(52,211,153,0.2); }
+  .curr-pill { padding:1px 5px; border-radius:2px; font-weight:700; font-size:8.5px; font-family:'JetBrains Mono', monospace; }
+  .curr-pill.final { background:var(--amber); color:#020617; }
+  .curr-pill.new { background:var(--amber); color:#020617; }
+  .curr-pill.ecc { background:#7C3AED; color:#fff; }
+  .curr-fnote { font-family:'JetBrains Mono', monospace; font-size:8.5px; color:var(--muted); letter-spacing:0.02em; }
+  .curr-fnote .em { color:var(--amber); font-weight:700; }
+  .curr-fnote .pro { color:var(--blue); font-weight:700; }
+
+
+html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
+body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+.export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
+.export-slide:last-child { border-bottom: 0; }
+.export-stage { position: relative; width: 1280px; height: 720px; transform-origin: center center; }
+/* Overlays must paint above every in-slide layer, including .slide-logo (z-index: 10) */
+.export-overlay { position: absolute; user-select: none; pointer-events: none; opacity: 1 !important; z-index: 100; }
+.export-nav {
+  position: fixed; right: 20px; bottom: 16px; z-index: 1000;
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #94a3b8;
+  background: rgba(15,23,42,0.8); padding: 8px 12px;
+  border: 1px solid #1e293b; border-radius: 6px; user-select: none;
+}
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { overflow: visible !important; background: var(--bg) !important; scroll-snap-type: none !important; }
+  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; border: 0 !important; }
+  .export-slide:last-child { page-break-after: auto; break-after: auto; }
+  .export-stage { transform: scale(1.5) !important; }
+  .export-nav { display: none !important; }
+}
+</style>
+</head>
+<body>
+<section class="export-slide" data-index="67">
+<div class="export-stage">
+<div class="slide slide-cover">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:40%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;"><a href="https://run-ai.kr" target="_blank" rel="noopener noreferrer">https://run-ai.kr</a></span>
+  <span class="cc-watermark" aria-hidden="true" style="position:absolute; left:50%; top:66%; transform:translate(calc(-50% + 200px),-50%) rotate(-26deg); white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:44px; letter-spacing:0.10em; color:rgba(148,163,184,0.24); pointer-events:none; user-select:none; z-index:5;">brewnet.dev@gmail.com</span>
+  <div class="slide-inner" spellcheck="false">
+    <div class="cover-deco" data-slot="number" data-block-id="brnnUcUUe">03</div>
+    <div class="cover-level" data-slot="label" data-block-id="bQxjfAm5i">CHAPTER 3 · 토큰 비용을 줄이는 코드 인텔리전스</div>
+    <div class="t-hero" data-slot="title" data-block-id="b8qPPNWl6">토큰의 효율화&nbsp;<em>· LSP &amp; Codesight</em></div>
+    <div class="cover-subtitle" data-slot="subtitle" data-block-id="bZHQt7eWh">grep은 코드 본문을 통째로 읽지만, LSP는 위치 좌표만 · codesight는 압축된 구조 맵만 받습니다. AI에게 읽힐 입력의 양 자체를 줄이는 것이 토큰 절감의 본질</div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CHAPTER 3 — Token Efficiency</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="68">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CHAPTER 3 · OPENING</div>
+    <div class="t-title" data-slot="title">토큰의 효율화 — LSP &amp; codesight</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">탐색 비용을 줄이는 두 도구 — 정밀 탐색(LSP)과 구조 사전 주입(codesight)을 함께.</div>
+
+    <div data-slot="body" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-top:6px;">
+      <div style="border-radius:10px; padding:18px 20px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.35); display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="font-size:24px;">🎯</span>
+          <span style="font-family:'JetBrains Mono', monospace; font-size:20px; font-weight:700; color:#FCA5A5;">WHY</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono', monospace; letter-spacing:0.08em; margin-bottom:10px;">왜 배우나</div>
+        <p style="color:var(--text); line-height:1.65; margin:0;"><span style="font-size:16px;">새 세션마다 AI가 <code>grep</code>으로 코드를 헤매며 <span class="hl-amber">수만 토큰</span>을 낭비한다. 같은 비용을 매번 다시 치른다.</span></p>
+      </div>
+      <div style="border-radius:10px; padding:18px 20px; background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.35); display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="font-size:24px;">📚</span>
+          <span style="font-family:'JetBrains Mono', monospace; font-size:20px; font-weight:700; color:#67E8F9;">WHAT</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono', monospace; letter-spacing:0.08em; margin-bottom:10px;">무엇을 배우나</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:16px; color:var(--text); line-height:1.7;">
+          <li style="padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#67E8F9;">▸</span> <strong>LSP</strong> — 심볼 단위 정밀 탐색</li>
+          <li style="padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#67E8F9;">▸</span> <strong>codesight</strong> — 구조 맵 사전 주입</li>
+          <li style="padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#67E8F9;">▸</span> 설치 · 사용법 · <strong>실측 벤치마크</strong></li>
+          <li style="padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#67E8F9;">▸</span> 언제 무엇을 쓸지 의사결정</li>
+        </ul>
+      </div>
+      <div style="border-radius:10px; padding:18px 20px; background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.35); display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="font-size:24px;">🛠️</span>
+          <span style="font-family:'JetBrains Mono', monospace; font-size:20px; font-weight:700; color:#6EE7B7;">HOW</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono', monospace; letter-spacing:0.08em; margin-bottom:10px;">어떻게 배우나</div>
+        <p style="color:var(--text); line-height:1.65; margin:0;"><span style="font-size:16px;">grep의 한계 이해 → LSP 연결 → codesight 구조 주입 → <span class="hl-green">실측 수치로 검증</span> → 상황별 조합 선택.</span></p>
+      </div>
+    </div>
+
+    <div style="margin-top:22px; padding:18px 22px; background:rgba(245,158,11,0.08); border-left:3px solid var(--amber);">
+      <div style="display:flex; align-items:flex-start; gap:14px;">
+        <span style="font-size:24px; line-height:1;">⭐</span>
+        <div style="flex:1;">
+          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; letter-spacing:0.1em; color:#FCD34D; margin-bottom:4px;">CHECKPOINT · 핵심 한 줄</div>
+          <div style="font-size:16px; font-weight:700; color:var(--text); line-height:1.5;">토큰 절감은 모델을 바꾸는 게 아니라 <span class="hl-amber">AI에게 읽힐 입력의 형태와 양</span>을 바꾸는 데서 나온다 — “Structure is mechanism”.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CHAPTER 3 · Opening — WHY · WHAT · HOW</span>
+    <span class="slide-footer-right" data-slot="page-num">OPENING</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="69">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · 이 챕터에서 다루는 것</div>
+    <div class="t-title" data-slot="title">한 장 요약 — 결론 먼저</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;"><strong>토큰</strong> = AI가 한 번에 처리하는 글자 묶음(입력 = AI에게 <em>읽히는</em> 양, 출력 = AI가 <em>쓰는</em> 양). <span class="hl-amber">같은 질문에 AI에게 얼마나 읽히느냐</span>가 돈·속도·정확도를 가른다.</div>
+
+    <table class="tbl" data-slot="table" style="margin-top:6px;">
+      <thead>
+        <tr><th style="width:18%;">도구</th><th style="width:25%;">해결하는 문제</th><th style="width:27%;">핵심 비용 효과 (실측)</th><th>도서관 비유 — AI에게 건네지는 것</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>grep</strong> <span class="badge badge-gray">기본</span></td><td>텍스트 검색</td><td>기준점 — 노이즈 많음</td><td>단어가 나온 <strong>페이지를 본문째 복사</strong>해 건넴 (양 많고 노이즈 포함)</td></tr>
+        <tr><td><strong>LSP</strong> <span class="badge badge-green">정밀</span></td><td>심볼 단위 정밀 탐색</td><td><span class="hl-green">정의 찾기 43배 · 참조 찾기 2.1배</span> 절감</td><td>"42쪽 14번째 줄" — <strong>위치 좌표만</strong> 건넴 (노이즈 0)</td></tr>
+        <tr><td><strong>codesight</strong> <span class="badge badge-amber">구조</span></td><td>프로젝트 구조 사전 파악</td><td><span class="hl-amber">세션당 6.8배(≈27,915토큰)</span> 절감</td><td>책 맨 앞에 끼운 <strong>요약 지도 한 장</strong> — 매번 뒤지는 일을 없앰</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-blue" style="margin-top:14px;">
+      <span class="callout-icon">🤝</span>
+      <span class="callout-body" style="font-size:15px;">셋은 경쟁이 아니라 <strong>상호 보완</strong> — <code>codesight</code>로 세션 시작 시 "지도"를 깔고, <code>LSP</code>로 "정밀 좌표"를 찍는다.</span>
+    </div>
+    <div class="t-caption" style="margin-top:10px; font-size:13.5px; color:var(--muted);">💡 단, 입·출력 구조는 토큰 효율화의 <strong>출발점</strong>일 뿐 — 실제 비용은 <span class="hl-amber">누적(세션)·캐시·모델 단가</span> 세 축이 함께 좌우한다.</div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 — 다룰 영역 한눈에</span>
+    <span class="slide-footer-right" data-slot="page-num">41</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="70">
+<div class="export-stage">
+<div class="slide slide-section">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="section-num" data-slot="number" style="width:116px; height:96px; position:absolute; left:60px; top:148px;">01</div>
+    <div class="t-chapter" data-slot="label">PART 1 · LANGUAGE SERVER PROTOCOL</div>
+    <div class="t-title" data-slot="title" style="font-size:42px; line-height:1.2; width:1000px; flex:0 0 auto;">
+      텍스트 검색을 넘어&nbsp;-&nbsp;<span class="hl-green">IDE 수준 코드 인텔리전스</span>
+    </div>
+    <div data-slot="subtitle" style="margin-top:20px; font-size:17px; color:var(--muted); line-height:1.7; width:1000px; flex:0 0 auto;">
+      LSP란 무엇인가 · 효과적인 상황 · 3가지 설치 방식(공식 플러그인 · cclsp · Serena) · 방식 비교.
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">PART 1 — LSP</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="71">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bi7yuh2Mw">CH.3 · PART 1</div>
+    <div class="t-title" data-slot="title" data-block-id="bCH4XVNtJ">LSP란 무엇인가</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;" data-block-id="bOTJXohTW">Language Server Protocol — 편집기와 언어 서버 사이의 통신 표준. <span class="hl-green">쉽게: 도서관 "색인 카드" — 본문 대신 "그 단어는 몇 쪽 몇 줄"이라는 위치만 알려준다.</span></div>
+
+    <div class="two-col" data-slot="body" style="gap:26px;" data-block-id="bj59mINrG">
+      <div>
+        <div style="font-size:16px; color:var(--text); line-height:1.7;">
+          <p style="margin:0 0 10px;">편집기와 언어 서버 간 <span class="hl-green">JSON-RPC 기반 통신 규약</span>. Microsoft가 2016년 오픈 표준으로 공개했고, 최신 안정 버전은 <strong>3.17</strong>.</p>
+          <p style="margin:0 0 10px;">LSP 자체는 코드를 분석하지 않는다 — 실제 분석은 각 언어의 <strong>언어 서버</strong>(<code>vtsls</code> · <code>pyright</code> · <code>rust-analyzer</code>)가 수행하고, LSP는 그 결과를 전달한다.</p>
+          <p style="margin:0;">Claude Code는 기본적으로 <code>grep</code>(텍스트 검색)으로 코드를 탐색한다. 파일이 많아지면 느려지고, 주석·문자열 속 동일 텍스트까지 섞여 정확도가 떨어진다. LSP 연결 시 <span class="hl-green">IDE 수준의 코드 인텔리전스</span>를 얻는다.</p>
+        </div>
+        <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:7px;">
+          <span class="badge badge-green">goToDefinition-심볼이 선언된 위치로 점프</span>
+          <span class="badge badge-green">findReferences-전체 위치 반환</span>
+          <span class="badge badge-green">getDiagnostics-언어서버 매칭 조회(에러/경고)</span>
+          <span class="badge badge-green">hover-타입정보</span>
+          <span class="badge badge-green">documentSymbol-파일 구조 아웃 라인 반환 (클래스, 함수, 메서드, 변수 목록)</span><span class="badge badge-green"><br></span>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-top:0;">효과적인 상황</div>
+        <div class="callout callout-green" style="margin-top:8px; padding:12px 16px;">
+          <span class="callout-icon">🔧</span>
+          <span class="callout-body" style="font-size:15px;"><strong>리팩토링</strong> — <code>findReferences</code>로 실제 참조만 정확히 파악 (누락·오탐 방지)</span>
+        </div>
+        <div class="callout callout-green" style="margin-top:8px; padding:12px 16px;">
+          <span class="callout-icon">⚡</span>
+          <span class="callout-body" style="font-size:15px;"><strong>대규모 코드베이스</strong> — 정의 찾기가 밀리초 단위</span>
+        </div>
+        <div class="callout callout-green" style="margin-top:8px; padding:12px 16px;">
+          <span class="callout-icon">✅</span>
+          <span class="callout-body" style="font-size:15px;"><strong>수정 직후 검증</strong> — <code>getDiagnostics</code>로 빌드 없이 타입 에러 즉시 확인</span>
+        </div>
+        <div class="callout callout-amber" style="margin-top:10px; padding:12px 16px;">
+          <span class="callout-icon">⚠️</span>
+          <span class="callout-body" style="font-size:14px;">파일 <strong>20개 미만</strong> 소규모 프로젝트나 단순 파일 생성 작업이면 LSP 없이도 충분.</span>
+        </div>
+      </div>
+    </div>
+
+  <div class="callout callout-green" style="margin-top: 16px; flex: 0 0 auto;" data-block-id="b3lYMgRHV">
+      <span class="callout-icon">💡</span>
+      <span class="callout-body" style=""><span style="font-size: 15px;"><b><a href="https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification" target="_blank" rel="noopener noreferrer">https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification</a></b></span></span>
+    </div></div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 1 — What is LSP</span>
+    <span class="slide-footer-right" data-slot="page-num">42</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="72">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 1 · grep vs LSP</div>
+    <div class="t-title" data-slot="title">Grep vs LSP — 심볼 탐색과 토큰 비용</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:8px;">같은 질문 — grep은 전체를 훑어 매치 더미를 반환하고, LSP는 위치 한 곳만 정확히 반환한다.</div>
+
+    <div data-slot="body" style="margin-top:6px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 460" style="width:100%; height:auto; display:block;" font-family="'Noto Sans KR', sans-serif">
+        <!-- dashed divider between the two flow columns -->
+        <line x1="356" y1="4" x2="356" y2="448" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 6"></line>
+
+        <!-- ===== Column A header : LSP 없음 ===== -->
+        <rect x="40" y="4" width="300" height="40" rx="9" fill="rgba(248,113,113,0.16)" stroke="rgba(248,113,113,0.50)"></rect>
+        <text x="190" y="30" text-anchor="middle" fill="#FCA5A5" font-size="16" font-weight="700">LSP 없음 (기본 상태)</text>
+        <text x="190" y="62" text-anchor="middle" fill="#94A3B8" font-size="11.5">① "processPayment 정의 어디?"</text>
+        <!-- ===== Column B header : LSP 있음 ===== -->
+        <rect x="372" y="4" width="300" height="40" rx="9" fill="rgba(52,211,153,0.16)" stroke="rgba(52,211,153,0.50)"></rect>
+        <text x="522" y="30" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">LSP 있음</text>
+        <text x="522" y="62" text-anchor="middle" fill="#94A3B8" font-size="11.5">① "processPayment 정의 어디?"</text>
+
+        <!-- Column A boxes (cx=190) -->
+        <rect x="40" y="72" width="300" height="74" rx="9" fill="rgba(100,116,139,0.18)" stroke="#475569"></rect>
+        <text x="190" y="104" text-anchor="middle" fill="#CBD5E1" font-size="15" font-weight="700">Grep 실행</text>
+        <text x="190" y="126" text-anchor="middle" fill="#94A3B8" font-size="11">전체 파일 시스템 텍스트 검색</text>
+        <line x1="190" y1="146" x2="190" y2="162" stroke="#64748B" stroke-width="2"></line>
+        <path d="M185,157 L195,157 L190,164 Z" fill="#64748B"></path>
+
+        <rect x="40" y="166" width="300" height="74" rx="9" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.40)"></rect>
+        <text x="190" y="198" text-anchor="middle" fill="#FCA5A5" font-size="15" font-weight="700">847개 매치 반환</text>
+        <text x="190" y="220" text-anchor="middle" fill="#C99696" font-size="10.5">클래스명·변수·주석·CSS 모두 포함</text>
+        <line x1="190" y1="240" x2="190" y2="256" stroke="#64748B" stroke-width="2"></line>
+        <path d="M185,251 L195,251 L190,258 Z" fill="#64748B"></path>
+
+        <rect x="40" y="260" width="300" height="74" rx="9" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.40)"></rect>
+        <text x="190" y="292" text-anchor="middle" fill="#FCA5A5" font-size="15" font-weight="700">파일 Read (반복)</text>
+        <text x="190" y="314" text-anchor="middle" fill="#C99696" font-size="10.5">각 후보 파일 전체 내용을 컨텍스트에 로드</text>
+        <line x1="190" y1="334" x2="190" y2="350" stroke="#64748B" stroke-width="2"></line>
+        <path d="M185,345 L195,345 L190,352 Z" fill="#64748B"></path>
+
+        <rect x="40" y="354" width="300" height="74" rx="9" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.40)"></rect>
+        <text x="190" y="386" text-anchor="middle" fill="#FCA5A5" font-size="15" font-weight="700">정답 추론 (30~60초)</text>
+        <text x="190" y="408" text-anchor="middle" fill="#C99696" font-size="10.5">텍스트 패턴 매칭으로 좁혀나감</text>
+
+        <!-- Column B boxes (cx=522) -->
+        <rect x="372" y="72" width="300" height="74" rx="9" fill="rgba(100,116,139,0.18)" stroke="#475569"></rect>
+        <text x="522" y="100" text-anchor="middle" fill="#CBD5E1" font-size="14" font-weight="700">LSP goToDefinition 호출</text>
+        <text x="522" y="122" text-anchor="middle" fill="#94A3B8" font-size="11">언어 서버에 JSON-RPC 요청</text>
+        <line x1="522" y1="146" x2="522" y2="162" stroke="#6EE7B7" stroke-width="2"></line>
+        <path d="M517,157 L527,157 L522,164 Z" fill="#6EE7B7"></path>
+
+        <rect x="372" y="166" width="300" height="74" rx="9" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.40)"></rect>
+        <text x="522" y="198" text-anchor="middle" fill="#6EE7B7" font-size="15" font-weight="700">AST에서 즉시 조회</text>
+        <text x="522" y="220" text-anchor="middle" fill="#8FCBB6" font-size="10.5">파싱된 심볼 테이블에서 직접 검색</text>
+        <line x1="522" y1="240" x2="522" y2="256" stroke="#6EE7B7" stroke-width="2"></line>
+        <path d="M517,251 L527,251 L522,258 Z" fill="#6EE7B7"></path>
+
+        <rect x="372" y="260" width="300" height="74" rx="9" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.40)"></rect>
+        <text x="522" y="292" text-anchor="middle" fill="#6EE7B7" font-size="15" font-weight="700">파일명 + 줄 번호만 반환</text>
+        <text x="522" y="314" text-anchor="middle" fill="#8FCBB6" font-family="'JetBrains Mono', monospace" font-size="11.5">auth/payment.ts:142  ·  50ms</text>
+        <text x="522" y="372" text-anchor="middle" fill="#6EE7B7" font-size="12" font-weight="700">✓ 2단계로 종료 — 본문 미전송</text>
+        <text x="522" y="398" text-anchor="middle" fill="#94A3B8" font-size="11">파일을 열지 않고 위치 좌표만 받는다</text>
+
+        <!-- ===== RIGHT : token comparison card ===== -->
+        <rect x="712" y="4" width="536" height="196" rx="14" fill="#0B1220" stroke="#1E293B" stroke-width="1.2"></rect>
+        <text x="980" y="38" text-anchor="middle" fill="#F1F5F9" font-size="15" font-weight="700">토큰 소비 비교 (심볼 탐색 1회 기준)</text>
+        <text x="740" y="82" fill="#94A3B8" font-size="12.5">LSP 없음</text>
+        <rect x="740" y="92" width="372" height="30" rx="6" fill="rgba(248,113,113,0.55)"></rect>
+        <text x="1124" y="113" fill="#FCA5A5" font-size="12.5" font-weight="700">~8,000 tok</text>
+        <text x="740" y="158" fill="#94A3B8" font-size="12.5">LSP 있음</text>
+        <rect x="740" y="168" width="48" height="30" rx="6" fill="rgba(52,211,153,0.75)"></rect>
+        <text x="800" y="189" fill="#6EE7B7" font-size="12.5" font-weight="700">~100 tok</text>
+
+        <!-- ===== RIGHT : LSP-only features card ===== -->
+        <rect x="712" y="212" width="536" height="244" rx="14" fill="#0B1220" stroke="#1E293B" stroke-width="1.2"></rect>
+        <text x="980" y="244" text-anchor="middle" fill="#F1F5F9" font-size="15" font-weight="700">LSP만 가능한 기능</text>
+        <rect x="732" y="260" width="496" height="56" rx="9" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.35)"></rect>
+        <text x="980" y="286" text-anchor="middle" fill="#6EE7B7" font-size="14" font-weight="700">즉시 진단</text>
+        <text x="980" y="305" text-anchor="middle" fill="#8FCBB6" font-size="11.5">getDiagnostics — 편집 후 에러 자동 감지</text>
+        <rect x="732" y="324" width="496" height="56" rx="9" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.35)"></rect>
+        <text x="980" y="350" text-anchor="middle" fill="#6EE7B7" font-size="14" font-weight="700">전체 참조 탐색</text>
+        <text x="980" y="369" text-anchor="middle" fill="#8FCBB6" font-size="11.5">findReferences — 정확한 위치만</text>
+        <rect x="732" y="388" width="496" height="56" rx="9" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.35)"></rect>
+        <text x="980" y="414" text-anchor="middle" fill="#6EE7B7" font-size="14" font-weight="700">타입 정보 호버</text>
+        <text x="980" y="433" text-anchor="middle" fill="#8FCBB6" font-size="11.5">hover — 시그니처 즉시 확인</text>
+      </svg>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 1 — grep vs LSP</span>
+    <span class="slide-footer-right" data-slot="page-num">43</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="73">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="b63QXk1qX">CH.3 · PART 1 · 설치</div>
+    <div class="t-title" data-slot="title" data-block-id="b7Lo5roNv">LSP 연결 — 3가지 방식</div><div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;" data-block-id="b3DJoskOD"></div>
+
+    <div data-slot="body" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;" data-block-id="bCm4JClft" class="">
+      <div style="grid-column:1 / -1; border-radius:10px; padding:14px 18px; background:rgba(52,211,153,0.07); border:1px solid rgba(52,211,153,0.35);">
+        <div style="font-size:15px; font-weight:700; color:#6EE7B7; margin-bottom:8px;">방식 1 · 공식 빌트인 LSP 플러그인 <span class="badge badge-green" style="font-size:10px;">권장</span></div>
+        <div class="code-block" style="margin:0; padding:14px 18px;" data-block-id="b7crTLo0A">
+          <pre style="font-size:13px; line-height:1.6;"><span class="gray"># 1) 언어 서버 설치 (TypeScript 예시)</span>
+npm install -g <span class="cyan">@vtsls/language-server</span> typescript
+
+<span class="gray"># 2) Claude Code 안에서 마켓플레이스 등록 → 플러그인 설치</span>
+/plugin marketplace add <span class="yellow">Piebald-AI/claude-code-lsps</span>
+/plugin install <span class="yellow">vtsls@claude-code-lsps</span>   <span class="gray"># 또는 /plugins UI에서 Browse</span>
+
+<span class="gray"># 3) (선택·권장) 빌트인 LSP 자동 패치 후 재시작</span>
+npx tweakcc --apply</pre>
+        </div>
+        <div style="font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.55;">빌트인 LSP는 Claude Code <strong>v2.0.74</strong>부터 정식 지원 · <span class="hl-green">v2.1.50+ 권장</span>. MCP 서버를 거치지 않아 오버헤드가 없고 수정 후 에러 자동 감지 지원. 마켓플레이스 <strong>32+ 언어</strong>.</div>
+      </div>
+
+      <div style="border-radius:10px; padding:14px 18px; background:#060B16; border:1px solid var(--border);">
+        <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px;">방식 2 · cclsp <span class="badge badge-gray" style="font-size:10px;">MCP</span></div>
+        <div class="code-block" style="margin:0; padding:12px 14px;" data-block-id="bAu0WgN88">
+          <pre style="font-size:12.5px; line-height:1.6;"><span class="gray"># 대화형 위저드</span>
+npx cclsp@latest setup
+
+<span class="gray"># 또는 수동</span>
+claude mcp add cclsp -- npx cclsp@latest</pre></div>
+      </div>
+
+      <div style="border-radius:10px; padding:14px 18px; background:#060B16; border:1px solid var(--border);">
+        <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px;">방식 3 · Serena <span class="badge badge-gray" style="font-size:10px;">MCP</span></div>
+        <div class="code-block" style="margin:0; padding:12px 14px;" data-block-id="bBo5vRxN4">
+          <pre style="font-size:12px; line-height:1.55;"><span class="gray"># 빌트인과 중복 방지: --context 필수</span>
+claude mcp add serena -- uvx \
+  --from git+https://github.com/oraios/serena \
+  serena start-mcp-server \
+  <span class="yellow">--context claude-code</span> --project "$(pwd)"</pre>
+        </div>
+        <div style="font-size:12px; color:var(--muted); margin-top:7px;">심볼 편집·세션 메모리·온보딩까지 포함한 종합 툴킷.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 1 — Install</span>
+    <span class="slide-footer-right" data-slot="page-num">44</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="74">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 1 · 선택 가이드</div>
+    <div class="t-title" data-slot="title">방식 비교 — 무엇을 고를까</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">고정 토큰 비용과 설정 난이도, 필요한 기능 범위로 결정한다.</div>
+
+    <table class="tbl" data-slot="table" style="margin-top:6px; font-size:15px;">
+      <thead>
+        <tr><th style="width:22%;">구분</th><th>공식 LSP 플러그인</th><th>cclsp (MCP)</th><th>Serena (MCP)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>설치</strong></td><td><code>/plugin install</code></td><td><code>claude mcp add</code></td><td><code>claude mcp add</code></td></tr>
+        <tr><td><strong>기능</strong></td><td>LSP 핵심 + 자동 진단</td><td>정의·참조·진단·리네임</td><td>LSP + 심볼 편집 + 메모리 + 온보딩</td></tr>
+        <tr><td><strong>고정 토큰 비용</strong></td><td><span class="hl-green">최소</span></td><td>낮음</td><td>높음 (도구 설명 다수)</td></tr>
+        <tr><td><strong>작업당 토큰</strong></td><td>보통</td><td>보통</td><td><span class="hl-green">낮음 (심볼 단위)</span></td></tr>
+        <tr><td><strong>설정 난이도</strong></td><td>낮음 (tweakcc 패치 권장)</td><td>낮음</td><td>보통 (Python·uv 필요)</td></tr>
+        <tr><td><strong>적합한 상황</strong></td><td>대부분의 프로젝트</td><td>다중·미지원 언어</td><td>대규모·종합 에이전트</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-green" style="margin-top:16px;">
+      <span class="callout-icon">💡</span>
+      <span class="callout-body" style="font-size:15px;"><strong>TypeScript 단일 스택</strong>이면 공식 플러그인으로 충분 — 토큰 비용 최저, 설정 간편. 심볼 편집·세션 메모리가 필요해지면 그때 <strong>Serena</strong>를 검토.</span>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 1 — Compare</span>
+    <span class="slide-footer-right" data-slot="page-num">45</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="75">
+<div class="export-stage">
+<div class="slide slide-section">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="section-num" data-slot="number" style="width:116px; height:96px; position:absolute; left:60px; top:148px;">02</div>
+    <div class="t-chapter" data-slot="label">PART 2 · CODESIGHT</div>
+    <div class="t-title" data-slot="title" style="font-size:42px; line-height:1.2; width:1000px; flex:0 0 auto;">
+      세션 시작 전에&nbsp;-&nbsp;<span class="hl-amber">프로젝트 구조를 한 번에 주입</span>
+    </div>
+    <div data-slot="subtitle" style="margin-top:20px; font-size:17px; color:var(--muted); line-height:1.7; width:1000px; flex:0 0 auto;">
+      codesight란 · 제작사 벤치마크 · 설치와 핵심 명령어 · Claude Code 연동 권장 설정.
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">PART 2 — codesight</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="76">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="bBPChJgMt">CH.3 · PART 2</div>
+    <div class="t-title" data-slot="title" data-block-id="bWrSX4CUW">codesight란</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;" data-block-id="bmV9LLjB5">범용 AI 컨텍스트 생성기 — 프로젝트 전체를 구조화된 마크다운 맵으로. <span class="hl-amber">쉽게: 책 맨 앞에 끼워두는 "요약 지도 한 장" — AI가 매번 파일을 헤매는 일을 없앤다.</span></div>
+
+    <div class="two-col ratio-6-4" data-slot="body" style="gap:32px;" data-block-id="bsecocaon">
+      <div>
+        <ul class="bullet-list" style="font-size:15px; line-height:1.55;">
+          <li><div>프로젝트 전체를 <span class="hl-amber" style="white-space:nowrap;">&nbsp;AST 파싱</span>해 구조화된 마크다운 컨텍스트 맵 생성 → 세션 시작 시 탐색 비용 제거</div></li>
+          <li><div>TypeScript는 컴파일러 API로 정밀 파싱, 비-TS는 정규식 폴백</div></li>
+          <li><div>감지: Routes(30+ 프레임워크) · Schema · Components · Dep Graph(고위험 파일) · Middleware · Config · Libraries · Contracts</div></li>
+        </ul>
+        <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;">
+          <span class="badge badge-gray">v1.14.0</span>
+          <span class="badge badge-gray">15 detectors</span>
+          <span class="badge badge-gray">13 MCP tools</span>
+          <span class="badge badge-gray">Node ≥18</span>
+          <span class="badge badge-gray">의존성 0</span>
+          <span class="badge badge-gray">MIT</span></div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-top:0;">제작사 공개 벤치마크 <span style="text-transform:none; font-weight:400; color:var(--muted);">(실제 프로덕션)</span></div>
+        <table class="tbl" style="margin-top:6px; font-size:13px;">
+          <thead>
+            <tr><th style="padding: 8px 10px; position: relative;" spellcheck="false">프로젝트<div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" draggable="false" aria-label="Resize column"></div></th><th style="padding: 8px 10px; position: relative;" spellcheck="false">AI 탐색<div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" draggable="false" aria-label="Resize column"></div></th><th style="padding: 8px 10px; position: relative;" spellcheck="false">codesight<div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" aria-label="Resize column"></div><div class="col-resize-handle" draggable="false" aria-label="Resize column"></div></th><th style="padding:8px 10px;" spellcheck="false">절감</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:8px 10px;" spellcheck="false">SaveMRR</td><td style="padding:8px 10px;" spellcheck="false">66,040</td><td style="padding:8px 10px;" spellcheck="false">5,129</td><td style="padding:8px 10px;" spellcheck="false"><span class="hl-amber">12.9배</span></td></tr>
+            <tr><td style="padding:8px 10px;" spellcheck="false">BuildRadar</td><td style="padding:8px 10px;" spellcheck="false">46,020</td><td style="padding:8px 10px;" spellcheck="false">3,945</td><td style="padding:8px 10px;" spellcheck="false"><span class="hl-amber">11.7배</span></td></tr>
+            <tr><td style="padding:8px 10px;" spellcheck="false">RankRev</td><td style="padding:8px 10px;" spellcheck="false">26,130</td><td style="padding:8px 10px;" spellcheck="false">2,865</td><td style="padding:8px 10px;" spellcheck="false"><span class="hl-amber">9.1배</span></td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5;">제작사 평균 <strong>11.2배</strong> · 스캔 185~290ms. <span style="color:#94A3B8;">(2차 출처 — 독립 실측은 PART 3 참조)</span></div>
+      </div>
+    </div>
+
+  <div class="callout callout-green" style="margin-top: 16px; flex: 0 0 auto;" data-block-id="bHT9hsEc7">
+      <span class="callout-icon">💡</span>
+      <span class="callout-body" style=""><span style="font-size: 15px;"><b><a href="https://github.com/Houseofmvps/codesight" target="_blank" rel="noopener noreferrer">https://github.com/Houseofmvps/codesight</a></b></span></span>
+    </div></div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 2 — What is codesight</span>
+    <span class="slide-footer-right" data-slot="page-num">46</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="77">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 2 · 사용법</div>
+    <div class="t-title" data-slot="title">설치 · 핵심 명령어 · 연동</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;">설치 불필요 — <code>npx</code>로 즉시 실행. Claude Code 연동은 3단계.</div>
+
+    <div class="two-col" data-slot="body" style="gap:22px;">
+      <div>
+        <div class="t-h3" style="margin-top:0;">핵심 명령어</div>
+        <div class="code-block" style="margin-top:6px; padding:14px 18px;">
+          <pre style="font-size:12.5px; line-height:1.62;"><span class="gray"># 스캔 → .codesight/ 생성</span>
+npx codesight
+npx codesight ./my-project
+
+<span class="gray"># AI 설정 파일 (시작 시 자동 로딩)</span>
+npx codesight <span class="yellow">--init</span>
+npx codesight --profile claude-code
+
+<span class="gray"># 분석 · 자동화</span>
+npx codesight <span class="yellow">--mcp</span>      <span class="gray"># MCP 서버 (13개 도구)</span>
+npx codesight --hook     <span class="gray"># commit마다 재생성</span>
+npx codesight --watch    <span class="gray"># 변경 감지 재스캔</span>
+npx codesight --blast src/db.ts
+npx codesight --benchmark</pre>
+        </div>
+      </div>
+      <div>
+        <div class="t-h3" style="margin-top:0;">Claude Code 연동 (권장)</div>
+        <div class="code-block" style="margin-top:6px; padding:14px 18px;">
+          <pre style="font-size:12.5px; line-height:1.62;"><span class="gray"># 1) CLAUDE.md 생성 (최초 1회)</span>
+npx codesight --init
+
+<span class="gray"># 2) .claude/settings.json 에 MCP 등록</span>
+{
+  "mcpServers": {
+    "codesight": {
+      "command": "npx",
+      "args": ["codesight", <span class="yellow">"--mcp"</span>]
+    }
+  }
+}
+
+<span class="gray"># 3) commit마다 자동 갱신</span>
+npx codesight --hook</pre>
+        </div>
+        <div class="callout callout-amber" style="margin-top:10px; padding:11px 15px;">
+          <span class="callout-icon">⚡</span>
+          <span class="callout-body" style="font-size:13.5px;"><code>--init</code>은 정적 파일 1회 주입, <code>--mcp</code>는 AI가 필요한 것만 실시간 쿼리 → <strong>토큰 효율 최고</strong>. 세션 캐싱으로 첫 호출만 스캔.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 2 — Usage &amp; Integration</span>
+    <span class="slide-footer-right" data-slot="page-num">47</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="78">
+<div class="export-stage">
+<div class="slide slide-section">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="section-num" data-slot="number" style="width:116px; height:96px; position:absolute; left:60px; top:148px;">03</div>
+    <div class="t-chapter" data-slot="label">PART 3 · BENCHMARK &amp; DECISION</div>
+    <div class="t-title" data-slot="title" style="font-size:42px; line-height:1.2; width:1000px; flex:0 0 auto;">
+      직접 측정한 수치로&nbsp;-&nbsp;<span class="hl-amber">왜·언제 절감되는가</span>
+    </div>
+    <div data-slot="subtitle" style="margin-top:20px; font-size:17px; color:var(--muted); line-height:1.7; width:1000px; flex:0 0 auto;">
+      grep vs LSP vs codesight 실측 · 절감 메커니즘 · 상황별 의사결정 매트릭스.
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">PART 3 — Benchmark</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="79">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 3 · 실측</div>
+    <div class="t-title" data-slot="title">grep vs LSP vs codesight</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:12px;">실제 오픈소스 저장소 <code>Houseofmvps/codesight</code>(TypeScript · 258파일)를 클론해 직접 측정.</div>
+
+    <table class="tbl" data-slot="table" style="margin-top:4px; font-size:14.5px;">
+      <thead>
+        <tr><th style="width:24%;">시나리오</th><th>방법 · 동작</th><th style="width:16%;">토큰</th><th style="width:14%;">절감</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="2"><strong>A.</strong> scan 정의로 이동 <span style="color:var(--muted); font-size:12px;">(흔한 단어)</span></td><td><code>grep -rniw scan</code> → 47매치 (주석23+노이즈18+실제6)</td><td>1,122</td><td rowspan="2"><span class="hl-green">43배</span></td></tr>
+        <tr><td><code>goToDefinition("scan")</code> → 정의 1곳 <code>src/core.ts:42:14</code></td><td><span class="hl-green">26</span></td></tr>
+        <tr><td rowspan="2"><strong>B.</strong> RouteInfo 모든 참조 <span style="color:var(--muted); font-size:12px;">(리팩토링)</span></td><td><code>grep -rn RouteInfo</code> → 139매치 (코드 본문 전체)</td><td>2,244</td><td rowspan="2"><span class="hl-green">2.1배</span></td></tr>
+        <tr><td><code>findReferences("RouteInfo")</code> → 136참조 (좌표만, 오탐 0)</td><td><span class="hl-green">1,062</span></td></tr>
+        <tr><td rowspan="2"><strong>C.</strong> 프로젝트 구조 파악 <span style="color:var(--muted); font-size:12px;">(세션 시작)</span></td><td>grep/glob 탐색 — 파일 트리 헤매며 읽기</td><td>32,695</td><td rowspan="2"><span class="hl-amber">6.8배</span></td></tr>
+        <tr><td><code>npx codesight</code> → CODESIGHT.md 1개 주입 (309ms)</td><td><span class="hl-amber">4,780</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-blue" style="margin-top:14px; padding:12px 16px;">
+      <span class="callout-icon">📐</span>
+      <span class="callout-body" style="font-size:13.5px;">토큰 추정 <strong>1 token ≈ 4 chars</strong>(보수적 하한). 절감 <strong>비율</strong>은 추정계수와 무관하게 동일. 프로젝트 규모·중복 탐색량에 따라 <span class="hl-amber">대략 6~13배</span> 범위.</span>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 3 — Measured</span>
+    <span class="slide-footer-right" data-slot="page-num">48</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="80">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 3 · 메커니즘</div>
+    <div class="t-title" data-slot="title">왜 절감되는가 — 토큰 흐름</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:8px;">같은 질문, 다른 반환 형태. AI에게 전달되는 데이터의 <span class="hl-amber">양과 형태</span>가 비용을 결정한다.</div>
+
+    <div data-slot="body" style="margin-top:6px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 420" style="width:100%; height:auto; display:block;" font-family="'Noto Sans KR', sans-serif">
+        <!-- column headers -->
+        <text x="150" y="26" text-anchor="middle" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.1em">요청 / 동작</text>
+        <text x="560" y="26" text-anchor="middle" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.1em">코드베이스가 돌려주는 것</text>
+        <text x="975" y="26" text-anchor="middle" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.1em">토큰 비용</text>
+
+        <!-- ROW 1: grep -->
+        <rect x="14" y="44" width="1052" height="104" rx="12" fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.40)" stroke-width="1.5"></rect>
+        <text x="40" y="74" fill="#FCA5A5" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="700">grep</text>
+        <rect x="40" y="86" width="232" height="44" rx="6" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.45)"></rect>
+        <text x="56" y="113" fill="#CBD5E1" font-family="'JetBrains Mono', monospace" font-size="13">grep -rniw scan</text>
+        <line x1="288" y1="108" x2="372" y2="108" stroke="#FCA5A5" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <rect x="384" y="80" width="470" height="56" rx="6" fill="rgba(248,113,113,0.10)" stroke="rgba(248,113,113,0.32)"></rect>
+        <text x="404" y="103" fill="#F1F5F9" font-size="14" font-weight="700">매칭된 코드 라인 본문 전체</text>
+        <text x="404" y="123" fill="#94A3B8" font-size="12.5">주석·문자열·부분일치 노이즈 포함 (47매치 중 49% 노이즈)</text>
+        <text x="975" y="105" text-anchor="middle" fill="#FCA5A5" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="700">~1,122</text>
+        <text x="975" y="126" text-anchor="middle" fill="#94A3B8" font-size="11.5">기준점</text>
+
+        <!-- ROW 2: LSP -->
+        <rect x="14" y="158" width="1052" height="104" rx="12" fill="rgba(52,211,153,0.06)" stroke="rgba(52,211,153,0.40)" stroke-width="1.5"></rect>
+        <text x="40" y="188" fill="#6EE7B7" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="700">LSP</text>
+        <rect x="40" y="200" width="232" height="44" rx="6" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.45)"></rect>
+        <text x="56" y="227" fill="#CBD5E1" font-family="'JetBrains Mono', monospace" font-size="12.5">goToDefinition(scan)</text>
+        <line x1="288" y1="222" x2="372" y2="222" stroke="#6EE7B7" stroke-width="1.6" marker-end="url(#ag)"></line>
+        <rect x="384" y="194" width="470" height="56" rx="6" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.32)"></rect>
+        <text x="404" y="217" fill="#F1F5F9" font-size="14" font-weight="700">위치 좌표 1곳만 — 본문 미전송</text>
+        <text x="404" y="237" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="12.5">src/core.ts:42:14 · 오탐 0</text>
+        <text x="975" y="219" text-anchor="middle" fill="#6EE7B7" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="700">~26</text>
+        <text x="975" y="240" text-anchor="middle" fill="#6EE7B7" font-size="12" font-weight="700">43배 절감</text>
+
+        <!-- ROW 3: codesight -->
+        <rect x="14" y="272" width="1052" height="104" rx="12" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.40)" stroke-width="1.5"></rect>
+        <text x="40" y="302" fill="#FCD34D" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="700">codesight</text>
+        <rect x="40" y="314" width="232" height="44" rx="6" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.45)"></rect>
+        <text x="56" y="341" fill="#CBD5E1" font-family="'JetBrains Mono', monospace" font-size="13">npx codesight (309ms)</text>
+        <line x1="288" y1="336" x2="372" y2="336" stroke="#FCD34D" stroke-width="1.6" marker-end="url(#aa)"></line>
+        <rect x="384" y="308" width="470" height="56" rx="6" fill="rgba(245,158,11,0.10)" stroke="rgba(245,158,11,0.32)"></rect>
+        <text x="404" y="331" fill="#F1F5F9" font-size="14" font-weight="700">압축 구조 맵 1개 (CODESIGHT.md)</text>
+        <text x="404" y="351" fill="#94A3B8" font-size="12.5">반복 탐색·멀티턴 재방문 자체를 제거</text>
+        <text x="975" y="333" text-anchor="middle" fill="#FCD34D" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="700">32,695→4,780</text>
+        <text x="975" y="354" text-anchor="middle" fill="#FCD34D" font-size="12" font-weight="700">6.8배 절감</text>
+
+        <!-- insight -->
+        <text x="540" y="404" text-anchor="middle" fill="#CBD5E1" font-size="14.5">핵심 — 토큰 절감은 모델이 아니라 <tspan fill="#FCD34D" font-weight="700">입력의 형태와 양</tspan>을 바꾸는 데서 나온다. “Structure is mechanism”</text>
+
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#FCA5A5"></path></marker>
+          <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6EE7B7"></path></marker>
+          <marker id="aa" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#FCD34D"></path></marker>
+        </defs>
+      </svg>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 3 — Mechanism</span>
+    <span class="slide-footer-right" data-slot="page-num">49</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="81">
+<div class="export-stage">
+<div class="slide">
+  <div class="slide-topbar"></div>
+  <div class="slide-logo">
+    <a class="slide-logo-url" href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">claude.ai/code</a>
+    <a class="slide-logo-text" href="https://product.kyobobook.co.kr/detail/S000219725328" target="_blank" rel="noopener noreferrer">클로드 코드 마스터</a>
+  </div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">CH.3 · PART 3 · 의사결정</div>
+    <div class="t-title" data-slot="title">언제 무엇을 — 도구 선택</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:10px;">프로젝트 규모와 작업 성격으로 결정. 경쟁이 아니라 누적 조합.</div>
+
+    <div class="two-col ratio-6-4" data-slot="body" style="gap:24px;">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 430" style="width:100%; height:auto; display:block;" font-family="'Noto Sans KR', sans-serif">
+          <!-- start -->
+          <rect x="222" y="8" width="176" height="40" rx="20" fill="rgba(100,116,139,0.18)" stroke="#475569"></rect>
+          <text x="310" y="33" text-anchor="middle" fill="#CBD5E1" font-size="14" font-weight="700">시작 · 프로젝트 진단</text>
+          <line x1="310" y1="48" x2="310" y2="70" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <!-- decision 1 -->
+          <rect x="200" y="72" width="220" height="46" rx="8" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.5)"></rect>
+          <text x="310" y="100" text-anchor="middle" fill="#67E8F9" font-size="14" font-weight="700">파일 수 &lt; 20 ?</text>
+          <!-- yes -> grep -->
+          <line x1="420" y1="95" x2="500" y2="95" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <text x="455" y="88" text-anchor="middle" fill="#6EE7B7" font-size="11" font-weight="700">예</text>
+          <rect x="500" y="74" width="112" height="42" rx="8" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)"></rect>
+          <text x="556" y="100" text-anchor="middle" fill="#6EE7B7" font-size="13" font-weight="700">grep 기본</text>
+          <!-- no down -->
+          <line x1="310" y1="118" x2="310" y2="142" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <text x="324" y="135" fill="#FCA5A5" font-size="11" font-weight="700">아니오</text>
+          <!-- base action -->
+          <rect x="170" y="144" width="280" height="48" rx="8" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.55)"></rect>
+          <text x="310" y="166" text-anchor="middle" fill="#FCD34D" font-size="13.5" font-weight="700">codesight --init + --mcp + --hook</text>
+          <text x="310" y="183" text-anchor="middle" fill="#94A3B8" font-size="11.5">세션 시작 시 구조 주입 (기본 셋업)</text>
+          <line x1="310" y1="192" x2="310" y2="214" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <!-- decision 2 -->
+          <rect x="190" y="216" width="240" height="46" rx="8" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.5)"></rect>
+          <text x="310" y="244" text-anchor="middle" fill="#67E8F9" font-size="13.5" font-weight="700">리팩토링 · 정의/참조 추적 ?</text>
+          <line x1="430" y1="239" x2="500" y2="239" stroke="#64748B" stroke-width="1.5" marker-end="url(#dg)"></line>
+          <text x="465" y="232" text-anchor="middle" fill="#6EE7B7" font-size="11" font-weight="700">예</text>
+          <rect x="500" y="218" width="112" height="42" rx="8" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)"></rect>
+          <text x="556" y="237" text-anchor="middle" fill="#6EE7B7" font-size="12" font-weight="700">+ LSP</text>
+          <text x="556" y="252" text-anchor="middle" fill="#94A3B8" font-size="10">공식 플러그인</text>
+          <line x1="310" y1="262" x2="310" y2="284" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <!-- decision 3 -->
+          <rect x="190" y="286" width="240" height="46" rx="8" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.5)"></rect>
+          <text x="310" y="314" text-anchor="middle" fill="#67E8F9" font-size="13.5" font-weight="700">다중 · 미지원 언어 ?</text>
+          <line x1="430" y1="309" x2="500" y2="309" stroke="#64748B" stroke-width="1.5" marker-end="url(#dg)"></line>
+          <text x="465" y="302" text-anchor="middle" fill="#6EE7B7" font-size="11" font-weight="700">예</text>
+          <rect x="500" y="288" width="112" height="42" rx="8" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)"></rect>
+          <text x="556" y="314" text-anchor="middle" fill="#6EE7B7" font-size="13" font-weight="700">cclsp</text>
+          <line x1="310" y1="332" x2="310" y2="354" stroke="#64748B" stroke-width="1.5" marker-end="url(#d1)"></line>
+          <!-- decision 4 -->
+          <rect x="170" y="356" width="280" height="46" rx="8" fill="rgba(34,211,238,0.10)" stroke="rgba(34,211,238,0.5)"></rect>
+          <text x="310" y="384" text-anchor="middle" fill="#67E8F9" font-size="13.5" font-weight="700">심볼 편집 · 세션 메모리 ?</text>
+          <line x1="450" y1="379" x2="500" y2="379" stroke="#64748B" stroke-width="1.5" marker-end="url(#dg)"></line>
+          <text x="475" y="372" text-anchor="middle" fill="#6EE7B7" font-size="11" font-weight="700">예</text>
+          <rect x="500" y="358" width="112" height="42" rx="8" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)"></rect>
+          <text x="556" y="377" text-anchor="middle" fill="#6EE7B7" font-size="12" font-weight="700">Serena</text>
+          <text x="556" y="392" text-anchor="middle" fill="#94A3B8" font-size="9.5">--context claude-code</text>
+          <defs>
+            <marker id="d1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748B"></path></marker>
+            <marker id="dg" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6EE7B7"></path></marker>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <table class="tbl" style="margin-top:0; font-size:13.5px;">
+          <thead>
+            <tr><th>상황</th><th>권장</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>소규모 (&lt;20파일)</td><td>grep 기본</td></tr>
+            <tr><td>일상 개발 (중대형)</td><td><span class="hl-amber">codesight</span> --init + --mcp + --hook</td></tr>
+            <tr><td>리팩토링 · 정의 추적</td><td>+ <span class="hl-green">LSP</span> 공식 플러그인</td></tr>
+            <tr><td>다중 · 미지원 언어</td><td>cclsp</td></tr>
+            <tr><td>대규모 · 심볼 편집 · 메모리</td><td>Serena</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout-amber" style="margin-top:14px; padding:12px 15px;">
+          <span class="callout-icon">🧩</span>
+          <span class="callout-body" style="font-size:13.5px;"><strong>권장 조합</strong> — <code>codesight</code>로 구조를 주입하고 <code>LSP</code>로 정밀 탐색. 둘은 상호 보완.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">CH.3 · PART 3 — Decision Matrix</span>
+    <span class="slide-footer-right" data-slot="page-num">50</span>
+  </div>
+</div>
+</div>
+</section>
+
+</body>
+</html>
