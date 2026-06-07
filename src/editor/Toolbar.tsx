@@ -13,6 +13,7 @@ import {
   writeFileHandle,
 } from '../exporter/fileSystemAccess';
 import { buildHtmlBundle, defaultExportName, downloadBlob } from '../exporter/htmlBundle';
+import { exportSelectedSlidePng } from '../exporter/pngExport';
 import { insertDocText } from '../canvas/documentEditingBridge';
 import { assembleHtmlDocument, splitHtmlDocument } from '../importer/detectResource';
 import { parsePresentationHTML } from '../importer/parsePresentation';
@@ -30,7 +31,7 @@ import { ImportFromDeckModal } from './ImportFromDeckModal';
 import { TemplatePicker } from './TemplatePicker';
 import { showToast } from './Toast';
 
-type Busy = null | 'html';
+type Busy = null | 'html' | 'png';
 
 type ToolbarProps = {
   onPresent: () => void;
@@ -265,6 +266,22 @@ export function Toolbar({
       downloadBlob(html, defaultExportName(activeDeck?.title ?? latestSlides[0]?.title));
     });
 
+  // Export the currently selected slide as a clean 1920×1080 PNG (for video
+  // insertion). Reads the freshest committed deck state; chrome-free via the
+  // offscreen render path in pngExport.
+  const handleExportPng = () =>
+    withBusy('png', async () => {
+      const { slides: latestSlides, overlaysBySlide, currentIndex: idx } =
+        useDeckStore.getState();
+      try {
+        await exportSelectedSlidePng({ slides: latestSlides, overlaysBySlide }, idx);
+        showToast({ message: '현재 슬라이드를 PNG로 저장했습니다.', tone: 'info' });
+      } catch (e) {
+        console.error('PNG export failed', e);
+        showToast({ message: 'PNG 내보내기에 실패했습니다.', tone: 'error' });
+      }
+    });
+
   const title = isDoc ? docResource?.title ?? activeResource?.title ?? '' : activeDeck?.title ?? '';
 
   return (
@@ -384,7 +401,12 @@ export function Toolbar({
               <IconPicker />
             </>
           ) : null}
-          <ExportDropdown busy={busy} disabled={!canExport} onExportHtml={handleDownloadHtml} />
+          <ExportDropdown
+            busy={busy}
+            disabled={!canExport}
+            onExportHtml={handleDownloadHtml}
+            onExportPng={isDoc ? undefined : handleExportPng}
+          />
           <span className="mx-2 h-5 w-px bg-editor-border" aria-hidden="true" />
           <SaveIndicator />
           <ToolbarButton
