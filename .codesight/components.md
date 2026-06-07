@@ -15,7 +15,7 @@
 - **DeckWatermarkSection** — `src/editor/DeckWatermarkSection.tsx`
 - **DocumentPresentationView** — props: onExit — `src/editor/DocumentPresentationView.tsx`
 - **DocumentPropertiesSection** — `src/editor/DocumentPropertiesSection.tsx`
-- **ExportDropdown** — props: busy, disabled, onExportHtml — `src/editor/ExportDropdown.tsx`
+- **ExportDropdown** — props: busy, disabled, onExportHtml, onExportPng — `src/editor/ExportDropdown.tsx`
 - **HelpModal** — props: open, onClose — `src/editor/HelpModal.tsx`
 - **IconPicker** — props: className, onPick — `src/editor/IconPicker.tsx`
 - **ImportFromDeckModal** — props: open, onClose, activeDeckId — `src/editor/ImportFromDeckModal.tsx`

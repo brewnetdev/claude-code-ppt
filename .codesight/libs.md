@@ -28,6 +28,7 @@
   - const DEV_MONO_FONTS: FontEntry[]
   - const DEV_SANS_FONTS: FontEntry[]
   - _...1 more_
+- `src/editor/hexColor.ts` — function parseHexColorInput: (input) => string | null
 - `src/editor/textFormatActions.ts`
   - function selectionInsideCanvas: () => Range | null
   - function notifyInput: (range) => void
@@ -52,7 +53,7 @@
   - type BundleInput
 - `src/exporter/linkify.ts` — function linkifyHtml: (html, doc) => string
 - `src/exporter/pngExport.ts`
-  - function exportCurrentSlidePng: (slideTitle?) => Promise<void>
+  - function exportSelectedSlidePng: (deck, index) => Promise<void>
   - function exportAllSlidesPng: (deck) => Promise<void>
   - type PngExportDeck
 - `src/generator/adapters/presentationAdapter.ts` — function renderPresentation: (groups, template) => Promise<ParsedSlide[]>
@@ -112,7 +113,10 @@
   - type BadgeTone
   - type MetaItem
   - _...6 more_
-- `src/highlight/highlighter.ts` — function highlightCode: (source, lang) => Promise<string>, const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }>
+- `src/highlight/highlighter.ts`
+  - function normalizeLang: (lang) => string
+  - function highlightCode: (source, lang) => Promise<string>
+  - const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }>
 - `src/importer/detectResource.ts`
   - function detectResourceKind: (filename, content) => ResourceKind
   - function splitHtmlDocument: (html) => SplitDocument
@@ -131,7 +135,8 @@
   - type DeckTemplate
   - type DeckSourceKind
   - type DeckRegistryEntry
-  - const BUILTIN_DECKS: DeckRegistryEntry[]
+  - type CourseLevel
+  - _...4 more_
 - `src/persistence/idb.ts`
   - function idbGetDeck: (deckId) => Promise<unknown>
   - function idbPutDeck: (deckId, value) => Promise<void>

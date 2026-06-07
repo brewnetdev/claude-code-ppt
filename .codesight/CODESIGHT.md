@@ -2,9 +2,9 @@
 
 > **Stack:** raw-http | none | react | typescript
 
-> 0 routes | 0 models | 31 components | 44 lib files | 2 env vars | 0 middleware | 0% test coverage
-> **Token savings:** this file is ~4,300 tokens. Without it, AI exploration would cost ~30,900 tokens. **Saves ~26,500 tokens per conversation.**
-> **Last scanned:** 2026-06-02 09:46 — re-run after significant changes
+> 0 routes | 0 models | 31 components | 45 lib files | 2 env vars | 0 middleware | 0% test coverage
+> **Token savings:** this file is ~4,400 tokens. Without it, AI exploration would cost ~31,100 tokens. **Saves ~26,800 tokens per conversation.**
+> **Last scanned:** 2026-06-07 06:33 — re-run after significant changes
 
 ---
 
@@ -25,7 +25,7 @@
 - **DeckWatermarkSection** — `src/editor/DeckWatermarkSection.tsx`
 - **DocumentPresentationView** — props: onExit — `src/editor/DocumentPresentationView.tsx`
 - **DocumentPropertiesSection** — `src/editor/DocumentPropertiesSection.tsx`
-- **ExportDropdown** — props: busy, disabled, onExportHtml — `src/editor/ExportDropdown.tsx`
+- **ExportDropdown** — props: busy, disabled, onExportHtml, onExportPng — `src/editor/ExportDropdown.tsx`
 - **HelpModal** — props: open, onClose — `src/editor/HelpModal.tsx`
 - **IconPicker** — props: className, onPick — `src/editor/IconPicker.tsx`
 - **ImportFromDeckModal** — props: open, onClose, activeDeckId — `src/editor/ImportFromDeckModal.tsx`
@@ -74,6 +74,7 @@
   - const DEV_MONO_FONTS: FontEntry[]
   - const DEV_SANS_FONTS: FontEntry[]
   - _...1 more_
+- `src/editor/hexColor.ts` — function parseHexColorInput: (input) => string | null
 - `src/editor/textFormatActions.ts`
   - function selectionInsideCanvas: () => Range | null
   - function notifyInput: (range) => void
@@ -98,7 +99,7 @@
   - type BundleInput
 - `src/exporter/linkify.ts` — function linkifyHtml: (html, doc) => string
 - `src/exporter/pngExport.ts`
-  - function exportCurrentSlidePng: (slideTitle?) => Promise<void>
+  - function exportSelectedSlidePng: (deck, index) => Promise<void>
   - function exportAllSlidesPng: (deck) => Promise<void>
   - type PngExportDeck
 - `src/generator/adapters/presentationAdapter.ts` — function renderPresentation: (groups, template) => Promise<ParsedSlide[]>
@@ -158,7 +159,10 @@
   - type BadgeTone
   - type MetaItem
   - _...6 more_
-- `src/highlight/highlighter.ts` — function highlightCode: (source, lang) => Promise<string>, const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }>
+- `src/highlight/highlighter.ts`
+  - function normalizeLang: (lang) => string
+  - function highlightCode: (source, lang) => Promise<string>
+  - const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }>
 - `src/importer/detectResource.ts`
   - function detectResourceKind: (filename, content) => ResourceKind
   - function splitHtmlDocument: (html) => SplitDocument
@@ -177,7 +181,8 @@
   - type DeckTemplate
   - type DeckSourceKind
   - type DeckRegistryEntry
-  - const BUILTIN_DECKS: DeckRegistryEntry[]
+  - type CourseLevel
+  - _...4 more_
 - `src/persistence/idb.ts`
   - function idbGetDeck: (deckId) => Promise<unknown>
   - function idbPutDeck: (deckId, value) => Promise<void>
@@ -255,17 +260,17 @@
 - `src/canvas/OverlayLayer.tsx` — imported by **9** files
 - `src/scene/resourceStore.ts` — imported by **7** files
 - `src/importer/detectResource.ts` — imported by **6** files
-- `src/library/deckRegistry.ts` — imported by **6** files
 - `src/library/resourceRegistry.ts` — imported by **6** files
 - `src/generator/planRenderer.ts` — imported by **5** files
 - `src/generator/slidePlan.ts` — imported by **5** files
+- `src/library/deckRegistry.ts` — imported by **5** files
 - `src/persistence/persistenceStore.ts` — imported by **5** files
+- `src/highlight/highlighter.ts` — imported by **5** files
 - `src/generator/blockify.ts` — imported by **5** files
 - `src/generator/quality/detector.ts` — imported by **4** files
 - `src/editor/Toast.tsx` — imported by **4** files
 - `src/exporter/linkify.ts` — imported by **4** files
 - `src/scene/blockId.ts` — imported by **4** files
-- `src/highlight/highlighter.ts` — imported by **4** files
 - `src/generator/quality/rubric.ts` — imported by **4** files
 - `src/generator/inlineThemeCss.ts` — imported by **3** files
 - `src/generator/parseMarkdown.ts` — imported by **3** files
@@ -278,17 +283,17 @@
 - `src/canvas/OverlayLayer.tsx` ← `src/canvas/SlideCanvas.tsx`, `src/editor/PresentationView.tsx`, `src/editor/SlideThumbnail.tsx`, `src/editor/TextBlockTemplates.tsx`, `src/editor/TextOverlayPropertiesSection.tsx` +4 more
 - `src/scene/resourceStore.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/canvas/useDocumentEditing.ts`, `src/editor/DocumentPresentationView.tsx`, `src/editor/DocumentPropertiesSection.tsx` +2 more
 - `src/importer/detectResource.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/DocumentPresentationView.tsx`, `src/editor/Toolbar.tsx` +1 more
-- `src/library/deckRegistry.ts` ← `src/App.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx` +1 more
 - `src/library/resourceRegistry.ts` ← `src/App.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/Toolbar.tsx`, `src/importer/detectResource.ts`, `src/persistence/recentResources.ts` +1 more
 - `src/generator/planRenderer.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `src/persistence/slideMigrations.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`
 - `src/generator/slidePlan.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`, `tests/generator/validateSlidePlan.test.ts`
+- `src/library/deckRegistry.ts` ← `src/App.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx`, `src/persistence/useAutoSave.ts`
 
 ---
 
 # Test Coverage
 
 > **0%** of routes and models are covered by tests
-> 13 test files found
+> 16 test files found
 
 ---
 

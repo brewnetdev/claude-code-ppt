@@ -8,17 +8,17 @@
 - `src/canvas/OverlayLayer.tsx` — imported by **9** files
 - `src/scene/resourceStore.ts` — imported by **7** files
 - `src/importer/detectResource.ts` — imported by **6** files
-- `src/library/deckRegistry.ts` — imported by **6** files
 - `src/library/resourceRegistry.ts` — imported by **6** files
 - `src/generator/planRenderer.ts` — imported by **5** files
 - `src/generator/slidePlan.ts` — imported by **5** files
+- `src/library/deckRegistry.ts` — imported by **5** files
 - `src/persistence/persistenceStore.ts` — imported by **5** files
+- `src/highlight/highlighter.ts` — imported by **5** files
 - `src/generator/blockify.ts` — imported by **5** files
 - `src/generator/quality/detector.ts` — imported by **4** files
 - `src/editor/Toast.tsx` — imported by **4** files
 - `src/exporter/linkify.ts` — imported by **4** files
 - `src/scene/blockId.ts` — imported by **4** files
-- `src/highlight/highlighter.ts` — imported by **4** files
 - `src/generator/quality/rubric.ts` — imported by **4** files
 - `src/generator/inlineThemeCss.ts` — imported by **3** files
 - `src/generator/parseMarkdown.ts` — imported by **3** files
@@ -31,7 +31,7 @@
 - `src/canvas/OverlayLayer.tsx` ← `src/canvas/SlideCanvas.tsx`, `src/editor/PresentationView.tsx`, `src/editor/SlideThumbnail.tsx`, `src/editor/TextBlockTemplates.tsx`, `src/editor/TextOverlayPropertiesSection.tsx` +4 more
 - `src/scene/resourceStore.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/canvas/useDocumentEditing.ts`, `src/editor/DocumentPresentationView.tsx`, `src/editor/DocumentPropertiesSection.tsx` +2 more
 - `src/importer/detectResource.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/DocumentPresentationView.tsx`, `src/editor/Toolbar.tsx` +1 more
-- `src/library/deckRegistry.ts` ← `src/App.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx` +1 more
 - `src/library/resourceRegistry.ts` ← `src/App.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/Toolbar.tsx`, `src/importer/detectResource.ts`, `src/persistence/recentResources.ts` +1 more
 - `src/generator/planRenderer.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `src/persistence/slideMigrations.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`
 - `src/generator/slidePlan.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`, `tests/generator/validateSlidePlan.test.ts`
+- `src/library/deckRegistry.ts` ← `src/App.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx`, `src/persistence/useAutoSave.ts`

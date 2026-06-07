@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!-- 폰트 선택 이유: 한국어 본문은 Noto Sans KR(가독성·웨이트 다양), 레벨/수치/라벨은
+     JetBrains Mono(고정폭으로 래더 수치 정렬·코드 키워드 식별) — 의도적 선택 -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  .frame {
+    width: 1280px; height: 720px; position: relative; padding: 32px 40px;
+    background: transparent;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #F1F5F9;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── header ── */
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.18em;
+    color: #94A3B8;
+  }
+  .title {
+    font-size: 30px; font-weight: 900; color: #F1F5F9;
+    margin-top: 8px; letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 14px; color: #CBD5E1; margin-top: 6px; font-weight: 400;
+  }
+
+  /* ── main layout ── */
+  .body {
+    display: flex; gap: 28px; margin-top: 24px; height: 530px;
+  }
+
+  /* ── ladder panel ── */
+  .ladder-panel {
+    flex: 1.55;
+    background: #1E293B; border: 1px solid #334155; border-radius: 10px;
+    padding: 24px 26px 18px 26px;
+    display: flex; flex-direction: column;
+  }
+  .panel-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+    color: #94A3B8; margin-bottom: 4px;
+  }
+  .panel-sub {
+    font-size: 12px; color: #94A3B8; margin-bottom: 18px;
+  }
+
+  .ladder {
+    flex: 1;
+    display: flex; align-items: flex-end; gap: 14px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0;
+  }
+  .step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: stretch;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .bar {
+    width: 100%;
+    background: #F59E0B;
+    border: 1px solid #D97706; border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 8px;
+  }
+  /* default(현재 권장) 표시: 진한 amber 채움으로 위계 구분 */
+  .bar.is-default { background: #D97706; border-color: #B45309; }
+
+  .bar-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; color: #1E293B;
+  }
+  .step-desc {
+    font-size: 11px; color: #CBD5E1; line-height: 1.45;
+    text-align: center; margin-top: 10px; min-height: 48px;
+  }
+  .step-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #94A3B8; text-align: center;
+    margin-top: 4px;
+  }
+
+  .axis-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 16px;
+  }
+  .axis-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: #94A3B8; white-space: nowrap;
+  }
+  .legend-row {
+    display: flex; gap: 24px; margin-top: 14px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: #CBD5E1;
+  }
+  .legend-swatch {
+    width: 13px; height: 13px; border-radius: 3px;
+    border: 1px solid; flex-shrink: 0;
+  }
+  .axis-line {
+    flex: 1; height: 1px; background: #334155; position: relative;
+  }
+  .axis-line::after {
+    content: ""; position: absolute; right: -1px; top: -3px;
+    border-left: 6px solid #94A3B8;
+    border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent;
+  }
+
+  /* ── right column ── */
+  .right { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  .support-panel, .note-panel {
+    background: #1E293B; border: 1px solid #334155; border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .support-panel { flex: 0 0 auto; }
+  .support-panel h3, .note-panel h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+    color: #94A3B8; margin-bottom: 14px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600; color: #94A3B8;
+    text-align: left; padding: 0 0 8px 0;
+    border-bottom: 1px solid #334155;
+  }
+  th.r, td.r { text-align: right; }
+  td {
+    padding: 9px 0; border-bottom: 1px solid #334155;
+    font-size: 13px; color: #F1F5F9; vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  .model-name { font-weight: 700; }
+  .levels { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #CBD5E1; }
+  .lv-top { color: #F59E0B; font-weight: 700; }
+  .def-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; color: #D97706;
+    border: 1px solid #D97706; border-radius: 4px;
+    padding: 2px 7px; display: inline-block;
+  }
+
+  .note-panel { }
+  .note-item {
+    display: flex; gap: 10px; font-size: 12px; color: #CBD5E1;
+    line-height: 1.5; margin-bottom: 10px;
+  }
+  .note-item:last-child { margin-bottom: 0; }
+  .note-marker {
+    flex-shrink: 0; width: 3px; align-self: stretch; border-radius: 2px;
+    background: #60A5FA;
+  }
+  .note-key {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    color: #60A5FA;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="kicker">ADAPTIVE / EFFORT</div>
+  <div class="title">Effort 추론 강도 — 낮음에서 최대까지</div>
+  <div class="subtitle">단계가 오를수록 내부 추론(thinking)에 더 많은 토큰을 쓴다 · 공식 문서 기준 v2.1.11+</div>
+
+  <div class="body">
+
+    <!-- 래더 -->
+    <div class="ladder-panel">
+      <div class="panel-head">추론 강도 래더</div>
+      <div class="panel-sub">막대 높이 = 추론에 투입하는 thinking 토큰의 양</div>
+
+      <div class="ladder">
+        <div class="step">
+          <div class="bar" style="height: 22%"><span class="bar-level">low</span></div>
+          <div class="step-desc">최소 추론<br>즉답에 가깝게</div>
+          <div class="step-tag">단순 질의</div>
+        </div>
+        <div class="step">
+          <div class="bar" style="height: 40%"><span class="bar-level">medium</span></div>
+          <div class="step-desc">가벼운 검토 후<br>답변</div>
+          <div class="step-tag">일반 작업</div>
+        </div>
+        <div class="step">
+          <div class="bar" style="height: 60%"><span class="bar-level">high</span></div>
+          <div class="step-desc">여러 접근법<br>검토·분석</div>
+          <div class="step-tag">4.6 기본값</div>
+        </div>
+        <div class="step">
+          <div class="bar is-default" style="height: 80%"><span class="bar-level" style="color:#FEF3C7">xhigh</span></div>
+          <div class="step-desc">코딩·에이전트<br>권장 깊이</div>
+          <div class="step-tag">4.8 기본값</div>
+        </div>
+        <div class="step">
+          <div class="bar" style="height: 100%"><span class="bar-level">max</span></div>
+          <div class="step-desc">최대 추론<br>가장 느림·고비용</div>
+          <div class="step-tag">난제 전용</div>
+        </div>
+      </div>
+
+      <div class="axis-row">
+        <span class="axis-label">느림 / 토큰 ↑</span>
+        <span class="axis-line"></span>
+        <span class="axis-label" style="color:#CBD5E1">추론 강도 →</span>
+      </div>
+
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-swatch" style="background:#F59E0B;border-color:#D97706"></span>지원 단계</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#D97706;border-color:#B45309"></span>현재 권장 기본값 (4.8 = xhigh)</span>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 모델 지원 + 노트 -->
+    <div class="right">
+
+      <div class="support-panel">
+        <h3>모델별 지원 레벨 · 기본값</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>모델</th>
+              <th>지원 레벨</th>
+              <th class="r">기본값</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="model-name">Opus 4.8</td>
+              <td class="levels">low·medium·high·<span class="lv-top">xhigh·max</span></td>
+              <td class="r"><span class="def-pill">xhigh</span></td>
+            </tr>
+            <tr>
+              <td class="model-name">Opus 4.6</td>
+              <td class="levels">low·medium·high·<span class="lv-top">max</span></td>
+              <td class="r"><span class="def-pill">high</span></td>
+            </tr>
+            <tr>
+              <td class="model-name">Sonnet 4.6</td>
+              <td class="levels">low·medium·high·<span class="lv-top">max</span></td>
+              <td class="r"><span class="def-pill">high</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-panel">
+        <h3>읽는 법</h3>
+        <div class="note-item">
+          <span class="note-marker"></span>
+          <span><span class="note-key">xhigh</span>는 4.8에만 있는 단계로, 코딩·에이전트 작업의 기본값이다.</span>
+        </div>
+        <div class="note-item">
+          <span class="note-marker"></span>
+          <span><span class="note-key">ultrathink</span> 키워드는 그 턴에서만 더 깊이 추론하라는 힌트일 뿐, effort 레벨 자체를 바꾸지 않는다.</span>
+        </div>
+        <div class="note-item">
+          <span class="note-marker"></span>
+          <span>강도를 올릴수록 응답은 느려지고 <span class="note-key">thinking 토큰</span> 비용이 늘어난다 — 작업 난이도에 맞춰 고른다.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
