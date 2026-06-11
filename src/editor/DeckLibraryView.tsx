@@ -150,7 +150,12 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {levelItems.map((item) => (
-          <LevelCard key={item.level} item={item} onOpen={onOpen} />
+          <LevelCard
+            key={item.level}
+            item={item}
+            onOpen={onOpen}
+            onHide={item.deck ? () => hideDeck(item.deck!.id, item.deck!.title) : undefined}
+          />
         ))}
       </div>
 
@@ -217,6 +222,7 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
 function LevelCard({
   item,
   onOpen,
+  onHide,
 }: {
   item: CourseLevel & {
     category: string;
@@ -224,11 +230,12 @@ function LevelCard({
     slideCount: number;
   };
   onOpen: (deck: DeckRegistryEntry) => void;
+  onHide?: () => void;
 }) {
   const { deck, slideCount } = item;
 
   const header = (
-    <div className="mb-3 flex items-center justify-between gap-2">
+    <div className={`mb-3 flex items-center justify-between gap-2 ${deck ? 'pr-7' : ''}`}>
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
         <span className="rounded bg-editor-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-editor-accent">
           LV.{item.level}
@@ -267,6 +274,17 @@ function LevelCard({
 
   return (
     <div className="group relative flex h-full flex-col rounded-lg border border-editor-border bg-editor-panel transition hover:border-editor-accent hover:bg-editor-panel/80">
+      {onHide ? (
+        <button
+          type="button"
+          onClick={onHide}
+          aria-label={`${deck.title} 숨기기`}
+          title="라이브러리에서 숨김 (편집 캐시도 비워짐 — 복원하면 원본 HTML이 다시 반영됨)"
+          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded border border-editor-border bg-editor-bg text-base leading-none text-editor-dim shadow-sm transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-editor-accent"
+        >
+          ×
+        </button>
+      ) : null}
       <button
         type="button"
         onClick={() => onOpen(deck)}
