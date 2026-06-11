@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+    flex: 1;
+  }
+
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 14px;
+    padding: 28px 26px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .num {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: #0F766E;
+  }
+  .card-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+  }
+
+  .card-sub {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    margin: 0 0 20px 60px;
+  }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    gap: 0;
+    margin-top: 14px;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .step.stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .step.stack .step-note { padding-top: 0; }
+  .step-cmd {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 10px 15px;
+    background: transparent;
+    white-space: nowrap;
+  }
+  .step-note {
+    font-size: 22px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.35;
+    padding-top: 12px;
+  }
+  .step-note .info { color: #1E3A8A; font-weight: 600; }
+  .step-note .warn { color: #B91C1C; font-weight: 600; }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    margin-left: 26px;
+  }
+  .arrow::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 12px solid #6B6560;
+  }
+
+  .card-foot {
+    margin-top: auto;
+    padding-top: 22px;
+    font-size: 22px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.45;
+  }
+  .card-foot .lead {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 800;
+    color: #047857;
+    letter-spacing: 0.02em;
+    margin-right: 8px;
+  }
+
+  .common {
+    margin-top: 28px;
+    border: 1px solid #D4D0C8;
+    border-radius: 14px;
+    background: #FAF3E6;
+    padding: 26px 30px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+  .common .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 7px 17px;
+    letter-spacing: 0.02em;
+  }
+  .common .text {
+    font-size: 24px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.45;
+  }
+  .common .text .em {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="grid">
+
+      <!-- Pattern 1 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="num">1</span>
+          <span class="card-title">TDD 사이클</span>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <span class="step-cmd">/tdd-red</span>
+            <span class="step-note">실패 테스트</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/tdd-green</span>
+            <span class="step-note">최소 구현</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/tdd-refactor</span>
+            <span class="step-note">중복 제거</span>
+          </div>
+        </div>
+        <div class="card-foot"><span class="lead">핵심</span>각 단계가 별도 커맨드 — 모델이 단계 혼용을 못 한다.</div>
+      </div>
+
+      <!-- Pattern 2 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="num">2</span>
+          <span class="card-title">자동화 파이프라인</span>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <span class="step-cmd">/lint-fix</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/typecheck</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/test-affected</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/commit-msg</span>
+          </div>
+        </div>
+        <div class="card-foot"><span class="lead">핵심</span>CI 전 단계를 슬래시로 묶어 단계별 일관된 사전 점검.</div>
+      </div>
+
+      <!-- Pattern 3 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="num">3</span>
+          <span class="card-title">컨텍스트 오염 방지</span>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <span class="step-cmd">/checkpoint</span>
+            <span class="step-note">핵심 결정 <span class="info">dump</span></span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step">
+            <span class="step-cmd">/clear</span>
+          </div>
+          <div class="arrow"></div>
+          <div class="step stack">
+            <span class="step-cmd">/restore-checkpoint</span>
+            <span class="step-note">깨끗한 상태에서 재개</span>
+          </div>
+        </div>
+        <div class="card-foot"><span class="lead">핵심</span>긴 디버그 세션의 누적 오류 차단.</div>
+      </div>
+
+    </div>
+
+    <div class="common">
+      <span class="badge">패턴의 공통점</span>
+      <span class="text"><span class="em">"한 작업 = 한 커맨드"</span>로 행위를 명확히 끊고, 각 커맨드가 자기 책임만 갖는다.</span>
+    </div>
+  </div>
+</body>
+</html>

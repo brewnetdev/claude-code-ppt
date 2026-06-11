@@ -1,7 +1,8 @@
 import { toPng } from 'html-to-image';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
-import { SLIDE_HEIGHT, SLIDE_WIDTH, TARGET_HEIGHT, TARGET_WIDTH } from '../scene/constants';
+import { applyBackgroundToElement } from '../scene/applySlideBackground';
+import { SLIDE_HEIGHT, SLIDE_WIDTH, TARGET_WIDTH } from '../scene/constants';
 
 const EXPORT_SCALE = TARGET_WIDTH / SLIDE_WIDTH;
 const BETWEEN_DOWNLOADS_MS = 250;
@@ -18,25 +19,19 @@ export type PngExportDeck = {
   overlaysBySlide: Record<string, Overlay[]>;
 };
 
-// Capture the live `.slide-canvas-host` element at 1920×1080 regardless of
-// the editor's current scale-to-fit transform. Used for "current slide only".
-export async function exportCurrentSlidePng(slideTitle?: string): Promise<void> {
-  const host = document.querySelector<HTMLElement>('.slide-canvas-host');
-  if (!host) throw new Error('slide-canvas-host element not found');
-
+// Export ONLY the currently selected slide as a clean 1920×1080 PNG. Renders
+// through the offscreen clean host (same path as exportAllSlidesPng) so no
+// editor chrome — selection outlines, drag handles, carets — can leak into the
+// image. `index` is the deck position (used for the filename prefix).
+export async function exportSelectedSlidePng(
+  deck: PngExportDeck,
+  index: number,
+): Promise<void> {
+  const slide = deck.slides[index];
+  if (!slide) throw new Error(`no slide at index ${index}`);
   if (document.fonts?.ready) await document.fonts.ready;
-
-  const dataUrl = await toPng(host, {
-    width: SLIDE_WIDTH,
-    height: SLIDE_HEIGHT,
-    canvasWidth: TARGET_WIDTH,
-    canvasHeight: TARGET_HEIGHT,
-    pixelRatio: EXPORT_SCALE,
-    cacheBust: true,
-    style: { transform: 'none', transformOrigin: 'center center' },
-  });
-
-  await downloadDataUrl(dataUrl, pngFilename(1, slideTitle));
+  const overlays = deck.overlaysBySlide[slide.id] ?? [];
+  await rasterizeSlideToPng(slide, overlays, index);
 }
 
 // Render every slide off-screen at 1280×720 and emit one PNG per slide.
@@ -49,38 +44,65 @@ export async function exportAllSlidesPng(deck: PngExportDeck): Promise<void> {
   for (let i = 0; i < deck.slides.length; i++) {
     const slide = deck.slides[i];
     const overlays = deck.overlaysBySlide[slide.id] ?? [];
-    const host = buildOffscreenHost(slide, overlays);
-    document.body.appendChild(host);
-    try {
-      await waitForImages(host);
-      const dataUrl = await toPng(host, {
-        width: SLIDE_WIDTH,
-        height: SLIDE_HEIGHT,
-        canvasWidth: TARGET_WIDTH,
-        canvasHeight: TARGET_HEIGHT,
-        pixelRatio: EXPORT_SCALE,
-        cacheBust: true,
-        // The live host is `position:fixed; top:-10000px` so users don't
-        // see a flash. html-to-image clones the host into an SVG
-        // <foreignObject> and would inherit that offset, pushing all
-        // content above the SVG viewBox and producing a blank PNG.
-        // Override the clone's positioning to render at the origin.
-        style: {
-          position: 'static',
-          top: 'auto',
-          left: 'auto',
-          transform: 'none',
-        },
-      });
-      await downloadDataUrl(dataUrl, pngFilename(i + 1, slide.title));
-    } finally {
-      host.remove();
-    }
+    await rasterizeSlideToPng(slide, overlays, i);
     // Give the browser breathing room between sequential downloads —
     // Chrome otherwise silently drops all but the first without a prompt.
     if (i < deck.slides.length - 1) {
       await sleep(BETWEEN_DOWNLOADS_MS);
     }
+  }
+}
+
+// Render one slide to a clean 1920×1080 PNG via an offscreen host and download
+// it. Shared by the single-slide and all-slides export paths.
+async function rasterizeSlideToPng(
+  slide: ParsedSlide,
+  overlays: Overlay[],
+  index: number,
+): Promise<void> {
+  const host = buildOffscreenHost(slide, overlays);
+  document.body.appendChild(host);
+  try {
+    await waitForImages(host);
+    const dataUrl = await renderHostToPng(host);
+    await downloadDataUrl(dataUrl, pngFilename(index + 1, slide.title));
+  } finally {
+    host.remove();
+  }
+}
+
+async function renderHostToPng(host: HTMLElement): Promise<string> {
+  const options = {
+    // html-to-image sizes the canvas as (canvasWidth || width) * pixelRatio.
+    // Rendering the 1280×720 host at pixelRatio 1.5 yields exactly 1920×1080
+    // (1080p). Do NOT also pass canvasWidth/Height — that double-scales to
+    // 2880×1620.
+    width: SLIDE_WIDTH,
+    height: SLIDE_HEIGHT,
+    pixelRatio: EXPORT_SCALE,
+    // No `cacheBust`: it appends `?cacheblock=…` to image URLs, which corrupts
+    // blob: object URLs (drag-dropped image overlays) — the clone's <img> then
+    // fails to load and the whole export rejects with an img error. Our images
+    // are blob:/data:/same-origin, so cache-busting buys nothing here.
+    //
+    // The host is `position:fixed; top:-10000px` so users don't see a flash.
+    // html-to-image clones it into an SVG <foreignObject> and would inherit that
+    // offset, pushing content above the viewBox → blank PNG. Override the clone's
+    // positioning to render at the origin.
+    style: {
+      position: 'static',
+      top: 'auto',
+      left: 'auto',
+      transform: 'none',
+    },
+  };
+  try {
+    return await toPng(host, options);
+  } catch {
+    // html-to-image occasionally rejects on the first pass before a cloned
+    // image/font has decoded; a single retry almost always succeeds.
+    await sleep(150);
+    return await toPng(host, options);
   }
 }
 
@@ -97,6 +119,13 @@ function buildOffscreenHost(slide: ParsedSlide, overlays: Overlay[]): HTMLElemen
     'pointer-events:none',
   ].join(';');
   host.innerHTML = slide.html;
+
+  // The persisted html is canonical — bg is owned by ParsedSlide.background.
+  // Apply it now so the rasterized PNG matches what the user sees in-editor.
+  if (slide.background) {
+    const slideEl = host.querySelector<HTMLElement>('div.slide');
+    if (slideEl) applyBackgroundToElement(slideEl, slide.background);
+  }
 
   overlays.forEach((o) => {
     // Legacy persisted overlays predate the discriminator — treat as image.

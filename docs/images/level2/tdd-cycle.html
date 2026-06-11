@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    align-items: stretch;
+    gap: 36px;
+  }
+
+  /* ── Left: the cycle ── */
+  .cycle {
+    width: 540px;
+    flex: 0 0 540px;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .cycle-head {
+    padding: 20px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .cycle-head .seq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F766E;
+    letter-spacing: 0.2px;
+  }
+  .cycle-head .seq .arr { color: #6B6560; padding: 0 3px; }
+  .cycle-stage {
+    flex: 1;
+    padding: 20px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* vertical flow of phase nodes */
+  .node {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 12px 20px 13px;
+  }
+  .node .nlabel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 5px;
+  }
+  .node .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 3px 13px;
+    border: 1px solid;
+    line-height: 1.4;
+  }
+  .node .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-left: auto;
+    line-height: 1;
+  }
+  .node .ntitle {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+    margin-bottom: 5px;
+    line-height: 1.2;
+  }
+  .node .nsub {
+    font-size: 22px;
+    line-height: 1.45;
+    color: #6B6560;
+  }
+
+  .badge-red   { color: #B91C1C; border-color: #B91C1C; background: rgba(185,28,28,0.06); }
+  .badge-green { color: #047857; border-color: #047857; background: rgba(4,120,87,0.06); }
+  .badge-blue  { color: #1E3A8A; border-color: #1E3A8A; background: rgba(30,58,138,0.06); }
+
+  /* down arrow between nodes */
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B6560;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    height: 24px;
+  }
+  /* loop-back caption */
+  .loop-note {
+    padding: 11px 16px;
+    border: 1px dashed #C7C2BA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 500;
+    color: #6B6560;
+    text-align: center;
+    line-height: 1.35;
+  }
+  .loop-note .lturn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+
+  /* ── Right: rules per phase (boxes) ── */
+  .rules {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .rules-head {
+    padding: 20px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .rules-head span { color: #6B6560; font-weight: 500; }
+  .rules-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .rule-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #D4D0C8;
+    flex: 1;
+  }
+  .rule-row:last-child { border-bottom: none; }
+  .rule-tag {
+    flex: 0 0 188px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 22px;
+    border-right: 1px solid #D4D0C8;
+  }
+  .rule-tag .rbadge {
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 3px 13px;
+    border: 1px solid;
+    line-height: 1.4;
+  }
+  .rule-tag .rgist {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.35;
+  }
+  .rule-list {
+    flex: 1;
+    padding: 20px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+  }
+  .rule-list .ri {
+    font-size: 22px;
+    line-height: 1.4;
+    color: #1A1A18;
+    display: flex;
+    gap: 13px;
+  }
+  .rule-list .ri .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    flex: 0 0 auto;
+  }
+  .rule-list .ri .no { color: #B91C1C; font-weight: 700; }
+  .rule-list .ri .ok { color: #047857; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: cycle -->
+    <div class="cycle">
+      <div class="cycle-head">
+        <span class="seq">Red<span class="arr">→</span>Green<span class="arr">→</span>Refactor</span>
+      </div>
+      <div class="cycle-stage">
+
+        <div class="node">
+          <div class="nlabel">
+            <span class="badge badge-red">Red</span>
+            <span class="step">1</span>
+          </div>
+          <div class="ntitle">실패하는 테스트 먼저</div>
+          <div class="nsub">구현 없이 테스트만 작성, 실패를 먼저 확인한다</div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="node">
+          <div class="nlabel">
+            <span class="badge badge-green">Green</span>
+            <span class="step">2</span>
+          </div>
+          <div class="ntitle">통과하는 최소 구현</div>
+          <div class="nsub">테스트를 통과시키는 최소한의 코드만 작성한다</div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="node">
+          <div class="nlabel">
+            <span class="badge badge-blue">Refactor</span>
+            <span class="step">3</span>
+          </div>
+          <div class="ntitle">구조 개선</div>
+          <div class="nsub">테스트 통과를 유지하며 코드를 정리한다</div>
+        </div>
+
+        <div class="loop-note"><span class="lturn">↺</span>통과 상태를 유지하며 반복</div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: per-phase rules -->
+    <div class="rules">
+      <div class="rules-head">단계별 규칙 <span>— 명시적으로 TDD 사이클 요청하기</span></div>
+      <div class="rules-body">
+
+        <div class="rule-row">
+          <div class="rule-tag">
+            <span class="rbadge badge-red">Red</span>
+            <span class="rgist">실패하는 테스트만</span>
+          </div>
+          <div class="rule-list">
+            <div class="ri"><span class="k">1</span><span>구현 코드는 절대 작성하지 <span class="no">않음</span></span></div>
+            <div class="ri"><span class="k">2</span><span>테스트 파일만 생성 또는 수정</span></div>
+            <div class="ri"><span class="k">3</span><span>테스트 실행하여 실패 확인</span></div>
+          </div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-tag">
+            <span class="rbadge badge-green">Green</span>
+            <span class="rgist">최소한의 코드로</span>
+          </div>
+          <div class="rule-list">
+            <div class="ri"><span class="k">1</span><span>테스트를 통과시키는 최소한의 코드만 작성</span></div>
+            <div class="ri"><span class="k">2</span><span>하드코딩도 <span class="ok">허용</span> (다음 테스트가 일반화를 강제)</span></div>
+            <div class="ri"><span class="k">3</span><span>"미래를 위한" 코드 <span class="no">금지</span></span></div>
+          </div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-tag">
+            <span class="rbadge badge-blue">Refactor</span>
+            <span class="rgist">통과 유지하며 정리</span>
+          </div>
+          <div class="rule-list">
+            <div class="ri"><span class="k">1</span><span>새로운 기능 추가 <span class="no">금지</span>, 테스트 수정 <span class="no">금지</span></span></div>
+            <div class="ri"><span class="k">2</span><span>각 리팩터링 후 테스트 실행</span></div>
+            <div class="ri"><span class="k">3</span><span>중복 제거 · 명확한 이름 · 메서드 추출</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

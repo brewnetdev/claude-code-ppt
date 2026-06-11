@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* horizontal flow of phase columns + arrows between */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex: 1;
+  }
+
+  .phase {
+    flex: 1 1 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 14px;
+    padding: 24px 22px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+  }
+
+  .phase-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .phase-step {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border: 1px solid #D4D0C8;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+  .phase-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  /* command rows */
+  .cmds { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: space-between; }
+  .cmd-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 13px 16px;
+    background: transparent;
+    flex: 1;
+    justify-content: center;
+  }
+  .cmd-line { display: flex; align-items: baseline; gap: 10px; }
+  .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 23px;
+    font-weight: 700;
+    color: #115E59;
+    white-space: nowrap;
+  }
+  .cmd.git { color: #1E3A8A; }
+  .cmd.clear { color: #B91C1C; }
+  .cmd .arg {
+    color: #6B6560;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .role {
+    font-size: 22px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.35;
+  }
+  .role .em { color: #1A1A18; font-weight: 600; }
+
+  /* arrow connector between phases */
+  .arrow {
+    flex: none;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow .shaft {
+    position: relative;
+    width: 40px;
+    height: 1px;
+    background: #B8B2A8;
+  }
+  .arrow .shaft::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #B8B2A8;
+  }
+
+  /* footer scope-statement note (full uniform border box) */
+  .note {
+    margin-top: 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    padding: 20px 26px;
+  }
+  .note .tag {
+    flex: none;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E3A8A;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    padding-top: 1px;
+  }
+  .note .body {
+    font-size: 23px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.45;
+  }
+  .note .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .note .body .ko {
+    color: #6B6560;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="flow">
+
+      <!-- Phase 1: 세션 시작 -->
+      <div class="phase">
+        <div class="phase-head">
+          <div class="phase-step">1</div>
+          <div class="phase-title">세션 시작</div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/context</span></div>
+            <div class="role">배분 확인 — 비정상 식별 및 교정</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/cost</span></div>
+            <div class="role">비용 기준점</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/mcp</span></div>
+            <div class="role">불필요 서버 OFF</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd" style="color:#1A1A18;">작업 범위 명시</span></div>
+            <div class="role">"이번 세션은 <span class="em">POST /api/documents</span>만. 관련 파일: <span class="em">route.ts</span>, <span class="em">schema.ts</span>. 참고: <span class="em">docs/API.md</span>"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <!-- Phase 2: 작업 중 -->
+      <div class="phase">
+        <div class="phase-head">
+          <div class="phase-step">2</div>
+          <div class="phase-title">작업 중</div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/context</span></div>
+            <div class="role">주기적 모니터</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/memory</span></div>
+            <div class="role">마일스톤마다 핵심 결정 기록</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd git">git commit</span></div>
+            <div class="role">마일스톤 단위 저장</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/compact</span></div>
+            <div class="role">시행착오 제거</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/cost</span></div>
+            <div class="role">예상보다 높으면 <span class="em">/compact</span> 고려</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <!-- Phase 3: 작업 전환 -->
+      <div class="phase">
+        <div class="phase-head">
+          <div class="phase-step">3</div>
+          <div class="phase-title">작업 전환</div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/memory</span></div>
+            <div class="role">다른 작업으로 — 결정 기록</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd git">git commit</span></div>
+            <div class="role">현재 작업 저장</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd clear">/clear</span></div>
+            <div class="role">완전 초기화</div>
+          </div>
+          <div class="cmd-row">
+            <div class="cmd-line"><span class="cmd">/compact</span> <span class="cmd" style="color:#1A1A18;font-weight:600;">아키텍처</span></div>
+            <div class="role">이어가는 작업 — 결정과 완료 작업 목록만 보존</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <span class="tag">응답 품질 저하 시</span>
+      <span class="body"><code>/clear</code> 후 <code>/context</code> 로 어떤 컨텍스트가 윈도우를 많이 잡아먹는지 찾아 교정 <span class="ko">— 50K 이상 점검, 100K 이상 비정상 신호</span></span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1 1 auto;
+  }
+  table.cmp col.c-good { width: 50%; }
+  table.cmp col.c-skip { width: 50%; }
+
+  table.cmp thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 26px 22px 26px;
+    vertical-align: bottom;
+  }
+  table.cmp thead .lbl {
+    display: inline-block;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 0.02em;
+    padding: 8px 20px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+  }
+  table.cmp thead .lbl.good { color: #047857; border-color: #047857; }
+  table.cmp thead .lbl.skip { color: #B91C1C; border-color: #B91C1C; }
+
+  table.cmp thead tr { border-bottom: 1px solid #D4D0C8; }
+
+  table.cmp tbody td {
+    font-size: 24px;
+    line-height: 1.5;
+    padding: 26px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+    font-weight: 500;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+
+  td.good {
+    color: #047857;
+  }
+  td.good .note {
+    display: block;
+    margin-top: 6px;
+    font-size: 20px;
+    color: #6B6560;
+    font-weight: 500;
+  }
+  td.skip {
+    color: #B91C1C;
+  }
+  td.skip .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  td.skip.none {
+    color: #6B6560;
+  }
+
+  .callout {
+    flex: none;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 30px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 7px 16px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 24px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cmp">
+      <colgroup>
+        <col class="c-good"><col class="c-skip">
+      </colgroup>
+      <thead>
+        <tr>
+          <th><span class="lbl good">사용하면 좋은 상황</span></th>
+          <th><span class="lbl skip">건너뛰어도 되는 상황</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="good">여러 파일에 걸친 멀티세션 기능 개발</td>
+          <td class="skip">단일 파일 버그 수정</td>
+        </tr>
+        <tr>
+          <td class="good">팀 전원이 동일한 AI 행동 기준이 필요할 때</td>
+          <td class="skip">포맷팅 변경</td>
+        </tr>
+        <tr>
+          <td class="good">범위를 코드 작성 전에 확정해야 할 때</td>
+          <td class="skip">한 번의 프롬프트로 처리 가능한 CRUD 작업</td>
+        </tr>
+        <tr>
+          <td class="good">레거시 시스템 현대화<span class="note">원래 의도를 spec으로 포착</span></td>
+          <td class="skip none">—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">핵심</span>
+      <span class="txt">SDD는 단기 속도가 아닌 <b>예측 가능성</b>을 높인다.</span>
+    </div>
+  </div>
+</body>
+</html>

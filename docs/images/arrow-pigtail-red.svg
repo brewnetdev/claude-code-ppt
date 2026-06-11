@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480">
+  <g fill="none" stroke="#ED1C24" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <!-- pigtail (curl) at lower-left, then sweep up to the upper-right -->
+    <path d="M168 392
+             C 96 382, 92 300, 166 298
+             C 232 296, 236 362, 176 374
+             C 146 379, 158 344, 198 318
+             C 258 276, 312 214, 366 150"/>
+    <!-- arrowhead pointing to the upper-right -->
+    <path d="M306 150 L 372 138 L 356 206"/>
+  </g>
+</svg>

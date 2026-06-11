@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 26px 40px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+    gap: 22px;
+    flex: 1;
+    min-height: 0;
+  }
+  .block { display: flex; flex-direction: column; min-height: 0; }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px;
+    min-height: 36px;
+  }
+  .block-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.1; }
+  .badge {
+    flex: none;
+    padding: 5px 12px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.teal { color: #0F766E; border-color: #115E59; }
+  .badge.info { color: #1E3A8A; border-color: #1E3A8A; }
+
+  /* ── table (settings_json_key_reference style) ── */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.tbl col.c-name { width: 228px; }
+  thead th {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    padding: 0 8px 8px 8px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: bottom;
+  }
+  tbody td {
+    font-size: 22px;
+    line-height: 1.16;
+    color: #1A1A18;
+    padding: 6px 8px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.tname {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #0F766E;
+    line-height: 1.18;
+  }
+  td.tdesc { color: #1A1A18; font-weight: 400; }
+
+  /* ── right column code panels ── */
+  .stack { display: flex; flex-direction: column; min-height: 0; }
+  .panel {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel + .panel { margin-top: 8px; }
+  .panel-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1A1A18;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+  }
+  .panel-title .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.26;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: hidden;
+  }
+  pre.code .cmt { color: #6B6560; }
+  pre.code .key { color: #1E3A8A; font-weight: 600; }
+  pre.code .str { color: #047857; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: 15 tables -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">데이터 설계 &mdash; 15개 테이블</span>
+          <span class="badge teal">Drizzle ORM</span>
+        </div>
+        <table class="tbl">
+          <colgroup><col class="c-name"><col></colgroup>
+          <thead>
+            <tr><th>테이블</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="tname">users</td><td class="tdesc">사용자 계정 (이메일 인증 포함)</td></tr>
+            <tr><td class="tname">refresh_tokens</td><td class="tdesc">JWT Refresh Token 관리</td></tr>
+            <tr><td class="tname">workspaces /<br>workspace_members</td><td class="tdesc">워크스페이스 + RBAC 멤버 역할</td></tr>
+            <tr><td class="tname">invitations /<br>join_requests</td><td class="tdesc">초대 링크 / 가입 요청</td></tr>
+            <tr><td class="tname">categories /<br>category_closure</td><td class="tdesc">카테고리 노드 + 계층(Closure Table)</td></tr>
+            <tr><td class="tname">documents /<br>document_versions</td><td class="tdesc">마크다운 문서 + 버전 이력</td></tr>
+            <tr><td class="tname">document_relations</td><td class="tdesc">문서 간 연관 관계</td></tr>
+            <tr><td class="tname">tags / document_tags</td><td class="tdesc">태그 + 다대다 매핑</td></tr>
+            <tr><td class="tname">comments</td><td class="tdesc">문서 댓글</td></tr>
+            <tr><td class="tname">embed_tokens</td><td class="tdesc">문서 공개 임베딩 토큰 (외부 사이트 iframe 임베드 시 비로그인 제어용 액세스 토큰)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- RIGHT: documents schema + closure table -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">스키마 &amp; Closure Table</span>
+          <span class="badge info">SCHEMA</span>
+        </div>
+
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-title">documents <span class="sub">(Drizzle)</span></div>
+<pre class="code"><span class="key">export const</span> documents = <span class="key">pgTable</span>(<span class="str">'documents'</span>, {
+  id: <span class="key">text</span>(<span class="str">'id'</span>).primaryKey(),
+  title: <span class="key">text</span>(<span class="str">'title'</span>).notNull(),
+  content: <span class="key">text</span>(<span class="str">'content'</span>).notNull().default(<span class="str">''</span>),
+  workspaceId: <span class="key">text</span>(<span class="str">'workspace_id'</span>).notNull()
+    .references(() =&gt; workspaces.id,
+      { onDelete: <span class="str">'cascade'</span> }),
+  categoryId: <span class="key">text</span>(<span class="str">'category_id'</span>)
+    .references(() =&gt; categories.id,
+      { onDelete: <span class="str">'set null'</span> }),
+  authorId: <span class="key">text</span>(<span class="str">'author_id'</span>).notNull(),
+  isPublished: <span class="key">boolean</span>(<span class="str">'is_published'</span>)
+    .default(<span class="key">false</span>),
+  createdAt: <span class="key">timestamp</span>(<span class="str">'created_at'</span>).defaultNow(),
+});</pre>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">category_closure <span class="sub">(계층 패턴)</span></div>
+<pre class="code"><span class="cmt">-- ancestor / descendant / depth (자기 = depth 0)</span>
+<span class="key">SELECT</span> * <span class="key">FROM</span> category_closure
+<span class="key">WHERE</span> ancestor = <span class="str">'cat-001'</span>;
+<span class="cmt">-- → cat-001 하위 모든 카테고리 (단일 쿼리)</span></pre>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>

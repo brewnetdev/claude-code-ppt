@@ -1,0 +1,30 @@
+# CI healthcheck — runs the same gates we use locally so a regression in
+# typecheck / vitest / build is caught at PR time instead of post-merge.
+# Keep this minimal: one job, one Node version. Matrix expansion and
+# build-artifact upload are deliberately out of scope.
+name: ci
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      # Phase A's regression test (tests/library/builtinDecks.test.ts) is the
+      # canary here — every shipped deck round-trips through parsePresentationHTML.
+      - name: Unit tests
+        run: npx vitest run
+      - name: Production build
+        run: npm run build

@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "title": "Renderer Smoke Test",
+    "subtitle": "9-slide-type fixture",
+    "chapter": "FIXTURE",
+    "deco": "TEST",
+    "sourceFile": "fixtures/sample-plan.json"
+  },
+  "template": "presentation",
+  "slides": [
+    {
+      "type": "cover",
+      "title": "Renderer Smoke Test",
+      "subtitle": "Validating SlidePlan → HTML on every slide type",
+      "chapter": "FIXTURE",
+      "deco": "TEST",
+      "meta": [
+        { "label": "Edition", "value": "Developer" },
+        { "label": "Date", "value": "2026-04-26" }
+      ],
+      "caption": "Smoke Test"
+    },
+    {
+      "type": "section",
+      "num": "01",
+      "title": "Standard layouts",
+      "label": "Part I"
+    },
+    {
+      "type": "title-body",
+      "title": "What is title-body",
+      "label": "INTRO",
+      "subtitle": "Free-form blocks under one heading",
+      "blocks": [
+        { "kind": "paragraph", "text": "Title-body slides accept arbitrary block sequences — paragraphs, h3, code, callout — in the order given." },
+        { "kind": "h3", "text": "Why we need it" },
+        { "kind": "paragraph", "text": "Most explanatory slides do not fit the bullet template; they need short narrative passages with optional supporting code." },
+        {
+          "kind": "callout",
+          "tone": "amber",
+          "title": "Heads up",
+          "body": "Order is preserved exactly as authored — the renderer does not reflow."
+        }
+      ]
+    },
+    {
+      "type": "title-bullets",
+      "title": "title-bullets layout",
+      "label": "BULLETS",
+      "bullets": [
+        { "text": "Each bullet has a headline", "sub": "and an optional sub-line for description" },
+        { "text": "Sub-lines render as <span class=\"sub\">" },
+        { "text": "Optional callout sits below the list" }
+      ],
+      "callout": {
+        "tone": "blue",
+        "icon": "📌",
+        "title": "Tip",
+        "body": "Use callout for the punch-line takeaway."
+      }
+    },
+    {
+      "type": "title-code",
+      "title": "title-code layout",
+      "label": "CODE",
+      "subtitle": "One code block, one slide",
+      "code": {
+        "lang": "typescript",
+        "source": "function greet(name: string): string {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('renderer'));"
+      },
+      "callout": {
+        "tone": "green",
+        "title": "Note",
+        "body": "Plain shape only — the runtime upgrade pass adds shiki + macOS dots chrome."
+      }
+    },
+    {
+      "type": "two-col-code",
+      "title": "two-col-code layout",
+      "label": "COMPARE",
+      "ratio": "5-5",
+      "left": [
+        { "kind": "h3", "text": "Before" },
+        { "kind": "code", "lang": "java", "source": "if (animal.equals(\"dog\")) {\n  bark();\n} else if (animal.equals(\"cat\")) {\n  meow();\n}" }
+      ],
+      "right": [
+        { "kind": "h3", "text": "After" },
+        { "kind": "code", "lang": "java", "source": "Animal a = registry.get(animal);\na.speak();" },
+        { "kind": "paragraph", "text": "Strategy pattern collapses the cascade." }
+      ]
+    },
+    {
+      "type": "comparison-table",
+      "title": "comparison-table layout",
+      "label": "TABLE",
+      "lead": "Side-by-side comparison of two approaches.",
+      "headers": ["Aspect", "Approach A", "Approach B"],
+      "rows": [
+        ["Coupling", "High", "Low"],
+        ["Testability", "Hard", "Easy"],
+        ["Setup cost", "Low", "Moderate"]
+      ],
+      "callout": {
+        "tone": "amber",
+        "title": "Trade-off",
+        "body": "Approach B trades a one-time setup cost for long-term testability."
+      }
+    },
+    {
+      "type": "callout-summary",
+      "title": "callout-summary layout",
+      "label": "SUMMARY",
+      "lead": "Key takeaways from this section",
+      "callouts": [
+        { "tone": "amber", "icon": "⚠️", "title": "Pitfall", "body": "Don't treat the renderer like a markdown adapter — it is not." },
+        { "tone": "blue", "icon": "📚", "title": "Reference", "body": "design-patterns.html is the canonical visual specification." },
+        { "tone": "green", "icon": "✅", "title": "Definition of done", "body": "All 9 slide types compile and survive parsePresentationHTML + runGates." }
+      ],
+      "bullets": [
+        { "text": "JSON is the contract; HTML is generated." },
+        { "text": "LLM never writes HTML." }
+      ]
+    },
+    {
+      "type": "references",
+      "title": "References",
+      "label": "LINKS",
+      "links": [
+        { "text": "Anthropic — Claude Code", "href": "https://www.anthropic.com/claude-code", "sub": "official product page" },
+        { "text": "Vite", "href": "https://vitejs.dev/", "sub": "build tool used here" },
+        { "text": "shiki", "href": "https://shiki.style/", "sub": "syntax highlighter" }
+      ],
+      "callout": {
+        "tone": "blue",
+        "title": "Note",
+        "body": "All href values are validated to start with http:// or https://."
+      }
+    }
+  ]
+}

@@ -1,14 +1,23 @@
+import { useState } from 'react';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { BlockFormatPanel } from './BlockFormatPanel';
-import { CodeBlockEditPanel, isCodeBlock } from './CodeBlockEditPanel';
+import { CodeBlockEditPanel, findMainCanvasBlock, isCodeBlock } from './CodeBlockEditPanel';
 import { CodeBlockTemplates } from './CodeBlockTemplates';
+import { DeckWatermarkSection } from './DeckWatermarkSection';
+import { DocumentPropertiesSection } from './DocumentPropertiesSection';
+import { SlideBackgroundSection } from './SlideBackgroundSection';
 import { TextBlockTemplates } from './TextBlockTemplates';
 import { TextFormatPanel } from './TextFormatPanel';
 import { TextOverlayPropertiesSection } from './TextOverlayPropertiesSection';
 
-export function PropertiesPanel() {
+type PropertiesPanelProps = {
+  editorKind: 'deck' | 'document';
+};
+
+export function PropertiesPanel({ editorKind }: PropertiesPanelProps) {
   const slideId = useDeckStore((s) => s.slides[s.currentIndex]?.id ?? null);
+  const revision = useDeckStore((s) => s.revision);
   const selectedId = useDeckStore((s) => s.selectedOverlayId);
   const selectedBlockId = useDeckStore((s) => s.selectedBlockId);
   const overlay = useDeckStore((s) =>
@@ -18,14 +27,53 @@ export function PropertiesPanel() {
   );
   const updateOverlay = useDeckStore((s) => s.updateOverlay);
   const removeOverlay = useDeckStore((s) => s.removeOverlay);
+  const copyOverlay = useDeckStore((s) => s.copyOverlay);
+  const pasteOverlay = useDeckStore((s) => s.pasteOverlay);
+  const pasteBlock = useDeckStore((s) => s.pasteBlock);
+  const clipboard = useDeckStore((s) => s.clipboard);
+  const canPasteOverlay = clipboard?.kind === 'overlay';
+  const canPasteBlock = clipboard?.kind === 'block';
+  const [collapsed, setCollapsed] = useState(false);
+
+  if (collapsed) {
+    return (
+      <aside className="flex h-full w-8 flex-col items-center border-l border-editor-border bg-editor-panel">
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="mt-2 flex h-6 w-6 items-center justify-center rounded text-editor-dim transition hover:bg-editor-bg hover:text-editor-text"
+          title="속성 패널 펼치기"
+          aria-label="속성 패널 펼치기"
+        >
+          ‹
+        </button>
+        <div
+          className="mt-3 select-none text-[10px] font-semibold uppercase tracking-wider text-editor-dim"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          Properties
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="flex h-full w-72 flex-col border-l border-editor-border bg-editor-panel">
-      <div className="border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
-        Properties
+      <div className="flex items-center justify-between border-b border-editor-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-editor-dim">
+        <span>Properties</span>
+        <button
+          type="button"
+          onClick={() => setCollapsed(true)}
+          className="flex h-5 w-5 items-center justify-center rounded text-editor-dim transition hover:bg-editor-bg hover:text-editor-text"
+          title="속성 패널 접기"
+          aria-label="속성 패널 접기"
+        >
+          ›
+        </button>
       </div>
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
-        {selectedBlockId && !overlay ? (
+        {editorKind === 'document' ? <DocumentPropertiesSection /> : null}
+        {editorKind === 'document' ? null : selectedBlockId && !overlay ? (
           isCodeBlock(selectedBlockId) ? (
             // Code / Terminal: position-only block panel + source/lang editor.
             // Text formatting & templates are intentionally hidden — the
@@ -33,7 +81,10 @@ export function PropertiesPanel() {
             // highlighted code box.
             <div className="space-y-4">
               <BlockFormatPanel blockId={selectedBlockId} />
-              <CodeBlockEditPanel blockId={selectedBlockId} />
+              <CodeBlockEditPanel
+                getEl={() => findMainCanvasBlock(selectedBlockId)}
+                seedKey={`${slideId}:${revision}:${selectedBlockId}`}
+              />
             </div>
           ) : (
             // Text block: position panel + the full text formatting controls.
@@ -43,9 +94,46 @@ export function PropertiesPanel() {
             </div>
           )
         ) : null}
-        {!selectedBlockId && !overlay ? (
-          // Default landing view: text format defaults + insertion templates.
+        {editorKind === 'document' ? null : !selectedBlockId && !overlay ? (
+          // Default landing view: slide-level background + text format defaults
+          // + insertion templates. Background sits at the top because it's the
+          // most "ambient" change — once set, the user typically clicks back
+          // into a block and the section drops out of view.
           <div className="space-y-4">
+            <SlideBackgroundSection />
+            <DeckWatermarkSection />
+            {(canPasteBlock || canPasteOverlay) && slideId ? (
+              <div>
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+                  Clipboard
+                </div>
+                <div className="grid grid-cols-1 gap-1">
+                  {canPasteBlock ? (
+                    <button
+                      type="button"
+                      onClick={() => pasteBlock(slideId, null, 'below')}
+                      title="복사한 블록을 이 슬라이드 끝에 붙여넣기 (Cmd/Ctrl+V)"
+                      className="rounded border border-editor-accent/50 px-2 py-1.5 text-[11px] font-medium text-editor-accent transition hover:bg-editor-accent/10"
+                    >
+                      Paste block here
+                    </button>
+                  ) : null}
+                  {canPasteOverlay ? (
+                    <button
+                      type="button"
+                      onClick={() => pasteOverlay(slideId)}
+                      title="복사한 오버레이를 이 슬라이드에 붙여넣기 (Cmd/Ctrl+V)"
+                      className="rounded border border-editor-accent/50 px-2 py-1.5 text-[11px] font-medium text-editor-accent transition hover:bg-editor-accent/10"
+                    >
+                      Paste overlay here
+                    </button>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-[10px] text-editor-dim">
+                  다른 슬라이드에서 복사한 항목을 이 슬라이드에 붙여넣습니다.
+                </p>
+              </div>
+            ) : null}
             <TextFormatPanel />
             <TextBlockTemplates />
             <CodeBlockTemplates />
@@ -54,7 +142,7 @@ export function PropertiesPanel() {
             </p>
           </div>
         ) : null}
-        {!overlay || !slideId ? null : overlay.kind === 'image' ? (
+        {editorKind === 'document' || !overlay || !slideId ? null : overlay.kind === 'image' ? (
           <div className="space-y-4">
             <div>
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
@@ -106,13 +194,38 @@ export function PropertiesPanel() {
               />
             </Section>
 
-            <button
-              type="button"
-              onClick={() => removeOverlay(slideId, overlay.id)}
-              className="w-full rounded border border-red-500/40 px-2 py-1.5 text-xs text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
-            >
-              Delete
-            </button>
+            <div>
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-editor-dim">
+                Actions
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                <button
+                  type="button"
+                  onClick={() => copyOverlay(slideId, overlay.id)}
+                  title="Copy overlay (Cmd/Ctrl+C)"
+                  className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10"
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => pasteOverlay(slideId)}
+                  disabled={!canPasteOverlay}
+                  title="Paste overlay (Cmd/Ctrl+V)"
+                  className="rounded border border-editor-border px-1 py-1.5 text-[11px] text-editor-text transition hover:border-editor-accent hover:bg-editor-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Paste
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeOverlay(slideId, overlay.id)}
+                  title="Delete overlay (Del / Backspace)"
+                  className="rounded border border-red-500/40 px-1 py-1.5 text-[11px] text-red-300 transition hover:border-red-500 hover:bg-red-500/10"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
 
             <p className="text-[10px] leading-relaxed text-editor-dim">
               좌표는 1280×720 원본 기준입니다 (내보내기 시 1920×1080로 확대).

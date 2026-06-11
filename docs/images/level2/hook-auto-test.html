@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── shared bits ── */
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border: 1px solid;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .badge-teal  { color: #115E59; border-color: #115E59; background: rgba(15,118,110,0.06); }
+  .badge-blue  { color: #1E3A8A; border-color: #1E3A8A; background: rgba(30,58,138,0.06); }
+  .badge-green { color: #047857; border-color: #047857; background: rgba(4,120,87,0.06); }
+  .badge-red   { color: #B91C1C; border-color: #B91C1C; background: rgba(185,28,28,0.06); }
+
+  /* ── TOP: hook automation flow ── */
+  .flow {
+    flex: 0 0 auto;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .flow-head {
+    padding: 10px 22px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    gap: 13px;
+  }
+  .flow-head .ftitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .flow-head .fsub {
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    flex: 0 1 auto;
+    white-space: nowrap;
+  }
+  .flow-body {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 7px 22px;
+  }
+
+  .fnode {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 9px 15px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+  }
+  .fnode .ftag {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 9px;
+    min-width: 0;
+  }
+  .fnode .ftag .badge { flex: 0 0 auto; }
+  .fnode .ftag .fmeta { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .fnode .fname {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .fnode .fdesc {
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.15;
+  }
+  .fnode .fmeta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    background: #F6F5F2;
+    border: 1px solid #E4E1DA;
+    padding: 3px 8px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .fnode .fmeta .kw  { color: #115E59; font-weight: 700; }
+  .fnode .fmeta .fl  { color: #1E3A8A; }
+  .fnode .fmeta .var { color: #6B6560; }
+
+  .n-edit   { flex: 0 0 228px; }
+  .n-hook   { flex: 0 0 262px; }
+  .n-test   { flex: 1 1 0; min-width: 0; }
+  .n-result { flex: 0 0 322px; }
+
+  /* result split into pass / fail rows */
+  .result-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    justify-content: center;
+  }
+  .rrow {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .rrow .rtxt {
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.25;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .rrow .rtxt b { color: #1A1A18; font-weight: 700; }
+
+  /* arrow between flow nodes */
+  .farrow {
+    flex: 0 0 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .farrow svg { display: block; }
+
+  /* ── BOTTOM: settings.json config ── */
+  .config {
+    flex: 1;
+    display: flex;
+    gap: 26px;
+    min-height: 0;
+  }
+  .conf-card {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .conf-card.notes { flex: 0 0 432px; }
+  .conf-head {
+    padding: 7px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+  }
+  .conf-head .ctitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .code {
+    padding: 6px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.05;
+    color: #1A1A18;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .code > .code-inner {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: normal;
+  }
+  .code .k  { color: #1E3A8A; }   /* keys */
+  .code .s  { color: #047857; }   /* string values */
+  .code .n  { color: #B91C1C; }   /* numbers */
+  .code .c  { color: #6B6560; }   /* comment */
+  .code .p  { color: #6B6560; }   /* punctuation muted */
+
+  /* notes list */
+  .note-body {
+    padding: 11px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+    justify-content: center;
+  }
+  .note {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .note .nk {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .note .nv {
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.26;
+  }
+  .note .nk code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .note .nv code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ── TOP: hook-driven auto-test flow ── -->
+    <div class="flow">
+      <div class="flow-head">
+        <span class="badge badge-green">PostToolUse</span>
+        <span class="ftitle">Hook을 활용한 자동 테스트 실행</span>
+        <span class="fsub">— Edit/Write(파일을 수정할 때마다) 후 관련 테스트 자동 실행 · AI 비결정성 안전망</span>
+      </div>
+      <div class="flow-body">
+
+        <!-- 1. Edit/Write -->
+        <div class="fnode n-edit">
+          <div class="ftag"><span class="badge badge-blue">matcher</span></div>
+          <div class="fname">Claude의 파일 수정</div>
+          <div class="fdesc">도구 호출이 끝나면 훅 발동</div>
+        </div>
+
+        <div class="farrow">
+          <svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="9" x2="18" y2="9" stroke="#6B6560" stroke-width="2.4"/><polygon points="18,3 26,9 18,15" fill="#6B6560"/></svg>
+        </div>
+
+        <!-- 2. Hook fires -->
+        <div class="fnode n-hook">
+          <div class="ftag"><span class="badge badge-green">hook</span></div>
+          <div class="fname">PostToolUse 훅 트리거</div>
+          <div class="fdesc">수정된 파일 경로를 환경변수로 전달</div>
+        </div>
+
+        <div class="farrow">
+          <svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="9" x2="18" y2="9" stroke="#6B6560" stroke-width="2.4"/><polygon points="18,3 26,9 18,15" fill="#6B6560"/></svg>
+        </div>
+
+        <!-- 3. test runs -->
+        <div class="fnode n-test">
+          <div class="ftag"><span class="badge badge-teal">test</span></div>
+          <div class="fname">관련 테스트 자동 실행</div>
+          <div class="fdesc">변경 파일과 연관된 테스트만 골라 실행</div>
+        </div>
+
+        <div class="farrow">
+          <svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="9" x2="18" y2="9" stroke="#6B6560" stroke-width="2.4"/><polygon points="18,3 26,9 18,15" fill="#6B6560"/></svg>
+        </div>
+
+        <!-- 4. result pass/fail -->
+        <div class="result-rows n-result">
+          <div class="rrow">
+            <span class="badge badge-green">통과</span>
+            <div class="rtxt"><b>회귀 없음</b> — 그대로 진행</div>
+          </div>
+          <div class="rrow">
+            <span class="badge badge-red">실패</span>
+            <div class="rtxt"><b>즉시 발견</b> — 깨진 변경 차단</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BOTTOM: settings.json + notes ── -->
+    <div class="config">
+
+      <!-- settings.json (원문) -->
+      <div class="conf-card">
+        <div class="conf-head">
+          <span class="badge badge-blue">설정</span>
+          <span class="ctitle">.claude/settings.json</span>
+        </div>
+<div class="code"><span class="code-inner">{
+  <span class="k">"hooks"</span><span class="p">:</span> {
+    <span class="k">"PostToolUse"</span><span class="p">:</span> [
+      {
+        <span class="k">"matcher"</span><span class="p">:</span> <span class="s">"Edit|Write"</span><span class="p">,</span>
+        <span class="k">"hooks"</span><span class="p">:</span> [
+          {
+            <span class="k">"type"</span><span class="p">:</span> <span class="s">"command"</span><span class="p">,</span>
+            <span class="k">"command"</span><span class="p">:</span> <span class="s">"npm test -- --findRelatedTests $CLAUDE_FILE_PATH --passWithNoTests"</span><span class="p">,</span>
+            <span class="k">"timeout"</span><span class="p">:</span> <span class="n">60</span>
+          }
+        ]
+      }
+    ]
+  }
+}</span></div>
+      </div>
+
+      <!-- notes -->
+      <div class="conf-card notes">
+        <div class="conf-head">
+          <span class="badge badge-teal">읽는 법</span>
+          <span class="ctitle" style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:700;">필드별 의미</span>
+        </div>
+        <div class="note-body">
+          <div class="note">
+            <div class="nk"><code>"PostToolUse"</code></div>
+            <div class="nv">도구 실행이 끝난 직후 발동하는 훅 — 편집 결과에 반응한다</div>
+          </div>
+          <div class="note">
+            <div class="nk"><code>"matcher": "Edit|Write"</code></div>
+            <div class="nv">파일을 수정하는 도구가 끝날 때마다 훅을 발동시킨다</div>
+          </div>
+          <div class="note">
+            <div class="nk"><code>--findRelatedTests $CLAUDE_FILE_PATH</code></div>
+            <div class="nv">수정된 파일과 연관된 테스트만 선별 실행 — 전체 스위트보다 빠르다</div>
+          </div>
+          <div class="note">
+            <div class="nk"><code>--passWithNoTests</code> · <code>"timeout": 60</code></div>
+            <div class="nv">테스트가 없는 파일은 통과 처리, 60초 안에 끝내 작업 흐름을 막지 않는다</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

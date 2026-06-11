@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Moveable, { type OnDrag, type OnResize } from 'moveable';
 import { useDeckStore } from '../scene/store';
+import { linkifyHtml } from '../exporter/linkify';
+import { tryAutoLinkOnSpace } from './autoLinkUrl';
 
 type OverlayBase = {
   id: string;
@@ -242,6 +244,24 @@ function TextOverlayBox({
     }
   }, [isEditing]);
 
+  // On edit-mode exit, linkify any bare http(s) URLs the user pasted/imported
+  // or typed without a trailing SPACE (autoLinkUrl only fires on SPACE). Done
+  // at the cleanup edge so the caret/selection is never shifted mid-edit.
+  useEffect(() => {
+    if (!isEditing) return;
+    return () => {
+      const el = editableRef.current;
+      if (!el) return;
+      const before = el.innerHTML;
+      if (!/\bhttps?:\/\//.test(before)) return;
+      const after = linkifyHtml(before, document);
+      if (after !== before) {
+        el.innerHTML = after;
+        onUpdate(overlay.id, { html: after });
+      }
+    };
+  }, [isEditing, overlay.id, onUpdate]);
+
   const flush = () => {
     const el = editableRef.current;
     if (!el) return;
@@ -320,6 +340,13 @@ function TextOverlayBox({
           // selector specificity; without this the user's px override
           // is silently dropped.
           fontSize: overlay.fontSizePx ? `${overlay.fontSizePx}px` : undefined,
+        }}
+        onBeforeInput={(e) => {
+          // Auto-linkify a bare URL when SPACE is pressed right after typing
+          // it. Same UX as the slide-content path (see autoLinkUrl.ts) so a
+          // URL typed inside a free-floating text overlay also turns blue
+          // immediately, not only at export time.
+          if (tryAutoLinkOnSpace(e.nativeEvent as InputEvent)) onInput();
         }}
         onInput={onInput}
         dangerouslySetInnerHTML={{ __html: initialHtml }}

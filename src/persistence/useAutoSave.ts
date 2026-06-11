@@ -1,13 +1,17 @@
 import { useEffect } from 'react';
+import { getDeckById } from '../library/deckRegistry';
 import { useDeckStore } from '../scene/store';
 import { saveDeckToLocalStorage } from './localStore';
 import { usePersistenceStore } from './persistenceStore';
 
 const DEBOUNCE_MS = 800;
 
-export function useAutoSave(enabled: boolean): void {
+export function useAutoSave(deckId: string | null, enabled: boolean): void {
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !deckId) return;
+    // Pin the source hash for the lifetime of this active session. The
+    // registry is build-time static so this won't change underneath us.
+    const sourceHash = getDeckById(deckId)?.sourceHash;
 
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inflight = false;
@@ -26,7 +30,12 @@ export function useAutoSave(enabled: boolean): void {
         inflight = false;
         return;
       }
-      const result = await saveDeckToLocalStorage({ slides, overlaysBySlide, currentIndex });
+      const result = await saveDeckToLocalStorage(deckId, {
+        slides,
+        overlaysBySlide,
+        currentIndex,
+        sourceHash,
+      });
       if (result.ok) {
         usePersistenceStore.getState().setSaved(result.savedAt);
       } else {
@@ -56,5 +65,5 @@ export function useAutoSave(enabled: boolean): void {
       unsub();
       if (timer) clearTimeout(timer);
     };
-  }, [enabled]);
+  }, [deckId, enabled]);
 }

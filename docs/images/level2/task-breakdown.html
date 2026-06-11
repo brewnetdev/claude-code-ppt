@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --code-bg: #F5F3F0;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: transparent; }
+  body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    background: transparent;
+    padding: 28px 30px;
+  }
+
+  /* column header */
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 7px 16px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge-bad  { color: var(--red);   border-color: var(--red); }
+  .badge-good { color: var(--green); border-color: var(--green); }
+  .col-title {
+    font-family: var(--sans);
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  /* terminal-style box */
+  .term {
+    border: 1px solid var(--line);
+    background: var(--code-bg);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--warm);
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .dot { width: 13px; height: 13px; border: 1px solid #B0ABA2; border-radius: 50%; }
+  pre.code {
+    font-family: var(--mono);
+    font-size: 21px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .cmt { color: var(--warm); }
+
+  /* bad column note */
+  .bad-note {
+    border: 1px solid var(--line);
+    background: transparent;
+    padding: 22px 24px;
+    margin-top: auto;
+  }
+  .note-head {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+  }
+  .note-head-bad { color: var(--red); }
+  .note-text {
+    font-family: var(--sans);
+    font-size: 22px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* good column: numbered request steps */
+  .term-good { margin-bottom: 0; flex: 1; display: flex; flex-direction: column; }
+  .steps {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1 1 auto; }
+  .step-req {
+    font-family: var(--mono);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .step-verify {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green);
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="cols">
+
+    <!-- LEFT: bad — all at once -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-bad">나쁜 예</span>
+        <span class="col-title">한 번에 너무 많이</span>
+      </div>
+
+      <div class="term">
+        <div class="term-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="cmt"># 나쁜 예 — 한 번에 너무 많이</span>
+"사용자 인증 시스템 만들어줘. 회원가입, 로그인, 로그아웃,
+비밀번호 변경, 그리고 이메일 인증까지 포함해서."</pre>
+      </div>
+
+      <div class="bad-note">
+        <div class="note-head note-head-bad">한 번에 너무 많이 요청할 때 생기는 문제</div>
+        <div class="note-text">기능·코드 품질 저하 · 복합적 에러 발생으로 인한 디버깅 어려움 · 서로 다른 기능 간 침범으로 인한 컨텍스트 혼란</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: good — step by step -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-good">좋은 예</span>
+        <span class="col-title">단계별 분해</span>
+      </div>
+
+      <div class="term term-good">
+        <div class="term-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="cmt"># 좋은 예 — 단계별 분해</span></pre>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-req">"User 모델 스키마 정의해줘. 이메일, 비밀번호 해시, 생성일시, 수정일시 필드 포함."</div>
+              <div class="step-verify">→ 검증 후 다음 단계로</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-req">"회원가입 API 엔드포인트 만들어줘. POST /api/auth/register, 이메일과 비밀번호만 받음."</div>
+              <div class="step-verify">→ Postman으로 테스트 후 다음 단계로</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-req">"비밀번호 해싱 로직 추가해줘. bcrypt 사용."</div>
+              <div class="step-verify">→ 저장된 비밀번호가 해시되어 있는지 확인 후 다음 단계로</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-req">"로그인 API 만들어줘. POST /api/auth/login, 이메일/비밀번호 검증."</div>
+              <div class="step-verify">→ 검증 후 다음 단계로</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

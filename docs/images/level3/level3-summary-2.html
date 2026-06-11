@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 28px;
+    flex: 1;
+  }
+
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 14px;
+    padding: 28px 30px 26px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: transparent;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+  }
+  .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 6px 14px;
+    letter-spacing: 0.02em;
+    background: transparent;
+  }
+  .card-title {
+    font-size: 31px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+  }
+
+  .card-body {
+    font-size: 23px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.5;
+  }
+  .card-body .info { color: #1E3A8A; font-weight: 700; }
+  .card-body .warn { color: #B91C1C; font-weight: 700; }
+  .card-body .good { color: #047857; font-weight: 700; }
+  .card-body .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .card-body .muted { color: #6B6560; font-weight: 600; }
+
+  .lead {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .detail {
+    font-size: 23px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="grid">
+
+      <!-- 1. Skills -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">SKILL</span>
+          <span class="card-title">Skills</span>
+        </div>
+        <div class="card-body">
+          <span class="lead">모델이 자가 호출하는 절차 묶음.</span>
+          <span class="detail"><span class="info">description이 호출의 전부</span> — 언제 써야 하는지 명확히 적는다. Slash Command와 같은 메커니즘으로 통합 운영.</span>
+        </div>
+      </div>
+
+      <!-- 2. Hooks -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">HOOK</span>
+          <span class="card-title">Hooks</span>
+        </div>
+        <div class="card-body">
+          <span class="lead"><span class="mono">stdin</span> JSON 페이로드 (<span class="muted">env var 아님</span>)로 도구 인자 수신.</span>
+          <span class="detail"><span class="warn">exit 2 = 차단 + 모델에 사유 전달</span>, <span class="info">exit 1 = 비차단 경고</span>. 8개 이벤트로 정책·자동화·핸드오프 구현.</span>
+        </div>
+      </div>
+
+      <!-- 3. MCP -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">MCP</span>
+          <span class="card-title">MCP</span>
+        </div>
+        <div class="card-body">
+          <span class="lead"><span class="mono">.mcp.json</span>의 <span class="mono">"type":"http"</span>로 원격 서버 연결 (<span class="warn">sse는 deprecated</span>).</span>
+          <span class="detail">팀 공용은 <span class="mono">.mcp.json</span> 커밋, 개인 토큰은 환경변수로 분리.</span>
+        </div>
+      </div>
+
+      <!-- 4. 실습 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">PRACTICE</span>
+          <span class="card-title">실습</span>
+        </div>
+        <div class="card-body">
+          <span class="lead">프로젝트에 Skill(컨벤션) + Command(코드리뷰) + Hook(가드레일) 3종을 박는다.</span>
+          <span class="detail"><span class="good">PR 품질·복구성·자동화가 모두 한 단계 상승.</span></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="40" y="52" font-size="26" font-weight="800" fill="#1F2937">하네스의 해부학 — 네 사분면 (Fowler / Böckeler)</text>
+    <text x="40" y="84" font-size="16" fill="#6B7280">에이전트 = 모델 + 하네스 · 하네스는 "에이전트에서 모델을 뺀 나머지 전부"</text>
+
+    <!-- axis labels -->
+    <text x="360" y="138" font-size="17" font-weight="800" fill="#3B82F6" text-anchor="middle">피드포워드 (사전 유도)</text>
+    <text x="900" y="138" font-size="17" font-weight="800" fill="#22C55E" text-anchor="middle">피드백 (사후 교정)</text>
+    <text x="78" y="320" font-size="17" font-weight="800" fill="#6366F1" transform="rotate(-90 78 320)" text-anchor="middle">결정론적</text>
+    <text x="78" y="560" font-size="17" font-weight="800" fill="#EC4899" transform="rotate(-90 78 560)" text-anchor="middle">비결정론적</text>
+
+    <!-- Q1 top-left: Guides -->
+    <rect x="120" y="160" width="540" height="240" rx="16" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="145" y="200" font-size="20" font-weight="800" fill="#1E40AF">가이드 (Guides)</text>
+    <text x="145" y="228" font-size="14" fill="#3B82F6">결정론적 · 피드포워드</text>
+    <text x="145" y="266" font-size="15" fill="#1F2937">CLAUDE.md / AGENTS.md · .cursorrules · 코딩 컨벤션</text>
+    <text x="145" y="296" font-size="14" fill="#475569">애초에 잘못된 방향으로 가지 않게 유도.</text>
+    <text x="145" y="338" font-size="14" font-weight="700" fill="#16A34A">비용 ≈ 0</text>
+    <text x="240" y="338" font-size="14" font-weight="700" fill="#B91C1C">강제성 없음 — 무시 가능</text>
+    <text x="145" y="372" font-size="13" fill="#6B7280">우리 프로젝트 · CLAUDE.md(좌표계·슬롯명·변경범위 규칙)</text>
+
+    <!-- Q2 top-right: Computational -->
+    <rect x="680" y="160" width="540" height="240" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+    <text x="705" y="200" font-size="20" font-weight="800" fill="#166534">연산적 (Computational)</text>
+    <text x="705" y="228" font-size="14" fill="#22C55E">결정론적 · 피드백</text>
+    <text x="705" y="266" font-size="15" fill="#1F2937">컴파일러 · 타입 체커 · 린터 · 정적 분석 · 테스트</text>
+    <text x="705" y="296" font-size="14" fill="#475569">가이드를 무시해도 기계적으로 잡아낸다.</text>
+    <text x="705" y="338" font-size="14" font-weight="700" fill="#16A34A">강제성 강함 — 통과해야 진행</text>
+    <text x="705" y="372" font-size="13" fill="#6B7280">우리 프로젝트 · tsc / eslint / 좌표·슬롯 검증 훅</text>
+
+    <!-- Q3 bottom-left: System prompt -->
+    <rect x="120" y="420" width="540" height="240" rx="16" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
+    <text x="145" y="460" font-size="20" font-weight="800" fill="#5B21B6">시스템 프롬프트 / 지시문</text>
+    <text x="145" y="488" font-size="14" fill="#8B5CF6">비결정론적 · 피드포워드</text>
+    <text x="145" y="526" font-size="15" fill="#1F2937">역할 정의 · 행동 제약 · few-shot 예시</text>
+    <text x="145" y="556" font-size="14" fill="#475569">규칙으로 못 잡는 뉘앙스를 처리.</text>
+    <text x="145" y="596" font-size="14" fill="#374151">"확실하지 않으면 확인을 구하라"</text>
+    <text x="145" y="630" font-size="13" fill="#6B7280">우리 프로젝트 · 서브에이전트 시스템 프롬프트, 스킬 지침</text>
+
+    <!-- Q4 bottom-right: Inferential -->
+    <rect x="680" y="420" width="540" height="240" rx="16" fill="#FEF3F2" stroke="#F97316" stroke-width="2"/>
+    <text x="705" y="460" font-size="20" font-weight="800" fill="#9A3412">추론적 (Inferential)</text>
+    <text x="705" y="488" font-size="14" fill="#F97316">비결정론적 · 피드백</text>
+    <text x="705" y="526" font-size="15" fill="#1F2937">LLM-as-a-judge · 의미론적 코드/디자인 리뷰</text>
+    <text x="705" y="556" font-size="14" fill="#475569">"컴파일은 되지만 의미가 틀린" 것을 잡는다.</text>
+    <text x="705" y="596" font-size="14" fill="#374151">Anthropic Evaluator 에이전트가 이 사분면.</text>
+    <text x="705" y="630" font-size="13" fill="#6B7280">우리 프로젝트 · 슬라이드 디자인/렌더 검수 에이전트</text>
+
+    <text x="640" y="700" font-size="15" fill="#6B7280" text-anchor="middle">프로덕션 하네스는 네 사분면을 <tspan font-weight="700" fill="#1F2937">레이어링</tspan>한다 — 방어의 깊이(defense in depth)</text>
+  </g>
+</svg>

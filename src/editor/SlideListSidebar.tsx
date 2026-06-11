@@ -22,6 +22,8 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
   const currentIndex = useDeckStore((s) => s.currentIndex);
   const setCurrentIndex = useDeckStore((s) => s.setCurrentIndex);
   const reorderSlide = useDeckStore((s) => s.reorderSlide);
+  const copySlideToClipboard = useDeckStore((s) => s.copySlideToClipboard);
+  const pasteSlideFromClipboard = useDeckStore((s) => s.pasteSlideFromClipboard);
   const listRef = useRef<HTMLDivElement>(null);
   const [thumbZoom, setThumbZoom] = useState(100);
   const [zoomDraft, setZoomDraft] = useState<string | null>(null);
@@ -49,6 +51,37 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [arrowKeysEnabled]);
+
+  // Cmd/Ctrl+C copies the current slide to a cross-deck clipboard
+  // (sessionStorage-mirrored). Cmd/Ctrl+V pastes after current. Bails inside
+  // contenteditable / input / textarea so native browser text clipboard
+  // keeps working during inline editing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod || e.altKey || e.shiftKey) return;
+      const key = e.key.toLowerCase();
+      if (key !== 'c' && key !== 'v') return;
+      const ae = document.activeElement;
+      if (ae instanceof HTMLInputElement || ae instanceof HTMLTextAreaElement || ae instanceof HTMLSelectElement) return;
+      if (ae instanceof HTMLElement && ae.isContentEditable) return;
+      // Don't hijack copy/paste when user has a text selection (likely
+      // wants to copy visible text, not the slide).
+      const selection = window.getSelection?.();
+      if (selection && selection.type === 'Range' && selection.toString().length > 0) return;
+      const { slides: cur, currentIndex: i } = useDeckStore.getState();
+      if (cur.length === 0) return;
+      if (key === 'c') {
+        e.preventDefault();
+        copySlideToClipboard(i);
+      } else {
+        e.preventDefault();
+        pasteSlideFromClipboard(i);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [copySlideToClipboard, pasteSlideFromClipboard]);
 
   useEffect(() => {
     const el = listRef.current;
@@ -148,9 +181,9 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
             return (
               <div
                 key={slide.id}
-                className={`mb-2 flex w-full items-stretch gap-1 rounded border transition ${
+                className={`mb-2 flex w-full items-stretch gap-1 rounded border-2 transition ${
                   active
-                    ? 'border-editor-accent/50 bg-editor-accent/10'
+                    ? 'border-editor-accent bg-editor-accent/15 shadow-[0_0_0_1px_rgb(245_158_11_/_0.4)] ring-1 ring-editor-accent/40'
                     : 'border-transparent hover:border-editor-border hover:bg-editor-panel/60'
                 }`}
               >
@@ -170,13 +203,50 @@ export function SlideListSidebar({ arrowKeysEnabled = true }: Props = {}) {
                     // ArrowUp/ArrowDown navigation moves only store state.
                     e.currentTarget.blur();
                   }}
-                  className={`flex flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition focus:outline-none focus-visible:ring-1 focus-visible:ring-editor-accent ${
+                  className={`flex min-w-0 flex-1 flex-col gap-1.5 rounded p-1.5 text-left transition focus:outline-none focus-visible:ring-1 focus-visible:ring-editor-accent ${
                     active ? 'text-editor-text' : 'text-editor-dim hover:text-editor-text'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-editor-accent">{num}</span>
-                    <span className="truncate text-[11px]">{slide.title}</span>
+                  <div className="flex min-w-0 items-center gap-2">
+                    {/* Position input — click + type N + Enter to jump the slide
+                        to position N. Complements the ⋮⋮ drag handle for users
+                        who want to move a slide to a far-away page without
+                        scrolling-while-dragging. `key` includes idx so the
+                        input remounts (and defaultValue resyncs) after each
+                        successful reorder. */}
+                    <input
+                      key={`pos-${slide.id}-${idx}`}
+                      type="number"
+                      min={1}
+                      max={slides.length}
+                      defaultValue={num}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onFocus={(e) => e.target.select()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const n = Number((e.target as HTMLInputElement).value);
+                          if (
+                            Number.isFinite(n) &&
+                            n >= 1 &&
+                            n <= slides.length &&
+                            n - 1 !== idx
+                          ) {
+                            reorderSlide(idx, n - 1);
+                          }
+                          (e.target as HTMLInputElement).blur();
+                        } else if (e.key === 'Escape') {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      title="번호 입력 후 Enter — 해당 페이지로 이동"
+                      aria-label={`Move slide to position (currently ${num})`}
+                      className="w-7 shrink-0 rounded border border-transparent bg-transparent text-center font-mono text-[10px] text-editor-accent outline-none hover:border-editor-border focus:border-editor-accent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="min-w-0 flex-1 truncate text-[11px]" title={slide.title}>
+                      {slide.title}
+                    </span>
                   </div>
                   <SlideThumbnail slideId={slide.id} width={thumbWidth} />
                 </button>

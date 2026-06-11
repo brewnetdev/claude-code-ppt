@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 30px;
+  }
+  /* column header label */
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+  .label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 8px 18px;
+    border: 1px solid;
+  }
+  .badge-bad { color: #B91C1C; border-color: #B91C1C; }
+  .badge-good { color: #047857; border-color: #047857; }
+
+  .sub-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    letter-spacing: 0.03em;
+    margin-bottom: 14px;
+  }
+
+  /* terminal-style request box (light cream surface, plain 1px border) */
+  .req {
+    border: 1px solid #D4D0C8;
+    background: #F5F3F0;
+    padding: 22px 24px;
+    margin-bottom: 26px;
+    flex: 1;
+  }
+  .req-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .dot {
+    width: 13px; height: 13px;
+    border: 1px solid #B0ABA2;
+    border-radius: 50%;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    line-height: 1.7;
+    color: #1A1A18;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .cmt  { color: #6B6560; }
+  .pmt  { color: #0F766E; font-weight: 700; }
+  .req-bad pre.code { font-size: 24px; }
+
+  /* result row */
+  .res {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 22px 24px;
+    margin-top: auto;
+  }
+  .res-head {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .res-head-bad  { color: #B91C1C; }
+  .res-head-good { color: #047857; }
+  .res-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 24px;
+    line-height: 1.6;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="cols">
+
+    <!-- LEFT: no-spec (bad) -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-bad">명세 없음</span>
+        <span class="label">명세 없는 요청</span>
+      </div>
+
+      <div class="sub-label">요청 예시</div>
+      <div class="req req-bad">
+        <div class="req-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="cmt"># AI가 임의로 결정</span>
+<span class="pmt">&gt;</span> TODO 앱 백엔드 만들어줘</pre>
+      </div>
+
+      <div class="res">
+        <div class="res-head res-head-bad">결과</div>
+        <div class="res-text">AI가 배포 형태·DB·인증 방식을 임의 선택. 며칠 후 모두 재작성.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: spec (good) -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-good">명세 있음</span>
+        <span class="label">명세 있는 요청</span>
+      </div>
+
+      <div class="sub-label">요청 예시</div>
+      <div class="req">
+        <div class="req-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="pmt">&gt;</span> 다음 요구사항에 맞는 TODO 앱 백엔드를 만들어줘.
+<span class="pmt">&gt;</span> - 온프레미스 설치형, Docker 단일 컨테이너
+<span class="pmt">&gt;</span> - 50-100명 동시 사용자
+<span class="pmt">&gt;</span> - PostgreSQL
+<span class="pmt">&gt;</span> - 자체 인증 + Google OAuth
+<span class="pmt">&gt;</span> - 프로젝트 기반 팀 협업 지원</pre>
+      </div>
+
+      <div class="res">
+        <div class="res-head res-head-good">결과</div>
+        <div class="res-text">AI의 모든 결정사항이 요구사항과 일치</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

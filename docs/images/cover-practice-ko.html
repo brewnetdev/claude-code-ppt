@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<!-- 폰트: 강의 슬라이드 한글 가독성(Noto Sans KR) + 코드/라벨 톤의 라벨(JetBrains Mono).
+     덱(claude-code-level*.html)과 동일 패밀리로 룩앤필 일치. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --amber: #F59E0B;
+    --text:  #F1F5F9;
+    --muted: #94A3B8;
+    --border:#1E293B;
+    --bg:    #0F172A;
+  }
+  html, body { background: #020617; }
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  /* 상단 액센트 — 단색 amber 4px (anti-ai-slop: 그라데이션 topbar 금지) */
+  .topbar { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amber); z-index: 5; }
+
+  .inner {
+    position: relative; z-index: 2; height: 100%;
+    display: grid; grid-template-columns: 1fr 470px;
+    align-items: center; gap: 40px;
+    padding: 64px 72px 56px 72px;
+  }
+
+  /* ── 좌측 텍스트 ── */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: 22px;
+  }
+  .title {
+    font-size: 74px; font-weight: 900; line-height: 1.14;
+    letter-spacing: -.02em; color: var(--text);
+  }
+  .title em { font-style: normal; color: var(--amber); }
+  .rule { width: 64px; height: 3px; background: var(--amber); margin: 30px 0 26px; }
+  .subtitle { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .meta { font-size: 18px; font-weight: 400; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+
+  /* ── 우측 책 이미지 (배경 투명 PNG) ── */
+  .book { display: flex; align-items: center; justify-content: center; height: 100%; }
+  .book img {
+    height: 600px; width: auto; display: block;
+    /* 중성 회색 그림자 1단계만 (블러 < 20px) */
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.45));
+  }
+
+  /* ── 하단 브랜드 푸터 ── */
+  .footer {
+    position: absolute; left: 72px; right: 72px; bottom: 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: #475569; border-top: 1px solid var(--border); padding-top: 14px; z-index: 3;
+  }
+  .footer .brand { color: var(--amber); font-weight: 700; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="topbar"></div>
+    <div class="inner">
+      <div class="text">
+        <div class="eyebrow">Claude Code Master · 저자 직강</div>
+        <h1 class="title">실습 과정<br><em>따라하기</em></h1>
+        <div class="rule"></div>
+        <div class="subtitle">클로드 코드 마스터 저자 직강</div>
+        <div class="meta">깃 · 터미널 · 개발 도구 강의 튜토리얼 제공</div>
+      </div>
+      <div class="book">
+        <img src="book.png" alt="클로드 코드 마스터 도서 표지" />
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">CLAUDE CODE MASTER</span>
+      <span>claude.ai/code</span>
+    </div>
+  </div>
+</body>
+</html>

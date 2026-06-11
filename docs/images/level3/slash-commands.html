@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1 1 auto;
+  }
+  table.ref col.c-cmd { width: 24%; }
+  table.ref col.c-use { width: 62%; }
+  table.ref col.c-cat { width: 14%; }
+
+  table.ref thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 20px 13px 20px;
+    border-bottom: 2px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+  table.ref thead th.th-cat { text-align: right; }
+
+  table.ref tbody td {
+    padding: 0 20px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: middle;
+    font-size: 22px;
+    line-height: 1.3;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #115E59;
+    white-space: nowrap;
+  }
+  td.cmd .arg {
+    color: #6B6560;
+    font-weight: 600;
+  }
+  td.use { color: #1A1A18; }
+  td.use .em { font-weight: 600; color: #1A1A18; }
+  td.use .seq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E3A8A;
+  }
+
+  td.cat { text-align: right; }
+  .cat-badge {
+    display: inline-block;
+    padding: 4px 13px;
+    font-size: 18px;
+    font-weight: 700;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .cat-badge.setup { color: #1E3A8A; }
+  .cat-badge.flow { color: #0F766E; }
+
+  .callout {
+    flex: none;
+    margin-top: 22px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 16px 24px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.35;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 20px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="ref">
+      <colgroup>
+        <col class="c-cmd">
+        <col class="c-use">
+        <col class="c-cat">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>커맨드</th>
+          <th>용도</th>
+          <th class="th-cat">분류</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="cmd">/help</td>
+          <td class="use">현재 활성화된 모든 커맨드·스킬·MCP 서버 목록</td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/init</td>
+          <td class="use">현재 리포지토리에 맞춘 <span class="seq">CLAUDE.md</span> 초기 생성 — 코드 스캔 후 추론</td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/config</td>
+          <td class="use">모델·테마·권한·MCP 설정 한곳에서 토글</td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/permissions</td>
+          <td class="use">도구별 허용/차단 정책 편집 <span class="seq">(allow · ask · deny)</span></td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/memory</td>
+          <td class="use">적용 중인 <span class="seq">CLAUDE.md</span> 파일 일괄 편집</td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/cost</td>
+          <td class="use">현재 세션 토큰 사용량·비용</td>
+          <td class="cat"><span class="cat-badge setup">셋업·관리</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/plan</td>
+          <td class="use">현재 요청에 한해 plan 모드로 계획 수립 <span class="em">(구현전 영향 범위 파악)</span></td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/clear</td>
+          <td class="use">대화 완전 초기화 후 작업 주제 전환 <span class="seq">(CLAUDE.md는 유지)</span></td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/compact</td>
+          <td class="use">대화 요약·압축 — 핵심 결정만 보존</td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/context</td>
+          <td class="use">컨텍스트 사용량 시각화</td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/model</td>
+          <td class="use">세션 모델 전환 <span class="seq">(Opus 4.7 ↔ Sonnet 4.6 ↔ Haiku 4.5)</span></td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/rewind</td>
+          <td class="use">대화 및 코드 변경 되돌리기 <span class="em">(결과가 마음에 안들 때)</span></td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/review</td>
+          <td class="use">현재 변경사항 자가 코드 리뷰</td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/security-review</td>
+          <td class="use">보안 취약점 분석 <span class="em">(프론트 및 api 연동 후 체크)</span></td>
+          <td class="cat"><span class="cat-badge flow">워크플로</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">기억할 것</span>
+      <span class="body">셋업·관리는 처음 한 번 — 워크플로 명령(<code>/plan</code> · <code>/clear</code> · <code>/compact</code>)은 매 작업마다 손에 익혀 쓴다</span>
+    </div>
+  </div>
+</body>
+</html>

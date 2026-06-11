@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 11px 22px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* ── card header ── */
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .card-title { font-size: 31px; font-weight: 800; color: #1A1A18; line-height: 1.1; }
+  .card-sub { display: block; margin-top: 4px; font-size: 22px; font-weight: 500; color: #6B6560; line-height: 1.25; }
+  .badge {
+    flex: none;
+    padding: 6px 15px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .badge.ref { color: #1E3A8A; border-color: #1E3A8A; }
+  .badge.act { color: #0F766E; border-color: #115E59; }
+
+  /* ── feature rows ── */
+  .feat { margin-top: 4px; }
+  .feat-row { padding: 5px 0; }
+  .feat-row + .feat-row { border-top: 1px solid #ECE9E2; }
+  .feat-k {
+    display: inline;
+    margin-right: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+  }
+  .feat-v { display: inline; font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.28; }
+  .feat-v .em { font-weight: 700; color: #1A1A18; }
+  .tag-info { color: #1E3A8A; font-weight: 700; }
+  .tag-teal { color: #0F766E; font-weight: 700; }
+  .tag-warn { color: #B91C1C; font-weight: 700; }
+  .feat-v code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    background: #F4F2EC;
+    border: 1px solid #E2DED5;
+    border-radius: 5px;
+    padding: 1px 8px;
+  }
+
+  /* ── example mono block ── */
+  .ex {
+    margin-top: 3px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FAFAF8;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .ex-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 5px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+  }
+  .ex-head .label { flex: none; font-size: 20px; font-weight: 700; color: #6B6560; letter-spacing: 0.02em; }
+  .ex-head .path { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600; color: #1A1A18; word-break: break-all; }
+  .ex-body { padding: 6px 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 0; flex: 1; min-height: 0; }
+  .ex-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.22;
+    color: #1A1A18;
+  }
+  .ex-line .key { color: #6B6560; }
+  .ex-line .acc-info { color: #1E3A8A; font-weight: 600; }
+  .ex-line .acc-teal { color: #0F766E; font-weight: 600; }
+  .ex-line .acc-warn { color: #B91C1C; font-weight: 600; }
+  .ex-line.dim { color: #6B6560; }
+
+  /* ── footnote ── */
+  .foot {
+    margin-top: 10px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FAF3E6;
+    padding: 7px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .foot-item {
+    font-size: 22px;
+    line-height: 1.24;
+    color: #1A1A18;
+  }
+  .foot-item .src { font-weight: 800; color: #6B6560; font-size: 20px; }
+  .foot-item .src.ref { color: #1E3A8A; }
+  .foot-item .src.act { color: #0F766E; }
+  .foot-item code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- Reference Skill -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <span class="card-title">Reference Skill</span>
+            <span class="card-sub">지식·컨벤션 인용형 — 작업할 때 참조, 도구 호출이 거의 없는 형태</span>
+          </div>
+          <span class="badge ref">REFERENCE</span>
+        </div>
+
+        <div class="feat">
+          <div class="feat-row">
+            <div class="feat-k">성격</div>
+            <div class="feat-v"><span class="em">규칙·컨벤션을 인용</span>해 작업 중 참조</div>
+          </div>
+          <div class="feat-row">
+            <div class="feat-k">allowed-tools</div>
+            <div class="feat-v"><code>Read</code> <span class="tag-info">읽기 중심</span> — 도구 호출 거의 없음</div>
+          </div>
+          <div class="feat-row">
+            <div class="feat-k">사용 시점</div>
+            <div class="feat-v"><code>schema.ts</code> 편집 시, 새 테이블/관계 추가 시</div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-head">
+            <span class="label">예시</span>
+            <span class="path">.claude/skills/drizzle-conventions/SKILL.md</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-line"><span class="key">name:</span> drizzle-conventions</div>
+            <div class="ex-line"><span class="key">description:</span> Drizzle ORM 스키마·쿼리 작성 시 항상 참고. 컬럼 명명·인덱스·관계·트랜잭션 규칙.</div>
+            <div class="ex-line"><span class="key">allowed-tools:</span> <span class="acc-info">Read</span></div>
+            <div class="ex-line dim">## 컬럼 명명 — 테이블 snake_case 단수형, created_at/updated_at 필수</div>
+            <div class="ex-line dim">## 인덱스 — Drizzle은 FK를 자동 인덱싱하지 않는다 (누락 시 full table scan)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Skill -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <span class="card-title">Action Skill</span>
+            <span class="card-sub">절차·실행형 — "X 요청이 들어오면 Y 절차로 처리해", 도구 호출까지 묶음</span>
+          </div>
+          <span class="badge act">ACTION</span>
+        </div>
+
+        <div class="feat">
+          <div class="feat-row">
+            <div class="feat-k">성격</div>
+            <div class="feat-v"><span class="em">절차 + 도구 호출</span>을 하나로 묶어 실행</div>
+          </div>
+          <div class="feat-row">
+            <div class="feat-k">allowed-tools</div>
+            <div class="feat-v"><code>Bash</code> <code>Read</code> <code>Edit</code> <span class="tag-teal">실행 권한 포함</span></div>
+          </div>
+          <div class="feat-row">
+            <div class="feat-k">사용 시점</div>
+            <div class="feat-v">스키마 파일 수정 후, 또는 "마이그레이션 만들어" 요청 시</div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-head">
+            <span class="label">예시</span>
+            <span class="path">.claude/skills/db-migration/SKILL.md</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-line"><span class="key">name:</span> db-migration</div>
+            <div class="ex-line"><span class="key">allowed-tools:</span> <span class="acc-teal">Bash(pnpm:*) Bash(drizzle-kit:*) Read Edit</span></div>
+            <div class="ex-line"><span class="key">disable-model-invocation:</span> true <span class="dim"># /skill-name 명시 입력 시만</span></div>
+            <div class="ex-line dim">1. drizzle-kit generate로 SQL 생성  2. Read로 검토 (DROP 여부)</div>
+            <div class="ex-line dim">3. destructive면 <span class="acc-warn">사용자 확인 후 진행</span>  4. push/migrate 실행  5. diff 요약</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="foot">
+      <div class="foot-item">
+        <span class="src ref">Reference</span> — 모델이 "어떻게 쓸지"의 <span style="font-weight:700">기준</span>을 제공한다. 결과물은 코드, 스킬은 규칙집.
+      </div>
+      <div class="foot-item">
+        <span class="src act">Action</span> — 모델이 "무엇을 할지"의 <span style="font-weight:700">절차</span>를 수행한다. <code>argument-hint</code>로 인자 placeholder 안내.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

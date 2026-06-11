@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    gap: 28px;
+    align-items: stretch;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── columns ── */
+  .col { display: flex; flex-direction: column; min-height: 0; }
+  .col.left { flex: 1.4; }
+  .col.right { flex: 1; }
+
+  .panel {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 13px 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* ── panel header (label + badge, no page-title) ── */
+  .phead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .phead .h { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.2; }
+  .phead .count {
+    flex: none;
+    padding: 6px 14px;
+    font-size: 19px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    color: #6B6560;
+    white-space: nowrap;
+  }
+
+  /* ── type rows (작업 유형) — 2×2 grid ── */
+  .types { margin-top: 9px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .type {
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAFAF8;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .type .thead { display: flex; align-items: center; gap: 10px; }
+  .type .n {
+    flex: none;
+    width: 32px; height: 32px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 700;
+    color: #6B6560;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .type .body { min-width: 0; }
+  .type .t { font-size: 22px; font-weight: 700; color: #1A1A18; line-height: 1.16; }
+  .type .d { margin-top: 4px; font-size: 20px; font-weight: 500; color: #6B6560; line-height: 1.18; }
+  .type .d code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600;
+    color: #1A1A18; background: #F4F2EC;
+    border: 1px solid #E2DED5; border-radius: 5px; padding: 0 6px;
+  }
+
+  /* ── allowed-tools example block ── */
+  .ex {
+    margin-top: 9px;
+    flex: none;
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAFAF8;
+    overflow: hidden;
+  }
+  .ex-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 16px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+  }
+  .ex-head .label { font-size: 19px; font-weight: 700; color: #6B6560; letter-spacing: 0.02em; }
+  .ex-head .field { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: #1A1A18; }
+  .ex-body { padding: 7px 12px; }
+  .ex-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.18; color: #1A1A18; white-space: nowrap;
+  }
+  .ex-line.note { color: #6B6560; }
+  .ex-line.note .ok { color: #047857; font-weight: 700; }
+  .ex-line.note .bad { color: #B91C1C; font-weight: 700; }
+  .ex-line.note .pick { color: #0F766E; font-weight: 700; }
+  .ex-line .tool { color: #1A1A18; font-weight: 600; }
+
+  /* ── right: 3 inspect methods ── */
+  .methods { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; justify-content: space-between; }
+  .m {
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAFAF8;
+    padding: 8px 16px;
+  }
+  .m-top { display: flex; align-items: center; gap: 12px; }
+  .m-num {
+    flex: none;
+    width: 34px; height: 34px;
+    border: 1px solid #D4D0C8; border-radius: 8px; background: #FFFFFF;
+    font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 700;
+    color: #6B6560;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .m-name { font-size: 23px; font-weight: 700; color: #1A1A18; }
+  .m-tag {
+    flex: none; margin-left: auto;
+    padding: 4px 12px; font-size: 18px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #115E59; border-radius: 6px; color: #0F766E;
+    white-space: nowrap;
+  }
+  .m-cmd {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.18; color: #1A1A18;
+  }
+  .m-cmd .c { font-weight: 600; color: #1A1A18; }
+  .m-cmd .cmt { color: #6B6560; }
+  .m-cmd .miss { color: #B91C1C; font-weight: 700; }
+  .m-desc { margin-top: 5px; font-size: 20px; font-weight: 500; color: #6B6560; line-height: 1.2; }
+
+  /* ── tip footnote ── */
+  .tip {
+    margin-top: 7px;
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAF3E6;
+    padding: 7px 15px;
+    font-size: 20px; line-height: 1.2; color: #1A1A18;
+  }
+  .tip .lab { font-weight: 800; color: #0F766E; font-size: 19px; letter-spacing: 0.03em; }
+  .tip code {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600;
+    color: #1A1A18; background: #FFFFFF; border: 1px solid #E2DED5; border-radius: 5px; padding: 0 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: 작업 유형 + allowed-tools 예시 -->
+    <div class="col left">
+      <section class="panel" style="flex:none;">
+        <div class="phead">
+          <span class="h">Skill이 수행할 수 있는 작업 유형</span>
+          <span class="count">4 TYPES</span>
+        </div>
+
+        <div class="types">
+          <div class="type">
+            <div class="thead"><div class="n">01</div><div class="t">파일 시스템 접근</div></div>
+            <div class="d">파일 읽기·쓰기·수정에 대한 구체적인 규칙과 패턴을 정의할 수 있다.</div>
+          </div>
+          <div class="type">
+            <div class="thead"><div class="n">02</div><div class="t">명령어 실행</div></div>
+            <div class="d">특정 상황에서 실행해야 할 셸 명령어나 스크립트를 정의할 수 있다.</div>
+          </div>
+          <div class="type">
+            <div class="thead"><div class="n">03</div><div class="t">웹 검색 및 문서 참조</div></div>
+            <div class="d">최신 정보나 공식 문서를 참조해야 하는 상황에 대한 지침을 제공할 수 있다.</div>
+          </div>
+          <div class="type">
+            <div class="thead"><div class="n">04</div><div class="t">권한 제어나 보안</div></div>
+            <div class="d"><code>allowed-tools</code> 필드를 통해 활성화된 스킬의 도구를 제한할 수 있다.</div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-head">
+            <span class="label">예시</span>
+            <span class="field">allowed-tools</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-line note"># 코드 수정 가능 <span class="ok">(명령어 실행 불가)</span></div>
+            <div class="ex-line"><span class="tool">allowed-tools: Read, Write, Edit, Grep, Glob</span></div>
+            <div class="ex-line note" style="margin-top:3px"># 전체 개발 작업 <span class="bad">(테스트 실행 포함-보안상 위험)</span></div>
+            <div class="ex-line"><span class="tool">allowed-tools: Read, Write, Edit, Grep, Glob, Bash</span></div>
+            <div class="ex-line note" style="margin-top:3px"># 전체 개발 작업 <span class="pick">(권장 - 필요한 명령만 허용)</span></div>
+            <div class="ex-line"><span class="tool">allowed-tools: Bash(npm run:*), Bash(git add:*),</span></div>
+            <div class="ex-line"><span class="tool">&nbsp;&nbsp;Bash(git commit:*), Read, Write</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="tip">
+        <span class="lab">TIP</span> &nbsp;자동 호출 여부 판단 시 Claude는 <code>description</code>을 가장 먼저 읽는다 — 설명이 모호하면 활성화도 모호하다.
+      </div>
+    </div>
+
+    <!-- RIGHT: 확인 3가지 방법 -->
+    <div class="col right">
+      <section class="panel" style="flex:1;">
+        <div class="phead">
+          <span class="h">사용 가능한 Skill 확인 — 3가지 방법</span>
+          <span class="count">3 WAYS</span>
+        </div>
+
+        <div class="methods">
+          <div class="m">
+            <div class="m-top">
+              <span class="m-num">1</span>
+              <span class="m-name"><code style="font-size:22px;font-weight:700">/skills</code> 통합 조회</span>
+              <span class="m-tag">권장</span>
+            </div>
+            <div class="m-desc">개인·프로젝트·설치된 플러그인의 Skill을 한 화면에서 통합 조회 — Claude Code CLI에서 가장 간단</div>
+          </div>
+
+          <div class="m">
+            <div class="m-top">
+              <span class="m-num">2</span>
+              <span class="m-name">자연어 질문</span>
+            </div>
+            <div class="m-cmd"><span class="cmt">"사용 가능한 Skill이 뭐가 있어?"</span></div>
+            <div class="m-desc">Claude가 description을 모아 답변</div>
+          </div>
+
+          <div class="m">
+            <div class="m-top">
+              <span class="m-num">3</span>
+              <span class="m-name">직접 확인 — 4개 경로</span>
+            </div>
+            <div class="m-cmd">
+              <div><span class="cmt"># ① 개인 스킬 (사용자 전역)</span></div>
+              <div><span class="c">ls ~/.claude/skills/</span></div>
+              <div><span class="cmt"># ② 프로젝트 스킬</span></div>
+              <div><span class="c">ls .claude/skills/</span></div>
+              <div><span class="cmt"># ③ 플러그인 설치 스킬 <span class="miss">(누락!)</span></span></div>
+              <div><span class="c">ls ~/.claude/plugins/</span></div>
+              <div><span class="cmt"># ④ --add-dir 추가 디렉토리 스킬 <span class="miss">(선택적, 누락!)</span></span></div>
+              <div><span class="cmt"># claude --add-dir ../shared-tools</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</body>
+</html>

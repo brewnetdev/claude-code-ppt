@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── top: BAD vs GOOD report (input quality) ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1.55fr;
+    gap: 22px;
+    align-items: stretch;
+  }
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .card-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.1; }
+  .badge {
+    flex: none;
+    padding: 5px 13px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.03em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.bad { color: #B91C1C; border-color: #B91C1C; }
+  .badge.good { color: #047857; border-color: #047857; }
+
+  .prompt-bad {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.4;
+    color: #B91C1C;
+    font-weight: 600;
+  }
+  .prompt-bad .lead { color: #1A1A18; font-weight: 700; display: block; margin-bottom: 6px; }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 22px;
+  }
+  .rsec { display: flex; flex-direction: column; gap: 3px; }
+  .rsec.full { grid-column: 1 / -1; }
+  .rsec .h {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #0F766E;
+    letter-spacing: 0.01em;
+  }
+  .rsec .body {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.3;
+    color: #1A1A18;
+    font-weight: 600;
+  }
+  .rsec .body .em { color: #B91C1C; font-weight: 700; }
+  .rsec ul { list-style: none; }
+  .rsec ul li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.32;
+    color: #1A1A18;
+    font-weight: 600;
+    padding-left: 16px;
+    position: relative;
+  }
+  .rsec ul li::before { content: "-"; position: absolute; left: 0; color: #6B6560; }
+
+  /* ── middle: connector ── */
+  .feed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+  }
+  .feed .arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+  .feed .lbl { font-weight: 700; color: #1A1A18; }
+
+  /* ── bottom: 4-step root-cause flow ── */
+  .flow {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr;
+    align-items: stretch;
+    gap: 0;
+  }
+  .step {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 15px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .step .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1;
+  }
+  .step .label {
+    font-size: 25px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.12;
+  }
+  .step .sub {
+    font-size: 20px;
+    line-height: 1.3;
+    color: #6B6560;
+    font-weight: 500;
+  }
+  .step .sub .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #1E3A8A; }
+  .conn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+
+  /* ── source callout ── */
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 13px 18px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 13px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #7C4A02;
+    font-weight: 600;
+  }
+  .callout .ctext .src {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: ineffective vs effective error report -->
+    <div class="compare">
+      <section class="card">
+        <div class="card-head">
+          <span class="card-title">비효과적</span>
+          <span class="badge bad">BAD</span>
+        </div>
+        <div class="prompt-bad">
+          <span class="lead">이 에러 고쳐줘:</span>
+          TypeError: Cannot read property 'id' of undefined
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <span class="card-title">효과적</span>
+          <span class="badge good">GOOD</span>
+        </div>
+        <div class="report-grid">
+          <div class="rsec full">
+            <span class="h"># 에러 메시지</span>
+            <div class="body">TypeError: ... 'id' of undefined<br>at DocumentService.updateDocument<br><span class="em">(apps/web/.../document.service.ts:47)</span></div>
+          </div>
+          <div class="rsec">
+            <span class="h"># 발생 조건</span>
+            <ul>
+              <li>PATCH /api/v1/documents/:docId</li>
+              <li>categoryId가 null일 때만</li>
+            </ul>
+          </div>
+          <div class="rsec">
+            <span class="h"># 관련 파일·명세</span>
+            <ul>
+              <li>document.service.ts (line 47)</li>
+              <li>packages/db/src/schema.ts</li>
+              <li>DATA_MODEL.md 비즈니스 규칙</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- CONNECTOR: report feeds analysis -->
+    <div class="feed">
+      <span class="lbl">컨텍스트 있는 에러 보고</span>
+      <span class="arrow">→</span>
+      <span class="lbl">근본 원인 4단계 분석</span>
+    </div>
+
+    <!-- BOTTOM: 4-step root-cause analysis flow -->
+    <div class="flow">
+      <div class="step">
+        <span class="num">01</span>
+        <span class="label">증상</span>
+        <span class="sub">에러 메시지 전문 첨부</span>
+      </div>
+      <div class="conn">→</div>
+      <div class="step">
+        <span class="num">02</span>
+        <span class="label">재현 조건</span>
+        <span class="sub">언제·어떤 입력에서 발생하는가</span>
+      </div>
+      <div class="conn">→</div>
+      <div class="step">
+        <span class="num">03</span>
+        <span class="label">시도한 것</span>
+        <span class="sub">확인·수정 시도와 결과</span>
+      </div>
+      <div class="conn">→</div>
+      <div class="step">
+        <span class="num">04</span>
+        <span class="label">관련 명세</span>
+        <span class="sub"><span class="mono">REQUIREMENTS.md</span> FR-X</span>
+      </div>
+    </div>
+
+    <!-- SOURCE -->
+    <div class="callout">
+      <span class="clbl">출처</span>
+      <span class="ctext"><span class="src">4.6.1 에러 보고 패턴</span> · 에러 메시지 첨부 → 근본 원인 분석. 증상 → 재현 조건 → 시도한 것 → 관련 명세까지, 회귀 방지를 한 번에.</span>
+    </div>
+
+  </div>
+</body>
+</html>

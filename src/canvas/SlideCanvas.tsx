@@ -1,5 +1,9 @@
 import type { DragEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  getZoomPercent as readStoredZoomPercent,
+  setZoomPercent as writeStoredZoomPercent,
+} from '../persistence/localStore';
 import { useDeckStore } from '../scene/store';
 import { OverlayLayer, type ImageOverlay, type Overlay } from './OverlayLayer';
 import { SlideRenderer } from './SlideRenderer';
@@ -23,8 +27,16 @@ export function SlideCanvas() {
   // baseScale auto-fits the slide to the viewport; zoomPercent layers on top
   // so 100% always means "fit to current pane" regardless of pane size.
   const [baseScale, setBaseScale] = useState(1);
-  const [zoomPercent, setZoomPercent] = useState(100);
+  const [zoomPercent, setZoomPercent] = useState<number>(() => readStoredZoomPercent() ?? 100);
   const [zoomDraft, setZoomDraft] = useState<string | null>(null);
+
+  // Persist zoom across reloads. Skip the initial render to avoid writing
+  // the freshly-read value back, and stay below the storage call rate by
+  // only firing on settled values (the input commits via blur/Enter, the
+  // ± buttons fire once per click).
+  useEffect(() => {
+    writeStoredZoomPercent(zoomPercent);
+  }, [zoomPercent]);
   const [dropActive, setDropActive] = useState(false);
   const scale = baseScale * (zoomPercent / 100);
 
@@ -35,6 +47,63 @@ export function SlideCanvas() {
   const setSelectedBlockId = useDeckStore((s) => s.setSelectedBlockId);
   const addOverlay = useDeckStore((s) => s.addOverlay);
   const updateOverlayInStore = useDeckStore((s) => s.updateOverlay);
+  // Cmd/Ctrl+C/V + Delete shortcuts for blocks and overlays. Read fresh
+  // store state inside the handler so we don't restart the listener on
+  // every selection change.
+  useEffect(() => {
+    const isEditableTarget = (target: EventTarget | null): boolean => {
+      const el =
+        target instanceof HTMLElement
+          ? target
+          : (document.activeElement as HTMLElement | null);
+      if (!el) return false;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return true;
+      return el.isContentEditable;
+    };
+    const onKeydown = (e: KeyboardEvent) => {
+      // Native text-edit shortcuts (Cmd+C/V inside a textbox, Backspace deleting
+      // a character) win unconditionally — never poach keys from text input.
+      if (isEditableTarget(e.target)) return;
+      const mod = e.metaKey || e.ctrlKey;
+      const k = e.key.toLowerCase();
+      const state = useDeckStore.getState();
+      const sid = state.slides[state.currentIndex]?.id ?? null;
+      if (!sid) return;
+
+      if (mod && k === 'c') {
+        if (state.selectedOverlayId) {
+          state.copyOverlay(sid, state.selectedOverlayId);
+          e.preventDefault();
+        } else if (state.selectedBlockId) {
+          state.copyBlock(sid, state.selectedBlockId);
+          e.preventDefault();
+        }
+        return;
+      }
+      if (mod && k === 'v') {
+        if (state.clipboard?.kind === 'overlay') {
+          state.pasteOverlay(sid);
+          e.preventDefault();
+        } else if (state.clipboard?.kind === 'block') {
+          // No anchor → append at end. With an anchor → paste below it.
+          state.pasteBlock(sid, state.selectedBlockId, 'below');
+          e.preventDefault();
+        }
+        return;
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (state.selectedOverlayId) {
+          state.removeOverlay(sid, state.selectedOverlayId);
+          e.preventDefault();
+        } else if (state.selectedBlockId) {
+          state.removeBlock(sid, state.selectedBlockId);
+          e.preventDefault();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeydown);
+    return () => window.removeEventListener('keydown', onKeydown);
+  }, []);
   // Force SlideRenderer to remount on undo/redo so the fresh slide.html from
   // the history snapshot is injected; normal typing never bumps revision.
   const revision = useDeckStore((s) => s.revision);
@@ -82,21 +151,57 @@ export function SlideCanvas() {
       const dropX = (e.clientX - rect.left) / sc;
       const dropY = (e.clientY - rect.top) / sc;
 
-      const w = 360;
-      const h = 240;
       const url = URL.createObjectURL(file);
       const id = makeId();
-      const item: ImageOverlay = {
-        id,
-        kind: 'image',
-        src: url,
-        x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
-        y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
-        w,
-        h,
+
+      // Drop at the source's NATURAL pixel dimensions. The blob URL still
+      // references the original File (no re-encoding), and using the natural
+      // size as the overlay box means the browser doesn't have to resample
+      // anything on initial paint — what you uploaded is what you see, at
+      // 1:1. The user can resize down with Moveable handles afterwards. We
+      // intentionally do NOT cap the box: the previous MAX_EDGE=600 clamp
+      // was forcing a 6× downscale on a 3104×3647 book cover and that's
+      // the "image quality tanks on drop" symptom.
+      const probe = new Image();
+      probe.onload = () => {
+        const w = probe.naturalWidth || 1;
+        const h = probe.naturalHeight || 1;
+        // Center on the drop point. Clamp the top-left to ≥ 0 so the user
+        // can see the top-left corner of an oversized image; the bottom-
+        // right is allowed to extend past the slide bounds (Moveable can
+        // pull it back in or shrink the box).
+        const x = Math.max(0, Math.round(dropX - w / 2));
+        const y = Math.max(0, Math.round(dropY - h / 2));
+        const item: ImageOverlay = {
+          id,
+          kind: 'image',
+          src: url,
+          x,
+          y,
+          w,
+          h,
+        };
+        addOverlay(slideId, item);
+        setSelectedOverlayId(id);
       };
-      addOverlay(slideId, item);
-      setSelectedOverlayId(id);
+      probe.onerror = () => {
+        // Fallback to the legacy fixed box only when natural-dim probing fails
+        // (corrupt file, blocked CORS, etc.). Better than dropping nothing.
+        const w = 360;
+        const h = 240;
+        const item: ImageOverlay = {
+          id,
+          kind: 'image',
+          src: url,
+          x: Math.max(0, Math.min(dropX - w / 2, SLIDE_WIDTH - w)),
+          y: Math.max(0, Math.min(dropY - h / 2, SLIDE_HEIGHT - h)),
+          w,
+          h,
+        };
+        addOverlay(slideId, item);
+        setSelectedOverlayId(id);
+      };
+      probe.src = url;
     },
     [slideId, addOverlay, setSelectedOverlayId],
   );

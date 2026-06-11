@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1 1 auto;
+  }
+  table.cmp col.c-aspect { width: 18%; }
+  table.cmp col.c-prompt { width: 33%; }
+  table.cmp col.c-context { width: 49%; }
+
+  table.cmp thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 28px 20px 28px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.cmp thead th .hd-aspect {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  table.cmp thead th .hd-title {
+    font-size: 31px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  table.cmp thead th .hd-sub {
+    display: block;
+    margin-top: 7px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.35;
+  }
+
+  table.cmp tbody td {
+    padding: 26px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 23px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+
+  td.aspect {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  td.aspect .aspect-name { display: block; }
+
+  .val-strong { font-weight: 600; color: #1A1A18; }
+  .pill-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
+  .pill-list li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 6px 14px;
+    background: #FFFFFF;
+  }
+  .tag-good { color: #047857; font-weight: 700; }
+  .tag-bad { color: #B91C1C; font-weight: 700; }
+
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 28px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.45;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 21px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cmp">
+      <colgroup>
+        <col class="c-aspect">
+        <col class="c-prompt">
+        <col class="c-context">
+      </colgroup>
+      <thead>
+        <tr>
+          <th><span class="hd-aspect">관점</span></th>
+          <th>
+            <span class="hd-title">프롬프트 엔지니어링</span>
+            <span class="hd-sub">한 번 잘 묻기</span>
+          </th>
+          <th>
+            <span class="hd-title">컨텍스트 엔지니어링</span>
+            <span class="hd-sub">모델이 매 턴마다 보는 "전체 상태"를 설계하기</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="aspect"><span class="aspect-name">대상</span></td>
+          <td><span class="val-strong">한 번의 요청 문장</span></td>
+          <td><span class="val-strong">매 턴 모델에 입력되는 전체 토큰 상태</span></td>
+        </tr>
+        <tr>
+          <td class="aspect"><span class="aspect-name">구성 요소</span></td>
+          <td>
+            <ul class="pill-list">
+              <li>지시</li>
+              <li>예시</li>
+              <li>역할</li>
+            </ul>
+          </td>
+          <td>
+            <ul class="pill-list">
+              <li>System prompt</li>
+              <li>도구 정의</li>
+              <li>메모리</li>
+              <li>검색결과</li>
+              <li>대화이력</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td class="aspect"><span class="aspect-name">최적화</span></td>
+          <td>표현 다듬기</td>
+          <td><span class="val-strong">무엇을 넣고 무엇을 뺄지</span> 큐레이션</td>
+        </tr>
+        <tr>
+          <td class="aspect"><span class="aspect-name">실패 신호</span></td>
+          <td><span class="tag-bad">의도 오해</span></td>
+          <td>
+            <span class="tag-bad">점진적 품질 저하</span> · <span class="tag-bad">환각</span> · <span class="tag-bad">일관성 붕괴</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">Anthropic — Effective Context Engineering</span>
+      <span class="body">컨텍스트는 유한 자원. 각 턴마다 "이 토큰이 모델의 다음 행동에 정말 영향을 주는가?"를 기준으로 선별한다.</span>
+    </div>
+  </div>
+</body>
+</html>

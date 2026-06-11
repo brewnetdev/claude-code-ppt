@@ -1,36 +1,38 @@
 import { useEffect, useRef, useState } from 'react';
+import { parseHexColorInput } from './hexColor';
 
-// Atlassian Design System palette — 5 tone rows × 10 hue columns + grayscale.
-// Ported from docs/html/colorpicker.html (the user supplied this file as the
-// design source for the picker UI).
+// Standard editor palette: row 1 is grayscale (pure black → pure white), and
+// rows 2-5 are saturated primary hues at four intensities. The previous
+// Atlassian-style ramp lacked pure #000 / #FFF and tinted everything toward
+// navy, which made plain text recoloring feel off.
 const ROWS: { label: string; colors: string[] }[] = [
   {
-    label: '가장 진한',
-    colors: ['#172B4D', '#5D1F1A', '#702E00', '#533F04', '#37471F', '#164B35', '#164555', '#09326C', '#50253F', '#352C63'],
+    label: '무채',
+    colors: ['#000000', '#18181B', '#27272A', '#3F3F46', '#52525B', '#71717A', '#A1A1AA', '#D4D4D8', '#E4E4E7', '#FFFFFF'],
   },
   {
-    label: '더 진한',
-    colors: ['#44546F', '#AE2E24', '#A54800', '#946F00', '#4C6B1F', '#216E4E', '#206A83', '#0055CC', '#943D73', '#5E4DB2'],
+    label: '진함',
+    colors: ['#7F1D1D', '#9A3412', '#92400E', '#854D0E', '#166534', '#115E59', '#1E40AF', '#312E81', '#6B21A8', '#9D174D'],
+  },
+  {
+    label: '기본',
+    colors: ['#DC2626', '#EA580C', '#D97706', '#CA8A04', '#16A34A', '#0F766E', '#2563EB', '#4338CA', '#9333EA', '#BE185D'],
   },
   {
     label: '중간',
-    colors: ['#626F86', '#C9372C', '#C25100', '#CF9F02', '#5B7F24', '#1F845A', '#227D9B', '#0C66E4', '#AE4787', '#6E5DC6'],
+    colors: ['#EF4444', '#F97316', '#F59E0B', '#EAB308', '#22C55E', '#14B8A6', '#3B82F6', '#6366F1', '#A855F7', '#EC4899'],
   },
   {
-    label: '연한',
-    colors: ['#8590A2', '#F87168', '#FEA362', '#F5CD47', '#6A9A23', '#22A06B', '#2898BD', '#1D7AFC', '#CD519D', '#8270DB'],
-  },
-  {
-    label: '가장 연한',
-    colors: ['#FFFFFF', '#FFD5D2', '#FEDEC8', '#F8E6A0', '#D3F1A7', '#BAF3DB', '#C6EDFB', '#CCE0FF', '#FDD0EC', '#DFD8FD'],
+    label: '연함',
+    colors: ['#FCA5A5', '#FDBA74', '#FCD34D', '#FDE047', '#86EFAC', '#5EEAD4', '#93C5FD', '#A5B4FC', '#D8B4FE', '#F9A8D4'],
   },
 ];
 
-const HEX_RE = /^#?([0-9a-fA-F]{6})$/;
-
-function normalizeHex(input: string): string | null {
-  const m = HEX_RE.exec(input.trim());
-  return m ? `#${m[1].toUpperCase()}` : null;
+// Seed the hex draft from a value, but only when it's a real hex color — a
+// non-hex value (e.g. an imported `rgb(0,0,0)`) must not dump junk into the box.
+function hexDraftFromValue(value: string | null): string {
+  const parsed = value ? parseHexColorInput(value) : null;
+  return parsed ? parsed.replace('#', '') : '';
 }
 
 type Props = {
@@ -43,19 +45,20 @@ type Props = {
 
 // Inline popover. Caller is responsible for showing/hiding.
 export function ColorPickerPopover({ value, onChange, allowNone = true }: Props) {
-  const [hexDraft, setHexDraft] = useState(() => (value ?? '').replace('#', ''));
+  const [hexDraft, setHexDraft] = useState(() => hexDraftFromValue(value));
 
   useEffect(() => {
-    setHexDraft((value ?? '').replace('#', ''));
+    setHexDraft(hexDraftFromValue(value));
   }, [value]);
 
   const handleHex = (raw: string) => {
-    const cleaned = raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
-    setHexDraft(cleaned);
-    if (cleaned.length === 6) {
-      const hex = normalizeHex(cleaned);
-      if (hex) onChange(hex);
-    }
+    // Display: keep only hex chars (max 6) so the box never shows junk.
+    setHexDraft(raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6));
+    // Commit: validate the ORIGINAL input. Cleaning-then-accepting would turn a
+    // pasted "rgb(255,0,0)" into "#B25500"; parseHexColorInput rejects non-hex
+    // and accepts complete 3/6-digit hex only.
+    const parsed = parseHexColorInput(raw);
+    if (parsed) onChange(parsed);
   };
 
   return (
@@ -153,7 +156,7 @@ export function ColorSwatchButton({ value, onChange, label, allowNone = true }: 
         <span
           className="h-4 w-4 rounded border border-editor-border"
           style={{
-            background: value ?? 'transparent',
+            backgroundColor: value ?? 'transparent',
             backgroundImage: value
               ? undefined
               : 'linear-gradient(45deg, #555 25%, transparent 25%, transparent 75%, #555 75%), linear-gradient(45deg, #555 25%, transparent 25%, transparent 75%, #555 75%)',

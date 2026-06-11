@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Noto Sans KR: 한국어 본문 · JetBrains Mono: 이벤트명/스크립트/키 · Inter: 라틴 보조 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  /* 두 라이프사이클 단계 라벨 (압축 시 / 재개 시) — 세로 스택 */
+  .lanes {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  /* 흐름 한 줄 */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* 평범한 사각 박스 — 전체 균일 1px 테두리 */
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    padding: 14px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .box .ev {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 30px;
+    color: #0F766E;
+    line-height: 1.2;
+  }
+  .box .ev.plain {
+    color: #1A1A18;
+  }
+  .box .matcher {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #1E3A8A;
+    margin-top: 7px;
+  }
+  .box .role {
+    font-size: 24px;
+    line-height: 1.38;
+    color: #1A1A18;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+  .box .role .sub {
+    display: block;
+    font-size: 22px;
+    color: #6B6560;
+    font-weight: 400;
+    margin-top: 4px;
+  }
+  .box .script {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 22px;
+    color: #115E59;
+    margin-top: 9px;
+  }
+
+  /* 단계 박스 폭 */
+  .b-compact { width: 360px; }
+  .b-pre     { flex: 1; }
+  .b-resume  { width: 360px; }
+  .b-start   { flex: 1; }
+
+  /* 삼각형 화살표 (transparent border 예외만 사용) */
+  .arrow {
+    flex: none;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 78px;
+    color: #6B6560;
+  }
+  .arrow .line {
+    width: 100%;
+    height: 0;
+    border-top: 1px solid #6B6560;
+    position: relative;
+  }
+  .arrow .head {
+    position: absolute;
+    right: -1px;
+    top: -7px;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #6B6560;
+  }
+  .arrow .alabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #6B6560;
+    margin-bottom: 11px;
+    white-space: nowrap;
+  }
+
+  /* 단계 구간 (압축 직전 / 세션 재개) — 좌측 라벨 + 흐름 */
+  .phase {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .phase-row .b-pre,
+  .phase-row .b-start {
+    min-width: 0;
+  }
+  .phase .plabel {
+    flex: none;
+    width: 210px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+  }
+  .phase-row {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* 두 단계 구간 사이 연결 (세션 경계) — 세로 방향 흐름 */
+  .gap {
+    flex: none;
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    color: #6B6560;
+    padding: 2px 0 2px 230px;
+  }
+  .gap .glabel {
+    font-size: 21px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.35;
+  }
+  .gap .glabel code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #1A1A18;
+    font-size: 20px;
+  }
+  .gap .gbar {
+    flex: none;
+    width: 0;
+    height: 34px;
+    border-left: 1px dashed #6B6560;
+    position: relative;
+    order: -1;
+  }
+  .gap .ghead {
+    position: absolute;
+    bottom: -1px;
+    left: -7px;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 11px solid #6B6560;
+  }
+
+  /* 산출물(dump 파일) — 평범한 박스, 전체 1px 테두리 */
+  .artifact {
+    display: flex;
+    align-items: stretch;
+    gap: 22px;
+  }
+  .artifact .acard {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 11px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .artifact .acard .ahead {
+    font-weight: 700;
+    font-size: 25px;
+    color: #1A1A18;
+    margin-bottom: 6px;
+  }
+  .artifact .acard .ahead code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #115E59;
+    font-size: 23px;
+  }
+  .artifact .acard .abody {
+    font-size: 22px;
+    line-height: 1.42;
+    color: #6B6560;
+    font-weight: 400;
+  }
+  .artifact .acard .abody b {
+    font-weight: 600;
+    color: #1A1A18;
+  }
+
+  /* 전제 조건 박스 — 전체 1px 테두리 균일 */
+  .prereq {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 11px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .prereq .ptag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 8px 16px;
+    letter-spacing: 0.03em;
+  }
+  .prereq .ptxt {
+    font-size: 23px;
+    line-height: 1.5;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .prereq .ptxt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #115E59;
+    font-size: 21px;
+  }
+  .prereq .ptxt .dot {
+    color: #6B6560;
+    padding: 0 9px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- 핸드오프 자동화 흐름: /compact 직전 dump → 세션 재개 시 주입 -->
+    <div class="lanes">
+
+      <!-- 압축 직전 단계 -->
+      <div class="phase">
+        <div class="plabel">압축 직전 (PreCompact)</div>
+        <div class="phase-row">
+          <div class="box b-compact">
+            <div class="ev plain">/compact</div>
+            <div class="matcher">matcher: manual</div>
+            <div class="role">사용자가 명시적으로 호출</div>
+          </div>
+
+          <div class="arrow">
+            <span class="alabel">발동</span>
+            <span class="line"><span class="head"></span></span>
+          </div>
+
+          <div class="box b-pre">
+            <div class="ev">PreCompact</div>
+            <div class="role">압축 직전 현재 상태 dump
+              <span class="sub">결정 · 미해결 사항을 파일로 기록</span>
+            </div>
+            <div class="script">dump-handoff.sh</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 세션 경계: 압축 후 종료 → --resume 재개 -->
+      <div class="gap">
+        <div class="glabel">세션 종료 후 <code>--resume</code> 재개</div>
+        <div class="gbar"><span class="ghead"></span></div>
+      </div>
+
+      <!-- 세션 재개 단계 -->
+      <div class="phase">
+        <div class="plabel">세션 재개 (SessionStart)</div>
+        <div class="phase-row">
+          <div class="box b-resume">
+            <div class="ev plain">새 세션</div>
+            <div class="matcher">matcher: resume</div>
+            <div class="role">중단했던 세션 이어가기</div>
+          </div>
+
+          <div class="arrow">
+            <span class="alabel">작동</span>
+            <span class="line"><span class="head"></span></span>
+          </div>
+
+          <div class="box b-start">
+            <div class="ev">SessionStart</div>
+            <div class="role">dump를 컨텍스트에 재주입
+              <span class="sub">직전 결정 · 미해결을 그대로 복원</span>
+            </div>
+            <div class="script">inject-handoff.sh</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 두 스크립트가 주고받는 산출물 -->
+    <div class="artifact">
+      <div class="acard">
+        <div class="ahead"><code>dump-handoff.sh</code> &mdash; 쓰기</div>
+        <div class="abody">PreCompact에서 <b>결정 · 미해결 사항</b>을 파일로 dump. 세션이 끊겨도 컨텍스트가 사라지지 않게 만드는 안전망.</div>
+      </div>
+      <div class="acard">
+        <div class="ahead"><code>inject-handoff.sh</code> &mdash; 읽기</div>
+        <div class="abody">SessionStart(resume)에서 dump를 읽어 새 세션 컨텍스트에 <b>다시 주입</b>. 끊긴 흐름을 이어 붙인다.</div>
+      </div>
+    </div>
+
+    <!-- 전제 조건 -->
+    <div class="prereq">
+      <span class="ptag">추가 사항</span>
+      <span class="ptxt">
+        <code>dump-handoff.sh</code> · <code>inject-handoff.sh</code> 스크립트 작성
+        <span class="dot">&middot;</span>두 파일에 실행권한 <code>chmod +x</code> 적용
+        <span class="dot">&middot;</span><code>jq</code> 설치 (stdin JSON 파싱)
+      </span>
+    </div>
+
+  </div>
+</body>
+</html>

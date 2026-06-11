@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col { display: flex; flex-direction: column; gap: 16px; min-height: 0; justify-content: space-between; }
+  .col .code { flex: none; }
+
+  /* section label badges */
+  .seclabel {
+    display: flex;
+    align-items: baseline;
+    gap: 13px;
+    flex-wrap: wrap;
+  }
+  .seclabel .badge {
+    display: inline-block;
+    padding: 5px 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    color: #0F766E;
+    white-space: nowrap;
+  }
+  .seclabel .ttl {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.15;
+  }
+  .seclabel .ttl .arg {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #115E59;
+  }
+
+  /* generic box */
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: transparent;
+    padding: 14px 16px;
+  }
+
+  /* code box (lighter mono panel) */
+  .code {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FCFBF8;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    line-height: 1.2;
+    color: #1A1A18;
+    white-space: pre-wrap;
+    overflow: hidden;
+  }
+  .code .fname {
+    display: block;
+    font-weight: 700;
+    color: #6B6560;
+    font-size: 15px;
+    margin-bottom: 7px;
+  }
+  .code .fm { color: #6B6560; }
+  .code .key { color: #1E3A8A; font-weight: 600; }
+  .code .val { color: #1A1A18; }
+  .code .tool { color: #115E59; font-weight: 600; }
+  .code .var { color: #B91C1C; font-weight: 700; }
+  .code .bang { color: #0F766E; font-weight: 700; }
+  .code .step { color: #1A1A18; }
+  .code .dim { color: #6B6560; }
+  .code .ko { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+
+  /* scope row */
+  .scope {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .scope .sb {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 11px 15px;
+  }
+  .scope .sb .sk {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A1A18;
+    margin-bottom: 5px;
+  }
+  .scope .sb .path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .scope .sb .note { font-size: 22px; color: #1A1A18; }
+
+  .prio {
+    margin-top: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 22px;
+    color: #1A1A18;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .prio .lab {
+    flex: none;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #1E3A8A;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 4px 11px;
+    white-space: nowrap;
+  }
+  .prio .pf { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #115E59; }
+
+  /* frontmatter field chips */
+  .fields { display: flex; flex-wrap: wrap; gap: 10px; }
+  .fields .f {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1E3A8A;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 6px 13px;
+    background: transparent;
+  }
+
+  .lede {
+    font-size: 22px;
+    line-height: 1.4;
+    color: #1A1A18;
+  }
+  .lede .em { font-weight: 700; color: #1A1A18; }
+  .lede .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+  }
+
+  .twocode { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: custom command structure -->
+      <div class="col">
+        <div class="seclabel">
+          <span class="badge">.claude/commands/</span>
+          <span class="ttl">커스텀 커맨드</span>
+        </div>
+
+        <p class="lede">
+          반복되는 프롬프트를 <span class="em">파일로 박아두면</span> 슬래시 한 줄로 호출.
+          <span class="m">YAML frontmatter</span> 사용 + <span class="m">description</span> 필드 + <span class="m">allowed-tools</span>.
+        </p>
+
+        <div class="code">
+          <span class="fname"># .claude/commands/code-review.md</span><span class="fm">---</span>
+<span class="key">description</span>: <span class="val ko">현재 git diff 기준 코드 리뷰</span>
+<span class="key">allowed-tools</span>: <span class="tool">["Bash(git:*)", "Read", "Grep"]</span>
+<span class="fm">---</span>
+<span class="step ko">다음 절차로 코드 리뷰를 수행해줘:</span>
+<span class="dim">1.</span> <span class="ko">`git diff origin/main...HEAD` 결과를 읽는다.</span>
+<span class="dim">2.</span> <span class="ko">파일별로 ① 의도 ② 위험 ③ 누락 테스트 정리.</span>
+<span class="dim">3.</span> <span class="ko">보안·성능·접근성 위반 명시.  </span><span class="dim">4.</span> <span class="ko">표 — 파일 / 위험도 / 권고.</span>
+        </div>
+
+        <div class="scope">
+          <div class="sb">
+            <div class="sk">Project</div>
+            <span class="path">.claude/commands/</span>
+            <span class="note">팀 공유</span>
+          </div>
+          <div class="sb">
+            <div class="sk">User</div>
+            <span class="path">~/.claude/commands/</span>
+            <span class="note">모든 프로젝트</span>
+          </div>
+        </div>
+
+        <div class="prio">
+          <span class="lab">스코프</span>
+          <span>둘 다 있으면 <span class="pf">Project</span> 우선.</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: $ARGUMENTS -->
+      <div class="col">
+        <div class="seclabel">
+          <span class="badge">argument-hint</span>
+          <span class="ttl"><span class="arg">$ARGUMENTS</span> — 커맨드에 인자 받기</span>
+        </div>
+
+        <div class="code">
+          <span class="fname"># .claude/commands/fix-issue.md</span><span class="fm">---</span>
+<span class="key">description</span>: <span class="val ko">GitHub 이슈 번호로 수정안 작성 + PR 초안</span>
+<span class="key">argument-hint</span>: <span class="val">[issue-number]</span>   <span class="key">allowed-tools</span>: <span class="tool">Bash(gh:*), Read, Grep, Glob</span>
+<span class="fm">---</span>
+<span class="dim">## Issue Context</span> <span class="bang">!</span>`<span class="tool">gh issue view</span> <span class="var">$ARGUMENTS</span>`
+<span class="dim">## Issue Comments</span> <span class="bang">!</span>`<span class="tool">gh issue view</span> <span class="var">$ARGUMENTS</span> --comments`
+<span class="dim">## Task</span> <span class="ko">이슈 #<span class="var">$ARGUMENTS</span>를 처리하라 — </span><span class="ko"><b>분석</b>·<b>탐색</b>·<b>최소 변경안</b>·<b>PR 본문 초안</b></span>
+        </div>
+
+        <div class="code">
+          <span class="fname"># .claude/commands/add-feature.md → /add-feature payment</span><span class="fm">---</span>
+<span class="key">description</span>: <span class="val ko">새 기능 스캐폴딩(Next.js+Drizzle+Vitest)</span>
+<span class="key">argument-hint</span>: <span class="val">[feature-name]</span>
+<span class="key">allowed-tools</span>: <span class="tool">Write, Bash(mkdir:*), Bash(pnpm:*), Read, Glob</span>
+<span class="fm">---</span>
+<span class="dim"># Add Feature — ## 인자 검증</span> <span class="ko">`<span class="var">$ARGUMENTS</span>`가 다음을 모두 만족:</span>
+<span class="dim">-</span> <span class="ko">정규식 `^[a-z][a-z0-9-]*$` 일치 · 길이 2~40자</span>
+<span class="bang">!</span>`<span class="tool">ls src/features/</span> 2>/dev/null | head -5`
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

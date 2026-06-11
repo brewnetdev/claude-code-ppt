@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .box-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 22px 0 22px;
+  }
+  .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .box-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+  }
+  .box-title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-left: 10px;
+  }
+
+  /* ---- TOP: auto-resume flow ---- */
+  .flow { flex: none; }
+  .flow-row {
+    padding: 20px 22px 22px 22px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .node {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+  }
+  .node .nlbl {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    letter-spacing: 0.03em;
+  }
+  .node .ncmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .node .ndesc {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.3;
+  }
+  .node.term .nlbl { color: #047857; }
+  .node.term .ncmd { color: #047857; }
+  .harrow {
+    flex: none;
+    width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .harrow::before {
+    content: "";
+    width: 0; height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 12px solid #6B6560;
+  }
+
+  /* ---- MIDDLE: split — concept + JSON ---- */
+  .mid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.18fr 1fr;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  /* concept (left) */
+  .concept-body {
+    padding: 16px 22px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+    flex: 1;
+  }
+  .mem-pair {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .mem {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .mem .mk { font-size: 20px; font-weight: 800; letter-spacing: 0.02em; }
+  .mem .mt { font-size: 22px; font-weight: 700; color: #1A1A18; }
+  .mem .ms { font-size: 20px; font-weight: 500; color: #6B6560; line-height: 1.3; }
+  .mem.work .mk { color: #1E3A8A; }
+  .mem.persist .mk { color: #047857; }
+  .mem-arrow {
+    flex: none;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mem-arrow::before {
+    content: "";
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 11px solid #6B6560;
+  }
+  .concept-note {
+    font-size: 22px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.42;
+  }
+  .concept-note .em { color: #B91C1C; font-weight: 700; }
+  .concept-note .strong { color: #047857; font-weight: 700; }
+
+  /* JSON mono box (right) — light box */
+  .jsonbox {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+  }
+  .json-body {
+    padding: 16px 22px 18px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .json-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-bottom: 8px;
+  }
+  pre.json {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #1A1A18;
+    white-space: pre;
+  }
+  pre.json .k { color: #1E3A8A; font-weight: 700; }
+  pre.json .s { color: #047857; }
+  pre.json .p { color: #6B6560; }
+  pre.json .c { color: #B45309; font-weight: 700; }
+
+  /* ---- BOTTOM full-width link callout ---- */
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 16px 22px;
+  }
+  .callout .src {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .callout .cbody { font-size: 22px; font-weight: 500; color: #7C4A02; line-height: 1.4; }
+  .callout .cbody code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: SessionStart auto-resume flow -->
+    <div class="box flow">
+      <div class="box-head">
+        <span class="badge">자동 재개 흐름</span>
+        <span class="box-title">SessionStart 훅 자동 재개<span class="en">HANDOFF.json</span></span>
+      </div>
+      <div class="flow-row">
+        <div class="node">
+          <span class="nlbl">세션 종료 전</span>
+          <span class="ncmd">/gsd-pause-work</span>
+          <span class="ndesc">HANDOFF.json 생성</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node">
+          <span class="nlbl">다음 세션 시작</span>
+          <span class="ncmd">SessionStart hook</span>
+          <span class="ndesc">HANDOFF.json 감지</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node">
+          <span class="nlbl">자동 호출</span>
+          <span class="ncmd">/gsd-resume-work</span>
+          <span class="ndesc">HANDOFF.json 읽기</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node term">
+          <span class="nlbl">복원</span>
+          <span class="ncmd">작업 재개</span>
+          <span class="ndesc">중단 지점부터 이어감</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: concept (left) + JSON (right) -->
+    <div class="mid">
+
+      <!-- left: 컨텍스트 외부화 -->
+      <div class="box">
+        <div class="box-head">
+          <span class="badge">개념</span>
+          <span class="box-title">핸드오프 = 컨텍스트 외부화</span>
+        </div>
+        <div class="concept-body">
+          <div class="mem-pair">
+            <div class="mem work">
+              <span class="mk">세션 컨텍스트</span>
+              <span class="mt">워킹 메모리</span>
+              <span class="ms">세션 종료 시 소멸</span>
+            </div>
+            <div class="mem-arrow"></div>
+            <div class="mem persist">
+              <span class="mk">외부 파일</span>
+              <span class="mt">영속 메모리</span>
+              <span class="ms">HANDOFF.json 으로 보존</span>
+            </div>
+          </div>
+          <div class="concept-note">
+            워킹 메모리와 영속 메모리의 <span class="strong">경계를 명확히</span> — 컴팩션 <span class="em">자동화</span>와 명시적 핸드오프를 함께 운용.
+          </div>
+        </div>
+      </div>
+
+      <!-- right: JSON structure -->
+      <div class="box jsonbox">
+        <div class="box-head">
+          <span class="badge">JSON 구조</span>
+          <span class="box-title" style="font-size:26px;">영속 메모리 산출물</span>
+        </div>
+        <div class="json-body">
+          <div class="json-file">HANDOFF.json</div>
+<pre class="json">{
+  <span class="c">// /gsd-pause-work 가 기록</span>
+  <span class="k">"기록"</span><span class="p">:</span> <span class="s">"세션 컨텍스트(영속 메모리)"</span><span class="p">,</span>
+  <span class="k">"읽기"</span><span class="p">:</span> <span class="s">"/gsd-resume-work"</span><span class="p">,</span>
+  <span class="k">"트리거"</span><span class="p">:</span> <span class="s">"SessionStart hook"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM full-width link callout -->
+    <div class="callout">
+      <span class="src">출처</span>
+      <span class="cbody">gsd-build / get-shit-done — /gsd-pause-work 가 HANDOFF.json 을 기록하고 SessionStart 훅이 /gsd-resume-work 로 복원 · <code>github.com/gsd-build/get-shit-done</code></span>
+    </div>
+
+  </div>
+</body>
+</html>

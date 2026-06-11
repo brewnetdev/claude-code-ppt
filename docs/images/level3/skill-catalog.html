@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── 3-block row ── */
+  .row { display: flex; gap: 16px; flex: 1; min-height: 0; }
+  .panel {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 13px 18px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .panel.wide { flex: 1.07; }
+  .panel.narrow { flex: 0.88; }
+
+  /* panel header */
+  .phead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 9px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .phead .h { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.12; }
+  .phead .tag {
+    flex: none;
+    padding: 4px 10px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    color: #6B6560;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+  .sub {
+    margin-top: 8px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.25;
+  }
+  .sub code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600;
+    color: #1A1A18; background: #F4F2EC;
+    border: 1px solid #E2DED5; border-radius: 5px; padding: 0 7px;
+  }
+
+  /* item list */
+  .items { margin-top: 7px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; justify-content: space-between; }
+  .item {
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAFAF8;
+    padding: 7px 11px;
+  }
+  .item .t {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: #1A1A18; line-height: 1.1;
+  }
+  .item .d { margin-top: 3px; font-size: 18px; font-weight: 500; color: #6B6560; line-height: 1.22; }
+  .item .d .pick { color: #0F766E; font-weight: 700; }
+  .item .star {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px; font-weight: 700; color: #1A1A18;
+  }
+
+  /* bundled list (block 2) — single column, name + desc inline */
+  .bgrid { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: space-between; }
+  .bcell {
+    border: 1px solid #D4D0C8;
+    border-radius: 9px;
+    background: #FAFAF8;
+    padding: 7px 11px;
+  }
+  .bcell .bn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: #1A1A18; line-height: 1.1;
+  }
+  .bcell .bd { margin-top: 3px; font-size: 18px; font-weight: 500; color: #6B6560; line-height: 1.22; }
+
+  /* bottom strip: install command block + source callout side by side */
+  .bottom { display: flex; flex-direction: row; gap: 16px; flex: none; align-items: stretch; }
+
+  /* install command block */
+  .cmdbox {
+    flex: 1.58;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FAFAF8;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .cmd-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 5px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+  }
+  .cmd-cmt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; line-height: 1.15; color: #6B6560; font-weight: 600;
+    white-space: nowrap;
+  }
+  .cmd-badge {
+    flex: none;
+    padding: 3px 11px; font-size: 17px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #115E59; border-radius: 6px; color: #0F766E;
+    white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .cmd-body { padding: 9px 11px; display: flex; flex-direction: column; justify-content: center; gap: 4px; flex: 1; }
+  .cmd-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.18; color: #1A1A18; font-weight: 600;
+    white-space: nowrap;
+    letter-spacing: -0.025em;
+  }
+  .cmd-line .kw { color: #0F766E; font-weight: 700; }
+
+  /* source/link callout (cream) */
+  .callout {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 12px;
+    padding: 9px 18px;
+    color: #7C4A02;
+  }
+  .callout .inner { display: block; }
+  .callout .src {
+    font-weight: 800;
+    font-size: 20px;
+    color: #7C4A02;
+    letter-spacing: 0.02em;
+    margin-right: 8px;
+  }
+  .callout .body {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.3;
+    color: #7C4A02;
+  }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="row">
+
+      <!-- BLOCK 1: 공식 카탈로그 -->
+      <section class="panel wide">
+        <div class="phead">
+          <span class="h">공식 Skill 카탈로그</span>
+          <span class="tag">anthropics/skills</span>
+        </div>
+        <div class="sub">검증된 Skill 모음, 그대로 복사 사용 가능</div>
+        <div class="items">
+          <div class="item">
+            <div class="t">document-skills/*</div>
+            <div class="d">PDF·DOCX·XLSX·PPTX 변환 — Office 문서 처리 자동화</div>
+          </div>
+          <div class="item">
+            <div class="t">artifacts-builder/*</div>
+            <div class="d">React/TypeScript/Tailwind/shadcn 기반 멀티 컴포넌트 HTML 아티펙트 생성</div>
+          </div>
+          <div class="item">
+            <div class="t">frontend-design/*</div>
+            <div class="d">AI slop 회피 - 차별화된 UI 디자인 <span class="pick">(가장 인기 많은 항목중 하나)</span></div>
+          </div>
+          <div class="item">
+            <div class="t">skill-creator/*</div>
+            <div class="d">새 스킬 작성, 평가, 최적화 - skill을 작성하기 위한 meta-skill</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOCK 2: 번들 스킬 기본 제공 -->
+      <section class="panel narrow">
+        <div class="phead">
+          <span class="h">번들 스킬</span>
+          <span class="tag">Claude Code 기본 제공</span>
+        </div>
+        <div class="sub">설치 없이 바로 호출 가능한 내장 스킬</div>
+        <div class="bgrid">
+          <div class="bcell">
+            <div class="bn">simplify</div>
+            <div class="bd">변경 코드 3-에이전트 병렬 리뷰</div>
+          </div>
+          <div class="bcell">
+            <div class="bn">batch</div>
+            <div class="bd">대규모 변경 (worktree 기반 병렬)</div>
+          </div>
+          <div class="bcell">
+            <div class="bn">debug</div>
+            <div class="bd">디버그 로그 분석 및 오류 진단</div>
+          </div>
+          <div class="bcell">
+            <div class="bn">loop</div>
+            <div class="bd">프롬프트 주기적 반복 실행</div>
+          </div>
+          <div class="bcell">
+            <div class="bn">claude-api</div>
+            <div class="bd">Claude API 레퍼런스 로드</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOCK 3: 마켓플레이스 -->
+      <section class="panel wide">
+        <div class="phead">
+          <span class="h">마켓플레이스</span>
+          <span class="tag">한 줄 설치</span>
+        </div>
+        <div class="sub">한 줄 설치로 등록·연동되는 큐레이션 소스</div>
+        <div class="items">
+          <div class="item">
+            <div class="t">anthropics/skills</div>
+            <div class="d">공식 — 100k+ <span class="star">&#9733;</span> · 문서 스킬(docx·pdf·pptx·xlsx) + 명세 + 템플릿 제공</div>
+          </div>
+          <div class="item">
+            <div class="t">skill.sh (Vercel)</div>
+            <div class="d">100k+ Skill · <code>npx skills add &lt;owner/repo&gt;</code> 원커맨드 + 17개 에이전트 지원</div>
+          </div>
+          <div class="item">
+            <div class="t">awesome-claude-skills (Composio)</div>
+            <div class="d">9개 카테고리 큐레이션 · 외부 앱 500+ 연동 가능</div>
+          </div>
+          <div class="item">
+            <div class="t">skillsmp.com</div>
+            <div class="d"><code>marketplace.json</code> 통합 검색 · 플러그인 명령어로 원커맨드 설치</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM STRIP: install command (mono) + source/links callout -->
+    <div class="bottom">
+      <div class="cmdbox">
+        <div class="cmd-body">
+          <div class="cmd-line"><span class="kw">/plugin marketplace add</span> anthropics/skills</div>
+          <div class="cmd-line"><span class="kw">/plugin install</span> document-skills@anthropic-agent-skills</div>
+          <div class="cmd-line"><span class="kw">/plugin install</span> pr-review-toolkit@claude-plugins-official</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="inner"><span class="src">출처 / 링크</span><span class="body"><code>github.com/anthropics/skills</code> · <code>skill.sh</code> · <code>awesome-claude-skills</code> · <code>skillsmp.com (SkillsMP)</code></span></span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

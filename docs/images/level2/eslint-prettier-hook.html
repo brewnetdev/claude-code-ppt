@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  /* 폰트: 한국어 본문 가독성 Noto Sans KR, 코드/설정 키 JetBrains Mono, 라틴 라벨 Inter */
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: row;
+    gap: 28px;
+  }
+
+  /* ── shared bits ── */
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 21px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6B6560;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px;
+    font-weight: 700;
+    padding: 4px 13px;
+    border: 1px solid;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .badge-teal  { color: #115E59; border-color: #115E59; background: rgba(15,118,110,0.06); }
+  .badge-blue  { color: #1E3A8A; border-color: #1E3A8A; background: rgba(30,58,138,0.06); }
+  .badge-green { color: #047857; border-color: #047857; background: rgba(4,120,87,0.06); }
+  .badge-red   { color: #B91C1C; border-color: #B91C1C; background: rgba(185,28,28,0.06); }
+
+  /* ── columns ── */
+  .col { display: flex; flex-direction: column; gap: 13px; min-width: 0; height: 632px; }
+  .col-flow { flex: 0 0 560px; }
+  .col-conf { flex: 1; min-width: 0; }
+
+  /* ── LEFT: hook automation flow (vertical) ── */
+  .flow {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .flow-head {
+    padding: 9px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    flex-wrap: wrap;
+  }
+  .flow-head .ftitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .flow-head .fsub {
+    flex-basis: 100%;
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.25;
+  }
+  .flow-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0;
+    padding: 4px 16px;
+  }
+
+  .fnode {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+  }
+  .fnode .fbadge { flex: none; }
+  .fnode .fmain { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .fnode .fname {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .fnode .fdesc {
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.28;
+  }
+  .fnode .fcmd {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    background: #F6F5F2;
+    border: 1px solid #E4E1DA;
+    padding: 6px 11px;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+  .fnode .fcmd .kw { color: #115E59; font-weight: 700; }
+  .fnode .fcmd .fl { color: #1E3A8A; }
+  .fnode .fcmd .var { color: #6B6560; }
+
+  /* two tools side by side inside one stage */
+  .tools-row { display: flex; gap: 14px; align-items: stretch; }
+  .tool {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tool .trow { display: flex; align-items: center; gap: 11px; }
+  .tool .tname {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .tool .tcmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .tool .tcmd .kw { color: #115E59; font-weight: 700; }
+  .tool .tcmd .fl { color: #1E3A8A; }
+  .tool .tcmd .var { color: #6B6560; }
+
+  /* vertical arrow between stages */
+  .farrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 0;
+  }
+  .farrow svg { display: block; }
+
+  /* ── RIGHT: config file cards (lint + formatter) ── */
+  .card {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .card.grow { flex: 1.3 1 0; }
+  .card-head {
+    padding: 11px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    flex-wrap: wrap;
+  }
+  .card-head .ctitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .card-role {
+    flex-basis: 100%;
+    font-size: 20px;
+    font-weight: 500;
+    color: #6B6560;
+    line-height: 1.35;
+  }
+  .code {
+    background: #F6F5F2;
+    padding: 12px 12px 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.24;
+    color: #1A1A18;
+    flex: 1;
+    min-height: 0;
+    white-space: pre;
+    overflow: hidden;
+  }
+  .code .k  { color: #1E3A8A; }   /* keys */
+  .code .s  { color: #047857; }   /* string values */
+  .code .n  { color: #B91C1C; }   /* error / true / numbers emphasis */
+  .code .c  { color: #6B6560; }   /* comment */
+  .code .p  { color: #6B6560; }   /* punctuation muted */
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ── LEFT COLUMN: hook-driven automation flow (vertical) ── -->
+    <div class="col col-flow">
+      <div class="panel-label">자동화 훅 — 편집 후 포맷·린트 자동 실행</div>
+      <div class="flow">
+        <div class="flow-head">
+          <span class="badge badge-green">PostToolUse</span>
+          <span class="ftitle">Claude Code Hook 자동 실행 흐름</span>
+          <span class="fsub">— Claude가 파일을 편집하면 훅이 포맷·린트를 자동 적용</span>
+        </div>
+        <div class="flow-body">
+
+          <!-- 1. Edit/Write -->
+          <div class="fnode">
+            <span class="badge badge-blue fbadge">matcher</span>
+            <div class="fmain">
+              <div class="fname">Claude의 파일 편집</div>
+              <div class="fdesc">도구 호출이 끝나면 훅 발동</div>
+            </div>
+            <div class="fcmd"><span class="fl">Edit</span> | <span class="fl">Write</span></div>
+          </div>
+
+          <div class="farrow">
+            <svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#6B6560" stroke-width="2.4"/><polygon points="3.5,14 10,22 16.5,14" fill="#6B6560"/></svg>
+          </div>
+
+          <!-- 2. Hook fires -->
+          <div class="fnode">
+            <span class="badge badge-green fbadge">hook</span>
+            <div class="fmain">
+              <div class="fname">PostToolUse 훅 트리거</div>
+              <div class="fdesc">type: command · timeout 30s · 실패해도 작업 중단 없음 (|| true)</div>
+            </div>
+          </div>
+
+          <div class="farrow">
+            <svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#6B6560" stroke-width="2.4"/><polygon points="3.5,14 10,22 16.5,14" fill="#6B6560"/></svg>
+          </div>
+
+          <!-- 3. tools run (two side by side) -->
+          <div class="tools-row">
+            <div class="tool">
+              <div class="trow"><span class="badge badge-blue">1</span><span class="tname">Prettier 포맷</span></div>
+              <div class="tcmd"><span class="kw">npx prettier</span> <span class="fl">--write</span> <span class="var">$CLAUDE_FILE_PATH</span></div>
+            </div>
+            <div class="tool">
+              <div class="trow"><span class="badge badge-teal">2</span><span class="tname">ESLint 자동 수정</span></div>
+              <div class="tcmd"><span class="kw">npx eslint</span> <span class="fl">--fix</span> <span class="var">$CLAUDE_FILE_PATH</span></div>
+            </div>
+          </div>
+
+          <div class="farrow">
+            <svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="14" stroke="#6B6560" stroke-width="2.4"/><polygon points="3.5,14 10,22 16.5,14" fill="#6B6560"/></svg>
+          </div>
+
+          <!-- 4. result -->
+          <div class="fnode">
+            <span class="badge badge-green fbadge">결과</span>
+            <div class="fmain">
+              <div class="fname">규칙 적용된 파일</div>
+              <div class="fdesc">포맷 통일 · any/console 정리 — 사람이 손대지 않아도 일관 유지</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT COLUMN: configuration files (lint + formatter) ── -->
+    <div class="col col-conf">
+      <div class="panel-label">구성요소 — 린트(.eslintrc) · 포맷터(.prettierrc)</div>
+
+      <!-- ESLint -->
+      <div class="card grow">
+        <div class="card-head">
+          <span class="badge badge-teal">ESLINT</span>
+          <span class="ctitle">.eslintrc.json</span>
+          <span class="card-role">린트 — any 타입 error · console 경고 (TypeScript + React)</span>
+        </div>
+<div class="code">{
+  <span class="k">"extends"</span><span class="p">:</span> [<span class="s">"next/core-web-vitals"</span><span class="p">,</span>
+              <span class="s">"prettier"</span>]<span class="p">,</span>
+  <span class="k">"rules"</span><span class="p">:</span> {
+  <span class="k">"@typescript-eslint/no-explicit-any"</span><span class="p">:</span> <span class="n">"error"</span><span class="p">,</span>
+  <span class="k">"no-console"</span><span class="p">:</span> <span class="s">"warn"</span>
+  }
+}</div>
+      </div>
+
+      <!-- Prettier -->
+      <div class="card">
+        <div class="card-head">
+          <span class="badge badge-blue">PRETTIER</span>
+          <span class="ctitle">.prettierrc</span>
+          <span class="card-role">포맷터 — 세미콜론 · 싱글쿼트 · 들여쓰기 2칸 · 100자</span>
+        </div>
+<div class="code">{
+  <span class="k">"semi"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> <span class="k">"singleQuote"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="k">"tabWidth"</span><span class="p">:</span> <span class="n">2</span><span class="p">,</span> <span class="k">"trailingComma"</span><span class="p">:</span> <span class="s">"es5"</span><span class="p">,</span>
+  <span class="k">"bracketSpacing"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> <span class="k">"printWidth"</span><span class="p">:</span> <span class="n">100</span>
+}</div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

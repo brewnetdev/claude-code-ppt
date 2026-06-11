@@ -7,9 +7,11 @@ import './styles/editor.css';
 // source location for pasting into AI coding agents. Vite guarantees
 // import.meta.env.DEV is statically false in production builds, so the
 // dynamic import is tree-shaken from the prod bundle.
-if (import.meta.env.DEV) {
-  import('react-grab');
-}
+// NOTE: disabled during presentation demos — the on-page icon is distracting.
+// Re-enable by uncommenting the block below.
+// if (import.meta.env.DEV) {
+//   import('react-grab');
+// }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:transparent; }
+  body {
+    font-family:'Noto Sans KR','Inter',sans-serif;
+    color:#1A1A18;
+    -webkit-font-smoothing:antialiased;
+  }
+  .frame {
+    width:1280px; height:720px; position:relative; padding:44px;
+    background:transparent;
+    display:grid; grid-template-columns:520px 1fr; gap:28px; align-items:stretch;
+  }
+
+  /* ── generic panel ── */
+  .panel {
+    border:1px solid #D4D0C8; background:transparent;
+    padding:18px 22px; display:flex; flex-direction:column;
+  }
+  .panel-head { display:flex; align-items:center; gap:13px; margin-bottom:13px; }
+  .badge {
+    font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700;
+    letter-spacing:.04em; padding:6px 14px; border:1px solid; white-space:nowrap;
+  }
+  .badge-bad  { color:#B91C1C; border-color:#B91C1C; }
+  .badge-teal { color:#0F766E; border-color:#0F766E; }
+  .panel-title { font-size:30px; font-weight:900; color:#1A1A18; line-height:1.15; }
+
+  /* ── LEFT : curve ── */
+  .chart-wrap { border:1px solid #D4D0C8; background:transparent; padding:12px 20px 8px; }
+  .chart-cap {
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; color:#6B6560;
+    margin-bottom:6px;
+  }
+  .chart-cap .q { color:#1A1A18; }
+  svg.curve { display:block; width:100%; height:64px; }
+
+  .causes-title {
+    font-size:22px; font-weight:700; color:#1A1A18;
+    margin:10px 0 8px;
+  }
+  .causes { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cause {
+    border:1px solid #D4D0C8; background:transparent;
+    padding:9px 13px; display:flex; flex-direction:column; gap:3px;
+  }
+  .cause .ct { font-size:22px; font-weight:700; color:#1A1A18; }
+  .cause .cd { font-size:20px; line-height:1.3; color:#6B6560; }
+  .cause .cd .en { font-family:'JetBrains Mono',monospace; color:#1E3A8A; font-weight:600; }
+
+  .grow { flex:1 1 auto; }
+  .source {
+    margin-top:8px; padding-top:10px; border-top:1px solid #D4D0C8;
+    font-size:20px; line-height:1.35; color:#6B6560;
+  }
+  .source b { color:#1A1A18; font-weight:700; }
+  .source .url { font-family:'JetBrains Mono',monospace; font-size:20px; color:#1E3A8A; display:inline-block; margin-top:4px; }
+
+  /* ── RIGHT : 6 principles ── */
+  .principles { display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1 1 auto; align-content:space-between; }
+  .pr {
+    border:1px solid #D4D0C8; background:transparent;
+    padding:11px 12px; display:flex; gap:10px; align-items:flex-start;
+  }
+  .pr-n {
+    font-family:'JetBrains Mono',monospace; font-size:40px; font-weight:700;
+    color:#FFFFFF; background:#0F766E;
+    flex:0 0 50px; height:50px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pr-body { display:flex; flex-direction:column; gap:5px; min-width:0; }
+  .pr-t { font-size:30px; font-weight:900; color:#1A1A18; line-height:1.1; }
+  .pr-d { font-size:22px; line-height:1.32; color:#6B6560; }
+  .pr-d .mono { font-family:'JetBrains Mono',monospace; color:#1E3A8A; font-weight:600; }
+  .pr-d .keep { color:#047857; font-weight:700; }
+  .pr-d .drop { color:#B91C1C; font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ════════ LEFT : Context Rot 현상 ════════ -->
+    <section class="panel">
+      <div class="panel-head">
+        <span class="badge badge-bad">CONTEXT ROT</span>
+        <span class="panel-title">컨텍스트가 길어질수록 품질이 떨어진다</span>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-cap">
+          <span class="q">출력 품질 / 정확도</span>
+          <span>입력 토큰 수 →</span>
+        </div>
+        <svg class="curve" viewBox="0 0 560 104" preserveAspectRatio="none" aria-hidden="true">
+          <!-- plot box -->
+          <rect x="40" y="5" width="508" height="76" fill="none" stroke="#D4D0C8" stroke-width="1"/>
+          <!-- horizontal gridlines -->
+          <line x1="40" y1="24" x2="548" y2="24" stroke="#E8E5DF" stroke-width="1"/>
+          <line x1="40" y1="43" x2="548" y2="43" stroke="#E8E5DF" stroke-width="1"/>
+          <line x1="40" y1="62" x2="548" y2="62" stroke="#E8E5DF" stroke-width="1"/>
+          <!-- y axis ticks -->
+          <text x="32" y="17" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="#6B6560">高</text>
+          <text x="32" y="78" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="#6B6560">低</text>
+          <!-- descending single-color quality curve -->
+          <path d="M 46 14 C 152 18, 212 24, 272 39 C 332 54, 402 70, 548 76"
+                fill="none" stroke="#B91C1C" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- start / end markers (small squares, neutral border) -->
+          <rect x="42" y="10" width="8" height="8" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.5"/>
+          <rect x="544" y="72" width="8" height="8" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.5"/>
+          <!-- x axis labels -->
+          <text x="46"  y="97" text-anchor="start"  font-family="'JetBrains Mono',monospace" font-size="13" fill="#6B6560">짧음</text>
+          <text x="294" y="97" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-size="13" fill="#6B6560">↗ 길이 증가</text>
+          <text x="548" y="97" text-anchor="end"    font-family="'JetBrains Mono',monospace" font-size="13" fill="#6B6560">매우 김</text>
+        </svg>
+      </div>
+
+      <div class="causes-title">발생 원인 4가지</div>
+      <div class="causes">
+        <div class="cause">
+          <span class="ct">주의 분산</span>
+          <span class="cd">토큰이 많을수록 핵심 신호가 희석됨</span>
+        </div>
+        <div class="cause">
+          <span class="ct">위치 편향</span>
+          <span class="cd">중간에 놓인 정보를 잘 못 찾음 <span class="en">(Lost in the Middle)</span></span>
+        </div>
+        <div class="cause">
+          <span class="ct">오래된 사실 우선</span>
+          <span class="cd">초기 컨텍스트의 결정이 후속 정보를 덮어씀</span>
+        </div>
+        <div class="cause">
+          <span class="ct">모순 누적</span>
+          <span class="cd">수정·번복이 쌓이면 일관된 의도 추론 실패</span>
+        </div>
+      </div>
+
+      <div class="grow"></div>
+      <div class="source">
+        <b>Chroma Research</b> — 입력 토큰 수가 늘어날수록, LLM의 출력 품질이 비균일하게 떨어진다.<br>
+        <span class="url">https://www.trychroma.com/research/context-rot</span>
+      </div>
+    </section>
+
+    <!-- ════════ RIGHT : 대응 6원칙 ════════ -->
+    <section class="panel">
+      <div class="panel-head">
+        <span class="badge badge-teal">COUNTERMEASURES</span>
+        <span class="panel-title">대응 6원칙 — Context Rot 회피</span>
+      </div>
+
+      <div class="principles">
+        <div class="pr">
+          <span class="pr-n">1</span>
+          <span class="pr-body">
+            <span class="pr-t">큐레이션 우선</span>
+            <span class="pr-d">"넣을 수 있는 것"이 아니라 <span class="keep">"지금 결정에 필요한 것"</span>만 적재</span>
+          </span>
+        </div>
+        <div class="pr">
+          <span class="pr-n">2</span>
+          <span class="pr-body">
+            <span class="pr-t">정형화된 메모리</span>
+            <span class="pr-d"><span class="mono">CLAUDE.md</span> · 스킬 · <span class="mono">@import</span>로 모델이 신뢰할 단일 출처 확보</span>
+          </span>
+        </div>
+        <div class="pr">
+          <span class="pr-n">3</span>
+          <span class="pr-body">
+            <span class="pr-t">도구로 외주</span>
+            <span class="pr-d">파일 읽기·검색은 in-context 첨부 대신 <span class="mono">Read</span>·<span class="mono">Grep</span>로 그때그때 가져오기</span>
+          </span>
+        </div>
+        <div class="pr">
+          <span class="pr-n">4</span>
+          <span class="pr-body">
+            <span class="pr-t">요약·압축</span>
+            <span class="pr-d"><span class="mono">/compact</span>, PreCompact 훅으로 핵심 결정만 보존</span>
+          </span>
+        </div>
+        <div class="pr">
+          <span class="pr-n">5</span>
+          <span class="pr-body">
+            <span class="pr-t">세션 분할</span>
+            <span class="pr-d">새 작업은 새 세션 — <span class="mono">70%</span> 임계 도달 시 의도적 리셋</span>
+          </span>
+        </div>
+        <div class="pr">
+          <span class="pr-n">6</span>
+          <span class="pr-body">
+            <span class="pr-t">모순 즉시 정정</span>
+            <span class="pr-d">번복 시 이전 결론을 명시적으로 폐기 <span class="drop">("이전 X는 잊고 Y로 진행")</span></span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

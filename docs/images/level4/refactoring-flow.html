@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: transparent;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 22px 0 22px;
+  }
+  .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 6px 15px;
+    letter-spacing: 0.02em;
+  }
+  .head .title { font-size: 30px; font-weight: 800; color: #1A1A18; letter-spacing: -0.01em; }
+  .head .title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: #6B6560; margin-left: 12px;
+  }
+
+  /* ===== TOP: horizontal safe-refactoring flow with checkpoints ===== */
+  .flowrow {
+    display: flex;
+    align-items: stretch;
+    padding: 10px 22px 12px 22px;
+    gap: 0;
+  }
+  .stage {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+  }
+  .stage .sn { font-size: 20px; font-weight: 800; color: #0F766E; letter-spacing: 0.04em; }
+  .stage .sname { font-size: 24px; font-weight: 800; color: #1A1A18; line-height: 1.18; }
+  .stage .sdesc { font-size: 22px; font-weight: 500; color: #6B6560; line-height: 1.3; }
+  /* checkpoint mini-box between stages */
+  .ckpt {
+    flex: none;
+    width: 150px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    text-align: center;
+    margin: 0 14px;
+  }
+  .ckpt .ck { font-size: 20px; font-weight: 800; color: #1E3A8A; letter-spacing: 0.03em; }
+  .ckpt .cn { font-size: 22px; font-weight: 600; color: #1A1A18; line-height: 1.2; }
+  .harrow {
+    flex: none; width: 40px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .harrow::before {
+    content: ""; width: 0; height: 0;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 14px solid #6B6560;
+  }
+
+  /* ===== MIDDLE: two columns — order + checkpoint commands ===== */
+  .mid {
+    display: grid;
+    grid-template-columns: 1fr 1.18fr;
+    gap: 22px;
+    flex: 1;
+  }
+  .panel {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pbody { padding: 11px 22px 13px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: center; }
+
+  /* order list */
+  .ord { display: flex; align-items: center; gap: 15px; }
+  .ord .on {
+    flex: none; width: 40px; height: 40px;
+    border: 1px solid #D4D0C8; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800; color: #1E3A8A;
+  }
+  .ord .ol { font-size: 22px; font-weight: 600; color: #1A1A18; line-height: 1.2; }
+  .ord .ol .fn { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #115E59; font-size: 20px; }
+  .ord .ol .test { font-weight: 700; color: #047857; }
+  .ordsep {
+    width: 20px; height: 14px; margin-left: 20px;
+    display: flex; align-items: center;
+  }
+  .ordsep::before {
+    content: ""; width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 11px solid #6B6560;
+  }
+
+  /* checkpoint command rows */
+  .crow { display: flex; flex-direction: column; gap: 4px; }
+  .crow .clab { font-size: 22px; font-weight: 700; color: #1A1A18; line-height: 1.2; }
+  .crow .clab .ok { color: #047857; }
+  .crow code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #1A1A18;
+    border: 1px solid #D4D0C8; border-radius: 7px;
+    padding: 7px 13px; line-height: 1.2;
+  }
+  .crow code .kw { color: #115E59; font-weight: 700; }
+
+  /* ===== BOTTOM: regression-prevention callout (full width) ===== */
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 12px 22px;
+  }
+  .callout .tag {
+    flex: none;
+    font-size: 20px; font-weight: 800; color: #7C4A02;
+    border: 1px solid #B45309; border-radius: 7px;
+    padding: 6px 15px; letter-spacing: 0.02em;
+  }
+  .callout .txt { font-size: 22px; font-weight: 500; color: #7C4A02; line-height: 1.32; }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt .em { font-weight: 700; color: #B91C1C; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: 3원칙 horizontal flow + 체크포인트 -->
+    <div class="box">
+      <div class="head">
+        <span class="badge">3원칙</span>
+        <span class="title">안전한 리팩토링 흐름 — 단위별·순차적<span class="en">SAFE REFACTORING</span></span>
+      </div>
+      <div class="flowrow">
+        <div class="stage">
+          <span class="sn">원칙 ①</span>
+          <span class="sname">베이스라인 테스트</span>
+          <span class="sdesc">변경 전 전체 테스트 실행 → 기준 확인</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="stage">
+          <span class="sn">원칙 ②</span>
+          <span class="sname">단위별 진행</span>
+          <span class="sdesc">한 함수씩 — 한 번에 전체 변경 금지</span>
+        </div>
+        <div class="ckpt">
+          <span class="ck">CHECKPOINT</span>
+          <span class="cn">함수마다<br>재실행</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="stage">
+          <span class="sn">원칙 ③</span>
+          <span class="sname">실패 시 복원 후 재시도</span>
+          <span class="sdesc">체크포인트로 되돌리고 다시 진행</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: 순서(좌) + 체크포인트 활용 명령(우) -->
+    <div class="mid">
+
+      <!-- left: 순서 (한 함수씩) -->
+      <div class="panel">
+        <div class="head">
+          <span class="badge">순서</span>
+          <span class="title" style="font-size:30px;">함수 하나씩, 순서대로</span>
+        </div>
+        <div class="pbody">
+          <div class="ord"><span class="on">1</span><span class="ol"><span class="fn">POST(createDocument)</span> → <span class="test">테스트</span></span></div>
+          <div class="ordsep"></div>
+          <div class="ord"><span class="on">2</span><span class="ol"><span class="fn">GET(getDocument)</span> → <span class="test">테스트</span></span></div>
+          <div class="ordsep"></div>
+          <div class="ord"><span class="on">3</span><span class="ol"><span class="fn">PATCH / DELETE</span> 순서대로</span></div>
+        </div>
+      </div>
+
+      <!-- right: 체크포인트 활용 (4.6.2-3) -->
+      <div class="panel">
+        <div class="head">
+          <span class="badge">체크포인트 활용</span>
+          <span class="title" style="font-size:30px; white-space:nowrap;">File Checkpointing<span class="en" style="margin-left:8px; font-size:20px;">CHECKPOINT</span></span>
+        </div>
+        <div class="pbody">
+          <div class="crow">
+            <span class="clab">1. 변경 확인</span>
+            <code><span class="kw">/diff</span> apps/web/.../document.service.ts</code>
+          </div>
+          <div class="crow">
+            <span class="clab">2. 되돌리기 (UI Revert 또는 git)</span>
+            <code><span class="kw">git checkout</span> -- .../document.service.ts</code>
+          </div>
+          <div class="crow">
+            <span class="clab">3. 더 안전: 브랜치 먼저</span>
+            <code><span class="kw">git checkout</span> -b refactor/doc-service</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: 회귀 방지 (full-width) -->
+    <div class="callout">
+      <span class="tag">회귀 방지</span>
+      <span class="txt"><b>변경 전 전체 테스트 → 베이스라인 확인 · 변경 범위 명시(파일·기능) · 관련 TEST_CASES.md 항목 명시 · 변경 후 동일 테스트 재실행.</b> 회귀는 새 변경이 기존 기능을 무너뜨리는 것 — <span class="em">테스트가 첫 방어선</span>이며, 한 번에 전체 변경 = 디버깅 지옥.</span>
+    </div>
+
+  </div>
+</body>
+</html>

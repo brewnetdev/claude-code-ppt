@@ -6,13 +6,34 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BOOK_PNG = path.resolve(__dirname, '../../docs/images/book.png');
 
-// Each test starts on a clean state — wipe persisted localStorage so the
-// brewnet sample loads fresh. Reload after clearing so the React tree
-// re-mounts with the default deck.
+// Each test starts on a clean state — wipe both localStorage and the
+// IndexedDB deck store so the brewnet sample loads fresh. Reload after
+// clearing so the React tree re-mounts on the empty Library, then click
+// the Brewnet card to enter the editor canvas.
 async function gotoFresh(page: Page) {
   await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
+  await page.evaluate(async () => {
+    localStorage.clear();
+    // Deck payloads moved from localStorage to IndexedDB (P5). The DB name
+    // matches `src/persistence/idb.ts` constant.
+    await new Promise<void>((resolve) => {
+      const req = indexedDB.deleteDatabase('claude-code-ppt');
+      req.onsuccess = () => resolve();
+      req.onerror = () => resolve();
+      req.onblocked = () => resolve();
+    });
+  });
   await page.reload();
+  // Post-reload the app lands on DeckLibraryView. Open the brewnet sample so
+  // tests have an editable canvas. Each deck card has TWO buttons — the X
+  // delete and the card body — and both share "Brewnet — Claude Code Master"
+  // in the accessible name. Disambiguate by also requiring the card body's
+  // "편집 열기" CTA text.
+  const brewnetCard = page.getByRole('button', {
+    name: /Brewnet — Claude Code Master[\s\S]*편집 열기/,
+  });
+  await brewnetCard.waitFor({ state: 'visible', timeout: 15_000 });
+  await brewnetCard.click();
   await page.waitForSelector('.slide-canvas-host');
   // Give the auto-save / mount cycle a tick to settle.
   await page.waitForTimeout(200);
@@ -471,5 +492,492 @@ test.describe('editor end-to-end', () => {
     await page.waitForTimeout(100);
     const titleText = await title.textContent();
     expect(titleText).not.toContain('Chain test');
+  });
+
+  // bullet-list Enter handling — option A semantics:
+  //   plain Enter   → append a fresh `<li><div></div></li>` after the
+  //                   current item (so users can keep adding 5.6/5.7/...
+  //                   bullets). The wrapper is constructed in code so the
+  //                   "<li> always has a single <div> child + .sub stays
+  //                   nested" invariant survives — that invariant is what
+  //                   the previous "1열로 올라가는" bug violated when the
+  //                   browser's default Enter-split was followed by a
+  //                   Backspace-merge.
+  //   Shift+Enter   → soft <br> inside the current <li>, wrapper untouched.
+  test('bullet-list Enter creates a new <li>, Shift+Enter inserts a soft break', async ({
+    page,
+  }) => {
+    await gotoFresh(page);
+
+    // Navigate to the slide that contains the bullet-list. brewnet sample
+    // slide index 2 is the Kent Beck five-principles slide. SlideListSidebar
+    // wires global ArrowDown to advance currentIndex (skipped when an input or
+    // contenteditable holds focus — body focus is the default after gotoFresh).
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    // Scope to the main canvas — `.slide-canvas-host` is also reused by
+    // sidebar thumbnails (read-only previews via SlideThumbnail), and
+    // `.first()` would otherwise resolve to a thumbnail whose contenteditable
+    // is permanently 'inherit'. The main canvas wrapper is uniquely tagged
+    // with `data-canvas-role="main"`.
+    const mainHost = page.locator('[data-canvas-role="main"]');
+    const bullet = mainHost.locator('ul.bullet-list').first();
+    await expect(bullet).toBeVisible();
+
+    // useSlideEditing's effect calls enforceEditable() which flips
+    // .slide-inner.contentEditable to 'true' and attaches the keydown
+    // listener that handles Enter inside <li>. The effect runs after the
+    // SlideRenderer remount on slide change, so we must wait for it before
+    // dispatching the keydown — otherwise contenteditable is still 'inherit'
+    // and the handler isn't wired up.
+    await page.waitForFunction(
+      () => {
+        const inner = document.querySelector<HTMLElement>(
+          '[data-canvas-role="main"] .slide-inner',
+        );
+        return inner?.contentEditable === 'true';
+      },
+      undefined,
+      { timeout: 5_000 },
+    );
+
+    const initialState = await bullet.evaluate((ul) => {
+      const lis = Array.from(ul.querySelectorAll(':scope > li'));
+      return {
+        count: lis.length,
+        firstHasInnerDiv: !!lis[0]?.querySelector(':scope > div'),
+        firstSubInsideDiv: !!lis[0]?.querySelector(':scope > div > .sub'),
+      };
+    });
+    expect(initialState.count).toBeGreaterThanOrEqual(2);
+    expect(initialState.firstHasInnerDiv).toBe(true);
+    expect(initialState.firstSubInsideDiv).toBe(true);
+
+    // Helper: park caret 2 chars into the first <li>'s title text, then
+    // dispatch a synthetic keydown on `.slide-inner`. Playwright's
+    // mouse-then-keyboard path doesn't reliably hand focus to a contenteditable
+    // parent across the headless Chromium / Vite dev server combo, and a
+    // body-targeted keydown skips the editor handler entirely.
+    const dispatchEnter = async (shiftKey: boolean) => {
+      await bullet.evaluate((ul, { shift }) => {
+        const slideInner = ul.closest<HTMLElement>('.slide-inner');
+        if (!slideInner) throw new Error('slide-inner missing');
+        const li = ul.querySelector(':scope > li');
+        const wrapper = li?.querySelector(':scope > div');
+        if (!wrapper) throw new Error('wrapper missing');
+        const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT);
+        const firstText = walker.nextNode() as Text | null;
+        if (!firstText || !firstText.data.length) throw new Error('no text');
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.setStart(firstText, Math.min(2, firstText.data.length));
+        range.collapse(true);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+
+        const evt = new KeyboardEvent('keydown', {
+          key: 'Enter',
+          code: 'Enter',
+          shiftKey: shift,
+          bubbles: true,
+          cancelable: true,
+        });
+        slideInner.dispatchEvent(evt);
+      }, { shift: shiftKey });
+      await page.waitForTimeout(50);
+    };
+
+    // 1) Plain Enter → appends a fresh empty <li><div></div></li> after the
+    //    first item. <li> count grows by 1, the new sibling carries the
+    //    wrapper invariant.
+    await dispatchEnter(false);
+
+    const afterPlain = await bullet.evaluate((ul) => {
+      const lis = Array.from(ul.querySelectorAll(':scope > li'));
+      return {
+        count: lis.length,
+        firstHasInnerDiv: !!lis[0]?.querySelector(':scope > div'),
+        firstSubInsideDiv: !!lis[0]?.querySelector(':scope > div > .sub'),
+        // The new sibling sits at index 1 — verify its skeleton.
+        secondHasInnerDiv: !!lis[1]?.querySelector(':scope > div'),
+        secondTextLength: (lis[1]?.textContent ?? '').trim().length,
+      };
+    });
+    expect(afterPlain.count).toBe(initialState.count + 1);
+    expect(afterPlain.firstHasInnerDiv).toBe(true);
+    expect(afterPlain.firstSubInsideDiv).toBe(true);
+    expect(afterPlain.secondHasInnerDiv).toBe(true);
+    // New li starts empty (zero-width caret anchor doesn't count as visible).
+    expect(afterPlain.secondTextLength).toBe(0);
+
+    // 2) Shift+Enter at the same caret position → soft <br> inside the
+    //    current (still first) <li>. <li> count unchanged, wrapper intact,
+    //    .sub still nested inside the wrapper.
+    await dispatchEnter(true);
+
+    const afterSoft = await bullet.evaluate((ul) => {
+      const lis = Array.from(ul.querySelectorAll(':scope > li'));
+      return {
+        count: lis.length,
+        firstHasInnerDiv: !!lis[0]?.querySelector(':scope > div'),
+        firstHasBr: !!lis[0]?.querySelector(':scope > div br'),
+        firstSubInsideDiv: !!lis[0]?.querySelector(':scope > div > .sub'),
+        firstSubAtLiLevel: !!lis[0]?.querySelector(':scope > .sub'),
+        firstHTML: lis[0]?.outerHTML.slice(0, 400) ?? '',
+      };
+    });
+    expect(afterSoft.count, `firstHTML=${afterSoft.firstHTML}`).toBe(afterPlain.count);
+    expect(afterSoft.firstHasInnerDiv, `firstHTML=${afterSoft.firstHTML}`).toBe(true);
+    expect(afterSoft.firstHasBr, `firstHTML=${afterSoft.firstHTML}`).toBe(true);
+    // The bug condition we're still guarding against: <span class="sub">
+    // winds up as a direct child of <li> instead of nested inside the
+    // wrapper <div>. Soft-break path leaves the wrapper untouched so .sub
+    // stays where it was.
+    expect(afterSoft.firstSubInsideDiv).toBe(true);
+    expect(afterSoft.firstSubAtLiLevel).toBe(false);
+  });
+
+  // Regression: block W/H inputs are silently capped by inline `max-width`
+  // / `min-height` from sample HTML (e.g. `<div data-slot="subtitle"
+  // style="max-width:620px;...">` on portfolio section slides). Without
+  // clearing those, typing W=900 on such a block leaves the rendered width
+  // pinned at 620 — and the user reports "W가 안 먹는다" for the third time.
+  // applyDimension() in BlockFormatPanel now centralises the policy:
+  // explicit value > 0 → set the inline dimension AND clear the matching
+  // axis's inline min/max. This test pins both halves: behaviour AND that
+  // the inline constraints are actually erased.
+  test('W input overrides inline max-width/min-width on the block', async ({ page }) => {
+    await gotoFresh(page);
+
+    // Pick the brewnet cover slide title — a stable, visible block on
+    // slide 0 that we can inject constraints into. The exact slot doesn't
+    // matter; we only care that BlockFormatPanel binds to it.
+    const block = page
+      .locator('[data-canvas-role="main"] [data-block-id]')
+      .first();
+    await expect(block).toBeVisible();
+
+    // Inject inline sizing constraints to simulate the section/hero slide
+    // pattern (max-width:620px on a subtitle, etc.). Also capture the
+    // block id so we can drive selection directly through the store —
+    // a mousedown click is intercepted on the cover slide because the
+    // editor canvas wrapper sits on top of the slide chrome (visible
+    // and stable, but not topmost in pointer-event terms).
+    const blockId = await block.evaluate((el) => {
+      el.style.maxWidth = '200px';
+      el.style.minWidth = '50px';
+      return el.getAttribute('data-block-id');
+    });
+    expect(blockId).toBeTruthy();
+
+    // Drive selection through the store. setSelectedBlockId is what the
+    // mousedown handler calls — we just skip the DOM hop. BlockFormatPanel
+    // subscribes via useDeckStore so the panel mounts on the next tick.
+    await page.evaluate((id) => {
+      const w = window as unknown as {
+        __deckStore?: { setState: (s: { selectedBlockId: string }) => void };
+      };
+      // The store is exposed for tests; if not, fall back to dispatching
+      // a synthetic mousedown on the block.
+      if (w.__deckStore?.setState) {
+        w.__deckStore.setState({ selectedBlockId: id! });
+      } else {
+        const target = document.querySelector<HTMLElement>(
+          `[data-canvas-role="main"] [data-block-id="${id}"]`,
+        );
+        target?.dispatchEvent(
+          new MouseEvent('mousedown', { bubbles: true, cancelable: true }),
+        );
+      }
+    }, blockId);
+    await page.waitForTimeout(100);
+
+    const wInput = page.locator('[data-testid="block-format-w"]');
+    await expect(wInput).toBeVisible();
+    await wInput.fill('900');
+    await wInput.press('Tab');
+    await page.waitForTimeout(100);
+
+    // The applied policy: width = 900px, AND max/min cleared.
+    const styles = await block.evaluate((el) => ({
+      width: (el as HTMLElement).style.width,
+      maxWidth: (el as HTMLElement).style.maxWidth,
+      minWidth: (el as HTMLElement).style.minWidth,
+      flex: (el as HTMLElement).style.flex,
+    }));
+    expect(styles.width).toBe('900px');
+    expect(styles.maxWidth).toBe('');
+    expect(styles.minWidth).toBe('');
+    // reconcileFlexLock pins flex when an explicit dimension is set so
+    // class-rule `flex:1` can't override the typed width.
+    expect(styles.flex).toBe('0 0 auto');
+  });
+
+  // Regression set: structural deletion across `<li>` items. Browser default
+  // `deleteContentBackward` at an `<li>` boundary merges adjacent items and
+  // strips the inner `<div>` wrapper. Both `.bullet-list li { display: flex }`
+  // and `.bullet-list li .sub { display: block }` key off that wrapper, so
+  // losing it collapses every list row into one inline run with no
+  // indentation. The five tests below pin the four delete vectors plus the
+  // safety-net path.
+  //
+  // All five share `gotoBulletSlide` which: (1) wipes state, (2) opens the
+  // brewnet sample, (3) advances to the bullet-list slide, and (4) waits for
+  // useSlideEditing to flip `.slide-inner` into contentEditable so the
+  // capture-phase `beforeinput` listener is registered before keypresses.
+  async function gotoBulletSlide(page: Page) {
+    await gotoFresh(page);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.waitForFunction(
+      () => {
+        const inner = document.querySelector<HTMLElement>(
+          '[data-canvas-role="main"] .slide-inner',
+        );
+        return inner?.contentEditable === 'true';
+      },
+      undefined,
+      { timeout: 5_000 },
+    );
+    const bullet = page.locator('[data-canvas-role="main"] ul.bullet-list').first();
+    await expect(bullet).toBeVisible();
+    return bullet;
+  }
+
+  // Park the caret in the bullet-list at a precise position. `liIndex` selects
+  // an <li>; `position` is either 'start' / 'end' of the wrapper's text, or
+  // a numeric offset into the wrapper's first text node. focus() is called on
+  // .slide-inner so subsequent page.keyboard presses go to the contenteditable.
+  async function parkCaretInLi(
+    page: Page,
+    liIndex: number,
+    position: 'start' | 'end' | number,
+  ) {
+    await page.evaluate(
+      ({ liIndex, position }) => {
+        const inner = document.querySelector<HTMLElement>(
+          '[data-canvas-role="main"] .slide-inner',
+        );
+        if (!inner) throw new Error('no slide-inner');
+        const ul = inner.querySelector<HTMLUListElement>('ul.bullet-list');
+        if (!ul) throw new Error('no bullet-list');
+        const lis = ul.querySelectorAll<HTMLLIElement>(':scope > li');
+        const li = lis[liIndex];
+        if (!li) throw new Error(`no li at ${liIndex}`);
+        const wrapper = li.querySelector<HTMLDivElement>(':scope > div');
+        if (!wrapper) throw new Error('no wrapper');
+        inner.focus();
+        const sel = window.getSelection();
+        if (!sel) throw new Error('no selection');
+        const range = document.createRange();
+        if (position === 'start') {
+          range.setStart(wrapper, 0);
+        } else if (position === 'end') {
+          range.setStart(wrapper, wrapper.childNodes.length);
+        } else {
+          const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT);
+          const firstText = walker.nextNode() as Text | null;
+          if (!firstText) throw new Error('no text');
+          range.setStart(firstText, Math.min(position, firstText.data.length));
+        }
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      },
+      { liIndex, position },
+    );
+  }
+
+  // Snapshot the bullet-list shape: count of <li>s and whether every <li>
+  // satisfies the wrapper invariant (single direct <div> child, no .sub at
+  // li-level). Returned as a structured object so assertions can pinpoint
+  // which axis broke.
+  async function readListInvariant(bullet: Locator) {
+    return await bullet.evaluate((ul) => {
+      const lis = Array.from(ul.querySelectorAll<HTMLLIElement>(':scope > li'));
+      const states = lis.map((li) => ({
+        directChildren: li.children.length,
+        firstChildTag: li.firstElementChild?.tagName ?? null,
+        directSubCount: li.querySelectorAll(':scope > .sub').length,
+        subInsideWrapperCount: li.querySelectorAll(':scope > div > .sub').length,
+        text: (li.textContent ?? '').trim(),
+      }));
+      return { count: lis.length, states };
+    });
+  }
+
+  test('bullet-list Backspace at start of <li> merges into previous, wrapper preserved', async ({
+    page,
+  }) => {
+    const bullet = await gotoBulletSlide(page);
+    const before = await readListInvariant(bullet);
+    expect(before.count).toBeGreaterThanOrEqual(2);
+
+    await parkCaretInLi(page, 1, 'start');
+    await page.keyboard.press('Backspace');
+    await page.waitForTimeout(100);
+
+    const after = await readListInvariant(bullet);
+    expect(after.count, JSON.stringify(after.states)).toBe(before.count - 1);
+    after.states.forEach((s, i) => {
+      expect(s.directChildren, `li[${i}]`).toBe(1);
+      expect(s.firstChildTag, `li[${i}]`).toBe('DIV');
+      expect(s.directSubCount, `li[${i}]`).toBe(0);
+    });
+    // The first li now contains both the original li[0] text and what was
+    // li[1]'s content — concat, not loss.
+    expect(after.states[0].text).toContain(before.states[0].text);
+    if (before.states[1].text.length > 0) {
+      const tail = before.states[1].text.slice(-10);
+      expect(after.states[0].text).toContain(tail);
+    }
+  });
+
+  test('bullet-list Delete at end of <li> merges with next, wrapper preserved', async ({
+    page,
+  }) => {
+    const bullet = await gotoBulletSlide(page);
+    const before = await readListInvariant(bullet);
+    expect(before.count).toBeGreaterThanOrEqual(2);
+
+    await parkCaretInLi(page, 0, 'end');
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(100);
+
+    const after = await readListInvariant(bullet);
+    expect(after.count, JSON.stringify(after.states)).toBe(before.count - 1);
+    after.states.forEach((s, i) => {
+      expect(s.directChildren, `li[${i}]`).toBe(1);
+      expect(s.firstChildTag, `li[${i}]`).toBe('DIV');
+      expect(s.directSubCount, `li[${i}]`).toBe(0);
+    });
+  });
+
+  test('bullet-list selection across two <li> Delete preserves wrapper', async ({
+    page,
+  }) => {
+    const bullet = await gotoBulletSlide(page);
+    const before = await readListInvariant(bullet);
+    expect(before.count).toBeGreaterThanOrEqual(2);
+
+    // Selection: from the 2nd char of li[0]'s wrapper text to the 2nd char of
+    // li[1]'s wrapper text. The merge should produce one li that begins with
+    // the 0..2 prefix of li[0] and ends with the 2..end suffix of li[1].
+    await page.evaluate(() => {
+      const inner = document.querySelector<HTMLElement>(
+        '[data-canvas-role="main"] .slide-inner',
+      );
+      if (!inner) throw new Error('no slide-inner');
+      const ul = inner.querySelector<HTMLUListElement>('ul.bullet-list');
+      if (!ul) throw new Error('no bullet-list');
+      const lis = ul.querySelectorAll<HTMLLIElement>(':scope > li');
+      const wrap0 = lis[0]?.querySelector<HTMLDivElement>(':scope > div');
+      const wrap1 = lis[1]?.querySelector<HTMLDivElement>(':scope > div');
+      if (!wrap0 || !wrap1) throw new Error('no wrappers');
+      // Pick the first non-whitespace text node inside each wrapper. The
+      // brewnet sample formats lists with leading whitespace text nodes
+      // (`<div>\n  <span class="hl-amber">…`), and a naive TreeWalker
+      // would land on the whitespace, not the visible text.
+      const firstVisibleText = (root: Element): Text | null => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let n = walker.nextNode();
+        while (n) {
+          if ((n.nodeValue ?? '').trim().length > 0) return n as Text;
+          n = walker.nextNode();
+        }
+        return null;
+      };
+      const t0 = firstVisibleText(wrap0);
+      const t1 = firstVisibleText(wrap1);
+      if (!t0 || !t1) throw new Error('no text');
+      inner.focus();
+      const sel = window.getSelection();
+      if (!sel) throw new Error('no selection');
+      const range = document.createRange();
+      range.setStart(t0, Math.min(2, t0.data.length));
+      range.setEnd(t1, Math.min(2, t1.data.length));
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(100);
+
+    const after = await readListInvariant(bullet);
+    expect(after.count, JSON.stringify(after.states)).toBe(before.count - 1);
+    after.states.forEach((s, i) => {
+      expect(s.directChildren, `li[${i}]`).toBe(1);
+      expect(s.firstChildTag, `li[${i}]`).toBe('DIV');
+      expect(s.directSubCount, `li[${i}]`).toBe(0);
+    });
+    // Survivor li starts with the 0..2 prefix of original li[0].
+    const expectedPrefix = before.states[0].text.slice(0, 2);
+    expect(after.states[0].text.slice(0, 2)).toBe(expectedPrefix);
+  });
+
+  test('bullet-list first <li> Backspace at start is no-op', async ({ page }) => {
+    const bullet = await gotoBulletSlide(page);
+    const before = await readListInvariant(bullet);
+
+    await parkCaretInLi(page, 0, 'start');
+    await page.keyboard.press('Backspace');
+    await page.waitForTimeout(100);
+
+    const after = await readListInvariant(bullet);
+    expect(after.count).toBe(before.count);
+    after.states.forEach((s, i) => {
+      expect(s.text, `li[${i}]`).toBe(before.states[i].text);
+      expect(s.directChildren, `li[${i}]`).toBe(1);
+      expect(s.firstChildTag, `li[${i}]`).toBe('DIV');
+      expect(s.directSubCount, `li[${i}]`).toBe(0);
+    });
+  });
+
+  test('bullet-list paste replacement preserves wrapper invariant', async ({
+    page,
+  }) => {
+    // Validates the A3-lite safety net: a paste that replaces a cross-<li>
+    // selection bypasses our beforeinput delete handler (paste fires its own
+    // inputType="insertFromPaste") but the input-event invariant runs
+    // afterwards and re-wraps any flattened <li>.
+    const bullet = await gotoBulletSlide(page);
+    const before = await readListInvariant(bullet);
+    expect(before.count).toBeGreaterThanOrEqual(2);
+
+    // Simulate a destructive paste: the test directly mutates the DOM to
+    // strip li[0]'s wrapper (mimicking the post-paste flat shape) and then
+    // dispatches an `input` event on .slide-inner. The safety net listener
+    // catches it and rewraps. This is more deterministic than driving the
+    // real clipboard through Playwright (which varies by platform).
+    await page.evaluate(() => {
+      const inner = document.querySelector<HTMLElement>(
+        '[data-canvas-role="main"] .slide-inner',
+      );
+      if (!inner) throw new Error('no slide-inner');
+      const ul = inner.querySelector<HTMLUListElement>('ul.bullet-list');
+      if (!ul) throw new Error('no bullet-list');
+      const li = ul.querySelector<HTMLLIElement>(':scope > li');
+      if (!li) throw new Error('no li');
+      const wrapper = li.querySelector<HTMLDivElement>(':scope > div');
+      if (!wrapper) throw new Error('no wrapper');
+      // Unbox the wrapper: move all of its children up to be direct
+      // children of the <li>, then drop the empty wrapper. This is the
+      // exact shape the browser produces after a cross-li paste replacement
+      // that flattens the structure.
+      while (wrapper.firstChild) li.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+      // Dispatch a real `input` event so the registered onInput handler
+      // (which calls enforceBulletListInvariant) runs.
+      inner.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+
+    const after = await readListInvariant(bullet);
+    expect(after.count).toBe(before.count);
+    after.states.forEach((s, i) => {
+      expect(s.directChildren, `li[${i}]`).toBe(1);
+      expect(s.firstChildTag, `li[${i}]`).toBe('DIV');
+      expect(s.directSubCount, `li[${i}]`).toBe(0);
+    });
   });
 });
