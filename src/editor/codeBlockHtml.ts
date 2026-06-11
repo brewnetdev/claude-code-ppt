@@ -5,7 +5,7 @@
 // and the flowing-document editor. Previously the deck owned this and the doc
 // editor reinvented a plain <pre>; now both insert and edit the same block.
 
-import { highlightCode } from '../highlight/highlighter';
+import { highlightCode, normalizeLang } from '../highlight/highlighter';
 
 let codeBlockSeq = 0;
 const makeCodeBlockId = () => `code-${Date.now()}-${++codeBlockSeq}`;
@@ -51,9 +51,10 @@ export function isCodeBlockEl(el: HTMLElement | null): boolean {
 
 export async function buildCodeBlockHtml(source: string, lang: string): Promise<string> {
   const id = makeCodeBlockId();
-  const inner = await highlightCode(source, lang);
+  const safeLang = normalizeLang(lang);
+  const inner = await highlightCode(source, safeLang);
   return [
-    `<div class="code-block" data-slot="code" data-block-id="${id}" data-code-source="${encodeSource(source)}" data-code-lang="${lang}">`,
+    `<div class="code-block" data-slot="code" data-block-id="${id}" data-code-source="${encodeSource(source)}" data-code-lang="${safeLang}">`,
     `  <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>`,
     `  <pre><code>${inner}</code></pre>`,
     `</div>`,
@@ -85,9 +86,10 @@ export async function applyCodeBlockToEl(
 ): Promise<boolean> {
   const code = el.querySelector('pre > code');
   if (!code) return false;
+  const safeLang = normalizeLang(lang);
   el.setAttribute('data-code-source', encodeSource(source));
-  el.setAttribute('data-code-lang', lang);
-  code.innerHTML = await highlightCode(source, lang);
+  el.setAttribute('data-code-lang', safeLang);
+  code.innerHTML = await highlightCode(source, safeLang);
   el.dispatchEvent(new InputEvent('input', { bubbles: true }));
   return true;
 }

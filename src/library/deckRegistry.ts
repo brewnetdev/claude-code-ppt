@@ -139,3 +139,127 @@ export function countSlides(html: string): number {
   }
   return count;
 }
+
+// ── Course outline (강의 목차) ───────────────────────────────────────────────
+//
+// The library "발표 데크" screen renders this curated outline instead of a flat
+// grid — Level 1~10 grouped by the 6-stage learning journey, mirroring the
+// curriculum report's "세부 주제와 프로젝트 설명" table (page 03).
+//
+// `deckId` points at an existing chapter deck (docs/html/report/*.html). The
+// new level numbering does NOT match the on-disk file numbering, so the mapping
+// is by TOPIC, not by filename:
+//   - L7 (빌드·배포·서비스 론칭)  → claude-code-level8-chapter8 ("배포 & 셀프호스팅")
+//   - L9 (하네스 엔지니어링)       → claude-code-level7-chapter7 ("하네스·베스트 프렉티스")
+// Levels with no dedicated 발표자료 (L8 베스트 프렉티스, L10 딥 다이브) omit
+// `deckId` and render as a non-clickable list entry. We intentionally do NOT
+// edit any deck's internal content — only this outline + the library view.
+export type CourseLevel = {
+  level: number;
+  label: string;
+  topic: string;
+  // Backing deck id (a BUILTIN_DECKS id). Absent → list-only ("발표자료 준비 중").
+  deckId?: string;
+};
+
+export type CourseStage = {
+  name: string;
+  levels: CourseLevel[];
+};
+
+export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
+  {
+    name: '설치 · 개발 환경',
+    levels: [
+      {
+        level: 1,
+        label: '환경 구축 · 개발 환경 설정',
+        topic: '터미널·Git 기초, Claude Code 개요·설치·환경설정',
+        deckId: 'claude-code-level1-chapter1',
+      },
+    ],
+  },
+  {
+    name: '기초 개념',
+    levels: [
+      {
+        level: 2,
+        label: 'AI 시대 개발 방법론',
+        topic: 'AI 시대의 개발 방법론, 기본 프로젝트 세팅',
+        deckId: 'claude-code-level2-chapter2',
+      },
+      {
+        level: 3,
+        label: '프롬프트·컨텍스트 · 스킬·커맨드·Hook·MCP',
+        topic: 'CLAUDE.md, 슬래시 커맨드, Skill·Hook·MCP',
+        deckId: 'claude-code-level3-chapter3',
+      },
+    ],
+  },
+  {
+    name: '개발',
+    levels: [
+      {
+        level: 4,
+        label: '실전 워크플로우',
+        topic: 'TDD·SDD·증강코딩, 디버깅·리팩토링·플러그인',
+        deckId: 'claude-code-level4-chapter4',
+      },
+      {
+        level: 5,
+        label: '프론트엔드 고도화',
+        topic: '디자인 시스템·컴포넌트·검증',
+        deckId: 'claude-code-level5-chapter5',
+      },
+    ],
+  },
+  {
+    name: '배포 · 운영',
+    levels: [
+      {
+        level: 6,
+        label: '토큰 제어 · 보안 · SEO',
+        topic: '토큰 절약, 보안 점검, SEO',
+        deckId: 'claude-code-level6-chapter6',
+      },
+      {
+        level: 7,
+        label: '빌드·배포 · 서비스 론칭',
+        topic: 'Vercel·Railway·Cloudflare 실서비스 론칭',
+        deckId: 'claude-code-level8-chapter8',
+      },
+    ],
+  },
+  {
+    name: '자동화 · 활용',
+    levels: [
+      {
+        level: 8,
+        label: '클로드 코드 베스트 프렉티스',
+        topic: '자율 운용·자동화 베스트 프렉티스',
+      },
+    ],
+  },
+  {
+    name: '고급',
+    levels: [
+      {
+        level: 9,
+        label: '하네스 엔지니어링',
+        topic: '서브에이전트·하네스 엔지니어링',
+        deckId: 'claude-code-level7-chapter7',
+      },
+      {
+        level: 10,
+        label: '클로드 코드 딥 다이브',
+        topic: '에이전트 내부 동작·소스 분석',
+      },
+    ],
+  },
+];
+
+// Deck ids referenced by the outline — so the library can list every OTHER
+// built-in deck (cover/report/sample decks) separately without duplication.
+export const OUTLINE_DECK_IDS: ReadonlySet<string> = new Set(
+  COURSE_OUTLINE.flatMap((s) => s.levels.map((l) => l.deckId).filter((id): id is string => !!id)),
+);

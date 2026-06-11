@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- 폰트: 한국어 본문 Noto Sans KR / 날짜·모델명·수치 라벨 JetBrains Mono (덱 토큰) -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+
+  .frame {
+    width: 1720px;
+    height: 560px;
+    position: relative;
+    padding: 32px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #F1F5F9;
+  }
+
+  /* 헤더: 작은 mono 키커 + 한국어 제목 */
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: #94A3B8;
+    text-transform: uppercase;
+  }
+  .title {
+    margin-top: 8px;
+    font-size: 34px;
+    font-weight: 900;
+    color: #F1F5F9;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 400;
+    color: #CBD5E1;
+  }
+
+  /* 타임라인 영역 */
+  .timeline {
+    position: absolute;
+    left: 32px;
+    right: 32px;
+    top: 168px;
+    height: 332px;
+  }
+
+  /* 가로 축 (좌 -> 우, 시간순) */
+  .axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 166px;
+    height: 1px;
+    background: #334155;
+  }
+
+  /* 각 점(노드) — 9개 균등 배치 */
+  .node {
+    position: absolute;
+    top: 0;
+    height: 332px;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  /* 점 자체 */
+  .dot {
+    position: absolute;
+    top: 159px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #1E293B;
+    border: 1px solid #475569;
+  }
+  .node.accent .dot {
+    width: 19px;
+    height: 19px;
+    top: 157px;
+    background: #F59E0B;
+    border: 1px solid #D97706;
+  }
+
+  /* 날짜 라벨 (mono) — 축 바로 옆 */
+  .date {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #94A3B8;
+    white-space: nowrap;
+  }
+  .node.up .date  { top: 132px; }
+  .node.down .date { top: 196px; }
+  .node.accent .date { color: #F59E0B; }
+
+  /* 모델 카드 (패널) */
+  .card {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 176px;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px 12px 13px;
+    text-align: left;
+  }
+  .node.accent .card { border-color: #D97706; }
+  .node.up .card  { bottom: 222px; }
+  .node.down .card { top: 222px; }
+
+  /* 카드 -> 축 연결 세로 가이드 */
+  .stem {
+    position: absolute;
+    left: 50%;
+    width: 1px;
+    background: #334155;
+    transform: translateX(-50%);
+  }
+  .node.accent .stem { background: #D97706; }
+  .node.up .stem  { top: 110px; height: 56px; }
+  .node.down .stem { top: 166px; height: 56px; }
+
+  .model {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #F1F5F9;
+    letter-spacing: -0.01em;
+  }
+  .node.accent .model { color: #F59E0B; }
+  .note {
+    margin-top: 6px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #CBD5E1;
+  }
+  .metric {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #F1F5F9;
+  }
+
+  /* 범례 */
+  .legend {
+    position: absolute;
+    right: 32px;
+    top: 36px;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #94A3B8;
+  }
+  .legend .item { display: flex; align-items: center; gap: 8px; }
+  .legend .swatch { width: 13px; height: 13px; border-radius: 50%; }
+  .legend .sw-base { background: #1E293B; border: 1px solid #475569; }
+  .legend .sw-amber { background: #F59E0B; border: 1px solid #D97706; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="kicker">TIMELINE · 1.2.3</div>
+    <div class="title">모델 출시 타임라인 &amp; 각 모델 특징</div>
+    <div class="subtitle">Sonnet 4.5 &rarr; Haiku 4.5 &rarr; Opus 4.6 &rarr; 4.7 세대</div>
+
+    <div class="legend">
+      <div class="item"><span class="swatch sw-base"></span>출시 시점</div>
+      <div class="item"><span class="swatch sw-amber"></span>최신 핵심 모델</div>
+    </div>
+
+    <div class="axis"></div>
+    <div class="timeline">
+
+      <!-- 1. 2025-02 3.7 Sonnet (down) -->
+      <div class="node down" style="left:5.5%;">
+        <div class="date">2025-02</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Claude 3.7 Sonnet</div>
+          <div class="note">최초 하이브리드 추론. Claude Code 리서치 프리뷰 동반.</div>
+        </div>
+      </div>
+
+      <!-- 2. 2025-05 Claude 4 (up) -->
+      <div class="node up" style="left:17.0%;">
+        <div class="date">2025-05</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Claude 4 세대</div>
+          <div class="note">Sonnet 4 / Opus 4. Claude Code 정식 출시.</div>
+        </div>
+      </div>
+
+      <!-- 3. 2025-09 Sonnet 4.5 (down) -->
+      <div class="node down" style="left:28.5%;">
+        <div class="date">2025-09</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Sonnet 4.5</div>
+          <div class="note">Sonnet 4.5 출시.</div>
+        </div>
+      </div>
+
+      <!-- 4. 2025-10 Haiku 4.5 (up, accent) -->
+      <div class="node up accent" style="left:40.0%;">
+        <div class="date">2025-10</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Haiku 4.5</div>
+          <div class="note">SWE-bench Verified <span class="metric">73.3%</span>. 경량 모델 중 세계 최고 코딩 성능. 실시간 애플리케이션에 적합.</div>
+        </div>
+      </div>
+
+      <!-- 5. 2025-11 Opus 4.5 (down) -->
+      <div class="node down" style="left:51.5%;">
+        <div class="date">2025-11</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Opus 4.5</div>
+          <div class="note">Opus 4.5 출시.</div>
+        </div>
+      </div>
+
+      <!-- 6. 2026-02 Opus 4.6 (up) -->
+      <div class="node up" style="left:63.0%;">
+        <div class="date">2026-02</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Opus 4.6</div>
+          <div class="note">Adaptive Thinking 도입.</div>
+        </div>
+      </div>
+
+      <!-- 7. 2026-02 Sonnet 4.6 (down, accent) -->
+      <div class="node down accent" style="left:71.0%;">
+        <div class="date">2026-02</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Sonnet 4.6</div>
+          <div class="note">SWE-bench Verified <span class="metric">79.6%</span>. 과거 Opus급 성능을 Sonnet 가격에. 권장 기본 모델.</div>
+        </div>
+      </div>
+
+      <!-- 8. 2026-04 Opus 4.7 (up) -->
+      <div class="node up" style="left:82.5%;">
+        <div class="date">2026-04</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Opus 4.7</div>
+          <div class="note">xhigh effort, 고해상도 비전, Task Budgets.</div>
+        </div>
+      </div>
+
+      <!-- 9. 2026-05 Opus 4.8 (down, accent) -->
+      <div class="node down accent" style="left:93.0%;">
+        <div class="date">2026-05</div>
+        <div class="dot"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="model">Opus 4.8</div>
+          <div class="note">SWE-bench Verified <span class="metric">88.6%</span>. Intelligence Index <span class="metric">61.4</span> 1위. Dynamic Workflows, Fast Mode.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

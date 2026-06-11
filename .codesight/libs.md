@@ -1,0 +1,184 @@
+# Libraries
+
+- `src/canvas/autoLinkUrl.ts` — function tryAutoLinkOnSpace: (e) => boolean
+- `src/canvas/documentEditingBridge.ts`
+  - function setActiveDocFrame: (frame) => void
+  - function execDocCommand: (command, value?) => boolean
+  - function wrapSelectionStyle: (prop, value) => boolean
+  - function insertDocText: (text) => boolean
+  - function insertDocImage: (src) => boolean
+  - function insertDocChecklist: () => boolean
+  - _...29 more_
+- `src/canvas/listInvariant.ts` — function ensureLiWrapper: (li) => HTMLDivElement, function enforceBulletListInvariant: (root) => void
+- `src/canvas/useDocumentEditing.ts` — function useDocumentEditing: (frameRef, // Re-run when the document is re-seeded (load / undo / redo) => void, const DOC_SELECTION_EVENT
+- `src/canvas/useSlideEditing.ts` — function useSlideEditing: (slideRootRef, onChange?) => void
+- `src/editor/codeBlockHtml.ts`
+  - function readCodeSource: (el) => string
+  - function readCodeLang: (el) => string
+  - function isCodeBlockEl: (el) => boolean
+  - function buildCodeBlockHtml: (source, lang) => Promise<string>
+  - function buildTerminalHtml: (source) => Promise<string>
+  - function applyCodeBlockToEl: (el, source, lang) => Promise<boolean>
+  - _...2 more_
+- `src/editor/fontList.ts`
+  - function loadGoogleFont: (google) => void
+  - type FontEntry
+  - type FontGroup
+  - const SYSTEM_FONTS: FontEntry[]
+  - const DEV_MONO_FONTS: FontEntry[]
+  - const DEV_SANS_FONTS: FontEntry[]
+  - _...1 more_
+- `src/editor/hexColor.ts` — function parseHexColorInput: (input) => string | null
+- `src/editor/textFormatActions.ts`
+  - function selectionInsideCanvas: () => Range | null
+  - function notifyInput: (range) => void
+  - function applyHighlight: (color) => void
+  - function wrapWithStyle: (patch) => void
+  - function clearHighlights: () => void
+  - function toggleCmd: (cmd) => void
+  - _...1 more_
+- `src/exporter/fileSystemAccess.ts`
+  - function isFsaSupported: () => boolean
+  - function getStoredExportRoot: () => Promise<FsaDirectoryHandle | null>
+  - function pickExportRoot: () => Promise<FsaDirectoryHandle | null>
+  - function clearStoredExportRoot: () => Promise<void>
+  - function getStoredResourceFile: (resourceId, withGesture) => Promise<FsaFileHandle | null>
+  - function pickResourceFile: (resourceId, suggestedName) => Promise<FsaFileHandle | null>
+  - _...5 more_
+- `src/exporter/htmlBundle.ts`
+  - function buildHtmlBundle: (input) => Promise<string>
+  - function openPrintablePreview: (html) => void
+  - function downloadBlob: (content, filename, mime) => void
+  - function defaultExportName: (title?) => string
+  - type BundleInput
+- `src/exporter/linkify.ts` — function linkifyHtml: (html, doc) => string
+- `src/exporter/pngExport.ts`
+  - function exportSelectedSlidePng: (deck, index) => Promise<void>
+  - function exportAllSlidesPng: (deck) => Promise<void>
+  - type PngExportDeck
+- `src/generator/adapters/presentationAdapter.ts` — function renderPresentation: (groups, template) => Promise<ParsedSlide[]>
+- `src/generator/adapters/shared.ts`
+  - function escapeHtml: (s) => string
+  - function makeBlockId: (prefix) => string
+  - function makeSlideId: (template) => string
+  - function wrapSlide: (opts) => string
+  - function toParsedSlide: (idx, template, html, title) => ParsedSlide
+- `src/generator/blockify.ts`
+  - function blockify: (tree, hint?) => SlideGroup[]
+  - type BlockifyHint
+  - type SlideKind
+  - type SlideGroup
+- `src/generator/detectTerminal.ts` — function classifyCodeBlock: (node) => 'terminal' | 'code', function inferLang: (node) => string
+- `src/generator/inlineThemeCss.ts`
+  - function stripEditorOverrides: (css) => string
+  - function loadInlineCss: (paths, root) => string
+  - const THEME_CSS_PATHS
+- `src/generator/mdToSlides.ts` — function mdToSlides: (source, template) => Promise<ParsedSlide[]>, type Template
+- `src/generator/parseMarkdown.ts` — function parseMarkdown: (source) => Root
+- `src/generator/pipeline.ts`
+  - function generateOnce: ({...}, template, hint }) => Promise<GenerateOutput>
+  - type Template
+  - type GenerateInput
+  - type GenerateOutput
+- `src/generator/planRenderer.ts`
+  - function renderPlan: (plan) => RenderedSlide[]
+  - type RenderedSlide
+  - const INLINE_TAG_ALLOWLIST
+- `src/generator/quality/detector.ts`
+  - function detectFeatures: (tree) => MdFeatures
+  - function isPresent: (features, id) => boolean
+  - type MdFeatures
+- `src/generator/quality/gates.ts`
+  - function runGates: (generatedHtml, parsedSlides, features, expectedSlideCount) => GateReport
+  - type GateId
+  - type GateResult
+  - type GateReport
+  - const CATEGORY_GATES: Record<string, GateId[]>
+- `src/generator/quality/rubric.ts`
+  - function summarize: (items) => ScoreReport
+  - type RubricId
+  - type RubricItemScore
+  - type ScoreReport
+  - const RUBRIC_IDS: readonly RubricId[]
+  - const POINTS_PER_ITEM
+  - _...2 more_
+- `src/generator/quality/scorer.ts` — function scoreHtml: (html, mdFeatures, gateReport?) => ScoreReport
+- `src/generator/retry.ts` — function generateWithRetry: (input) => Promise<RetryResult>, type RetryResult
+- `src/generator/sanitizeRawHtml.ts` — function sanitizeRawHtml: (tree) => void
+- `src/generator/slidePlan.ts`
+  - function validateSlidePlan: (raw) => ValidateResult
+  - type Template
+  - type SupportedLang
+  - type CalloutTone
+  - type BadgeTone
+  - type MetaItem
+  - _...6 more_
+- `src/highlight/highlighter.ts`
+  - function normalizeLang: (lang) => string
+  - function highlightCode: (source, lang) => Promise<string>
+  - const SUPPORTED_LANGS: ReadonlyArray<{ value: string; label: string }>
+- `src/importer/detectResource.ts`
+  - function detectResourceKind: (filename, content) => ResourceKind
+  - function splitHtmlDocument: (html) => SplitDocument
+  - function assembleHtmlDocument: (input) => void
+  - type SplitDocument
+- `src/importer/parsePresentation.ts`
+  - function deriveSlideTitleFromHtml: (html, fallback) => string
+  - function parsePresentationHTML: (source) => ParsedDeck
+  - type SlideBackground
+  - type ParsedSlide
+  - type ParsedDeck
+- `src/importer/upgradeCodeBlocks.ts` — function upgradeSlideCodeBlocks: (slides) => Promise<ParsedSlide[]>
+- `src/library/deckRegistry.ts`
+  - function getDeckById: (id) => DeckRegistryEntry | undefined
+  - function countSlides: (html) => number
+  - type DeckTemplate
+  - type DeckSourceKind
+  - type DeckRegistryEntry
+  - type CourseLevel
+  - _...4 more_
+- `src/persistence/idb.ts`
+  - function idbGetDeck: (deckId) => Promise<unknown>
+  - function idbPutDeck: (deckId, value) => Promise<void>
+  - function idbDeleteDeck: (deckId) => Promise<void>
+  - function idbGetMeta: (key) => Promise<T | undefined>
+  - function idbPutMeta: (key, value) => Promise<void>
+  - function idbDeleteMeta: (key) => Promise<void>
+- `src/persistence/localStore.ts`
+  - function saveDeckToLocalStorage: (deckId, input, Overlay[]>;
+    currentIndex) => Promise<SaveResult>
+  - function loadDeckFromLocalStorage: (deckId) => Promise<PersistedDeck | null>
+  - function clearDeckFromLocalStorage: (deckId) => Promise<void>
+  - function getLastOpenedDeckId: () => string | null
+  - function setLastOpenedDeckId: (deckId) => void
+  - function safeReadStringArray: (key) => string[]
+  - _...8 more_
+- `src/persistence/recentResources.ts`
+  - function listRecentResources: () => Promise<RecentResource[]>
+  - function recordRecentResource: (entry, 'savedAt'>, raw, doc?) => Promise<void>
+  - function getRecentResourceContent: (id) => Promise<StoredContent | null>
+  - function updateRecentDoc: (id, doc) => Promise<void>
+  - function removeRecentResource: (id) => Promise<void>
+  - type RecentResource
+  - _...1 more_
+- `src/persistence/slideMigrations.ts` — function runSlideMigrations: (slides, deckId) => MigrationResult, type MigrationResult
+- `src/persistence/useAutoSave.ts` — function useAutoSave: (deckId, enabled) => void
+- `src/persistence/useResourceAutoSave.ts` — function useResourceAutoSave: (enabled) => void
+- `src/scene/applySlideBackground.ts`
+  - function applyBackgroundToElement: (el, bg) => void
+  - function stripBackgroundFromElement: (el) => void
+  - function applyBackgroundToHtml: (html, bg) => string
+- `src/scene/blockId.ts`
+  - function makeBlockId: () => string
+  - function ensureBlockId: (el) => string
+  - const DATA_BLOCK_ID
+- `src/scene/pendingCommit.ts` — function registerPendingFlush: (fn) => void, function flushPendingCommit: () => void
+- `src/scene/store.ts` — function loadSlideClipboardFromSession: () => void, const useDeckStore
+- `src/watermark/watermark.ts`
+  - function watermarkSpansHtml: (lines) => string
+  - function slideHasWatermark: (slideHtml) => boolean
+  - function extractWatermarkLines: (slideHtml) => string[]
+  - function setSlideWatermark: (slideHtml, enabled, lines) => string
+  - function watermarkLayerHtml: (lines) => string
+  - const WATERMARK_CLASS
+  - _...2 more_

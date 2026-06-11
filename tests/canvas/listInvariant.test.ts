@@ -180,3 +180,53 @@ describe('enforceBulletListInvariant', () => {
     expect(li?.firstElementChild?.children.length).toBe(0);
   });
 });
+
+// H2 — A nested <ul>/<ol> is a valid direct child of <li>. The old wrapper logic
+// treated it as "unhealthy" and moved EVERY child (including the nested list)
+// into the wrapper <div>, which — with `.bullet-list li { display:flex }` —
+// collapsed the sub-list inline beside the parent title and broke indentation.
+// The wrapper must hold only the title/inline content; nested lists stay <li>
+// children.
+describe('ensureLiWrapper — nested lists (H2)', () => {
+  it('keeps a nested <ul> as a direct child, not absorbed into the wrapper div', () => {
+    const li = document.createElement('li');
+    li.innerHTML =
+      '<div>Parent</div><ul class="bullet-list"><li><div>child</div></li></ul>';
+
+    const result = ensureLiWrapper(li);
+
+    expect(result.tagName).toBe('DIV');
+    expect(result.textContent).toBe('Parent');
+    // nested list survives as a DIRECT child of <li>…
+    expect(li.querySelector(':scope > ul')).not.toBeNull();
+    // …and is NOT pulled inside the content wrapper.
+    expect(result.querySelector('ul')).toBeNull();
+  });
+
+  it('rewraps loose title text but preserves a following nested <ul> as an <li> child', () => {
+    const li = document.createElement('li');
+    li.innerHTML =
+      'Title<ul class="bullet-list"><li><div>child</div></li></ul>';
+
+    const wrap = ensureLiWrapper(li);
+
+    expect(wrap.tagName).toBe('DIV');
+    expect(wrap.textContent).toBe('Title');
+    const nested = li.querySelector(':scope > ul');
+    expect(nested).not.toBeNull();
+    expect(nested!.querySelector('li')).not.toBeNull();
+    expect(wrap.querySelector('ul')).toBeNull();
+  });
+
+  it('is idempotent on an <li> that already has a div + nested <ul>', () => {
+    const li = document.createElement('li');
+    li.innerHTML =
+      '<div>Parent</div><ul class="bullet-list"><li><div>child</div></li></ul>';
+    const before = li.innerHTML;
+
+    ensureLiWrapper(li);
+    ensureLiWrapper(li);
+
+    expect(li.innerHTML).toBe(before);
+  });
+});

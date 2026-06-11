@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type Template } from '../generator/mdToSlides';
 import { detectResourceKind } from '../importer/detectResource';
-import { BUILTIN_DECKS, countSlides, type DeckRegistryEntry } from '../library/deckRegistry';
+import {
+  BUILTIN_DECKS,
+  COURSE_OUTLINE,
+  countSlides,
+  OUTLINE_DECK_IDS,
+  type CourseLevel,
+  type DeckRegistryEntry,
+} from '../library/deckRegistry';
 import { type ResourceEntry, type ResourceKind } from '../library/resourceRegistry';
 import {
   addHiddenDeckId,
@@ -79,7 +86,7 @@ function TabButton({
   );
 }
 
-// ── Deck grid (existing behavior, unchanged except for extraction) ──────────
+// ── Deck grid (원래 카드 그리드 + 카테고리 태그) ─────────────────────────────
 
 function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>(() => getHiddenDeckIds());
@@ -89,8 +96,24 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
     () => BUILTIN_DECKS.map((d) => ({ ...d, slideCount: countSlides(d.html) })),
     [],
   );
-  const visibleDecks = useMemo(
-    () => decksWithMeta.filter((d) => !hiddenIds.includes(d.id)),
+  // Level cards (Lv.1~Lv.10) in course-outline order, each tagged with its
+  // stage category. Levels with no backing deck render as a non-clickable
+  // "발표자료 준비 중" card so the full curriculum (목차) is always visible.
+  const levelItems = useMemo(() => {
+    // Resolve each level's backing deck + slide count ONCE here (reusing the
+    // already-memoized decksWithMeta) so LevelCard never re-runs countSlides —
+    // a regex scan over multi-MB deck HTML — on every render.
+    const byId = new Map(decksWithMeta.map((d) => [d.id, d]));
+    return COURSE_OUTLINE.flatMap((s) =>
+      s.levels.map((l) => {
+        const deck = l.deckId ? byId.get(l.deckId) : undefined;
+        return { ...l, category: s.name, deck, slideCount: deck?.slideCount ?? 0 };
+      }),
+    );
+  }, [decksWithMeta]);
+  // Non-level decks (커리큘럼 리포트 · 발표 소개 등) — kept in a separate section.
+  const visibleOther = useMemo(
+    () => decksWithMeta.filter((d) => !OUTLINE_DECK_IDS.has(d.id) && !hiddenIds.includes(d.id)),
     [decksWithMeta, hiddenIds],
   );
   const hiddenDecks = useMemo(
@@ -120,25 +143,35 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">발표 데크 선택</h1>
         <p className="mt-1 text-sm text-editor-dim">
-          편집할 데크를 선택하세요. 각 데크의 편집 내용은 독립적으로 자동 저장됩니다.
+          🗺 강의 흐름 — 6단계 학습 여정 (Lv.1~Lv.10). 발표자료가 있는 레벨은 클릭해서 편집할 수
+          있고, 준비 중인 레벨은 카드로만 표시됩니다. 편집 내용은 데크별로 자동 저장됩니다.
         </p>
       </div>
-      {visibleDecks.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-editor-border bg-editor-panel/60 px-6 py-10 text-center text-sm text-editor-dim">
-          표시할 데크가 없습니다. 아래의 "숨긴 데크 보기"에서 복원하세요.
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {levelItems.map((item) => (
+          <LevelCard key={item.level} item={item} onOpen={onOpen} />
+        ))}
+      </div>
+
+      {visibleOther.length > 0 ? (
+        <div className="mt-12">
+          <h2 className="mb-1 text-sm font-semibold text-editor-text">참고 자료 · 기타 데크</h2>
+          <p className="mb-4 text-xs text-editor-dim">
+            커리큘럼 리포트·발표 소개 등 레벨 목차에 속하지 않는 데크입니다.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleOther.map((deck) => (
+              <DeckCard
+                key={deck.id}
+                deck={deck}
+                onOpen={() => onOpen(deck)}
+                onHide={() => hideDeck(deck.id, deck.title)}
+              />
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleDecks.map((deck) => (
-            <DeckCard
-              key={deck.id}
-              deck={deck}
-              onOpen={() => onOpen(deck)}
-              onHide={() => hideDeck(deck.id, deck.title)}
-            />
-          ))}
-        </div>
-      )}
+      ) : null}
 
       {hiddenDecks.length > 0 ? (
         <div className="mt-10 border-t border-editor-border pt-6">
@@ -176,6 +209,76 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
         </div>
       ) : null}
     </>
+  );
+}
+
+// ── Level card (강의 목차 Lv.1~Lv.10) ───────────────────────────────────────
+
+function LevelCard({
+  item,
+  onOpen,
+}: {
+  item: CourseLevel & {
+    category: string;
+    deck?: DeckRegistryEntry & { slideCount: number };
+    slideCount: number;
+  };
+  onOpen: (deck: DeckRegistryEntry) => void;
+}) {
+  const { deck, slideCount } = item;
+
+  const header = (
+    <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        <span className="rounded bg-editor-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-editor-accent">
+          LV.{item.level}
+        </span>
+        <span className="truncate rounded border border-editor-border px-2 py-0.5 text-[10px] font-medium text-editor-dim">
+          {item.category}
+        </span>
+      </div>
+      {deck ? (
+        <span className="shrink-0 text-[11px] text-editor-dim">{slideCount} slides</span>
+      ) : (
+        <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
+          준비 중
+        </span>
+      )}
+    </div>
+  );
+
+  const body = (
+    <div className="flex-1">
+      <h3 className="text-base font-semibold leading-snug text-editor-text">{item.label}</h3>
+      <p className="mt-1 text-xs leading-relaxed text-editor-dim">{item.topic}</p>
+    </div>
+  );
+
+  if (!deck) {
+    // 발표자료 없는 레벨 — 클릭 불가 카드.
+    return (
+      <div className="flex h-full flex-col rounded-lg border border-dashed border-editor-border bg-editor-panel/40 p-5">
+        {header}
+        {body}
+        <div className="mt-4 text-right text-xs text-editor-dim">발표자료 준비 중</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group relative flex h-full flex-col rounded-lg border border-editor-border bg-editor-panel transition hover:border-editor-accent hover:bg-editor-panel/80">
+      <button
+        type="button"
+        onClick={() => onOpen(deck)}
+        className="flex h-full flex-1 flex-col items-stretch p-5 text-left"
+      >
+        {header}
+        {body}
+        <div className="mt-4 flex items-center justify-end text-xs text-editor-dim transition group-hover:text-editor-accent">
+          편집 열기 →
+        </div>
+      </button>
+    </div>
   );
 }
 

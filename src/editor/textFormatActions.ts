@@ -62,21 +62,89 @@ export function notifyInput(range: Range): void {
   host.dispatchEvent(new InputEvent('input', { bubbles: true }));
 }
 
+// Snapshot a range's boundary points so it can be rebuilt after a cleanup pass.
+type RangeBoundaries = { sc: Node; so: number; ec: Node; eo: number };
+function snapshotBoundaries(range: Range): RangeBoundaries {
+  return {
+    sc: range.startContainer,
+    so: range.startOffset,
+    ec: range.endContainer,
+    eo: range.endOffset,
+  };
+}
+
+// Re-derive a range from snapshotted boundaries. Unwrapping spans during a
+// cleanup pass can collapse the *live* selection range under some engines
+// (observed in JSDOM: the range collapses to after the re-parented text), which
+// then makes surroundContents wrap an empty range and orphan the text. The
+// boundary text nodes survive the unwrap (children are re-parented, not
+// removed), so rebuilding from their saved offsets restores the intended range.
+function rebuiltRange(b: RangeBoundaries, fallback: Range): Range {
+  if (!b.sc.isConnected || !b.ec.isConnected) return fallback;
+  try {
+    const r = (b.sc.ownerDocument ?? document).createRange();
+    r.setStart(b.sc, b.so);
+    r.setEnd(b.ec, b.eo);
+    if (r.collapsed && !fallback.collapsed) return fallback;
+    return r;
+  } catch {
+    return fallback;
+  }
+}
+
+// Unwrap a <span> that has no remaining inline style or class: lift its children
+// out and remove it. No-op for anything else. Shared by every cleanup pass so
+// the "what counts as a removable wrapper" rule lives in exactly one place.
+function unwrapBareSpan(el: HTMLElement): void {
+  if (el.tagName !== 'SPAN' || el.getAttribute('style') || el.className) return;
+  const parent = el.parentNode;
+  if (!parent) return;
+  while (el.firstChild) parent.insertBefore(el.firstChild, el);
+  parent.removeChild(el);
+}
+
 // WYSIWYG highlight: write the swatch hex straight into inline `style` and
 // flag the span with `data-highlight="1"` so Clear can find it later.
 export function applyHighlight(color: string): void {
   const range = selectionInsideCanvas();
   if (!range) return;
+
+  const snap = snapshotBoundaries(range);
+
+  // Anti-accumulation (matches wrapWithStyle): strip any existing highlight that
+  // is FULLY inside the selection before wrapping, so re-highlighting the same
+  // text replaces the swatch instead of nesting <span data-highlight> spans.
+  const cleanupHost = nearestFormatHost(range.commonAncestorContainer);
+  if (cleanupHost) {
+    for (const el of Array.from(cleanupHost.querySelectorAll<HTMLElement>('*'))) {
+      if (el === cleanupHost) continue;
+      if (!isElementFullyInRange(el, range)) continue;
+      let touched = false;
+      if (el.getAttribute('data-highlight') === '1') {
+        el.removeAttribute('data-highlight');
+        el.style.fontWeight = '';
+        touched = true;
+      }
+      if (el.style.color) {
+        el.style.color = '';
+        touched = true;
+      }
+      if (!touched) continue;
+      unwrapBareSpan(el);
+    }
+  }
+
+  const wrapRange = rebuiltRange(snap, range);
   const span = document.createElement('span');
   span.style.color = color;
   span.style.fontWeight = '700';
   span.setAttribute('data-highlight', '1');
   try {
-    range.surroundContents(span);
+    wrapRange.surroundContents(span);
   } catch {
-    const fragment = range.extractContents();
+    const fragment = wrapRange.extractContents();
     span.appendChild(fragment);
-    range.insertNode(span);
+    wrapRange.insertNode(span);
   }
   const sel = window.getSelection();
   if (sel) {
@@ -85,7 +153,7 @@ export function applyHighlight(color: string): void {
     sel.removeAllRanges();
     sel.addRange(fresh);
   }
-  notifyInput(range);
+  notifyInput(wrapRange);
 }
 
 export type InlineStylePatch = {
@@ -139,12 +207,7 @@ function applyPatchToCells(
         }
       }
       if (!touched) return;
-      if (el.tagName === 'SPAN' && !el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) return;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
+      unwrapBareSpan(el);
     });
     for (const k of keys) {
       const v = patch[k];
@@ -216,6 +279,11 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
   const host = nearestFormatHost(range.commonAncestorContainer);
   if (!host) return;
 
+  // Snapshot the selection boundaries BEFORE the cleanup pass mutates the DOM.
+  // Unwrapping a fully-selected span can collapse the live range (JSDOM), which
+  // would make the wrap below surround an empty range and orphan the text.
+  const snap = snapshotBoundaries(range);
+
   // Cleanup pass: strip every key that's being set or removed from
   // descendants that are FULLY contained by the range. Partial-overlap
   // descendants (range covers only part of their content) and ancestors of
@@ -239,12 +307,7 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
         }
       }
       if (!touched) continue;
-      if (el.tagName === 'SPAN' && !el.getAttribute('style') && !el.className) {
-        const parent = el.parentNode;
-        if (!parent) continue;
-        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-        parent.removeChild(el);
-      }
+      unwrapBareSpan(el);
     }
   }
 
@@ -254,19 +317,20 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
     return;
   }
 
-  // Cleanup may have unwrapped spans, restructuring the DOM. The original
-  // `range` text-node endpoints are still valid (children get re-parented,
-  // not removed), so reuse it directly.
+  // Cleanup may have unwrapped spans, restructuring the DOM. Rebuild the range
+  // from the saved boundaries (the text nodes are re-parented, not removed) so
+  // the wrap targets the real selection even if the live range collapsed.
+  const wrapRange = rebuiltRange(snap, range);
   const span = document.createElement('span');
   if (typeof patch.color === 'string') span.style.color = patch.color;
   if (typeof patch.fontSize === 'string') span.style.fontSize = patch.fontSize;
   if (typeof patch.fontFamily === 'string') span.style.fontFamily = patch.fontFamily;
   try {
-    range.surroundContents(span);
+    wrapRange.surroundContents(span);
   } catch {
-    const fragment = range.extractContents();
+    const fragment = wrapRange.extractContents();
     span.appendChild(fragment);
-    range.insertNode(span);
+    wrapRange.insertNode(span);
   }
   const sel = window.getSelection();
   if (sel) {
@@ -275,7 +339,7 @@ export function wrapWithStyle(patch: InlineStylePatch): void {
     sel.removeAllRanges();
     sel.addRange(fresh);
   }
-  notifyInput(range);
+  notifyInput(wrapRange);
 }
 
 // Nuclear reset: strip every form of text formatting in the selection so
@@ -293,7 +357,11 @@ export function clearHighlights(): void {
   const all = Array.from(host.querySelectorAll<HTMLElement>('*'));
   for (const el of all) {
     if (el === host) continue;
-    if (!range.intersectsNode(el)) continue;
+    // Only strip elements FULLY covered by the selection. The old
+    // `range.intersectsNode` check also matched elements the selection merely
+    // touched (e.g. the wrapping block when only an inner word is selected),
+    // wiping styles off neighboring un-selected text. Matches wrapWithStyle.
+    if (!isElementFullyInRange(el, range)) continue;
 
     let touched = false;
 
@@ -321,19 +389,20 @@ export function clearHighlights(): void {
 
     if (!touched) continue;
 
-    if (el.tagName === 'SPAN' && !el.className && !el.getAttribute('style')) {
-      const parent = el.parentNode;
-      if (!parent) continue;
-      while (el.firstChild) parent.insertBefore(el.firstChild, el);
-      parent.removeChild(el);
-    }
+    unwrapBareSpan(el);
   }
   notifyInput(range);
 }
 
 export function toggleCmd(cmd: 'bold' | 'italic' | 'underline'): void {
   if (!selectionInsideCanvas()) return;
-  document.execCommand(cmd);
+  // execCommand is deprecated and unavailable/disabled in some embedded webviews
+  // (and JSDOM). Guard + try/catch so a B/I/U click can never throw uncaught.
+  try {
+    if (typeof document.execCommand === 'function') document.execCommand(cmd);
+  } catch {
+    /* no-op: formatting command unsupported in this environment */
+  }
   const range = selectionInsideCanvas();
   if (range) notifyInput(range);
 }
