@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: grid;
+    grid-template-columns: 522px 1fr;
+    gap: 32px;
+    align-items: stretch;
+  }
+
+  /* ── shared bits ── */
+  .col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: #6B6560;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── LEFT: /init flow ── */
+  .left { display: flex; flex-direction: column; height: 100%; }
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .left .note { margin-top: auto; }
+
+  .step {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 14px 20px;
+    background: transparent;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .step .num {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #0F766E;
+    border-radius: 8px;
+    color: #0F766E;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step .body { flex: 1; }
+  .step .title {
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    margin-bottom: 5px;
+  }
+  .step .desc {
+    font-size: 22px;
+    line-height: 1.42;
+    color: #1A1A18;
+  }
+  .step .desc .muted { color: #6B6560; }
+
+  .term {
+    border: 1px solid #1A1A18;
+    border-radius: 8px;
+    margin-top: 11px;
+    overflow: hidden;
+  }
+  .term .bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: #6B6560;
+    padding: 6px 16px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .term .line {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 26px;
+    color: #1A1A18;
+    padding: 11px 16px;
+  }
+  .term .line .prompt { color: #0F766E; margin-right: 10px; }
+
+  .arrow {
+    display: flex;
+    justify-content: center;
+    color: #6B6560;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1;
+    padding: 5px 0;
+  }
+
+  .note {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .note .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    color: #1E3A8A;
+    border: 1px solid #1E3A8A;
+    border-radius: 8px;
+    padding: 5px 14px;
+    white-space: nowrap;
+  }
+  .note .txt {
+    font-size: 21px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  .note .txt b { font-weight: 700; }
+
+  /* ── RIGHT: generated CLAUDE.md example ── */
+  .right { display: flex; flex-direction: column; height: 100%; }
+  .file {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .file .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 24px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .file .head .name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+  }
+  .file .head .stack {
+    font-size: 19px;
+    font-weight: 600;
+    color: #6B6560;
+  }
+  .file .body {
+    padding: 16px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.46;
+    color: #1A1A18;
+    flex: 1;
+  }
+  .file .body .h1 { font-weight: 700; font-size: 23px; color: #1A1A18; }
+  .file .body .p  { color: #6B6560; font-family: 'Noto Sans KR','Inter',sans-serif; font-size: 20px; margin-top: 2px; }
+  .file .body .h2 { font-weight: 700; color: #0F766E; margin-top: 11px; font-size: 22px; }
+  .file .body .cmd { color: #1A1A18; }
+  .file .body .cm  { color: #6B6560; }
+  .file .body .li  { color: #1A1A18; }
+  .file .body .path { color: #115E59; font-weight: 600; }
+  .file .body .rule { color: #1A1A18; font-family: 'Noto Sans KR','Inter',sans-serif; }
+  .file .body .fmt { color: #1E3A8A; font-weight: 600; }
+  .file .body .ind { padding-left: 18px; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: /init automatic generation flow -->
+    <div class="left">
+      <div class="col-label">/init 으로 자동 생성</div>
+      <div class="flow">
+
+        <div class="step">
+          <span class="num">1</span>
+          <div class="body">
+            <div class="title">명령 실행</div>
+            <div class="desc">새 프로젝트에서 가장 먼저 실행하는 명령어</div>
+            <div class="term">
+              <div class="bar">Terminal</div>
+              <div class="line"><span class="prompt">&gt;</span>/init</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow">&#9660;</div>
+
+        <div class="step">
+          <span class="num">2</span>
+          <div class="body">
+            <div class="title">프로젝트 분석</div>
+            <div class="desc">Claude가 <span class="muted">구조 · 컨벤션 · 배포 방법</span>을 스캔</div>
+          </div>
+        </div>
+
+        <div class="arrow">&#9660;</div>
+
+        <div class="step">
+          <span class="num">3</span>
+          <div class="body">
+            <div class="title">온보딩 문서 생성</div>
+            <div class="desc"><code>CLAUDE.md</code> 초안을 작성 &mdash; 새 동료에게 프로젝트를 설명하듯</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <span class="tag">CLAUDE.md의 역할</span>
+        <span class="txt">새 동료가 합류했을 때 프로젝트 구조·컨벤션·배포 방법을 설명하듯, <b>Claude에게 온보딩 문서를 제공</b>한다.</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: generated example -->
+    <div class="right">
+      <div class="col-label">생성 예시 &mdash; TaskFlow API</div>
+
+      <div class="file">
+        <div class="head">
+          <span class="name">CLAUDE.md</span>
+          <span class="stack">Express + TypeScript + PostgreSQL 기반 REST API</span>
+        </div>
+        <div class="body">
+          <div class="h1"># TaskFlow API</div>
+          <div class="p">사용자 태스크 관리를 위한 REST API 백엔드. Express + TypeScript + PostgreSQL 기반.</div>
+
+          <div class="h2">## 핵심 명령어</div>
+          <div class="cmd ind">npm run dev <span class="cm"># 개발 서버 (포트 3000)</span></div>
+          <div class="cmd ind">npm run test <span class="cm"># Jest 테스트 전체 실행</span></div>
+          <div class="cmd ind">npm run lint <span class="cm"># ESLint 검사</span></div>
+          <div class="cmd ind">npm run typecheck <span class="cm"># TypeScript 타입 검사</span></div>
+
+          <div class="h2">## 디렉터리 구조</div>
+          <div class="li ind">- <span class="path">src/routes/</span> <span class="rule">Express 라우터</span></div>
+          <div class="li ind">- <span class="path">src/services/</span> <span class="rule">비즈니스 로직</span></div>
+          <div class="li ind">- <span class="path">src/models/</span> <span class="rule">Prisma 모델</span></div>
+
+          <div class="h2">## 코딩 규칙</div>
+          <div class="li ind"><span class="rule">- 모든 함수에 TypeScript 타입 명시</span></div>
+          <div class="li ind"><span class="rule">- 새 기능은 반드시 테스트 작성</span></div>
+          <div class="li ind"><span class="rule">- API 응답은 표준 형식:</span> <span class="fmt">{ success, data, error }</span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

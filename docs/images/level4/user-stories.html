@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 20px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* format note row (Connextra template) */
+  .fmt {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 16px 24px;
+  }
+  .fmt .lbl {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #0F766E;
+    border: 1px solid #0F766E;
+    border-radius: 7px;
+    padding: 5px 14px;
+  }
+  .fmt .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  .fmt .txt .ph { font-weight: 700; color: #1E3A8A; }
+
+  /* table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  thead th {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 800;
+    color: #1A1A18;
+    padding: 0 20px 14px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    letter-spacing: 0.01em;
+  }
+  tbody td {
+    font-size: 22px;
+    line-height: 1.4;
+    color: #1A1A18;
+    padding: 15px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  col.c-id { width: 160px; }
+  col.c-fr { width: 280px; }
+
+  td.id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  td.fr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #1E3A8A;
+  }
+
+  /* AI usage callout — full width, neutral box */
+  .ai {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 16px 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+  }
+  .ai .lbl {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #047857;
+    border: 1px solid #047857;
+    border-radius: 7px;
+    padding: 5px 14px;
+  }
+  .ai .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  .ai .txt b { font-weight: 700; color: #047857; }
+
+  /* bottom source callout — cream tint, full width */
+  .src {
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    background: #FAF3E6;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .src .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 7px;
+    padding: 5px 14px;
+  }
+  .src .desc {
+    font-size: 21px;
+    line-height: 1.45;
+    color: #7C4A02;
+  }
+  .src .desc .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="fmt">
+      <span class="lbl">FORMAT</span>
+      <span class="txt"><span class="ph">[역할]</span>로서, <span class="ph">[행동]</span>을 할 수 있다. 그래서 <span class="ph">[가치/목적]</span>을 달성한다. — Connextra: As a &lt;역할/페르소나&gt;, I want &lt;기능/욕구&gt;, so that &lt;가치/이유&gt;</span>
+    </div>
+
+    <table>
+      <colgroup>
+        <col class="c-id">
+        <col>
+        <col class="c-fr">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>사용자 스토리</th>
+          <th>관련 FR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="id">US-001</td>
+          <td>팀원으로서 마크다운 문서를 작성할 수 있다. 그래서 지식을 빠르게 기록·공유한다.</td>
+          <td class="fr">FR-003, FR-009</td>
+        </tr>
+        <tr>
+          <td class="id">US-002</td>
+          <td>팀원으로서 문서를 카테고리별로 분류할 수 있다. 그래서 관련 문서를 쉽게 찾는다.</td>
+          <td class="fr">FR-005</td>
+        </tr>
+        <tr>
+          <td class="id">US-003</td>
+          <td>관리자로서 워크스페이스 멤버를 초대하고 역할을 부여할 수 있다.</td>
+          <td class="fr">FR-002</td>
+        </tr>
+        <tr>
+          <td class="id">US-004</td>
+          <td>팀원으로서 문서 수정 이력 확인 및 이전 버전 복원이 가능하다.</td>
+          <td class="fr">FR-004</td>
+        </tr>
+        <tr>
+          <td class="id">US-005</td>
+          <td>팀원으로서 문서 간 연관 관계를 링크로 연결할 수 있다.</td>
+          <td class="fr">FR-006</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="ai">
+      <span class="lbl">AI 활용</span>
+      <span class="txt">FR만 전달하면 기능적 정확성만 얻지만, <b>US를 함께 전달</b>하면 에러 메시지·기본값 설계가 사용자 친화적으로 나온다.</span>
+    </div>
+
+    <div class="src">
+      <span class="tag">출처</span>
+      <span class="desc">User Story Template — <span class="url">agilealliance.org/glossary/user-story-template</span></span>
+    </div>
+
+  </div>
+</body>
+</html>

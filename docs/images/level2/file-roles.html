@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  table.roles {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.roles col.c-file { width: 30%; }
+  table.roles col.c-git  { width: 13%; }
+  table.roles col.c-use  { width: 57%; }
+
+  table.roles thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: #1A1A18;
+    padding: 0 22px 16px 22px;
+    vertical-align: bottom;
+  }
+  table.roles thead th.git { text-align: center; }
+  table.roles thead tr { border-bottom: 3px solid #0F766E; }
+
+  table.roles tbody td {
+    font-size: 23px;
+    line-height: 1.4;
+    padding: 21px 22px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.roles tbody tr:last-child td { border-bottom: none; }
+
+  td.file {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 23px;
+    color: #1A1A18;
+  }
+  td.file .scope {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #6B6560;
+    margin-left: 6px;
+  }
+  td.git {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+  td.git .yes { color: #047857; }
+  td.git .no  { color: #B91C1C; }
+  td.use {
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  td.use .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #115E59;
+    font-weight: 600;
+  }
+
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 19px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 7px 16px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt .yes { color: #047857; font-weight: 700; }
+  .callout .txt .no  { color: #B91C1C; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="roles">
+      <colgroup>
+        <col class="c-file"><col class="c-git"><col class="c-use">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th class="git">Git</th>
+          <th>용도</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="file">CLAUDE.md<span class="scope">(루트)</span></td>
+          <td class="git"><span class="yes">커밋</span></td>
+          <td class="use">프로젝트 개요, 도메인 모델, API 명세</td>
+        </tr>
+        <tr>
+          <td class="file">.claude/CLAUDE.md</td>
+          <td class="git"><span class="yes">커밋</span></td>
+          <td class="use">코딩 컨벤션, 네이밍 규칙, 금지 사항</td>
+        </tr>
+        <tr>
+          <td class="file">settings.json</td>
+          <td class="git"><span class="yes">커밋</span></td>
+          <td class="use">TS 설정, 린트 규칙, 공유 Hook</td>
+        </tr>
+        <tr>
+          <td class="file">settings.local.json</td>
+          <td class="git"><span class="no">제외</span></td>
+          <td class="use">로컬 DB URL, 개인 환경설정</td>
+        </tr>
+        <tr>
+          <td class="file">rules/api-routes.md</td>
+          <td class="git"><span class="yes">커밋</span></td>
+          <td class="use"><span class="mono">src/api/**</span> 작업 시 자동 적용</td>
+        </tr>
+        <tr>
+          <td class="file">CLAUDE.local.md</td>
+          <td class="git"><span class="no">제외</span></td>
+          <td class="use">개인 테스트 URL, 샌드박스 설정</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">Git 정책</span>
+      <span class="txt"><span class="yes">커밋</span> = 팀 공유 (settings.json) · <span class="no">제외</span> = 개인 설정 (settings.local.json, CLAUDE.local.md)은 <b>.gitignore에 추가</b>한다.</span>
+    </div>
+  </div>
+</body>
+</html>

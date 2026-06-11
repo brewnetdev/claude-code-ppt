@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .box-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px 0 20px;
+  }
+  .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .box-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .box-title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-left: 10px;
+  }
+
+  /* ---- TOP: 3-tier flow ---- */
+  .flow { flex: none; }
+  .flow-row {
+    padding: 9px 20px 11px 20px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .node {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 9px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+  }
+  .node .nlbl {
+    font-size: 20px;
+    font-weight: 800;
+    color: #6B6560;
+    letter-spacing: 0.03em;
+  }
+  .node .ncmd {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.15;
+  }
+  .node .ndesc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+    line-height: 1.2;
+  }
+  .node.t1 .ncmd { color: #1E3A8A; }
+  .node.t2 .ncmd { color: #0F766E; }
+  .node.t3 .ncmd { color: #047857; }
+  .node.ci { border-color: #0F766E; }
+  .node.ci .ncmd { color: #0F766E; }
+  .node.ci .ndesc { color: #6B6560; }
+  .harrow {
+    flex: none;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .harrow::before {
+    content: "";
+    width: 0; height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 12px solid #6B6560;
+  }
+
+  /* ---- MIDDLE: split — structure tree + code ---- */
+  .mid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  .tree-body {
+    padding: 10px 20px 12px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  pre.tree {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.3;
+    color: #1A1A18;
+    white-space: pre;
+  }
+  pre.tree .c { color: #6B6560; font-weight: 600; }
+  pre.tree .v { color: #0F766E; font-weight: 700; }
+  pre.tree .p { color: #1E3A8A; font-weight: 700; }
+
+  .codebox {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+  }
+  .code-body {
+    padding: 10px 20px 12px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+  .code-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.24;
+    color: #1A1A18;
+    white-space: pre;
+  }
+  pre.code .k { color: #1E3A8A; font-weight: 700; }
+  pre.code .s { color: #047857; }
+  pre.code .f { color: #0F766E; font-weight: 700; }
+  pre.code .p { color: #6B6560; }
+  pre.code .c { color: #B45309; font-weight: 700; }
+  .code-div { border-top: 1px solid #D4D0C8; margin: 1px 0; }
+
+  /* ---- BOTTOM full-width note callout ---- */
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 13px 22px;
+  }
+  .callout .src {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .callout .cbody { font-size: 22px; font-weight: 500; color: #7C4A02; line-height: 1.4; }
+  .callout .cbody .strong { font-weight: 800; }
+  .callout .cbody code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: 3-tier test pyramid as flow -->
+    <div class="box flow">
+      <div class="box-head">
+        <span class="badge">3계층 테스트</span>
+        <span class="box-title">단위 → 통합 → E2E → CI 자동화<span class="en">Vitest · Playwright · GitHub Actions</span></span>
+      </div>
+      <div class="flow-row">
+        <div class="node t1">
+          <span class="ncmd">단위</span>
+          <span class="ndesc">components</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node t2">
+          <span class="ncmd">통합 · Vitest</span>
+          <span class="ndesc">Route Handler</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node t3">
+          <span class="ncmd">E2E</span>
+          <span class="ndesc">Playwright</span>
+        </div>
+        <div class="harrow"></div>
+        <div class="node ci">
+          <span class="ncmd">CI</span>
+          <span class="ndesc">GitHub Actions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: structure tree (left) + code (right) -->
+    <div class="mid">
+
+      <!-- left: markflow 테스트 구조 -->
+      <div class="box">
+        <div class="box-head">
+          <span class="badge">테스트 구조</span>
+          <span class="box-title">markflow 테스트 구조</span>
+        </div>
+        <div class="tree-body">
+<pre class="tree">markflow/
+├── apps/web/
+│ ├── <span class="v">__tests__/</span>
+│ │ ├── <span class="v">api/</span> <span class="c"># Vitest 통합</span>
+│ │ │ ├── auth.test.ts
+│ │ │ ├── documents.test.ts
+│ │ │ └── versions.test.ts
+│ │ └── <span class="v">components/</span> <span class="c"># 단위 테스트</span>
+│ └── <span class="v">tests/e2e/</span> <span class="c"># Playwright</span>
+└── packages/editor/src/<span class="v">__tests__/</span></pre>
+        </div>
+      </div>
+
+      <!-- right: code mono — Vitest 통합 + Playwright E2E -->
+      <div class="box codebox">
+        <div class="box-head">
+          <span class="badge">코드</span>
+          <span class="box-title" style="font-size:26px;">통합·E2E 검증</span>
+        </div>
+        <div class="code-body">
+          <div class="code-file">Route Handler 통합 테스트 — Vitest</div>
+<pre class="code"><span class="k">import</span> { POST } <span class="k">from</span> <span class="s">'@/app/api/v1/.../route'</span>;
+<span class="f">it</span>(<span class="s">'TC-DOC-001-1'</span>, <span class="k">async</span> () => {
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">POST</span>(req, { params });
+  <span class="f">expect</span>(res.status).<span class="f">toBe</span>(<span class="k">201</span>);
+});</pre>
+          <div class="code-div"></div>
+          <div class="code-file">E2E 테스트 — Playwright</div>
+<pre class="code"><span class="f">test</span>(<span class="s">'TC-E2E-001: 작성→저장→조회'</span>, <span class="k">async</span> ({ page }) => {
+  <span class="k">await</span> page.keyboard.<span class="f">press</span>(<span class="s">'Control+s'</span>);
+  <span class="k">await</span> <span class="f">expect</span>(saveIndicator).<span class="f">toHaveText</span>(<span class="s">'저장됨'</span>);
+});</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM full-width note callout -->
+    <div class="callout">
+      <span class="src">3계층</span>
+      <span class="cbody"><span class="strong">단위 → 통합(Vitest + Route Handler) → E2E(Playwright)</span> — 셋이 있어야 회귀를 막는다. CI가 <code>pnpm test</code> · <code>test:e2e</code> 를 push·PR마다 실행.</span>
+    </div>
+
+  </div>
+</body>
+</html>

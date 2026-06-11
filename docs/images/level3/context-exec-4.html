@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.tbl col.c-strat { width: 200px; }
+  table.tbl col.c-def   { width: 440px; }
+  table.tbl col.c-exec  { width: 552px; }
+
+  thead th {
+    text-align: left;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 18px 18px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: bottom;
+  }
+  tbody td {
+    padding: 23px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  tbody tr:last-child td { border-bottom: 1px solid #D4D0C8; }
+
+  .strat {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 25px;
+    color: #0F766E;
+    letter-spacing: -0.01em;
+  }
+  .def  { color: #1A1A18; }
+  .exec { color: #1A1A18; }
+
+  .exec .ex {
+    display: block;
+    margin-top: 8px;
+    font-size: 20px;
+    line-height: 1.45;
+    color: #6B6560;
+  }
+  .exec .ex .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1E3A8A;
+  }
+  .exec code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #115E59;
+  }
+
+  .callout {
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.55;
+    font-weight: 500;
+    padding: 22px 26px;
+  }
+  .callout b { font-weight: 700; color: #7C4A02; }
+  .callout .num { font-weight: 700; color: #7C4A02; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="tbl">
+      <colgroup>
+        <col class="c-strat">
+        <col class="c-def">
+        <col class="c-exec">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>전략</th>
+          <th>설명</th>
+          <th>실행 전략</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="strat">Write</span></td>
+          <td class="def">시스템 프롬프트·CLAUDE.md를 명확·구조화된 형태로 작성</td>
+          <td class="exec">팀 공통, 글로벌 공통, 개인 적용 분리</td>
+        </tr>
+        <tr>
+          <td><span class="strat">Select</span></td>
+          <td class="def">상황에 필요한 정보만 컨텍스트에 주입</td>
+          <td class="exec">
+            JIT + <code>.claudeignore</code>, MCP 프로파일 분리
+            <span class="ex"><span class="lbl">ex :</span> <code>@import-CLAUDE.md</code> 에서 다른 문서 참조로 주입</span>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="strat">Compress</span></td>
+          <td class="def">오래된 대화·도구 결과를 요약하여 토큰 절약</td>
+          <td class="exec">
+            <code>/compact</code>, <code>/clear</code>, PreCompactHook으로 핸드오프 영속화
+            <span class="ex"><span class="lbl">ex :</span> <code>/compact handoff:다음 세션에서 이어할 것</code></span>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="strat">Isolate</span></td>
+          <td class="def">서브에이전트로 위임하여 메인 컨텍스트 보호</td>
+          <td class="exec">
+            Subagents - 별도 컨텍스트로 작업, 결과만 메인에 반환 (오염방지)
+            <span class="ex">지저분한 일은 외주로 - 메인 컨텍스트는 깨끗하게</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>장문 컨텍스트(20k+ tokens) 배치 원칙</b> &nbsp;장문 데이터는 위에, 쿼리·지시·예제는 아래에 배치 → 응답 품질 최대 <span class="num">30%</span> 향상. 답변 전 인용문 추출 요청. <i>출처: Anthropic Prompting best practices (2026-05 스냅샷).</i>
+    </div>
+  </div>
+</body>
+</html>

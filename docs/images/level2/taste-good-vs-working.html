@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  /* ── two-column code comparison ── */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 18px 18px;
+  }
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 13px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 6px 15px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge-bad  { color: #B91C1C; border-color: #B91C1C; }
+  .badge-good { color: #047857; border-color: #047857; }
+  .label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #1A1A18;
+    white-space: pre;
+    border: 1px solid #D4D0C8;
+    background: #F5F3F0;
+    padding: 16px 14px;
+    overflow: hidden;
+  }
+  pre.code.tight { font-size: 16px; }
+  .kw  { color: #1E3A8A; font-weight: 600; }
+  .fn  { color: #115E59; font-weight: 600; }
+  .str { color: #047857; }
+  .dim { color: #6B6560; }
+
+  /* ── decision band: trade-off owner ── */
+  .decide {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 20px;
+  }
+  .owner {
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .owner-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #0F766E;
+    border: 1px solid #0F766E;
+    padding: 5px 13px;
+    align-self: flex-start;
+  }
+  .owner-title {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    color: #1A1A18;
+    line-height: 1.25;
+    word-break: keep-all;
+  }
+  .owner-desc {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+    font-weight: 500;
+    word-break: keep-all;
+  }
+
+  .criteria {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .crit {
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 9px;
+  }
+  .crit-q {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.35;
+    word-break: keep-all;
+  }
+  .crit-a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .crit-arrow {
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #0F766E;
+    flex-shrink: 0;
+  }
+  .crit-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #115E59;
+    line-height: 1.35;
+    word-break: keep-all;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ── code comparison ── -->
+    <div class="cols">
+      <div class="col">
+        <div class="col-head">
+          <span class="badge badge-bad">작동하는 코드</span>
+          <span class="label">AI 생성 — 작동하지만 확장성 낮음</span>
+        </div>
+<pre class="code"><span class="kw">function</span> <span class="fn">filterTodos</span>(todos: Todo[], filter: <span class="kw">string</span>) {
+  <span class="kw">if</span> (filter === <span class="str">'all'</span>) {
+    <span class="kw">return</span> todos;
+  } <span class="kw">else if</span> (filter === <span class="str">'active'</span>) {
+    <span class="kw">return</span> todos.<span class="fn">filter</span>(todo => !todo.completed);
+  } <span class="kw">else if</span> (filter === <span class="str">'completed'</span>) {
+    <span class="kw">return</span> todos.<span class="fn">filter</span>(todo => todo.completed);
+  } <span class="kw">else</span> {
+    <span class="kw">return</span> todos;
+  }
+}</pre>
+      </div>
+
+      <div class="col">
+        <div class="col-head">
+          <span class="badge badge-good">좋은 코드</span>
+          <span class="label">개선 — 타입 안전 · 새 필터 추가 용이</span>
+        </div>
+<pre class="code tight"><span class="kw">type</span> FilterType = <span class="str">'all'</span> | <span class="str">'active'</span> | <span class="str">'completed'</span>;
+<span class="kw">const</span> filterStrategies:
+    Record&lt;FilterType, (todo: Todo) => <span class="kw">boolean</span>&gt; = {
+  all: () => <span class="kw">true</span>,
+  active: (todo) => !todo.completed,
+  completed: (todo) => todo.completed,
+};
+<span class="kw">function</span> <span class="fn">filterTodos</span>(
+    todos: Todo[], filter: FilterType): Todo[] {
+  <span class="kw">return</span> todos.<span class="fn">filter</span>(filterStrategies[filter]);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── trade-off decision band ── -->
+    <div class="decide">
+      <div class="owner">
+        <span class="owner-tag">TRADE-OFF</span>
+        <div class="owner-title">트레이드오프 결정의 주체는 개발자</div>
+        <div class="owner-desc">AI는 정보를 제공하지만 최종 결정은 맥락을 아는 개발자의 몫. 작동하는 코드를 "맥락에 맞는" 코드로 취사 선택해야 한다.</div>
+      </div>
+
+      <div class="criteria">
+        <div class="crit">
+          <div class="crit-q">오프라인 우선 경험이 중요한가?</div>
+          <div class="crit-a"><span class="crit-arrow"></span><span class="crit-text">로컬 스토리지 + 동기화</span></div>
+        </div>
+        <div class="crit">
+          <div class="crit-q">여러 기기에서 접근해야 하는가?</div>
+          <div class="crit-a"><span class="crit-arrow"></span><span class="crit-text">서버 API 필수</span></div>
+        </div>
+        <div class="crit">
+          <div class="crit-q">빠른 출시가 우선인가?</div>
+          <div class="crit-a"><span class="crit-arrow"></span><span class="crit-text">가장 단순한 방법</span></div>
+        </div>
+        <div class="crit">
+          <div class="crit-q">향후 협업 기능을 추가할 예정인가?</div>
+          <div class="crit-a"><span class="crit-arrow"></span><span class="crit-text">처음부터 서버 연동</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

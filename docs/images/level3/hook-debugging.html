@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── two-column body: caveats list (left) + debugging panel (right) ── */
+  .body {
+    display: flex;
+    gap: 22px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col-left  { flex: 1.42; display: flex; flex-direction: column; min-height: 0; }
+  .col-right { flex: 1;    display: flex; flex-direction: column; gap: 22px; min-height: 0; }
+
+  /* panel header label (square text badge, no accent bars) */
+  .phead {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .phead .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 700; color: #1A1A18; letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8; border-radius: 6px;
+    padding: 6px 14px; background: #F4F2EC;
+  }
+  .phead .sub { font-size: 21px; font-weight: 600; color: #6B6560; }
+
+  /* caveats: grid of plain bordered cards */
+  .caveats {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    min-height: 0;
+  }
+  .cv {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    min-height: 0;
+  }
+  .cv .ctop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .cv .ctitle { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.12; }
+  .cv .badge {
+    flex: none;
+    padding: 4px 12px;
+    font-size: 18px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8; border-radius: 6px;
+    white-space: nowrap; letter-spacing: 0.02em;
+    color: #6B6560; background: #FFFFFF;
+  }
+  .cv .badge.warn { color: #B91C1C; border-color: #B91C1C; }
+  .cv .badge.info { color: #1E3A8A; border-color: #1E3A8A; }
+  .cv .cdesc {
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.4;
+  }
+  .cv .cdesc .mut { color: #6B6560; }
+  .cv code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #0F766E;
+    background: #F4F2EC; border: 1px solid #E2DED5; border-radius: 5px; padding: 0 7px;
+  }
+
+  /* debugging panel */
+  .dbg {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .dbg .dtitle { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.15; }
+  .dbg .ddesc {
+    margin-top: 12px;
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.42;
+  }
+  .dbg .ddesc .mut { color: #6B6560; }
+  .dbg .cmd {
+    margin-top: auto;
+    border: 1px solid #E2DED5; border-radius: 8px;
+    background: #F4F2EC;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.6; color: #1A1A18; font-weight: 600;
+  }
+  .dbg .cmd .cmt  { color: #6B6560; font-weight: 600; }
+  .dbg .cmd .teal { color: #0F766E; font-weight: 700; }
+  .dbg .cmd .blu  { color: #1E3A8A; font-weight: 700; }
+  .dbg .cmd .red  { color: #B91C1C; font-weight: 700; }
+
+  /* design principle strip (full uniform border box) */
+  .princ {
+    flex: none;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .princ .ptop { display: flex; align-items: center; gap: 14px; }
+  .princ .plab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 700; color: #047857; letter-spacing: 0.02em;
+    border: 1px solid #047857; border-radius: 6px;
+    padding: 5px 13px; background: #FFFFFF;
+  }
+  .princ .ptitle { font-size: 30px; font-weight: 800; color: #1A1A18; }
+  .princ .ptxt {
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.42;
+  }
+  .princ .ptxt .mut { color: #6B6560; }
+  .princ .ptxt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #0F766E;
+    background: #F4F2EC; border: 1px solid #E2DED5; border-radius: 5px; padding: 0 7px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="body">
+
+      <!-- LEFT: caveats -->
+      <section class="col-left">
+        <div class="phead">
+          <span class="lab">CAVEATS</span>
+          <span class="sub">훅 작성 시 주의사항</span>
+        </div>
+        <div class="caveats">
+
+          <div class="cv">
+            <div class="ctop">
+              <span class="ctitle">사용자 권한 실행</span>
+              <span class="badge warn">위험</span>
+            </div>
+            <div class="cdesc">훅은 사용자 권한으로 실행. 시스템·DB·자격증명에 영향을 주는 명령을 무심코 적지 말 것 <span class="mut">— 훅은 자동 실행</span></div>
+          </div>
+
+          <div class="cv">
+            <div class="ctop">
+              <span class="ctitle">jq 미설치 주의</span>
+              <span class="badge warn">위험</span>
+            </div>
+            <div class="cdesc">CI·서버에서 <code>brew</code>·<code>apt</code>로 <code>jq</code> 설치 필수 <span class="mut">— 없으면 훅이 조용히 실패</span></div>
+          </div>
+
+          <div class="cv">
+            <div class="ctop">
+              <span class="ctitle">exit 1 = 사용자만</span>
+              <span class="badge info">전달</span>
+            </div>
+            <div class="cdesc">비차단(<code>exit 1</code>) 메시지는 사용자만 봄. 모델에게 사유를 전달하려면 <code>exit 2</code> + stderr 필수</div>
+          </div>
+
+          <div class="cv">
+            <div class="ctop">
+              <span class="ctitle">매처 누락 = 전체</span>
+              <span class="badge warn">위험</span>
+            </div>
+            <div class="cdesc">PreToolUse에 matcher 안 적으면 Read·Grep까지 가로챔 <span class="mut">→ 성능 저하</span></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT: debugging + design principle -->
+      <section class="col-right">
+        <div class="dbg">
+          <div class="phead" style="margin-bottom:0;">
+            <span class="lab">DEBUGGING</span>
+          </div>
+          <div class="dtitle" style="margin-top:16px;">디버깅</div>
+          <div class="ddesc"><code>claude --debug</code>로 훅 발화·exit code·stderr 추적. 훅 자체에 <code>set -x</code> + 로그 파일 저장 권장</div>
+          <div class="cmd"><span class="teal">claude</span> <span class="blu">--debug</span>   <span class="cmt"># 훅 발화·exit code·stderr 추적</span><br><br><span class="cmt"># 훅 스크립트 상단</span><br><span class="teal">set</span> <span class="blu">-x</span><br><span class="teal">exec</span> 2&gt;&gt; <span class="teal">"$HOME/hook.log"</span>  <span class="cmt"># 로그 저장</span></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- design principle -->
+    <div class="princ">
+      <div class="ptop">
+        <span class="plab">설계 원칙</span>
+        <span class="ptitle">훅은 "1초 안에 끝나야" 한다</span>
+      </div>
+      <div class="ptxt"><span class="mut">느린 훅은 모든 도구 호출을 지연시킨다. 무거운 검증은 </span><code>PostToolUse</code><span class="mut"> + 비동기로 처리한다.</span></div>
+    </div>
+
+  </div>
+</body>
+</html>

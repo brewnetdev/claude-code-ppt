@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  table.cmd {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border: 1px solid #D4D0C8;
+  }
+  table.cmd col.c-cmd { width: 24%; }
+  table.cmd col.c-desc { width: 41%; }
+  table.cmd col.c-when { width: 35%; }
+
+  table.cmd thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    color: #1A1A18;
+    padding: 22px 28px;
+    vertical-align: bottom;
+  }
+  table.cmd thead tr { border-bottom: 3px solid #0F766E; }
+
+  table.cmd tbody td {
+    font-size: 23px;
+    line-height: 1.45;
+    padding: 28px 28px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.cmd tbody tr:last-child td { border-bottom: none; }
+
+  td.cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    color: #0F766E;
+  }
+  td.desc {
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  td.when {
+    color: #6B6560;
+    font-weight: 500;
+    font-size: 22px;
+  }
+
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 26px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 10px 20px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 24px;
+    line-height: 1.55;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cmd">
+      <colgroup>
+        <col class="c-cmd"><col class="c-desc"><col class="c-when">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>명령어</th>
+          <th>설명</th>
+          <th>언제 쓰는가</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="cmd">/review</td>
+          <td class="desc">최근 변경 코드를 PR 리뷰 수준으로 점검</td>
+          <td class="when">커밋, PR 전</td>
+        </tr>
+        <tr>
+          <td class="cmd">/simplify</td>
+          <td class="desc">코드 재사용, 품질 측면 검토</td>
+          <td class="when">기능 구현 및 버그 수정 후</td>
+        </tr>
+        <tr>
+          <td class="cmd">/security-review</td>
+          <td class="desc">변경사항 대상 보안 취약점 분석</td>
+          <td class="when">보안 민감 코드 작업 후, PR 전</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">리뷰 순서</span>
+      <span class="txt"><b>커밋·PR 전에 슬래시 커맨드로 점검</b>한다 — <code>/review</code>로 변경 전반을, <code>/security-review</code>로 보안을 확인한 뒤 올린다.</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 36px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .box-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 22px 0 22px;
+  }
+  .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .box-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+  }
+  .box-title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-left: 10px;
+  }
+
+  /* ---- TOP: SKILL.md frontmatter (light mono box) ---- */
+  .skill { flex: none; background: #FFFFFF; }
+  .skill .box-head { padding-top: 13px; }
+  .skill-body {
+    padding: 10px 22px 12px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  pre.fm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.45;
+    color: #1A1A18;
+    white-space: pre-wrap;
+  }
+  pre.fm .p { color: #6B6560; }
+  pre.fm .k { color: #1E3A8A; font-weight: 700; }
+  pre.fm .v { color: #1A1A18; font-weight: 500; }
+  pre.fm .c { color: #115E59; font-weight: 700; }
+
+  /* ---- MIDDLE: guidelines (left) + usage (right) ---- */
+  .mid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.04fr 1fr;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  /* left: update guidelines */
+  .guide-body {
+    padding: 11px 22px 13px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 9px 16px;
+  }
+  .step .num {
+    flex: none;
+    font-size: 40px;
+    font-weight: 900;
+    color: #0F766E;
+    line-height: 1;
+    width: 38px;
+    display: flex;
+    align-items: center;
+  }
+  .step .stxt {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+  }
+  .step .stt {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.28;
+  }
+  .step .stt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .secrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .sec {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1E3A8A;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 3px 11px;
+    letter-spacing: 0.01em;
+  }
+
+  /* right: usage example (light mono box) */
+  .usage { background: #FFFFFF; }
+  .usage-body {
+    padding: 11px 22px 13px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+  }
+  .ulbl {
+    font-size: 20px;
+    font-weight: 800;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+  }
+  pre.term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #1A1A18;
+    white-space: pre-wrap;
+  }
+  pre.term .cm { color: #6B6560; }
+  pre.term .cmd { color: #115E59; font-weight: 700; }
+  pre.term .arg { color: #1A1A18; }
+  .resp {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 11px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .resp .rhead {
+    font-size: 21px;
+    font-weight: 800;
+    color: #047857;
+    margin-bottom: 1px;
+  }
+  .resp .rline {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.3;
+  }
+  .resp .rline code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .resp .rline .pos { color: #047857; font-weight: 700; }
+  .resp .rline .neg { color: #B91C1C; font-weight: 700; }
+
+  /* ---- BOTTOM full-width link callout ---- */
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 14px 22px;
+  }
+  .callout .src {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .callout .cbody { font-size: 21px; font-weight: 500; color: #7C4A02; line-height: 1.4; }
+  .callout .cbody code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: SKILL.md frontmatter -->
+    <div class="box skill">
+      <div class="box-head">
+        <span class="badge">Skill 정의</span>
+        <span class="box-title">CHANGELOG.md 자동화 Skill<span class="en">.claude/skills/changelog/SKILL.md</span></span>
+      </div>
+      <div class="skill-body">
+<pre class="fm"><span class="p">---</span>
+<span class="k">description</span><span class="p">:</span> <span class="v">코드 변경 후 CHANGELOG.md와 CLAUDE.md 최근 변경사항을 자동 기록. /changelog 명령 또는 git commit 후 실행.</span>
+<span class="p">---</span></pre>
+      </div>
+    </div>
+
+    <!-- MIDDLE: update guidelines (left) + usage example (right) -->
+    <div class="mid">
+
+      <!-- left: CHANGELOG.md 업데이트 지침 -->
+      <div class="box">
+        <div class="box-head">
+          <span class="badge">업데이트 지침</span>
+          <span class="box-title" style="font-size:27px;">CHANGELOG.md 기록 규칙</span>
+        </div>
+        <div class="guide-body">
+          <div class="step">
+            <span class="num">1</span>
+            <span class="stxt">
+              <span class="stt"><code>## [브랜치명] - YYYY-MM-DD HH:MM</code></span>
+              <span class="secrow">
+                <span class="sec">Prompt</span>
+                <span class="sec">Changes (Added/Modified)</span>
+                <span class="sec">Files Modified</span>
+              </span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <span class="stxt">
+              <span class="stt">CLAUDE.md 최근 7일 요약 유지</span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <span class="stxt">
+              <span class="stt"><code>/changelog "요약"</code> 수동 호출 가능</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: 사용 예 -->
+      <div class="box usage">
+        <div class="box-head">
+          <span class="badge">사용 예</span>
+          <span class="box-title" style="font-size:27px;">수동 호출과 응답</span>
+        </div>
+        <div class="usage-body">
+          <div>
+            <div class="ulbl">작업 후 수동 호출</div>
+<pre class="term"><span class="cm"># 작업 후 수동 호출</span>
+<span class="cmd">/changelog</span> <span class="arg">"문서 CRUD Route Handler 구현"</span></pre>
+          </div>
+          <div class="resp">
+            <span class="rhead">응답 예시 — CHANGELOG.md 업데이트 완료</span>
+            <span class="rline">브랜치: <code>feature/document-crud</code></span>
+            <span class="rline">변경 파일: 8개</span>
+            <span class="rline">추가 <span class="pos">+312</span> / 삭제 <span class="neg">-24</span></span>
+            <span class="rline">커밋: <code>abc1234</code> → 원격 푸시 완료</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM full-width link callout -->
+    <div class="callout">
+      <span class="src">왜 자동화</span>
+      <span class="cbody">세션마다 무엇을 했는지 기록되면 다음 세션의 컨텍스트가 줄고, 회고·릴리즈 노트도 한 번에 해결 · <code>.claude/skills/changelog/SKILL.md</code></span>
+    </div>
+
+  </div>
+</body>
+</html>

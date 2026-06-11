@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 40px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── vertical pipeline ── */
+  .flow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .stage {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 8px 26px;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+  }
+
+  .stage-head {
+    flex: 0 0 418px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-right: 26px;
+    border-right: 1px solid #D4D0C8;
+    align-self: stretch;
+  }
+  .stage-head-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 44px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1;
+    flex: none;
+  }
+  .stage-name {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.12;
+  }
+  .trigger {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: #6B6560;
+  }
+  .trigger .pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #1E3A8A;
+  }
+
+  /* command steps inside a stage */
+  .cmds {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .cmd-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    line-height: 1.2;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .seq {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #6B6560;
+    border: 1px solid #D4D0C8;
+    border-radius: 5px;
+    padding: 2px 9px;
+    min-width: 34px;
+    text-align: center;
+  }
+  .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #115E59;
+    white-space: nowrap;
+  }
+  .cmd-row .txt { font-weight: 500; color: #1A1A18; }
+
+  /* ── arrow connector (vertical) ── */
+  .arrow {
+    align-self: center;
+    margin-left: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 12px;
+  }
+  .arrow-line {
+    width: 2px;
+    height: 100%;
+    background: #6B6560;
+  }
+  .arrow::after {
+    content: "";
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #6B6560;
+  }
+
+  /* ── footer cost note (full-width callout) ── */
+  .note {
+    margin-top: 14px;
+    border: 1px solid #D4D0C8;
+    background: #FAF3E6;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .note-badge {
+    flex: 0 0 auto;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #1E3A8A;
+    border: 1px solid #1E3A8A;
+    border-radius: 6px;
+    padding: 8px 18px;
+    white-space: nowrap;
+  }
+  .note-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: #1A1A18;
+  }
+  .note-text b { color: #047857; font-weight: 700; }
+  .note-text .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #115E59;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="flow">
+
+      <!-- STAGE 1 -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">01</span>
+          <div class="stage-head-inner">
+            <span class="stage-name">새 작업 진입</span>
+            <span class="trigger">새 세션·새 작업으로 깨끗하게 시작</span>
+          </div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row"><span class="seq">1</span><span class="cmd">/clear</span></div>
+          <div class="cmd-row"><span class="seq">2</span><span class="cmd">/context</span><span class="txt">베이스라인 확인</span></div>
+          <div class="cmd-row"><span class="seq">3</span><span class="txt">작업 시작</span></div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 2 -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">02</span>
+          <div class="stage-head-inner">
+            <span class="stage-name">중반 정리</span>
+            <span class="trigger">사용률 <span class="pct">70%</span> 도달</span>
+          </div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row"><span class="seq">1</span><span class="cmd">/compact</span></div>
+          <div class="cmd-row"><span class="seq">2</span><span class="txt">핵심 결정만 남기고 계속</span></div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 3 -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">03</span>
+          <div class="stage-head-inner">
+            <span class="stage-name">난이도 상승</span>
+            <span class="trigger">설계 결정·복잡한 디버그</span>
+          </div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row"><span class="seq">1</span><span class="cmd">/effort xhigh</span><span class="txt">로 전환</span></div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 4 -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">04</span>
+          <div class="stage-head-inner">
+            <span class="stage-name">마무리 검증</span>
+            <span class="trigger">작업 완료 후 품질 확인·커밋</span>
+          </div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row"><span class="seq">1</span><span class="cmd">/review</span></div>
+          <div class="cmd-row"><span class="seq">2</span><span class="cmd">/diff</span></div>
+          <div class="cmd-row"><span class="seq">3</span><span class="txt">커밋 메시지 협의</span></div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 5 -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">05</span>
+          <div class="stage-head-inner">
+            <span class="stage-name">다음 세션 준비</span>
+            <span class="trigger"><span class="pct">90%</span> 도달 시</span>
+          </div>
+        </div>
+        <div class="cmds">
+          <div class="cmd-row"><span class="seq">1</span><span class="txt">핸드오프 작성</span></div>
+          <div class="cmd-row"><span class="seq">2</span><span class="cmd">/clear</span></div>
+          <div class="cmd-row"><span class="seq">3</span><span class="txt">새 세션</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <span class="note-badge">비용 관점</span>
+      <div class="note-text">Opus는 비싸므로, 단순 패치는 <b>Sonnet</b>, 설계는 <b>Opus</b>로 전환하는 식으로 <span class="cmd">/model</span>을 적극 사용한다.</div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 30px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.ref col.c-pattern { width: 32%; }
+  table.ref col.c-mean { width: 38%; }
+  table.ref col.c-ex { width: 30%; }
+
+  table.ref thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 26px 20px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 25px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  table.ref tbody td {
+    padding: 27px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: middle;
+    font-size: 23px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.pattern {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 23px;
+    font-weight: 700;
+    color: #0F766E;
+    white-space: nowrap;
+  }
+  td.pattern.neg { color: #B91C1C; }
+  td.mean { font-size: 23px; color: #1A1A18; }
+  td.ex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #1A1A18;
+  }
+  td.mean .tag {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 3px 13px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #B91C1C;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    vertical-align: middle;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.01em;
+  }
+
+  .callout {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 24px 28px;
+    color: #7C4A02;
+    font-size: 23px;
+    line-height: 1.5;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 23px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="ref">
+      <colgroup>
+        <col class="c-pattern">
+        <col class="c-mean">
+        <col class="c-ex">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>패턴</th>
+          <th>의미</th>
+          <th>예시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="pattern">src/app/**/page.tsx</td>
+          <td class="mean">App Router 페이지 컴포넌트 전체</td>
+          <td class="ex">src/app/blog/page.tsx</td>
+        </tr>
+        <tr>
+          <td class="pattern">src/db/schema/*.ts</td>
+          <td class="mean">schema 디렉터리 1단계 ts 파일</td>
+          <td class="ex">src/db/schema/user.ts</td>
+        </tr>
+        <tr>
+          <td class="pattern">**/*.test.ts</td>
+          <td class="mean">리포 전체의 vitest 테스트 파일</td>
+          <td class="ex">lib/parse.test.ts</td>
+        </tr>
+        <tr>
+          <td class="pattern neg">!src/legacy/**</td>
+          <td class="mean">legacy 폴더는 제외<span class="tag">negation</span></td>
+          <td class="ex">src/legacy/old.ts</td>
+        </tr>
+        <tr>
+          <td class="pattern">src/{api,lib}/**/*.ts</td>
+          <td class="mean">api 또는 lib 두 디렉터리</td>
+          <td class="ex">src/lib/util.ts</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">성능</span>
+      <span class="body">너무 광범위한 글롭(<code>**/*</code>)은 Claude Code가 큰 트리를 매번 매칭하므로 시작 시간이 느려질 수 있다.</span>
+    </div>
+  </div>
+</body>
+</html>

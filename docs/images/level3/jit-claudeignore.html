@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.ref {
+    width: 100%;
+    flex: 1;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.ref col.c-concept { width: 19%; }
+  table.ref col.c-how { width: 35%; }
+  table.ref col.c-ex { width: 46%; }
+
+  table.ref thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 20px 12px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  table.ref tbody td {
+    padding: 9px 20px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 22px;
+    line-height: 1.38;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.concept {
+    font-weight: 800;
+    font-size: 30px;
+    color: #1A1A18;
+  }
+  td.concept .kicker {
+    display: block;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: #6B6560;
+    letter-spacing: 0.01em;
+  }
+  td.how { font-size: 22px; color: #1A1A18; }
+  td.how .em { color: #B91C1C; font-weight: 700; }
+  td.how .info { color: #1E3A8A; font-weight: 700; }
+  td.how code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  td.ex { font-family: 'JetBrains Mono', monospace; font-size: 20px; line-height: 1.4; color: #1A1A18; }
+  td.ex .line { display: block; white-space: nowrap; font-weight: 600; }
+  td.ex .line.wrap { white-space: normal; word-break: break-word; }
+  td.ex .line.path { color: #1A1A18; }
+  td.ex .line.neg { color: #B91C1C; }
+  td.ex .line.ok { color: #047857; }
+  td.ex .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  td.ex .arrow { color: #6B6560; font-weight: 700; }
+  td.ex .before { color: #B91C1C; }
+  td.ex .after { color: #047857; }
+  td.ex .cmt { color: #6B6560; font-weight: 600; }
+
+  .callout {
+    margin-top: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 16px 26px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.45;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 22px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="ref">
+      <colgroup>
+        <col class="c-concept">
+        <col class="c-how">
+        <col class="c-ex">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>개념</th>
+          <th>방식</th>
+          <th>예시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="concept">왜 JIT 인가<span class="kicker">JUST-IN-TIME</span></td>
+          <td class="how">전체 프로젝트 인덱싱은 비현실적 — <span class="em">n&sup2; 어텐션 비용</span>. 지금 작업과 무관한 파일은 노이즈 &rarr; <span class="info">Context Rot</span></td>
+          <td class="ex">
+            <span class="line cmt"># 전체 인덱싱 대신</span>
+            <span class="line path">필요한 곳만 적시 로드</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="concept">적시 컨텍스트</td>
+          <td class="how">모델이 직접 <code>Glob</code>/<code>Grep</code>/<code>Read</code>로 필요한 곳만 읽게 함</td>
+          <td class="ex">
+            <span class="line path">Glob → Grep → Read</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="concept">경로만 남기는 패턴<span class="kicker">CLAUDE.md</span></td>
+          <td class="how">## 핵심 파일 — 경로 + 한 줄 설명만 적어 진입점을 알린다</td>
+          <td class="ex">
+            <span class="line path">- src/server/db/schema.ts</span>
+            <span class="line path">- src/lib/markdown.ts</span>
+            <span class="line path">- src/components/editor/CodeMirror.tsx</span>
+            <span class="line path">- drizzle/</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="concept">.claudeignore<span class="kicker">노이즈 차단</span></td>
+          <td class="how">인덱싱에서 제외할 디렉터리·파일 패턴을 선언해 <span class="em">Glob 노이즈</span>를 줄인다</td>
+          <td class="ex">
+            <span class="line neg">node_modules/&nbsp;&nbsp;dist/&nbsp;&nbsp;.next/&nbsp;&nbsp;coverage/</span>
+            <span class="line neg">*.min.js&nbsp;&nbsp;*.csv&nbsp;&nbsp;*.log&nbsp;&nbsp;public/uploads/</span>
+            <span class="line neg">drizzle/meta/_journal.json&nbsp;&nbsp;src/generated/</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="concept">효과</td>
+          <td class="how">인덱싱 토큰과 Glob 노이즈가 <span class="info">적용 후</span> 크게 줄어든다</td>
+          <td class="ex">
+            <span class="line"><span class="cmt">인덱싱 토큰</span>&nbsp;&nbsp;<span class="before">~85K</span> <span class="arrow">→</span> <span class="after">~22K</span></span>
+            <span class="line"><span class="cmt">Glob 노이즈</span>&nbsp;&nbsp;<span class="before">다수</span> <span class="arrow">→</span> <span class="after">소스만</span></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">정리</span>
+      <span class="body"><code>CLAUDE.md</code>는 <b>경로만</b> 남겨 진입점을 알리고, <code>.claudeignore</code>로 노이즈를 차단하면 모델이 적시에 필요한 파일만 읽는다.</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .lede {
+    font-size: 24px;
+    line-height: 1.55;
+    color: #1A1A18;
+  }
+  .lede .em { font-weight: 700; color: #1A1A18; }
+  .lede .partners {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1E3A8A;
+  }
+  .lede .site {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: #0F766E;
+  }
+
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.ref col.c-item { width: 16%; }
+  table.ref col.c-desc { width: 84%; }
+
+  table.ref thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 24px 18px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  table.ref tbody td {
+    padding: 28px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: middle;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.item {
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+  td.desc { color: #1A1A18; }
+  td.desc .em { font-weight: 700; color: #1A1A18; }
+  td.desc .path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #115E59;
+  }
+  td.desc .sect {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #1E3A8A;
+  }
+  td.desc .ok { font-weight: 700; color: #047857; }
+
+  .callout {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 22px 26px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.5;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 22px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <p class="lede">
+      AGENTS.md는 <span class="partners">OpenAI Codex · Amp · Google Jules · Cursor · Factory</span> 등이 공동으로 만든 <span class="em">오픈 표준</span>이다.
+      README가 사람용이라면 AGENTS.md는 <span class="em">코딩 에이전트용 지시 파일</span>. (공식 사이트 : <span class="site">https://agents.md</span>)
+    </p>
+
+    <table class="ref">
+      <colgroup>
+        <col class="c-item">
+        <col class="c-desc">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>설명</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="item">위치</td>
+          <td class="desc">리포 루트 <span class="path">(./AGENTS.md)</span> — 모노레포는 패키지별로도 가능</td>
+        </tr>
+        <tr>
+          <td class="item">형식</td>
+          <td class="desc">일반 마크다운 — <span class="sect">Build · Test · Style · PR</span> 가이드 섹션</td>
+        </tr>
+        <tr>
+          <td class="item">스코프</td>
+          <td class="desc">가까운 AGENTS.md가 우선 <span class="em">(모노레포 패키지 &gt; 루트)</span></td>
+        </tr>
+        <tr>
+          <td class="item">호환</td>
+          <td class="desc">Claude Code는 <span class="path">CLAUDE.md</span>를 우선하되, <span class="path">AGENTS.md</span>도 <span class="ok">인식</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">전략</span>
+      <span class="body">한 리포에서 여러 코딩 에이전트를 병행한다면 AGENTS.md를 정본으로, CLAUDE.md는 <code>@AGENTS.md</code>로 import 처리하면 중복 없이 운영 가능</span>
+    </div>
+  </div>
+</body>
+</html>

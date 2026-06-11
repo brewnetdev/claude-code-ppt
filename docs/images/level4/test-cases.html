@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ── shared table ── */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 18px 12px 18px;
+    vertical-align: bottom;
+  }
+  thead tr { border-bottom: 2px solid #0F766E; }
+  tbody td {
+    font-size: 23px;
+    line-height: 1.4;
+    padding: 21px 18px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .good { color: #047857; font-weight: 700; }
+  .bad  { color: #B91C1C; font-weight: 700; }
+
+  /* ── spec table (TC-AUTH-001) ── */
+  .block-title {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+  .block-title .h {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .block-title .sub {
+    font-size: 20px;
+    color: #6B6560;
+    font-weight: 500;
+  }
+  .block-title .file {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 12px;
+  }
+
+  table.spec col.c-type { width: 16%; }
+  table.spec col.c-case { width: 44%; }
+  table.spec col.c-exp  { width: 40%; }
+
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    border-radius: 6px;
+    padding: 4px 12px;
+    letter-spacing: 0.02em;
+  }
+  .badge.ok  { color: #047857; border: 1px solid #047857; }
+  .badge.err { color: #B91C1C; border: 1px solid #B91C1C; }
+
+  /* ── mapping table (TC ↔ FR ↔ US) ── */
+  table.map col.c-tc { width: 52%; }
+  table.map col.c-fr { width: 24%; }
+  table.map col.c-us { width: 24%; }
+  table.map td.tc { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #115E59; }
+  table.map td.fr,
+  table.map td.us { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #1A1A18; }
+  table.map td.na { color: #6B6560; }
+
+  .two-col {
+    display: flex;
+    gap: 28px;
+    flex: 1;
+    min-height: 0;
+  }
+  .pane { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .pane.left { flex: 1.32; }
+
+  /* ── bottom callout ── */
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 12px;
+    letter-spacing: 0.02em;
+  }
+  .callout .txt {
+    font-size: 20px;
+    line-height: 1.45;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .url {
+    margin-left: auto;
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #7C4A02;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="two-col">
+      <!-- LEFT: TDD spec table -->
+      <div class="pane left">
+        <div class="block-title">
+          <span class="h">TC-AUTH-001: 회원가입</span>
+          <span class="file mono">TEST_CASES.md</span>
+        </div>
+        <table class="spec">
+          <colgroup>
+            <col class="c-type"><col class="c-case"><col class="c-exp">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>케이스 (입력)</th>
+              <th>기대 결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge ok">정상</span></td>
+              <td>유효한 이메일/비밀번호</td>
+              <td class="good mono">201</td>
+            </tr>
+            <tr>
+              <td><span class="badge ok">정상</span></td>
+              <td>가입 직후 상태 확인</td>
+              <td class="mono">email_verified = false</td>
+            </tr>
+            <tr>
+              <td><span class="badge err">에러</span></td>
+              <td>중복 이메일</td>
+              <td class="bad mono">409 DUPLICATE_EMAIL</td>
+            </tr>
+            <tr>
+              <td><span class="badge err">에러</span></td>
+              <td>비밀번호 8자 미만</td>
+              <td class="bad mono">400</td>
+            </tr>
+            <tr>
+              <td><span class="badge err">에러</span></td>
+              <td>이메일 형식 오류</td>
+              <td class="bad mono">400</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RIGHT: TC ↔ FR ↔ US mapping -->
+      <div class="pane right">
+        <div class="block-title">
+          <span class="h">TC ↔ FR ↔ US 매핑</span>
+        </div>
+        <table class="map">
+          <colgroup>
+            <col class="c-tc"><col class="c-fr"><col class="c-us">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>TC</th>
+              <th>FR</th>
+              <th>US</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tc">TC-AUTH-001</td>
+              <td class="fr">FR-001</td>
+              <td class="na">—</td>
+            </tr>
+            <tr>
+              <td class="tc">TC-DOC-001</td>
+              <td class="fr">FR-003</td>
+              <td class="us">US-001</td>
+            </tr>
+            <tr>
+              <td class="tc">TC-DOC-002 (버전 복원)</td>
+              <td class="fr">FR-004</td>
+              <td class="us">US-004</td>
+            </tr>
+            <tr>
+              <td class="tc">TC-CAT-001 (계층 조회)</td>
+              <td class="fr">FR-005</td>
+              <td class="us">US-002</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="tag">4.3.4 TC</span>
+      <span class="txt">매핑 = <b>커버리지 매트릭스</b>로 누락된 케이스를 한눈에 발견.</span>
+      <span class="url">github.com/claude-code-expert/markflow</span>
+    </div>
+
+  </div>
+</body>
+</html>

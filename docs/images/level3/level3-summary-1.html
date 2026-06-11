@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 28px;
+    flex: 1;
+  }
+
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 14px;
+    padding: 28px 30px 26px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: transparent;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+  }
+  .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 6px 14px;
+    letter-spacing: 0.02em;
+    background: transparent;
+  }
+  .card-title {
+    font-size: 31px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+  }
+
+  .card-body {
+    font-size: 23px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.5;
+  }
+  .card-body .info { color: #1E3A8A; font-weight: 700; }
+  .card-body .warn { color: #B91C1C; font-weight: 700; }
+  .card-body .good { color: #047857; font-weight: 700; }
+  .card-body .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .card-body .muted { color: #6B6560; font-weight: 600; }
+
+  .lead {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .detail {
+    font-size: 23px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="grid">
+
+      <!-- 1. 컨텍스트 엔지니어링 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">CONTEXT</span>
+          <span class="card-title">컨텍스트 엔지니어링</span>
+        </div>
+        <div class="card-body">
+          <span class="lead">매 턴의 토큰 상태를 큐레이션한다.</span>
+          <span class="detail"><span class="warn">1M은 도구이지 기본값이 아님</span> — Sonnet 4.6의 1M은 모든 플랜에서 <span class="mono">Extra Usage</span> 필요.</span>
+        </div>
+      </div>
+
+      <!-- 2. CLAUDE.md 계층 -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">CLAUDE.md</span>
+          <span class="card-title">CLAUDE.md 계층</span>
+        </div>
+        <div class="card-body">
+          <span class="lead"><span class="mono">Managed Policy</span> / <span class="mono">Project</span>(<span class="mono">./CLAUDE.md</span> 또는 <span class="mono">./.claude/CLAUDE.md</span>) / <span class="mono">User</span> / <span class="mono">Local</span> 4곳.</span>
+          <span class="detail">모두 concat (<span class="muted">override 아님</span>), working dir에 가까울수록 specific. 서브폴더는 lazy-load. 디테일은 <span class="mono">@import</span>로 분리.</span>
+        </div>
+      </div>
+
+      <!-- 3. Slash Commands -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">COMMAND</span>
+          <span class="card-title">Slash Commands</span>
+        </div>
+        <div class="card-body">
+          <span class="lead">반복 프롬프트는 <span class="mono">.claude/commands/</span>로 박는다.</span>
+          <span class="detail"><span class="mono">/effort xhigh</span>는 <span class="info">Opus 4.7 전용</span> — 다른 모델은 <span class="mono">high</span>로 폴백.</span>
+        </div>
+      </div>
+
+      <!-- 4. AGENTS.md -->
+      <div class="card">
+        <div class="card-head">
+          <span class="tag">AGENTS.md</span>
+          <span class="card-title">AGENTS.md</span>
+        </div>
+        <div class="card-body">
+          <span class="lead">OpenAI Codex · Amp · Google Jules · Cursor · Factory 등이 만든 <span class="info">도구 중립 표준</span>.</span>
+          <span class="detail">여러 코딩 에이전트 공존 시 정본으로 활용.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

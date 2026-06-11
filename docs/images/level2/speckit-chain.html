@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --panel-bg: #FFFFFF;
+    --callout: #FAF3E6;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--warm);
+  }
+
+  /* ── Chain grid: 3 cols x 2 rows ── */
+  .chain {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr 56px 1fr;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 0;
+    row-gap: 26px;
+  }
+  .step {
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 0;
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1;
+    color: #FFFFFF;
+    background: var(--teal);
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--teal-deep);
+    flex-shrink: 0;
+  }
+  .step-cmd {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.18;
+    color: var(--teal-deep);
+    letter-spacing: -0.01em;
+    word-break: break-word;
+  }
+  .step-doc {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--teal-deep);
+    background: rgba(15, 118, 110, 0.10);
+    border: 1px solid rgba(15, 118, 110, 0.40);
+    padding: 7px 14px;
+    align-self: flex-start;
+    letter-spacing: 0.01em;
+  }
+  .step-role {
+    font-size: 24px;
+    line-height: 1.45;
+    color: var(--ink);
+    font-weight: 500;
+    margin-top: auto;
+  }
+  .step-tag {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.03em;
+    align-self: flex-start;
+    padding: 7px 14px;
+    border: 1px solid;
+  }
+  .tag-fixed { color: var(--blue); border-color: var(--blue); }
+  .tag-opt   { color: var(--warm); border-color: #B0ABA2; }
+
+  /* ── Arrow connectors ── */
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow.down {
+    grid-column: 1 / 6;
+    justify-content: center;
+  }
+  .arrow svg { display: block; }
+
+  /* ── Footer callout (full width) ── */
+  .callout {
+    border: 1px solid var(--line);
+    background: var(--callout);
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .callout-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--blue);
+    background: rgba(30, 64, 175, 0.12);
+    border: 1px solid rgba(30, 64, 175, 0.30);
+    padding: 8px 16px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+  .callout-text {
+    font-size: 23px;
+    line-height: 1.45;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .callout-text code {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--teal-deep);
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="panel-label">SPECKIT — 슬래시 커맨드 체인 (명세 → 구현)</div>
+
+    <div class="chain">
+      <!-- row 1: steps 1-3 -->
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">1</div>
+          <div class="step-cmd">/speckit.<br>constitution</div>
+        </div>
+        <div class="step-doc">constitution.md</div>
+        <div class="step-tag tag-fixed">불변 원칙</div>
+        <div class="step-role">프로젝트 원칙 수립</div>
+      </div>
+
+      <div class="arrow">
+        <svg width="44" height="20" viewBox="0 0 44 20"><line x1="0" y1="10" x2="32" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="32,3 32,17 43,10" fill="#0F766E"/></svg>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">2</div>
+          <div class="step-cmd">/speckit.<br>specify</div>
+        </div>
+        <div class="step-doc">spec.md</div>
+        <div class="step-role">요구사항 명세</div>
+      </div>
+
+      <div class="arrow">
+        <svg width="44" height="20" viewBox="0 0 44 20"><line x1="0" y1="10" x2="32" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="32,3 32,17 43,10" fill="#0F766E"/></svg>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">3</div>
+          <div class="step-cmd">/speckit.<br>clarify</div>
+        </div>
+        <div class="step-tag tag-opt">선택</div>
+        <div class="step-role">모호한 요구사항 명확화</div>
+      </div>
+
+      <!-- wrap-down arrow -->
+      <div class="arrow down">
+        <svg width="20" height="22" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="11" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="3,11 17,11 10,21" fill="#0F766E"/></svg>
+      </div>
+
+      <!-- row 2: steps 4-6 -->
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">4</div>
+          <div class="step-cmd">/speckit.<br>plan</div>
+        </div>
+        <div class="step-doc">plan.md</div>
+        <div class="step-role">기술 구현 계획</div>
+      </div>
+
+      <div class="arrow">
+        <svg width="44" height="20" viewBox="0 0 44 20"><line x1="0" y1="10" x2="32" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="32,3 32,17 43,10" fill="#0F766E"/></svg>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">5</div>
+          <div class="step-cmd">/speckit.<br>tasks</div>
+        </div>
+        <div class="step-doc">tasks.md</div>
+        <div class="step-role">태스크 분해</div>
+      </div>
+
+      <div class="arrow">
+        <svg width="44" height="20" viewBox="0 0 44 20"><line x1="0" y1="10" x2="32" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="32,3 32,17 43,10" fill="#0F766E"/></svg>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <div class="step-num">6</div>
+          <div class="step-cmd">/speckit.<br>implement</div>
+        </div>
+        <div class="step-role">태스크별 구현</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">문서 참조 체인</div>
+      <div class="callout-text">각 문서는 다음 문서를 참조 — <code>plan</code>은 <code>spec</code> 참조, <code>tasks</code>는 <code>spec</code>+<code>plan</code> 참조</div>
+    </div>
+
+  </div>
+</body>
+</html>

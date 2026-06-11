@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* intro line */
+  .intro {
+    font-size: 23px;
+    line-height: 1.5;
+    color: #1A1A18;
+    margin-bottom: 6px;
+  }
+  .intro .em { font-weight: 700; color: #1A1A18; }
+  .intro .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #115E59; }
+
+  /* comparison table */
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.cmp col.c-case  { width: 38%; }
+  table.cmp col.c-stack { width: 62%; }
+
+  table.cmp thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 28px 16px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 25px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  table.cmp tbody td {
+    padding: 24px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+
+  td.case {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.42;
+  }
+  td.case .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    margin-top: 6px;
+  }
+  td.stack {
+    font-size: 23px;
+    line-height: 1.46;
+    color: #1A1A18;
+  }
+  td.stack .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #115E59; }
+  td.stack .pick {
+    font-weight: 700;
+    color: #047857;
+  }
+  td.stack .info { color: #1E3A8A; font-weight: 700; }
+
+  /* bottom callout — full width */
+  .callout {
+    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 22px;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    background: #FAF3E6;
+    padding: 22px 26px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 8px 16px;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-size: 23px;
+    line-height: 1.52;
+    color: #7C4A02;
+  }
+  .callout .ctext .seq {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+  .callout .ctext .em { font-weight: 700; color: #7C4A02; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <p class="intro">
+      Next.js Route Handlers(<span class="mono">app/api/**/route.ts</span>)로 통합. 에디터(<span class="mono">@markflow/editor</span>)는 npm 독립 패키지로 분리되어 이식성 유지.
+    </p>
+
+    <table class="cmp">
+      <colgroup>
+        <col class="c-case">
+        <col class="c-stack">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>상황</th>
+          <th>권장 스택</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="case">MVP, 단일 배포 <span class="sub">Vercel</span></td>
+          <td class="stack">Next.js App Router + Route Handlers + PostgreSQL — <span class="pick">markflow 선택</span></td>
+        </tr>
+        <tr>
+          <td class="case">외부 도메인이 API를 공유해야 하는 경우</td>
+          <td class="stack">Fastify 5 / Hono + 분리 배포 (<span class="mono">Railway · Render</span>)</td>
+        </tr>
+        <tr>
+          <td class="case">데이터 과학 · ML 프로젝트</td>
+          <td class="stack">Python + FastAPI</td>
+        </tr>
+        <tr>
+          <td class="case">엔터프라이즈 · 레거시</td>
+          <td class="stack">Java + Spring Boot</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="clbl">선택의 실질 기준</span>
+      <span class="ctext">
+        <span class="seq">배포 토폴로지 → 팀 역량 → 학습 데이터 풍부도 → 호스팅 비용.</span> AI 친화성과 일관성은 라이브러리보다 <span class="em">도큐먼트 품질</span>이 결정한다.
+      </span>
+    </div>
+
+  </div>
+</body>
+</html>

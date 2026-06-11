@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── horizontal flow ── */
+  .flow {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .stage {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 30px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .stage.cur { background: #F5F3F0; }
+
+  .stage-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    color: #6B6560;
+    line-height: 1;
+  }
+  .step.teal { color: #0F766E; }
+  .stage-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+  .era {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    margin-left: auto;
+  }
+
+  .field {
+    border-top: 1px solid #D4D0C8;
+    padding: 18px 0 0 0;
+    margin-top: 18px;
+  }
+  .field:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .field-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #6B6560;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 23px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: #1A1A18;
+  }
+  .field-text .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+  }
+  .field-text.metric {
+    color: #1E3A8A;
+    font-weight: 600;
+  }
+  .stage.cur .field-text.metric { color: #1E3A8A; }
+  .stage:last-child .field-text.metric { color: #0F766E; }
+
+  /* ── arrow connector ── */
+  .arrow {
+    flex: 0 0 72px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 100%;
+  }
+  .arrow-line {
+    height: 3px;
+    width: 100%;
+    background: #6B6560;
+  }
+  .arrow::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 16px solid #6B6560;
+  }
+
+  /* ── footer note ── */
+  .note {
+    margin-top: 28px;
+    border: 1px solid #D4D0C8;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .note-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #1E3A8A;
+    border: 1px solid #1E3A8A;
+    padding: 8px 18px;
+    flex: 0 0 auto;
+  }
+  .note-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 23px;
+    line-height: 1.55;
+    font-weight: 500;
+    color: #1A1A18;
+  }
+  .note-text b { color: #0F766E; font-weight: 700; }
+  .note-text .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="flow">
+
+      <!-- STAGE 1: Prompt -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step">01</span>
+          <span class="stage-name">Prompt</span>
+          <span class="era">2022–2024</span>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 질문</div>
+          <div class="field-text">어떤 말을 해야 하나?</div>
+        </div>
+        <div class="field">
+          <div class="field-label">엄밀함이 사는 곳</div>
+          <div class="field-text">프롬프트 텍스트</div>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 메트릭</div>
+          <div class="field-text metric">응답 품질 (주관적, 측정 어려움)</div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 2: Context (current at L3) -->
+      <div class="stage cur">
+        <div class="stage-head">
+          <span class="step">02</span>
+          <span class="stage-name">Context</span>
+          <span class="era">2025</span>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 질문</div>
+          <div class="field-text">어떤 정보를 넣어야 하나?</div>
+        </div>
+        <div class="field">
+          <div class="field-label">엄밀함이 사는 곳</div>
+          <div class="field-text">컨텍스트 윈도우 구성</div>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 메트릭</div>
+          <div class="field-text metric"><span class="mono">KV-cache hit rate</span>, 적합도</div>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="arrow-line"></div></div>
+
+      <!-- STAGE 3: Harness -->
+      <div class="stage">
+        <div class="stage-head">
+          <span class="step teal">03</span>
+          <span class="stage-name">Harness</span>
+          <span class="era">2026~</span>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 질문</div>
+          <div class="field-text">어떤 시스템을 만들어야 하나?</div>
+        </div>
+        <div class="field">
+          <div class="field-label">엄밀함이 사는 곳</div>
+          <div class="field-text">시스템 아키텍처</div>
+        </div>
+        <div class="field">
+          <div class="field-label">핵심 메트릭</div>
+          <div class="field-text metric">태스크 완료율, <span class="mono">$/태스크</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <span class="note-badge">SUBSUME</span>
+      <div class="note-text">각 시대는 이전을 대체하지 않고 <b>포함(subsume)</b>한다. L3에서는 Prompt·Context까지 다룬다. 하네스 엔지니어링은 <b>Level 7</b>에서 자세히 다룬다.</div>
+    </div>
+
+  </div>
+</body>
+</html>

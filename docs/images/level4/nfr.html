@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* 폰트: 한국어 본문 가독성 Noto Sans KR + 코드/ID 식별성 JetBrains Mono */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  table.nfr {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.nfr col.c-id   { width: 15%; }
+  table.nfr col.c-area { width: 19%; }
+  table.nfr col.c-desc { width: 66%; }
+
+  table.nfr thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 22px 16px 22px;
+    vertical-align: bottom;
+  }
+  table.nfr thead tr { border-bottom: 2px solid #0F766E; }
+
+  table.nfr tbody td {
+    font-size: 22px;
+    line-height: 1.42;
+    padding: 18px 22px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  table.nfr tbody tr:last-child td { border-bottom: none; }
+
+  td.id {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #0F766E;
+    letter-spacing: 0.01em;
+  }
+  td.area {
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  td.desc {
+    color: #1A1A18;
+    font-weight: 400;
+  }
+  td.desc .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #1E3A8A;
+    font-weight: 600;
+  }
+  td.desc .good {
+    color: #047857;
+    font-weight: 700;
+  }
+
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 6px 14px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #7C4A02;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="nfr">
+      <colgroup>
+        <col class="c-id"><col class="c-area"><col class="c-desc">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>항목</th>
+          <th>핵심 기준</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="id">NFR-001</td>
+          <td class="area">성능</td>
+          <td class="desc">API 응답 p95 <span class="good">300ms 이하</span>, 문서 로드 <span class="good">2초 이내</span></td>
+        </tr>
+        <tr>
+          <td class="id">NFR-002</td>
+          <td class="area">보안</td>
+          <td class="desc"><span class="code">JWT</span>, <span class="code">RBAC</span> (소유자/관리자/편집자/뷰어), XSS 방어 <span class="code">(rehype-sanitize)</span></td>
+        </tr>
+        <tr>
+          <td class="id">NFR-003</td>
+          <td class="area">반응형</td>
+          <td class="desc">모바일<span class="code">(360px)</span> ~ 데스크톱<span class="code">(1920px)</span></td>
+        </tr>
+        <tr>
+          <td class="id">NFR-004</td>
+          <td class="area">데이터 정합성</td>
+          <td class="desc">문서 버전 관리, 낙관적 업데이트 + 롤백</td>
+        </tr>
+        <tr>
+          <td class="id">NFR-005</td>
+          <td class="area">배포</td>
+          <td class="desc">Vercel 단일 배포 <span class="code">(Next.js + API Routes 통합)</span>, HTTPS, Git Push 자동 배포</td>
+        </tr>
+        <tr>
+          <td class="id">NFR-006</td>
+          <td class="area">확장성</td>
+          <td class="desc">SaaS 또는 온프레미스 모두 지원 가능한 구조</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">FR vs NFR</span>
+      <span class="txt">FR은 <b>"무엇을"</b>(기능) — NFR은 <b>"어떻게"</b>(성능/보안/배포). 둘을 분리해 명세하면 AI도 두 차원을 따로 검증할 수 있다.</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+  }
+  .block { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .block-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.15; }
+  .badge {
+    flex: none;
+    padding: 6px 14px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.teal { color: #0F766E; border-color: #115E59; }
+  .badge.info { color: #1E3A8A; border-color: #1E3A8A; }
+
+  /* ── tables (settings_json_key_reference style) ── */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead th {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+    padding: 0 11px 10px 11px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+  tbody td {
+    font-size: 22px;
+    line-height: 1.22;
+    color: #1A1A18;
+    padding: 6px 11px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* endpoint table */
+  table.endpoints col.e1 { width: 126px; }
+  table.endpoints td.area { font-size: 21px; font-weight: 700; color: #6B6560; white-space: nowrap; padding-right: 4px; }
+  table.endpoints td.ep {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #1A1A18;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+  }
+  table.endpoints td.ep .m { color: #0F766E; font-weight: 700; }
+
+  /* field table */
+  table.fields col.f1 { width: 148px; }
+  table.fields col.f2 { width: 104px; }
+  table.fields col.f3 { width: 56px; }
+  table.fields td.cons { white-space: nowrap; }
+  table.fields tbody td { padding: 3px 11px; }
+  table.fields thead th { padding-bottom: 8px; }
+  table.fields td.mono-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 21px; white-space: nowrap; }
+  table.fields td.mono-cell.k { color: #1A1A18; }
+  table.fields td.req-yes { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #047857; }
+  table.fields td.req-no { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #B91C1C; }
+  table.fields td.cons { font-size: 21px; color: #1A1A18; }
+
+  /* ── JSON success response ── */
+  .resp { margin-top: 8px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .resp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+  .resp-title { font-size: 22px; font-weight: 700; color: #1A1A18; }
+  .code-200 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #047857;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 3px 10px;
+  }
+  pre.json {
+    flex: 1;
+    min-height: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 4px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 19px;
+    line-height: 1.0;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: hidden;
+  }
+  pre.json .key { color: #1E3A8A; }
+  pre.json .str { color: #047857; }
+  pre.json .lit { color: #B91C1C; }
+  pre.json .pun { color: #6B6560; }
+
+  /* ── bottom bands ── */
+  .status-band {
+    margin-top: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 8px 16px;
+    font-size: 20px;
+    line-height: 1.25;
+    color: #1A1A18;
+  }
+  .status-band .lbl, .errband .lbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #1E3A8A;
+    white-space: nowrap;
+  }
+  .status-band .codes, .errband code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 21px;
+    color: #1A1A18;
+  }
+  .bottom-row {
+    margin-top: 9px;
+    display: grid;
+    grid-template-columns: 1fr 0.46fr;
+    gap: 14px;
+    align-items: stretch;
+  }
+  .errband {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 8px 16px;
+  }
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 8px 16px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-size: 21px;
+    line-height: 1.35;
+    color: #7C4A02;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  .callout .ctext .em { color: #1A1A18; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: REST endpoint contract table -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">REST 엔드포인트 (계약/Contract)</span>
+          <span class="badge teal">CONTRACT</span>
+        </div>
+        <table class="endpoints">
+          <colgroup><col class="e1"><col></colgroup>
+          <thead>
+            <tr><th>영역</th><th>엔드포인트</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="area">인증</td>
+              <td class="ep"><span class="m">POST</span> /api/v1/auth/register</td>
+            </tr>
+            <tr>
+              <td class="area">인증</td>
+              <td class="ep"><span class="m">POST</span> /api/v1/auth/login</td>
+            </tr>
+            <tr>
+              <td class="area">워크스페이스</td>
+              <td class="ep"><span class="m">GET</span> /api/v1/workspaces</td>
+            </tr>
+            <tr>
+              <td class="area">문서</td>
+              <td class="ep"><span class="m">POST</span> /api/v1/workspaces/:wsId/documents</td>
+            </tr>
+            <tr>
+              <td class="area">문서</td>
+              <td class="ep"><span class="m">GET</span> /api/v1/workspaces/:wsId/documents/:docId</td>
+            </tr>
+            <tr>
+              <td class="area">문서</td>
+              <td class="ep"><span class="m">PATCH</span> /api/v1/workspaces/:wsId/documents/:docId</td>
+            </tr>
+            <tr>
+              <td class="area">버전</td>
+              <td class="ep"><span class="m">GET</span> /api/v1/documents/:docId/versions</td>
+            </tr>
+            <tr>
+              <td class="area">버전</td>
+              <td class="ep"><span class="m">POST</span> /api/v1/documents/:docId/versions/:versionId/restore</td>
+            </tr>
+            <tr>
+              <td class="area">카테고리</td>
+              <td class="ep"><span class="m">GET</span> /api/v1/workspaces/:wsId/categories</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- RIGHT: document-create request fields + 201 response -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">문서 생성 API</span>
+          <span class="badge info">REQ / RES</span>
+        </div>
+        <table class="fields">
+          <colgroup><col class="f1"><col class="f2"><col class="f3"><col></colgroup>
+          <thead>
+            <tr><th>필드</th><th>타입</th><th>필수</th><th>제약</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono-cell k">title</td>
+              <td class="mono-cell">varchar</td>
+              <td class="req-yes">O</td>
+              <td class="cons">1~300자</td>
+            </tr>
+            <tr>
+              <td class="mono-cell k">content</td>
+              <td class="mono-cell">text</td>
+              <td class="req-no">X</td>
+              <td class="cons">마크다운, 최대 1MB</td>
+            </tr>
+            <tr>
+              <td class="mono-cell k">categoryId</td>
+              <td class="mono-cell">bigint</td>
+              <td class="req-no">X</td>
+              <td class="cons">유효한 카테고리 ID</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="resp">
+          <div class="resp-head">
+            <span class="resp-title">성공 응답</span>
+            <span class="code-200">201 Created</span>
+          </div>
+<pre class="json"><span class="pun">{</span>
+  <span class="key">"id"</span><span class="pun">:</span> <span class="str">"doc-abc123"</span><span class="pun">,</span>
+  <span class="key">"title"</span><span class="pun">:</span> <span class="str">"신규 문서"</span><span class="pun">,</span>
+  <span class="key">"content"</span><span class="pun">:</span> <span class="str">""</span><span class="pun">,</span>
+  <span class="key">"workspaceId"</span><span class="pun">:</span> <span class="str">"ws-xyz"</span><span class="pun">,</span>
+  <span class="key">"categoryId"</span><span class="pun">:</span> <span class="lit">null</span><span class="pun">,</span>
+  <span class="key">"authorId"</span><span class="pun">:</span> <span class="str">"user-001"</span><span class="pun">,</span>
+  <span class="key">"isPublished"</span><span class="pun">:</span> <span class="lit">false</span><span class="pun">,</span>
+  <span class="key">"createdAt"</span><span class="pun">:</span> <span class="str">"2025-10-15T09:00:00Z"</span><span class="pun">,</span>
+  <span class="key">"updatedAt"</span><span class="pun">:</span> <span class="str">"2025-10-15T09:00:00Z"</span>
+<span class="pun">}</span></pre>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM: status rule, then common-error + source -->
+    <div class="status-band">
+      <span class="lbl">상태 코드 규칙</span><span class="codes">200(조회/수정) &middot; 201(생성) &middot; 204(삭제) &middot; 400(검증) &middot; 401(미인증) &middot; 403(권한) &middot; 404(없음) &middot; 500(서버)</span>
+    </div>
+    <div class="bottom-row">
+      <div class="errband">
+        <span class="lbl">공통 에러</span><code>{ error: { code: "VALIDATION_ERROR", message: "..." } }</code>
+      </div>
+      <div class="callout">
+        <span class="clbl">출처</span>
+        <span class="ctext"><span class="em">4.3.2 API 설계</span></span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

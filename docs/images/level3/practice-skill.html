@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  /* Inter=라틴, Noto Sans KR=한글 본문 — 의도적 선택(브랜드 산세리프 위계) */
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  /* JetBrains Mono=코드/명령/경로 — 고정폭으로 frontmatter 정렬 의도 */
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── 상단: 4단계 실습 흐름 (균일 1px 박스 + 삼각형 화살표) ── */
+  .flow { display: flex; align-items: stretch; gap: 0; flex: none; }
+
+  .step {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 14px 15px 11px 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #ECE9E2;
+    margin-bottom: 8px;
+  }
+  .step-num {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+  .step-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.1;
+    word-break: keep-all;
+  }
+  .step-body {
+    font-size: 22px;
+    line-height: 1.36;
+    color: #1A1A18;
+  }
+  .step-body .em { font-weight: 700; }
+  .step-body .muted { color: #6B6560; }
+  .step-body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    background: #F4F2EC;
+    border: 1px solid #E2DED5;
+    border-radius: 5px;
+    padding: 1px 7px;
+  }
+  .step-body .teal { color: #115E59; font-weight: 700; }
+  .pill {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    color: #6B6560;
+  }
+
+  /* 삼각형 화살표 커넥터 (transparent border 기법 — 예외 허용) */
+  .arrow {
+    flex: none;
+    width: 26px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow .shaft {
+    position: relative;
+    width: 16px;
+    height: 2px;
+    background: #B8B2A8;
+  }
+  .arrow .shaft::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #B8B2A8;
+  }
+
+  /* ── 하단: SKILL.md 코드 박스 (밝은 mono) ── */
+  .ex {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .ex-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+    flex: none;
+  }
+  .ex-head .label { font-size: 20px; font-weight: 800; color: #6B6560; letter-spacing: 0.03em; }
+  .ex-head .path { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: #1A1A18; }
+  .ex-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+  .ex-grid > div + div { border-left: 1px solid #D4D0C8; }
+  .ex-pane {
+    padding: 9px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .ex-cap {
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  .ex-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.22;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+  .ex-line .fence { color: #6B6560; }
+  .ex-line .key { color: #1E3A8A; font-weight: 600; }
+  .ex-line .teal { color: #0F766E; font-weight: 600; }
+  .ex-line .cm { color: #6B6560; }
+
+  /* 6단계 본문 목록 */
+  .steps6 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; }
+  .s6 {
+    display: flex;
+    align-items: baseline;
+    gap: 11px;
+    font-size: 22px;
+    line-height: 1.25;
+    color: #1A1A18;
+  }
+  .s6 .n {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+  .s6 code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    background: #F4F2EC;
+    border: 1px solid #E2DED5;
+    border-radius: 5px;
+    padding: 0 6px;
+  }
+  .s6 .warn { color: #B91C1C; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- 상단: 실습 4단계 흐름 -->
+    <div class="flow">
+
+      <!-- ① 캡슐화 대상 식별 -->
+      <div class="step" style="flex:1.1 1 0;">
+        <div class="step-head">
+          <div class="step-num">1</div>
+          <div class="step-title">캡슐화 대상 식별</div>
+        </div>
+        <div class="step-body">
+          <span class="em">CLAUDE.md</span> 본문에 반복 등장하는 절차 &mdash; <span class="muted">"DB 마이그레이션 작성 절차" &middot; "컴포넌트 신규 생성" &middot; "PR 설명 작성 템플릿"</span>
+          <span class="pill">description 한 줄로 트리거 조건 표현</span>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <!-- ② frontmatter 작성 -->
+      <div class="step" style="flex:1.2 1 0;">
+        <div class="step-head">
+          <div class="step-num">2</div>
+          <div class="step-title">frontmatter 작성</div>
+        </div>
+        <div class="step-body">
+          <code>name: drizzle-migration</code> &middot; <code>description</code> &middot; <code>allowed-tools: Read, Edit, Bash(npm:*)</code>
+          <span class="pill">allowed-tools로 권한 좁히기</span>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <!-- ③ 본문 절차 6단계 -->
+      <div class="step" style="flex:1.1 1 0;">
+        <div class="step-head">
+          <div class="step-num">3</div>
+          <div class="step-title">본문 &mdash; 절차 6단계</div>
+        </div>
+        <div class="step-body">
+          schema 식별 &rarr; <code>generate</code> &rarr; <code>.sql</code> 검토 &rarr; <span class="teal">destructive 경고</span> &rarr; 시드 보존 &rarr; PR description
+          <span class="pill">아래 코드 박스에 6단계 상세</span>
+        </div>
+      </div>
+
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <!-- ④ 검증 -->
+      <div class="step" style="flex:1.1 1 0;">
+        <div class="step-head">
+          <div class="step-num">4</div>
+          <div class="step-title">검증 &mdash; 호출 트리거</div>
+        </div>
+        <div class="step-body">
+          <span class="muted">"User 모델에 <span class="em" style="color:#1A1A18">lastLoginAt</span> 컬럼 추가해줘"</span> &rarr; 모델이 <span class="teal">drizzle-migration</span> Skill 자동 호출
+          <span class="pill">/skills 로 활성화 상태 확인</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 하단: SKILL.md 구조 코드 박스 -->
+    <div class="ex">
+      <div class="ex-head">
+        <span class="label">SKILL.MD 구조</span>
+        <span class="path">.claude/skills/drizzle-migration/SKILL.md</span>
+      </div>
+      <div class="ex-grid">
+        <!-- 왼쪽: frontmatter -->
+        <div class="ex-pane">
+          <div class="ex-cap">frontmatter</div>
+          <div class="ex-line"><span class="fence">---</span></div>
+          <div class="ex-line"><span class="key">name:</span> drizzle-migration</div>
+          <div class="ex-line"><span class="key">description:</span> Drizzle ORM 스키마 변경 후</div>
+          <div class="ex-line">&nbsp;&nbsp;마이그레이션 작성 시 자동 호출</div>
+          <div class="ex-line"><span class="key">allowed-tools:</span> <span class="teal">Read, Edit, Bash(npm:*)</span></div>
+          <div class="ex-line"><span class="fence">---</span></div>
+        </div>
+        <!-- 오른쪽: 본문 절차 6단계 -->
+        <div class="ex-pane">
+          <div class="ex-cap">본문 &mdash; 절차 6단계</div>
+          <div class="steps6">
+            <div class="s6"><span class="n">1)</span><span>변경된 <code>schema</code> 파일 식별</span></div>
+            <div class="s6"><span class="n">2)</span><span><code>drizzle-kit generate</code> 실행</span></div>
+            <div class="s6"><span class="n">3)</span><span>생성된 <code>.sql</code> 검토</span></div>
+            <div class="s6"><span class="n">4)</span><span><span class="warn">destructive</span> 변경 (<code>DROP COLUMN</code>) 경고</span></div>
+            <div class="s6"><span class="n">5)</span><span>테스트 데이터 시드 보존 확인</span></div>
+            <div class="s6"><span class="n">6)</span><span>PR description 자동 작성</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

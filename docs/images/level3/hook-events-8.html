@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Noto Sans KR: 한국어 본문 · JetBrains Mono: 이벤트명/코드 키 · Inter: 라틴 보조 — 목적별 의도 선택 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+
+  table.hooks {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1;
+  }
+  table.hooks col.c-evt  { width: 28%; }
+  table.hooks col.c-when { width: 72%; }
+
+  table.hooks thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 26px 16px 26px;
+    vertical-align: bottom;
+  }
+  table.hooks thead tr { border-bottom: 2px solid #0F766E; }
+
+  table.hooks tbody td {
+    font-size: 22px;
+    line-height: 1.5;
+    padding: 0 26px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.hooks tbody tr:last-child td { border-bottom: none; }
+
+  td.evt {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 23px;
+    color: #0F766E;
+  }
+  td.when {
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  td.when .dash {
+    color: #6B6560;
+    padding: 0 6px;
+  }
+  td.when .use {
+    color: #6B6560;
+  }
+  td.when .block {
+    color: #B91C1C;
+    font-weight: 700;
+  }
+  td.when code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 21px;
+    color: #1A1A18;
+  }
+
+  .callout {
+    margin-top: 28px;
+    flex: none;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 19px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 7px 15px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 21px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="hooks">
+      <colgroup>
+        <col class="c-evt"><col class="c-when">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>이벤트</th>
+          <th>발화 시점</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="evt">PreToolUse</td>
+          <td class="when">도구 호출 직전<span class="dash">&mdash;</span><span class="block">차단</span><span class="use">&middot;승인 게이트로 사용</span></td>
+        </tr>
+        <tr>
+          <td class="evt">PostToolUse</td>
+          <td class="when">도구 호출 직후<span class="dash">&mdash;</span><span class="use">결과 검증&middot;로깅</span></td>
+        </tr>
+        <tr>
+          <td class="evt">UserPromptSubmit</td>
+          <td class="when">사용자 메시지 제출 직후<span class="dash">&mdash;</span><span class="use">입력 정제&middot;라우팅</span></td>
+        </tr>
+        <tr>
+          <td class="evt">Notification</td>
+          <td class="when">모델이 권한&middot;정보를 요청할 때<span class="dash">&mdash;</span><span class="use">알림 발송</span></td>
+        </tr>
+        <tr>
+          <td class="evt">Stop</td>
+          <td class="when">모델 응답 종료 시</td>
+        </tr>
+        <tr>
+          <td class="evt">SubagentStop</td>
+          <td class="when">서브 에이전트 종료 시</td>
+        </tr>
+        <tr>
+          <td class="evt">PreCompact</td>
+          <td class="when"><code>/compact</code> 직전<span class="dash">&mdash;</span><span class="use">압축 전 상태 dump</span></td>
+        </tr>
+        <tr>
+          <td class="evt">SessionStart</td>
+          <td class="when">세션 시작<span class="dash">&mdash;</span><span class="use">컨텍스트 주입 (handoff 등)</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">hooks 배열</span>
+      <span class="txt"><code>settings.json</code>의 hooks는 이벤트별 배열 &mdash; 같은 이벤트에 여러 훅을 매처별로 등록 가능. <b>매처 누락 시 모든 도구에 적용된다.</b></span>
+    </div>
+  </div>
+</body>
+</html>

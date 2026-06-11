@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.cmp col.c-aspect { width: 20%; }
+  table.cmp col.c-http { width: 40%; }
+  table.cmp col.c-stdio { width: 40%; }
+
+  table.cmp thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 28px 26px 28px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.cmp thead th .hd-aspect {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  table.cmp thead th .hd-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.2;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  table.cmp thead th .hd-badge {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 4px 13px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #047857;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    vertical-align: middle;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  table.cmp tbody td {
+    padding: 40px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 23px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+
+  td.aspect {
+    font-size: 23px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+
+  .val-strong { font-weight: 600; color: #1A1A18; }
+  .sub-note { display: block; margin-top: 6px; font-size: 20px; color: #6B6560; }
+  .code-snip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .pill-list { list-style: none; display: flex; flex-wrap: wrap; gap: 9px; margin-top: 3px; }
+  .pill-list li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    background: #FFFFFF;
+  }
+
+  .callout {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 28px;
+    color: #7C4A02;
+    font-size: 23px;
+    line-height: 1.45;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 22px;
+    color: #7C4A02;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cmp">
+      <colgroup>
+        <col class="c-aspect">
+        <col class="c-http">
+        <col class="c-stdio">
+      </colgroup>
+      <thead>
+        <tr>
+          <th><span class="hd-aspect">특성</span></th>
+          <th>
+            <span class="hd-title">http</span><span class="hd-badge">권장</span>
+          </th>
+          <th>
+            <span class="hd-title">stdio</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="aspect">용도</td>
+          <td><span class="val-strong">원격 HTTP 서버</span></td>
+          <td><span class="val-strong">로컬 프로세스</span> <span class="code-snip">npx · uvx 등</span></td>
+        </tr>
+        <tr>
+          <td class="aspect">비고</td>
+          <td>스트리밍 + 인증 헤더 지원</td>
+          <td>로컬 도구 · CLI 래퍼</td>
+        </tr>
+        <tr>
+          <td class="aspect"><code class="mono" style="font-size:21px;">type</code></td>
+          <td><span class="code-snip">"http"</span></td>
+          <td><span class="code-snip">"stdio"</span></td>
+        </tr>
+        <tr>
+          <td class="aspect">CLI로 추가</td>
+          <td colspan="2"><span class="code-snip" style="font-size:20px;">claude mcp add --transport http github https://api.githubcopilot.com/mcp/</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">.mcp.json</span>
+      <span class="body">Claude Code에 GitHub 도구(이슈, PR, 코드 검색, 코드 리뷰 등)를 연결해서, Claude가 직접 GitHub와 대화할 수 있게 만드는 설정</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.dial {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.dial col.c-level { width: 20%; }
+  table.dial col.c-use   { width: 52%; }
+  table.dial col.c-note  { width: 28%; }
+
+  table.dial thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 26px 20px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    letter-spacing: 0.02em;
+  }
+
+  table.dial tbody td {
+    padding: 26px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 23px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  table.dial tbody tr:last-child td { border-bottom: none; }
+
+  td.level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0F766E;
+  }
+  td.use { color: #1A1A18; }
+  td.note { color: #1A1A18; }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 14px;
+    font-size: 19px;
+    font-weight: 700;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  }
+  .tag.default { color: #1E3A8A; }
+  .tag.new     { color: #047857; }
+  .tag.warn    { color: #B91C1C; }
+  .tag.muted   { color: #6B6560; }
+
+  .callout {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 28px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.5;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 22px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="dial">
+      <colgroup>
+        <col class="c-level">
+        <col class="c-use">
+        <col class="c-note">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>레벨</th>
+          <th>용도</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="level">max</td>
+          <td class="use">인텔리전스 극한 — 어려운 작업에서만</td>
+          <td class="note"><span class="tag warn">신규 (overthinking 위험)</span></td>
+        </tr>
+        <tr>
+          <td class="level">xhigh</td>
+          <td class="use">코딩·에이전틱 기본값</td>
+          <td class="note"><span class="tag new">4.7 신규</span></td>
+        </tr>
+        <tr>
+          <td class="level">high</td>
+          <td class="use">인텔리전스 민감 작업 최소 권장값</td>
+          <td class="note"><span class="tag default">4.6 기본값</span></td>
+        </tr>
+        <tr>
+          <td class="level">medium</td>
+          <td class="use">비용 민감 워크로드</td>
+          <td class="note"><span class="tag muted">—</span></td>
+        </tr>
+        <tr>
+          <td class="level">low</td>
+          <td class="use">짧고 범위 좁은 작업, 레이턴시 우선</td>
+          <td class="note"><span class="tag warn">4.7는 엄격 준수 — under-thinking 주의</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">주의</span>
+      <span class="body">Opus 4.7은 low/medium에서 요청 범위만 처리(이전처럼 'above and beyond' 안 함). 얕은 추론이 보이면 프롬프트 우회보다 effort 상향이 우선. max/xhigh는 <code>max_tokens 64k</code> 이상 권장.</span>
+    </div>
+  </div>
+</body>
+</html>

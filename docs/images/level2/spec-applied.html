@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 40px;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 26px;
+  }
+  /* column header label */
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 8px 18px;
+    border: 1px solid;
+  }
+  .badge-bad { color: #B91C1C; border-color: #B91C1C; }
+  .badge-good { color: #047857; border-color: #047857; }
+
+  .sub-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    letter-spacing: 0.03em;
+    margin-bottom: 11px;
+  }
+
+  /* terminal-style request box (light cream surface, plain 1px border) */
+  .req {
+    border: 1px solid #D4D0C8;
+    background: #F5F3F0;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+  }
+  .req-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    padding-bottom: 13px;
+    margin-bottom: 13px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .dot {
+    width: 14px; height: 14px;
+    border: 1px solid #B0ABA2;
+    border-radius: 50%;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.6;
+    color: #1A1A18;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .cmt  { color: #6B6560; }
+  .pmt  { color: #0F766E; font-weight: 700; }
+  .path { color: #1E3A8A; font-weight: 600; }
+  .req-bad pre.code { font-size: 24px; }
+
+  /* result row */
+  .res {
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    padding: 22px 24px;
+  }
+  .res-head {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .res-head-bad  { color: #B91C1C; }
+  .res-head-good { color: #047857; }
+  .res-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 23px;
+    line-height: 1.55;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .flow {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    line-height: 1.55;
+    color: #047857;
+    font-weight: 600;
+  }
+  .flow .mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="cols">
+
+    <!-- LEFT: bad request (no spec) -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-bad">모호함</span>
+        <span class="label">나쁜 요청</span>
+      </div>
+
+      <div class="sub-label">요청 예시</div>
+      <div class="req req-bad">
+        <div class="req-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="cmt"># 나쁜 요청 (모호함)</span>
+<span class="pmt">&gt;</span> "사용자 인증 시스템 만들어줘."</pre>
+      </div>
+
+      <div class="res">
+        <div class="res-head res-head-bad">결과</div>
+        <div class="res-text">→ AI가 요구사항·기술 스택·제약을 임의로 결정</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: good request (spec first) -->
+    <div class="col">
+      <div class="col-head">
+        <span class="badge badge-good">명세 먼저</span>
+        <span class="label">좋은 요청</span>
+      </div>
+
+      <div class="sub-label">요청 예시</div>
+      <div class="req">
+        <div class="req-bar"><span class="dot"></span> Terminal</div>
+<pre class="code"><span class="cmt"># 좋은 요청 (명세 먼저)</span>
+<span class="pmt">&gt;</span> "먼저 <span class="path">.speckit/features/auth/spec.md</span>를 작성하자.
+<span class="pmt">&gt;</span>  다음 요구사항을 정리해줘:
+<span class="pmt">&gt;</span>  - 이메일/비밀번호 로그인
+<span class="pmt">&gt;</span>  - JWT 토큰 (24시간)
+<span class="pmt">&gt;</span>  - 비밀번호 5회 실패 시 30분 잠금"</pre>
+      </div>
+
+      <div class="res">
+        <div class="res-head res-head-good">결과</div>
+        <div class="flow">→ spec 검토·승인 후 <span class="mono">plan.md → tasks.md → implement</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

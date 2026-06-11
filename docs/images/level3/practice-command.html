@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── section label badge ── */
+  .seclabel {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex: none;
+  }
+  .seclabel .badge {
+    display: inline-block;
+    padding: 7px 17px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    color: #0F766E;
+    white-space: nowrap;
+  }
+  .seclabel .ttl {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .seclabel .ttl .mut { color: #6B6560; font-weight: 600; }
+
+  /* ── 4-step flow ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .step {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 13px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .shead {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 18px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+  }
+  .shead .num {
+    flex: none;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px; font-weight: 700; color: #1A1A18;
+    border: 1px solid #D4D0C8; border-radius: 9px;
+    background: #FFFFFF;
+  }
+  .shead .stitle { font-size: 21px; font-weight: 800; color: #1A1A18; line-height: 1.15; }
+
+  .sbody {
+    flex: 1;
+    padding: 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+  }
+  .sfile {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #0F766E; line-height: 1.35;
+    word-break: break-all;
+  }
+  .sdesc {
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.5;
+  }
+  .sdesc .mut { color: #6B6560; }
+  .sdesc .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #115E59;
+  }
+
+  /* category chip list */
+  .cats { display: flex; flex-direction: column; gap: 10px; }
+  .cat {
+    border: 1px solid #D4D0C8; border-radius: 9px;
+    padding: 11px 14px;
+    font-size: 20px; font-weight: 500; color: #1A1A18; line-height: 1.4;
+  }
+  .cat b { font-weight: 700; color: #1A1A18; }
+  .cat .mut { color: #6B6560; }
+
+  /* class/tag badges inside steps */
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag {
+    flex: none;
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.01em;
+    border: 1px solid #D4D0C8; border-radius: 7px;
+    color: #1E3A8A; white-space: nowrap;
+  }
+  .tag.block { color: #B91C1C; border-color: #B91C1C; }
+  .tag.rec   { color: #047857; border-color: #047857; }
+
+  /* code hint inside a step */
+  .hint {
+    margin-top: auto;
+    border: 1px solid #E2DED5; border-radius: 9px;
+    background: #FCFBF8;
+    padding: 13px 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.55; color: #1A1A18; font-weight: 600;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .hint .cmt  { color: #6B6560; font-weight: 600; }
+  .hint .key  { color: #1E3A8A; font-weight: 600; }
+  .hint .tool { color: #0F766E; font-weight: 700; }
+  .hint .var  { color: #B91C1C; font-weight: 700; }
+  .hint .ko   { font-family: 'Inter', 'Noto Sans KR', sans-serif; font-weight: 500; }
+
+  /* ── flow arrows between steps ── */
+  .arrow {
+    flex: none;
+    align-self: center;
+    width: 0; height: 0;
+    border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent;
+    border-left: 16px solid #6B6560;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="seclabel">
+      <span class="badge">.claude/commands/review.md</span>
+      <span class="ttl">팀 컨벤션을 한 번에 적용하는 PR 리뷰 커맨드 <span class="mut">— 실습 4단계</span></span>
+    </div>
+
+    <div class="flow">
+
+      <!-- STEP 1 -->
+      <section class="step">
+        <div class="shead">
+          <span class="num">1</span>
+          <span class="stitle">커맨드 파일 생성</span>
+        </div>
+        <div class="sbody">
+          <div class="sfile">.claude/commands/review.md</div>
+          <div class="sdesc">
+            프론트매터에 <span class="m">description</span> 명시 — PR 변경사항 5개 항목
+            <span class="mut">(보안·성능·타입·테스트·가독성)</span> 체크.
+          </div>
+          <div class="hint"><span class="cmt"># review.md</span>
+<span class="cmt">---</span>
+<span class="key">description</span>: <span class="ko">PR 5개 항목 리뷰</span>
+<span class="cmt">---</span>
+<span class="ko">PR #</span><span class="var">$ARGUMENTS</span><span class="ko"> 받기</span></div>
+        </div>
+      </section>
+
+      <div class="arrow"></div>
+
+      <!-- STEP 2 -->
+      <section class="step">
+        <div class="shead">
+          <span class="num">2</span>
+          <span class="stitle">커맨드 본문</span>
+        </div>
+        <div class="sbody">
+          <div class="sdesc">5가지 검토 카테고리</div>
+          <div class="cats">
+            <div class="cat"><b>보안</b> <span class="mut">입력 검증·시크릿 노출·OWASP</span></div>
+            <div class="cat"><b>성능</b> <span class="mut">N+1 쿼리·번들 사이즈·메모리 누수</span></div>
+            <div class="cat"><b>타입</b> <span class="mut">any 회피·제네릭 적절성</span></div>
+            <div class="cat"><b>테스트</b> <span class="mut">커버리지·엣지 케이스</span></div>
+            <div class="cat"><b>가독성</b> <span class="mut">네이밍·함수 길이·DRY</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="arrow"></div>
+
+      <!-- STEP 3 -->
+      <section class="step">
+        <div class="shead">
+          <span class="num">3</span>
+          <span class="stitle">호출 패턴</span>
+        </div>
+        <div class="sbody">
+          <div class="sdesc">
+            <span class="m">/review 142</span> → PR #142 변경사항 fetch · 5개 카테고리별
+            평가 출력 · 의견을 PR comment로 게시.
+          </div>
+          <div class="hint"><span class="tool">gh pr comment</span></div>
+          <div class="sdesc"><span class="mut">의견 분류 —</span></div>
+          <div class="tags">
+            <span class="tag block">차단 이슈</span>
+            <span class="tag rec">권고</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="arrow"></div>
+
+      <!-- STEP 4 -->
+      <section class="step">
+        <div class="shead">
+          <span class="num">4</span>
+          <span class="stitle">팀 공유 + 자동 적용</span>
+        </div>
+        <div class="sbody">
+          <div class="sdesc">
+            <span class="m">.claude/commands/</span>는 <b>git commit</b>으로 팀 전체 공유.
+          </div>
+          <div class="sdesc">
+            GitHub Actions에서 자동 PR 리뷰 봇으로 진화.
+          </div>
+          <div class="hint"><span class="cmt"># GitHub Actions</span>
+<span class="tool">claude</span> -p <span class="ko">"</span>/review <span class="var">$PR</span><span class="ko">"</span></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>
