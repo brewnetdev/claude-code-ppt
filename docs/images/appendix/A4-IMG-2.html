@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A4-IMG-2 · /loop vs /schedule 비교표</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title"><span class="mono">/loop</span> vs <span class="mono">/schedule</span> — 6가지 기준 비교</h1>
+  <p class="subtitle">로컬 폴링과 클라우드 자동화, 어떤 상황에 무엇을 고를까</p>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th style="width:240px; color:var(--ink); padding:26px 16px">기준</th>
+        <th style="color:var(--ink)"><span class="mono teal">/loop</span> <span style="color:var(--muted); font-weight:500">(로컬 폴링)</span></th>
+        <th style="color:var(--ink)"><span class="mono teal">/schedule</span> <span style="color:var(--muted); font-weight:500">(클라우드)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="k" style="padding:26px 16px">머신 켜짐 필요</td>
+        <td>필요</td>
+        <td>불필요</td>
+      </tr>
+      <tr>
+        <td class="k" style="padding:26px 16px">세션 필요</td>
+        <td>필요</td>
+        <td>불필요</td>
+      </tr>
+      <tr>
+        <td class="k" style="padding:26px 16px">로컬 파일 접근</td>
+        <td>가능</td>
+        <td>불가</td>
+      </tr>
+      <tr>
+        <td class="k" style="padding:26px 16px">최소 간격</td>
+        <td>1분</td>
+        <td>1시간</td>
+      </tr>
+      <tr>
+        <td class="k" style="padding:26px 16px">지속성</td>
+        <td>세션 동안</td>
+        <td>상시(클라우드)</td>
+      </tr>
+      <tr>
+        <td class="k" style="padding:26px 16px">권장 용도</td>
+        <td>배포·CI·PR 실시간 감시</td>
+        <td>야간·주간 정기 자동화, 웹훅</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

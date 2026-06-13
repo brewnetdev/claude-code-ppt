@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A5-IMG-2 · 코딩 벤치마크 비교</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">코딩 벤치마크 — Fable 5 vs 비교 모델</h1>
+  <p class="subtitle">막대 길이 = 점수(% · 같은 0~100 스케일)</p>
+  <svg class="svgwrap" viewBox="0 0 1152 480" style="display:block;width:100%;height:480px"
+       xmlns="http://www.w3.org/2000/svg" font-family="'Pretendard','Noto Sans KR',sans-serif">
+
+    <!-- shared 0 axis -->
+    <line x1="185" y1="56" x2="185" y2="398" stroke="#D8D2C8" stroke-width="1"/>
+
+    <!-- Section 1 -->
+    <text x="0" y="40" font-size="22" font-weight="700" fill="#2B2B2B">SWE-Bench Pro</text>
+
+    <!-- Fable 5 80.3% -->
+    <text x="170" y="88" text-anchor="end" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Fable 5</text>
+    <rect x="185" y="60" width="610.3" height="44" fill="none" stroke="#1A7F7A" stroke-width="1.5"/>
+    <text x="807" y="88" font-size="18" fill="#1A7F7A" font-weight="700" font-family="'JetBrains Mono',monospace">80.3%</text>
+
+    <!-- Opus 4.8 69.2% -->
+    <text x="170" y="148" text-anchor="end" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Opus 4.8</text>
+    <rect x="185" y="120" width="525.9" height="44" fill="none" stroke="#2B2B2B" stroke-width="1.5"/>
+    <text x="722" y="148" font-size="18" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">69.2%</text>
+
+    <!-- Section 2 -->
+    <text x="0" y="214" font-size="22" font-weight="700" fill="#2B2B2B">FrontierCode Diamond</text>
+
+    <!-- Fable 5 29.3% -->
+    <text x="170" y="262" text-anchor="end" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Fable 5</text>
+    <rect x="185" y="234" width="222.7" height="44" fill="none" stroke="#1A7F7A" stroke-width="1.5"/>
+    <text x="419" y="262" font-size="18" fill="#1A7F7A" font-weight="700" font-family="'JetBrains Mono',monospace">29.3%</text>
+
+    <!-- Opus 4.8 13.4% -->
+    <text x="170" y="322" text-anchor="end" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Opus 4.8</text>
+    <rect x="185" y="294" width="101.8" height="44" fill="none" stroke="#2B2B2B" stroke-width="1.5"/>
+    <text x="299" y="322" font-size="18" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">13.4%</text>
+
+    <!-- GPT-5.5 5.7% -->
+    <text x="170" y="382" text-anchor="end" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">GPT-5.5</text>
+    <rect x="185" y="354" width="43.3" height="44" fill="none" stroke="#2B2B2B" stroke-width="1.5"/>
+    <text x="240" y="382" font-size="18" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">5.7%</text>
+
+    <!-- caption -->
+    <text x="0" y="448" font-size="14" fill="#6E6A62">수치 출처: 인용 벤치마크 자료</text>
+  </svg>
+</div>
+</body>
+</html>

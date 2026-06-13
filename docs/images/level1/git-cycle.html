@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --panel:  #1E293B;
+    --border: #334155;
+    --text:   #F1F5F9;
+    --sub:    #CBD5E1;
+    --dim:    #94A3B8;
+    --amber:  #F59E0B;
+    --amberd: #D97706;
+    --blue:   #60A5FA;
+    --green:  #34D399;
+    --cyan:   #22D3EE;
+    --red:    #F87171;
+  }
+  html, body { background: transparent; }
+  .frame {
+    width: 1520px; height: 660px; position: relative; padding: 32px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+  }
+
+  /* ── header ── */
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .title {
+    font-size: 34px; font-weight: 900; letter-spacing: -.01em;
+    color: var(--text); line-height: 1.1;
+  }
+  .lede {
+    margin-top: 8px; font-size: 15px; font-weight: 500; color: var(--dim);
+  }
+  .lede code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--sub); }
+
+  /* ── stage row ── */
+  .stage-row {
+    position: absolute; left: 32px; right: 32px; top: 184px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0;
+  }
+  .col { position: relative; padding: 0 30px; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 18px 16px; height: 188px;
+    display: flex; flex-direction: column;
+  }
+  .panel.local  { border-color: #2F5070; }
+  .panel.remote { border-color: #2C6152; }
+
+  .scope {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .scope.local  { color: var(--blue); }
+  .scope.remote { color: var(--green); }
+
+  .pname { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .pko   { font-size: 13px; font-weight: 500; color: var(--sub); margin-top: 3px; }
+  .pdesc { font-size: 13px; font-weight: 400; color: var(--dim); line-height: 1.45; margin-top: auto; }
+
+  .pcmd {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    color: var(--sub); margin-top: 12px;
+    border-top: 1px solid var(--border); padding-top: 10px;
+  }
+  .pcmd .c { color: var(--amber); }
+
+  /* ── horizontal command edges between stages (chips sitting in 60px gutters) ── */
+  .edge {
+    position: absolute; top: 138px; width: 120px; z-index: 6;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .edge .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+    white-space: nowrap; line-height: 1;
+    background: #0E1726; border: 1px solid var(--border); border-radius: 5px;
+    padding: 5px 9px;
+  }
+  .edge .sub {
+    font-size: 10px; font-weight: 500; color: var(--dim); margin-top: 4px; white-space: nowrap;
+  }
+  /* stage-row inner = 1456px; column boundaries at 364 / 728 / 1092 from left:32 */
+  .e1 { left: calc(32px + 364px - 60px); }   /* boundary WD|Staging */
+  .e2 { left: calc(32px + 728px - 60px); }   /* boundary Staging|Local */
+  .e3 { left: calc(32px + 1092px - 60px); }  /* boundary Local|Remote */
+  .lbl.amber { color: var(--amber); border-color: var(--amberd); }
+  .lbl.green { color: var(--green); border-color: #2C6152; }
+
+  /* ── return-path band (fetch / pull) below ── */
+  .return {
+    position: absolute; left: 32px; right: 32px; top: 432px;
+    display: flex; gap: 14px;
+  }
+  .rbox {
+    flex: 1; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 13px 16px;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  .rbox .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    white-space: nowrap; min-width: 132px;
+  }
+  .rbox .dir { color: var(--dim); font-weight: 600; }
+  .rbox .txt { font-size: 12.5px; font-weight: 400; color: var(--sub); line-height: 1.4; }
+  .rbox .txt b { color: var(--text); font-weight: 700; }
+  .tag.green { color: var(--green); }
+  .tag.cyan  { color: var(--cyan); }
+  .tag.amber { color: var(--amber); }
+  .safe  { color: var(--green); font-weight: 700; }
+  .risk  { color: var(--red); font-weight: 700; }
+
+  /* ── local-internal note (merge / branch) ── */
+  .local-internal {
+    position: absolute; top: 60px; left: 0; right: 0;
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+  }
+  .ll {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--blue); padding: 4px 9px; border: 1px solid #2F5070; border-radius: 5px;
+    background: #16263B;
+  }
+  .lln { font-size: 11px; color: var(--dim); }
+
+  /* ── footer legend ── */
+  .legend {
+    position: absolute; left: 32px; right: 32px; bottom: 24px;
+    display: flex; align-items: center; gap: 22px;
+    border-top: 1px solid var(--border); padding-top: 12px;
+    font-size: 12px; color: var(--dim);
+  }
+  .legend .item { display: flex; align-items: center; gap: 7px; }
+  .legend .sw { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+  .legend code { font-family: 'JetBrains Mono', monospace; color: var(--sub); }
+  .legend .spacer { flex: 1; }
+  .legend .src { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="kicker">1.1.6 GIT CLI · BASIC CYCLE</div>
+    <div class="title">Git 기본 사이클 — 로컬에서 원격까지의 흐름</div>
+    <div class="lede">
+      <code>clone</code> / <code>init</code> 으로 시작해 <code>add → commit → push</code> 로 내보내고, <code>fetch / pull</code> 로 원격 변경을 다시 받는다.
+    </div>
+
+    <!-- forward flow stages -->
+    <div class="stage-row">
+      <!-- col 1: Working Directory -->
+      <div class="col">
+        <div class="panel">
+          <div class="scope local">LOCAL</div>
+          <div class="pname">Working Directory</div>
+          <div class="pko">워킹 디렉토리</div>
+          <div class="pdesc">파일을 실제로 수정하는 작업 공간. <code style="font-family:'JetBrains Mono',monospace;color:#CBD5E1;">git status</code> 로 매번 먼저 확인.</div>
+        </div>
+      </div>
+      <!-- col 2: Staging Area -->
+      <div class="col">
+        <div class="panel">
+          <div class="scope local">LOCAL</div>
+          <div class="pname">Staging Area</div>
+          <div class="pko">스테이징 영역</div>
+          <div class="pdesc">다음 커밋에 담을 변경을 모아두는 대기 공간. 무엇이 바뀌었나 추려낸다.</div>
+        </div>
+      </div>
+      <!-- col 3: Local Repository -->
+      <div class="col">
+        <div class="panel local">
+          <div class="scope local">LOCAL</div>
+          <div class="pname">Local Repository</div>
+          <div class="pko">로컬 저장소 · .git</div>
+          <div class="pdesc">작업 내용을 로컬에 저장 — 세이브포인트, 체크포인트. 커밋 히스토리가 쌓인다.</div>
+          <div class="pcmd"><span class="c">git merge</span> · <span class="c">git checkout -b</span> <span style="color:#94A3B8;font-family:'Noto Sans KR';font-weight:500;">— 브랜치 합치기·이동 (로컬 내부)</span></div>
+        </div>
+      </div>
+      <!-- col 4: Remote -->
+      <div class="col">
+        <div class="panel remote">
+          <div class="scope remote">REMOTE</div>
+          <div class="pname">Remote</div>
+          <div class="pko">원격 저장소 · origin</div>
+          <div class="pdesc">GitHub 등 공유 저장소. 협업의 단일 기준점이 된다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- forward command edges (arrows in the 60px gutters, at panel mid-height) -->
+    <svg style="position:absolute; left:32px; right:32px; top:184px; width:1456px; height:188px; z-index:3; overflow:visible;" viewBox="0 0 1456 188" preserveAspectRatio="none">
+      <!-- add: WD -> Staging (gutter 304..364) -->
+      <line x1="306" y1="100" x2="358" y2="100" stroke="#F59E0B" stroke-width="2"/>
+      <polygon points="364,100 354,95 354,105" fill="#F59E0B"/>
+      <!-- commit: Staging -> Local (gutter 668..728) -->
+      <line x1="670" y1="100" x2="722" y2="100" stroke="#F59E0B" stroke-width="2"/>
+      <polygon points="728,100 718,95 718,105" fill="#F59E0B"/>
+      <!-- push: Local -> Remote (gutter 1032..1092) -->
+      <line x1="1034" y1="100" x2="1086" y2="100" stroke="#34D399" stroke-width="2"/>
+      <polygon points="1092,100 1082,95 1082,105" fill="#34D399"/>
+    </svg>
+
+    <div class="edge e1">
+      <div class="lbl amber">git add</div>
+      <div class="sub">변경 → 스테이징</div>
+    </div>
+    <div class="edge e2">
+      <div class="lbl amber">git commit</div>
+      <div class="sub">스테이징 → 스냅샷</div>
+    </div>
+    <div class="edge e3">
+      <div class="lbl green">git push</div>
+      <div class="sub">로컬 → 원격</div>
+    </div>
+
+    <!-- return paths: fetch / pull -->
+    <div class="return">
+      <div class="rbox">
+        <span class="tag green">git fetch <span class="dir">◂ Remote</span></span>
+        <span class="txt">원격의 변경사항을 <b>확인만</b> 함 (로컬에 소스 변경 X) — <span class="safe">안전</span>.</span>
+      </div>
+      <div class="rbox">
+        <span class="tag cyan">git pull <span class="dir">◂ Remote</span></span>
+        <span class="txt">원격의 변경사항을 현재 브랜치에 <b>적용</b> (fetch + merge).</span>
+      </div>
+      <div class="rbox">
+        <span class="tag amber">git clone <span class="dir">◂ Remote</span></span>
+        <span class="txt">원격 저장소를 내 컴퓨터로 <b>복제</b> — 프로젝트 처음 받기.</span>
+      </div>
+    </div>
+
+    <!-- return path: from Remote panel bottom, curving left to the receive band -->
+    <svg style="position:absolute; left:32px; top:372px; width:1456px; height:60px; z-index:2; overflow:visible;" viewBox="0 0 1456 60" preserveAspectRatio="none">
+      <!-- start under Remote panel center (1274), sweep left to band center (~480) -->
+      <path d="M 1274 4 C 1274 44, 980 56, 488 52" fill="none" stroke="#34D399" stroke-width="2" stroke-dasharray="6 5"/>
+      <polygon points="478,52 490,46 490,58" fill="#34D399"/>
+      <text x="900" y="34" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#34D399">원격 → 로컬로 받기 (fetch · pull · clone)</text>
+    </svg>
+
+    <div class="legend">
+      <div class="item"><span class="sw" style="background:#60A5FA;"></span><span>로컬 (LOCAL)</span></div>
+      <div class="item"><span class="sw" style="background:#34D399;"></span><span>원격 (REMOTE)</span></div>
+      <div class="item"><span class="sw" style="background:#F59E0B;"></span><span>로컬 내부 명령</span></div>
+      <div class="item"><span>전송 방향:</span><code>add → commit → push</code><span>·</span><code>fetch / pull ◂ 원격</code></div>
+      <span class="spacer"></span>
+      <span class="src">git status · git diff · git diff --staged 로 단계마다 확인</span>
+    </div>
+  </div>
+</body>
+</html>

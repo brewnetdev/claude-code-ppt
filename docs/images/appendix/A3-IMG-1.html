@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A3-IMG-1 · 로컬 vs 클라우드 아키텍처</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">코드가 도는 위치 — 로컬 vs 클라우드</h1>
+  <p class="subtitle">브라우저·모바일은 그 사이에서 조종만 한다</p>
+  <svg class="svgwrap" viewBox="0 0 1152 540" style="height:520px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#2B2B2B"/>
+      </marker>
+      <marker id="ah-teal" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#1A7F7A"/>
+      </marker>
+      <marker id="ah-start" markerWidth="9" markerHeight="9" refX="1.5" refY="4.5" orient="auto">
+        <path d="M9,0 L0,4.5 L9,9 Z" fill="#2B2B2B"/>
+      </marker>
+    </defs>
+
+    <!-- LEFT box: 내 노트북 (로컬) -->
+    <rect x="20" y="120" width="320" height="290" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="180" y="155" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">내 노트북 (로컬)</text>
+    <!-- chips -->
+    <rect x="48" y="180" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="180" y="214" text-anchor="middle" font-size="17" fill="#2B2B2B">프로세스</text>
+    <rect x="48" y="252" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="180" y="286" text-anchor="middle" font-size="17" fill="#2B2B2B">파일·환경</text>
+    <rect x="48" y="324" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="180" y="358" text-anchor="middle" font-size="17" fill="#2B2B2B">MCP·도구</text>
+
+    <!-- MIDDLE box: 조종 장치 -->
+    <rect x="416" y="155" width="320" height="220" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="576" y="190" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">조종 장치</text>
+    <rect x="444" y="214" width="264" height="62" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="576" y="240" text-anchor="middle" font-size="16" fill="#2B2B2B">브라우저</text>
+    <text x="576" y="262" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">claude.ai/code</text>
+    <rect x="444" y="292" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="576" y="326" text-anchor="middle" font-size="17" fill="#2B2B2B">모바일 앱</text>
+
+    <!-- RIGHT box: Anthropic 관리 VM (클라우드) — teal border -->
+    <rect x="812" y="120" width="320" height="290" rx="8" fill="#F4F1EC" stroke="#1A7F7A" stroke-width="1.5"/>
+    <text x="972" y="151" text-anchor="middle" font-size="19" font-weight="700" fill="#2B2B2B">Anthropic 관리 VM</text>
+    <text x="972" y="174" text-anchor="middle" font-size="16" fill="#1A7F7A" font-weight="700">(클라우드)</text>
+    <rect x="840" y="196" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="972" y="230" text-anchor="middle" font-size="17" fill="#2B2B2B">격리된 새 저장소</text>
+    <rect x="840" y="268" width="264" height="56" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="972" y="302" text-anchor="middle" font-size="17" fill="#2B2B2B">깨끗한 환경</text>
+    <rect x="840" y="340" width="264" height="46" rx="6" fill="#F0EDE8" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="972" y="369" text-anchor="middle" font-size="16" fill="#2B2B2B">통째로 실행</text>
+
+    <!-- ARROW middle <-> left : bidirectional, neutral -->
+    <line x1="412" y1="265" x2="344" y2="265" stroke="#2B2B2B" stroke-width="1.5"
+          marker-start="url(#ah-start)" marker-end="url(#ah)"/>
+    <text x="378" y="240" text-anchor="middle" font-size="14" fill="#2B2B2B" font-weight="700">Remote Control</text>
+    <text x="378" y="291" text-anchor="middle" font-size="13" fill="#6E6A62">조종만</text>
+
+    <!-- ARROW middle -> right : unidirectional, teal label -->
+    <line x1="740" y1="265" x2="808" y2="265" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#ah-teal)"/>
+    <text x="774" y="240" text-anchor="middle" font-size="14" fill="#1A7F7A" font-weight="700">Cloud Session</text>
+    <text x="774" y="291" text-anchor="middle" font-size="13" fill="#6E6A62">통째로 실행</text>
+
+    <!-- footnote legend -->
+    <text x="20" y="450" font-size="14" fill="#6E6A62">양방향 — 로컬을 조종만 한다 · 단방향 — 클라우드 VM이 통째로 실행한다</text>
+  </svg>
+</div>
+</body>
+</html>

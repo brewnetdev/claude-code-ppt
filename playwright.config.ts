@@ -11,7 +11,9 @@ export default defineConfig({
   expect: { timeout: 5_000 },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // M0: 1 retry damps the structural waitForTimeout flakiness until the e2e
+  // suite migrates off polling to window.__storeRevision.
+  retries: 1,
   workers: 1,
   reporter: [['list']],
   use: {

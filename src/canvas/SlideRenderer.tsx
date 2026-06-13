@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { applyBackgroundToElement, stripBackgroundFromElement } from '../scene/applySlideBackground';
-import { registerPendingFlush } from '../scene/pendingCommit';
+import { stripEditorChrome } from '../scene/stripEditorChrome';
+import { usePendingFlush } from '../scene/pendingCommit';
 import { useDeckStore } from '../scene/store';
 import { useSlideEditing } from './useSlideEditing';
 import './themes/brewnet-dark.css';
@@ -35,30 +36,10 @@ export function SlideRenderer({ slideId }: Props) {
     if (!slide) return;
 
     const clone = slide.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('.block-drag-handle').forEach((n) => n.remove());
-    clone.querySelectorAll('[contenteditable]').forEach((n) => {
-      (n as HTMLElement).removeAttribute('contenteditable');
-    });
-    clone
-      .querySelectorAll('.sortable-chosen, .sortable-ghost, .sortable-drag, .selected-block')
-      .forEach((n) => {
-        n.classList.remove(
-          'sortable-chosen',
-          'sortable-ghost',
-          'sortable-drag',
-          'selected-block',
-        );
-      });
-
-    // Strip Sortable's transient inline transform/transition on drop animation.
-    // onEnd fires while the 150ms drop transition is still running, so the live
-    // children of .slide-inner have inline transforms that would otherwise
-    // bake into the persisted html and cause visual jitter on next remount.
-    clone.querySelectorAll<HTMLElement>('.slide-inner > *').forEach((el) => {
-      el.style.removeProperty('transform');
-      el.style.removeProperty('transition');
-      if (el.getAttribute('style') === '') el.removeAttribute('style');
-    });
+    // Strip every editor-only affordance (drag/col-resize handles,
+    // contenteditable, transient Sortable classes + drop transforms, ZWSP
+    // placeholders) via the shared helper so both commit paths agree.
+    stripEditorChrome(clone);
 
     // Background is owned by ParsedSlide.background (a structured field),
     // not by the html string. Strip the runtime-applied bg style before
@@ -89,19 +70,6 @@ export function SlideRenderer({ slideId }: Props) {
     commitFromDom();
   }, [commitFromDom]);
 
-  // Drains a pending typing-debounce only if one is queued. Used by
-  // undo/redo to flush in-flight edits before the store revert. We do NOT
-  // commit when the timer is idle — re-committing the live DOM after a
-  // drag-reorder (which already committed atomically) would push a
-  // duplicate snapshot and break undo's ability to reach the pre-reorder
-  // state in one step.
-  const flushIfPending = useCallback(() => {
-    if (timerRef.current === null) return;
-    window.clearTimeout(timerRef.current);
-    timerRef.current = null;
-    commitFromDom();
-  }, [commitFromDom]);
-
   useSlideEditing(ref, scheduleCommit, commitNow);
 
   // Apply background imperatively — mutating .slide style avoids a remount
@@ -114,22 +82,7 @@ export function SlideRenderer({ slideId }: Props) {
     applyBackgroundToElement(slide, background);
   }, [background, slideId]);
 
-  useEffect(() => registerPendingFlush(flushIfPending), [flushIfPending]);
-
-  // On unmount, only drain a pending typing-debounce. Do NOT unconditionally
-  // commit: when the slide remounts due to undo/redo (revision bump), the
-  // old DOM still holds the *pre-undo* html, and committing it here would
-  // re-push that pre-undo state on top of the just-applied undo, silently
-  // reverting the undo. Sortable / Moveable already commit atomically so
-  // there's nothing else to flush at unmount time.
-  useEffect(() => {
-    return () => {
-      if (timerRef.current === null) return;
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-      commitFromDom();
-    };
-  }, [commitFromDom]);
+  usePendingFlush(timerRef, commitFromDom);
 
   return <div ref={ref} dangerouslySetInnerHTML={{ __html: initialHtml }} />;
 }

@@ -68,7 +68,26 @@ const curriculumTopicsToBulletList: Migration = {
   },
 };
 
-const ALL_MIGRATIONS: Migration[] = [unescapeThInlineTags, curriculumTopicsToBulletList];
+// Earlier commit paths baked editor-only chrome into the cached HTML: table
+// `.col-resize-handle` divs (appended on table mount, never stripped on commit)
+// and U+200B soft-break placeholders. They accumulate on every remount and leak
+// into export. The commit path now strips them (stripEditorChrome); this scrubs
+// decks already poisoned in IndexedDB. Idempotent: clean HTML has no matches.
+const stripCommittedEditorChrome: Migration = {
+  name: 'strip-committed-editor-chrome-2026-06-12',
+  description: 'Remove baked-in .col-resize-handle divs and U+200B placeholders from cached slide HTML.',
+  transform(html) {
+    return html
+      .replace(/<div[^>]*class="[^"]*\bcol-resize-handle\b[^"]*"[^>]*>\s*<\/div>/g, '')
+      .replace(/​/g, '');
+  },
+};
+
+const ALL_MIGRATIONS: Migration[] = [
+  unescapeThInlineTags,
+  curriculumTopicsToBulletList,
+  stripCommittedEditorChrome,
+];
 
 const migrationsKey = (deckId: string) => MIGRATIONS_KEY_PREFIX + deckId;
 

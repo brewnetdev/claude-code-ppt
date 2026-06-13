@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A4-IMG-1 · /loop 한 사이클 반복 흐름</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title"><span class="mono">/loop</span> 한 사이클 — 반복 흐름</h1>
+  <p class="subtitle">세션 시작 → 등록 → 대기 → 실행 → 보고 → 다시 대기 · ESC로 빠져나옴</p>
+  <svg class="svgwrap" viewBox="0 0 1152 510" style="height:510px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <defs>
+      <marker id="a" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#6E6A62"/>
+      </marker>
+      <marker id="at" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#1A7F7A"/>
+      </marker>
+    </defs>
+
+    <!-- 1. 세션 시작 -->
+    <rect x="80" y="24" width="220" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="190" y="59" text-anchor="middle" font-size="18" fill="#2B2B2B">세션 시작</text>
+
+    <!-- 2. /loop 등록 -->
+    <rect x="430" y="24" width="220" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="540" y="59" text-anchor="middle" font-size="18" fill="#2B2B2B"><tspan font-family="'JetBrains Mono',monospace">/loop</tspan> 등록</text>
+
+    <!-- 3. 간격 대기 -->
+    <rect x="430" y="212" width="220" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="540" y="247" text-anchor="middle" font-size="18" fill="#2B2B2B">간격 대기</text>
+
+    <!-- 4. 프롬프트 실행 -->
+    <rect x="790" y="212" width="220" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="900" y="247" text-anchor="middle" font-size="18" fill="#2B2B2B">프롬프트 실행</text>
+
+    <!-- 5. 결과 보고 -->
+    <rect x="610" y="400" width="220" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="720" y="435" text-anchor="middle" font-size="18" fill="#2B2B2B">결과 보고</text>
+
+    <!-- 6. 종료 (무채색) -->
+    <rect x="70" y="212" width="250" height="58" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="195" y="247" text-anchor="middle" font-size="16" fill="#2B2B2B">종료: <tspan font-family="'JetBrains Mono',monospace">ESC</tspan> · 7일 만료</text>
+
+    <!-- arrows (neutral) -->
+    <!-- 1 -> 2 -->
+    <line x1="300" y1="53" x2="430" y2="53" stroke="#6E6A62" stroke-width="1.5" marker-end="url(#a)"/>
+    <!-- 2 -> 3 -->
+    <line x1="540" y1="82" x2="540" y2="212" stroke="#6E6A62" stroke-width="1.5" marker-end="url(#a)"/>
+    <!-- 3 -> 4 -->
+    <line x1="650" y1="241" x2="790" y2="241" stroke="#6E6A62" stroke-width="1.5" marker-end="url(#a)"/>
+    <!-- 4 -> 5 -->
+    <polyline points="900,270 900,429 830,429" fill="none" stroke="#6E6A62" stroke-width="1.5" marker-end="url(#a)"/>
+    <!-- 3 -> 6 (종료 분기) -->
+    <line x1="430" y1="241" x2="322" y2="241" stroke="#6E6A62" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- repeat arrow 5 -> 3 (teal) -->
+    <polyline points="610,429 540,429 540,270" fill="none" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+    <text x="524" y="357" text-anchor="end" font-size="16" fill="#1A7F7A" font-weight="700">다음 반복</text>
+  </svg>
+</div>
+</body>
+</html>

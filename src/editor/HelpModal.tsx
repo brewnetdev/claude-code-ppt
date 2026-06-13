@@ -34,7 +34,7 @@ const VIEW: Row[] = [
 const EXPORT: Row[] = [
   { keys: ['Export HTML'], desc: '단일 HTML 번들 (오프라인 재생 가능)' },
   { keys: ['Export PDF'], desc: '브라우저 인쇄 미리보기 → PDF 저장' },
-  { keys: ['PNG (all)'], desc: '모든 슬라이드 1920×1080 PNG' },
+  { keys: ['현재 슬라이드 PNG'], desc: '현재 슬라이드 1920×1080 PNG (영상 삽입용)' },
 ];
 
 export function HelpModal({ open, onClose }: Props) {

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A6-IMG-3 · 훅 타임라인</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">도구 호출 1회 — 훅이 개입하는 시점</h1>
+
+  <svg class="svgwrap" viewBox="0 0 1152 510" style="height:510px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <defs>
+      <marker id="ai" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#2B2B2B"/>
+      </marker>
+    </defs>
+
+    <!-- timeline -->
+    <line x1="60" y1="300" x2="1112" y2="300" stroke="#2B2B2B" stroke-width="1.5" marker-end="url(#ai)"/>
+
+    <!-- milestone ticks -->
+    <line x1="120"  y1="294" x2="120"  y2="306" stroke="#2B2B2B" stroke-width="1.5"/>
+    <line x1="460"  y1="294" x2="460"  y2="306" stroke="#2B2B2B" stroke-width="1.5"/>
+    <line x1="800"  y1="294" x2="800"  y2="306" stroke="#2B2B2B" stroke-width="1.5"/>
+    <line x1="1090" y1="294" x2="1090" y2="306" stroke="#2B2B2B" stroke-width="1.5"/>
+
+    <!-- milestone labels -->
+    <text x="120"  y="328" text-anchor="middle" font-size="15" fill="#2B2B2B">클로드가 도구 호출</text>
+    <text x="460"  y="328" text-anchor="middle" font-size="15" fill="#2B2B2B">도구 실행</text>
+    <text x="800"  y="328" text-anchor="middle" font-size="15" fill="#2B2B2B">턴 진행 …</text>
+    <text x="1090" y="328" text-anchor="middle" font-size="15" fill="#2B2B2B">턴 종료</text>
+
+    <!-- hook stems (neutral) -->
+    <line x1="290" y1="160" x2="290" y2="300" stroke="#6E6A62" stroke-width="1.2"/>
+    <line x1="630" y1="160" x2="630" y2="300" stroke="#6E6A62" stroke-width="1.2"/>
+    <line x1="965" y1="160" x2="965" y2="300" stroke="#6E6A62" stroke-width="1.2"/>
+
+    <!-- hook boxes (rise above the line) -->
+    <rect x="215" y="78" width="150" height="50" rx="6" fill="#F4F1EC" stroke="#1A7F7A" stroke-width="1.8"/>
+    <text x="290" y="108" text-anchor="middle" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">PreToolUse</text>
+    <text x="290" y="148" text-anchor="middle" font-size="13" fill="#6E6A62">실행 전 차단 · 수정</text>
+
+    <rect x="555" y="78" width="150" height="50" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="630" y="108" text-anchor="middle" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">PostToolUse</text>
+    <text x="630" y="148" text-anchor="middle" font-size="13" fill="#6E6A62">성공 후 린트 · 테스트</text>
+
+    <rect x="890" y="78" width="150" height="50" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="965" y="108" text-anchor="middle" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Stop</text>
+    <text x="965" y="148" text-anchor="middle" font-size="13" fill="#6E6A62">종료 전 최종 검증</text>
+
+    <!-- legend (bottom-right) -->
+    <rect x="802" y="372" width="320" height="112" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="822" y="400" text-anchor="start" font-size="12" fill="#6E6A62">exit code 분기</text>
+    <text x="822" y="428" text-anchor="start" font-size="15" fill="#2B2B2B">
+      <tspan font-family="'JetBrains Mono',monospace">exit 0</tspan> 통과</text>
+    <text x="822" y="454" text-anchor="start" font-size="15" fill="#2B2B2B">
+      <tspan font-family="'JetBrains Mono',monospace" fill="#1A7F7A" font-weight="600">exit 2</tspan> <tspan fill="#1A7F7A" font-weight="600">차단</tspan></text>
+    <text x="822" y="474" text-anchor="start" font-size="11" fill="#6E6A62">+JSON 시 권한 override</text>
+  </svg>
+</div>
+</body>
+</html>

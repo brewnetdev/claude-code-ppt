@@ -414,44 +414,75 @@ test.describe('editor end-to-end', () => {
     await expect(page.getByRole('button', { name: /Present/ })).toBeVisible();
   });
 
-  test('PNG (all) exports non-blank files for every slide', async ({ page }) => {
+  test('presentation annotator: draws a fading box, collapses, and stays ephemeral', async ({
+    page,
+  }) => {
+    await gotoFresh(page);
+    await page.getByRole('button', { name: /Present/ }).click();
+
+    // Laser pointer dot appears after the first mouse move.
+    await page.mouse.move(400, 300);
+    await expect(page.getByTestId('annotator-dot')).toBeVisible();
+
+    // Drag on the capture surface draws a red box.
+    const surface = page.getByTestId('annotator-surface');
+    await expect(surface).toBeVisible();
+    await page.mouse.move(300, 300);
+    await page.mouse.down();
+    await page.mouse.move(600, 480, { steps: 8 });
+    await page.mouse.up();
+    await expect(page.getByTestId('annotator-box')).toHaveCount(1);
+
+    // Manual "지우기" fades all boxes out (~2s) and removes them.
+    await page.getByTestId('annotator-erase').click();
+    await expect(page.getByTestId('annotator-box')).toHaveCount(0, { timeout: 4000 });
+
+    // A freshly drawn box also auto-fades on its own (~2s lifetime + fade).
+    await page.mouse.move(320, 320);
+    await page.mouse.down();
+    await page.mouse.move(560, 460, { steps: 8 });
+    await page.mouse.up();
+    await expect(page.getByTestId('annotator-box')).toHaveCount(1);
+    await expect(page.getByTestId('annotator-box')).toHaveCount(0, { timeout: 4000 });
+
+    // Collapse → the drawing surface is removed, native click behaviour returns,
+    // but the laser dot stays on.
+    await page.getByTestId('annotator-toolbar').getByText('✕').click();
+    await expect(page.getByTestId('annotator-surface')).toHaveCount(0);
+    await page.mouse.move(420, 320);
+    await expect(page.getByTestId('annotator-dot')).toBeVisible();
+    // Chip re-expands the toolbar.
+    await page.getByTestId('annotator-chip').click();
+    await expect(page.getByTestId('annotator-toolbar')).toBeVisible();
+
+    // Exit — re-entering must not retain any prior annotation.
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+    await page.getByRole('button', { name: /Present/ }).click();
+    await expect(page.getByTestId('annotator-surface')).toBeVisible();
+    // No leftover boxes from the previous session.
+    await page.waitForTimeout(100);
+    await expect(page.getByTestId('annotator-toolbar')).toBeVisible();
+    await page.keyboard.press('Escape');
+  });
+
+  // M0: the 'PNG (all)' bulk-export button was removed; the toolbar now exposes
+  // a single-slide PNG export ('현재 슬라이드 PNG'). This test was rewritten to
+  // drive the current control (referencing the removed button made it a
+  // permanent RED). Re-adding bulk PNG export is tracked in milestone M10.
+  test('exports the current slide as a non-blank PNG', async ({ page }) => {
     await gotoFresh(page);
 
-    // Count slides so we know how many downloads to expect — the sidebar
-    // renders one `.slide-row-grip` per slide.
-    const slideCount = await page.locator('.slide-row-grip').count();
-    expect(slideCount).toBeGreaterThan(0);
+    const downloadPromise = page.waitForEvent('download', { timeout: 30_000 });
+    await page.getByRole('button', { name: /현재 슬라이드 PNG/ }).click();
+    const download = await downloadPromise;
 
-    // Pre-arm download listener — exportAllSlidesPng triggers them with a
-    // 250ms gap, all under one button click.
-    const downloads: import('@playwright/test').Download[] = [];
-    page.on('download', (d) => {
-      downloads.push(d);
-    });
-
-    await page.getByRole('button', { name: /PNG \(all\)/ }).click();
-
-    // Wait for the busy state to clear, signaling the loop is done.
-    await expect(page.getByRole('button', { name: /PNG \(all\)/ })).toBeVisible({
-      timeout: 30_000,
-    });
-    await page.waitForFunction(
-      () => !document.body.textContent?.includes('Rendering…'),
-      undefined,
-      { timeout: 30_000 },
-    );
-
-    expect(downloads.length).toBeGreaterThanOrEqual(slideCount);
-
-    // Each PNG should be substantially larger than a blank/empty one.
-    // A blank 1920x1080 PNG is ~1–3KB; a real slide compresses to 30KB+.
-    for (const d of downloads) {
-      const p = await d.path();
-      expect(p, 'download path missing').not.toBeNull();
-      if (!p) continue;
-      const size = fs.statSync(p).size;
-      expect(size, `PNG "${d.suggestedFilename()}" is suspiciously small`).toBeGreaterThan(10_000);
-    }
+    const p = await download.path();
+    expect(p, 'download path missing').not.toBeNull();
+    if (!p) return;
+    // A blank 1920×1080 PNG is ~1–3KB; a real slide compresses to 30KB+.
+    const size = fs.statSync(p).size;
+    expect(size, `PNG "${download.suggestedFilename()}" is suspiciously small`).toBeGreaterThan(10_000);
   });
 
   test('color text + insert overlay + change color + undo full chain', async ({ page }) => {
