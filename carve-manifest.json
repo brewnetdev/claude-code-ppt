@@ -10,13 +10,13 @@
     },
     {
       "path": "evaluation-criteria.md",
-      "hash": "00dbfc7b005517789307cc498b2fc441380e3ab6c09d2b6d03186357eb07076e",
-      "assetVersion": "1.3.5"
+      "hash": "3aafcc1976b01a4e2c0859ba4019a81a9f23874283e2aa62d956106a193c51ea",
+      "assetVersion": "1.4.1"
     },
     {
       "path": "sprint-contract.md",
-      "hash": "a93d64a6bbdc342d118ef840aebfc6e6e5085f7874ce4b422d8e836238c5112f",
-      "assetVersion": "1.3.5"
+      "hash": "f8642cc4cd3c238778976f9250e0bd11decfd009fd0b53e2fb1a3da869b92df6",
+      "assetVersion": "1.4.1"
     },
     {
       "path": "CLAUDE.md",
@@ -25,28 +25,28 @@
     },
     {
       "path": "HARNESS-GUIDE.md",
-      "hash": "34e93bcbceca5173862023d5a18e7e82721aa973b08f47e991ddfe88cce34b91",
-      "assetVersion": "1.3.5"
+      "hash": "50bd5dcf0d23ab6c4e4c62ab60b2f388b3804f26acf26355d964f12f7e62e736",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-block-destructive.sh",
-      "hash": "d97c543326b9b28f1a1bdf2170a22f99bbdcc5cfba71cc8e3936ed2e69bbabf5",
-      "assetVersion": "1.3.5"
+      "hash": "95eef219145657c368eac3dabf4a30964a4c2fbd67da035e062385ebe9278816",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-protect-secrets.sh",
-      "hash": "82f79b9cfbb9ba9a3d3c4d5ef6ad7bc14c49884e4ac92e70e9a70466cb54f23f",
-      "assetVersion": "1.3.5"
+      "hash": "2f3d1c4207a33fda3ca3b68716e5546f27122c8df11bb1e0748652fa17970598",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-pre-commit-lint.sh",
-      "hash": "a1c1826e7c4b7647b01bd815e2882bfd8dc488f7977df662bddb0b2374fd4cec",
-      "assetVersion": "1.3.5"
+      "hash": "6ff9195b31a43ca1e39ec33ddf1324632e1548b04cf2c37167ab47304bb8d6e0",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-pre-push-test.sh",
-      "hash": "bd90d5b0365b1133f6c176e7eb2d005248973533425a591a7a328ea1ffd03852",
-      "assetVersion": "1.3.5"
+      "hash": "ae71a9d0bc30fa0eb7b4ce1ea214d78d5a63bf00329d4f7d4c551e5b5287649a",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-auto-format.sh",
@@ -70,38 +70,38 @@
     },
     {
       "path": ".claude/skills/SKILL.md",
-      "hash": "e986d07a83a7a1faffd8dfb593da66294e4670ea78045cff280092406c63c5de",
-      "assetVersion": "1.3.5"
+      "hash": "3edd139e40c2520776870379e58d30decc96157bdc94dfe902c808c0c4feeda3",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/svg-image.md",
-      "hash": "aa060fbca16cbdc750f7828a35fb41487b202d0243734b3af8dc7f4d03c89d23",
-      "assetVersion": "1.3.5"
+      "hash": "75ddeb0503f68bc8ec2aa723edc627b7f110c97c65ae15557da7af682d1a5609",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/card-news.md",
-      "hash": "5b822415451fb171a759b18c4e76857210523ddd84e245010323a424ac64b6fe",
-      "assetVersion": "1.3.5"
+      "hash": "d50a7a7a1924537a56600eb0e7611d789d3f7161ffc929a86a72051d52f62ec2",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/html-report.md",
-      "hash": "ea81f6be282046ab5da7a9299a28a20d8a39e58ce3aa1c16b6a5ce30bba29426",
-      "assetVersion": "1.3.5"
+      "hash": "d1de7284a37e69b41301ada36a9a5e7fdb12789f24a8674e3f459cd0575029cb",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/html-presentation.md",
-      "hash": "d5f53f650feed68bb6939194739b382e81727540929696f46efb25676a473c8c",
-      "assetVersion": "1.3.5"
+      "hash": "2ebb3ae2145fd850ad21380ae15b0b1a8e7039b48222afa52ae299ff7da82b9e",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/clean-html/SKILL.md",
-      "hash": "5676a534967f2536976ceadf8706d38771f30409f2fcf2a46268e7881f613bcc",
-      "assetVersion": "1.3.5"
+      "hash": "52b9f01749181ab46de251e6270682b3808e3650e9eba6677cb0a11439e76ee4",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/skills/clean-html/scripts/check-slop.mjs",
-      "hash": "69ad388c8429fecc377ee5fc68cb5fbc0347c585ac9fdc6c675895ddfb0e564d",
-      "assetVersion": "1.3.5"
+      "hash": "f99f5ba2c4c54d5efafc56b79858ce06ce4d92d077d2521e25317445e62c7f50",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/hooks/carve-codesight-refresh.sh",
@@ -140,8 +140,8 @@
     },
     {
       "path": ".claude/skills/commit/SKILL.md",
-      "hash": "7dcb345e6dfe1135eb9c5399c09657fc335957ddc757f46e6d04a182bb455581",
-      "assetVersion": "1.3.5"
+      "hash": "d25356cf8232ae9f07ae445d38cbde51d1d469edb436b881c0084e2b6f69dcb9",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/commands/carve-commit.md",
@@ -425,8 +425,8 @@
     },
     {
       "path": ".claude/skills/iterate/SKILL.md",
-      "hash": "fed0fb365a0101d0880891fbbe2d0b4ccd58c988797a9afe2428bcf256d7c8da",
-      "assetVersion": "1.3.5"
+      "hash": "708052b40ef2deaf1f4abcdb17231cf00e563b9493767fa4822122f5332e83d0",
+      "assetVersion": "1.4.1"
     },
     {
       "path": ".claude/commands/carve-iterate.md",
