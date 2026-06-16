@@ -2,7 +2,7 @@
 
 > 🔧 **[교정 안내]** — 본 챕터는 두 종의 초안(`level5-chapter5.md` · `level5-chapter5-2.md`)을 통합·재검증한 최종본이다. 모든 markflow 관련 사실 관계는 실제 오픈소스 코드베이스(`apps/web`, `packages/editor`, `packages/db`)와 직접 대조했고, 가상 디렉터리/컴포넌트/의존성 예시는 *권장 패턴* 또는 *선택지* 표시로 명시했다. 강의 흐름상 등장하지만 markflow가 채택하지 않은 패턴 옆에는 `🔧 [코드베이스 교정]` 콜아웃을 부착했다.
 
-## 🟠 LEVEL 5 — 프론트엔드 고도화
+## 🟠 LEVEL 6 — 프론트엔드 고도화
 
 > **메인 프로젝트(이어서)**: markflow — 마크다운 에디터 기반 지식 관리 시스템 (프론트엔드 구축)
 > 오픈소스 리포지터리: https://github.com/claude-code-expert/markflow

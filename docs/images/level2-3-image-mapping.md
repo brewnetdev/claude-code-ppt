@@ -1,8 +1,11 @@
-# LEVEL 2 · LEVEL 3 삽입 이미지 — 페이지 매핑
+# AI 방법론(L2·L3) · 프롬프트/스킬(L4) 삽입 이미지 — 페이지 매핑
 
-> 파일 위치: LEVEL 2 → `docs/images/level2/` · LEVEL 3 → `docs/images/level3/`
+> 파일 위치: AI 방법론(신규 LEVEL 2 ① + LEVEL 3 ②) → `docs/images/level2/` (공유) · 프롬프트·스킬(신규 LEVEL 4) → `docs/images/level4/`
+>
+> ⚠️ 커리큘럼 재번호 반영: 옛 LEVEL 2가 L2(협업 원칙)·L3(방법론·구조·실습)로 분할, 옛 LEVEL 3(프롬프트·스킬)은 L4로 이동.
 
-## LEVEL 2 — AI 시대 개발 방법론 (32종)
+## LEVEL 2 ① 협업 원칙 + LEVEL 3 ② 방법론·구조·실습 — AI 시대 개발 방법론 (`level2/`, 32종)
+> p4~p32대(2.1~2.4)=신규 L2 · p34~(2.5~)=신규 L3
 
 | 제목 | 페이지 | 이미지 |
 |---|---|---|
@@ -39,7 +42,7 @@
 | 실습 워크플로 6단계 | p68 | `practice-workflow-6.png` |
 | LEVEL 2 핵심 요약 | p69 | `level2-summary.png` |
 
-## LEVEL 3 — 프롬프트·컨텍스트 & 스킬·커맨드·Hook (38종)
+## LEVEL 4 — 프롬프트·컨텍스트 & 스킬·커맨드·Hook (`level4/`, 38종)
 
 | 제목 | 페이지 | 이미지 |
 |---|---|---|

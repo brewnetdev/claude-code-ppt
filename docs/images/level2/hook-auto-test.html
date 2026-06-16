@@ -13,21 +13,21 @@
   }
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 590px;
     position: relative;
-    padding: 44px;
+    padding: 32px 44px;
     background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 
   /* ── shared bits ── */
   .badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    padding: 3px 12px;
+    padding: 3px 10px;
     border: 1px solid;
     line-height: 1.4;
     white-space: nowrap;
@@ -46,22 +46,22 @@
     flex-direction: column;
   }
   .flow-head {
-    padding: 10px 22px;
+    padding: 8px 22px;
     border-bottom: 1px solid #D4D0C8;
     display: flex;
     align-items: baseline;
     flex-wrap: nowrap;
-    gap: 13px;
+    gap: 12px;
   }
   .flow-head .ftitle {
-    font-size: 22px;
+    font-size: 19px;
     font-weight: 700;
     color: #1A1A18;
     white-space: nowrap;
     flex: 0 0 auto;
   }
   .flow-head .fsub {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 500;
     color: #6B6560;
     flex: 0 1 auto;
@@ -71,13 +71,13 @@
     display: flex;
     align-items: stretch;
     gap: 0;
-    padding: 7px 22px;
+    padding: 6px 22px;
   }
 
   .fnode {
     border: 1px solid #D4D0C8;
     background: transparent;
-    padding: 9px 15px;
+    padding: 7px 13px;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -94,20 +94,20 @@
   .fnode .ftag .badge { flex: 0 0 auto; }
   .fnode .ftag .fmeta { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .fnode .fname {
-    font-size: 22px;
+    font-size: 19px;
     font-weight: 700;
     color: #1A1A18;
     line-height: 1.2;
   }
   .fnode .fdesc {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 500;
     color: #6B6560;
-    line-height: 1.15;
+    line-height: 1.18;
   }
   .fnode .fmeta {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
     color: #1A1A18;
     background: #F6F5F2;
@@ -121,7 +121,7 @@
   .fnode .fmeta .var { color: #6B6560; }
 
   .n-edit   { flex: 0 0 228px; }
-  .n-hook   { flex: 0 0 262px; }
+  .n-hook   { flex: 0 0 300px; }
   .n-test   { flex: 1 1 0; min-width: 0; }
   .n-result { flex: 0 0 322px; }
 
@@ -129,19 +129,19 @@
   .result-rows {
     display: flex;
     flex-direction: column;
-    gap: 11px;
+    gap: 8px;
     justify-content: center;
   }
   .rrow {
     border: 1px solid #D4D0C8;
     background: transparent;
-    padding: 10px 12px;
+    padding: 7px 12px;
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 10px;
   }
   .rrow .rtxt {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 500;
     color: #6B6560;
     line-height: 1.25;
@@ -176,23 +176,23 @@
   }
   .conf-card.notes { flex: 0 0 432px; }
   .conf-head {
-    padding: 7px 20px;
+    padding: 6px 20px;
     border-bottom: 1px solid #D4D0C8;
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 12px;
   }
   .conf-head .ctitle {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 21px;
+    font-size: 18px;
     font-weight: 700;
     color: #1A1A18;
   }
   .code {
     padding: 6px 20px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
-    line-height: 1.05;
+    font-size: 17px;
+    line-height: 1.18;
     color: #1A1A18;
     flex: 1;
     overflow: hidden;
@@ -212,10 +212,10 @@
 
   /* notes list */
   .note-body {
-    padding: 11px 20px;
+    padding: 9px 20px;
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 7px;
     flex: 1;
     justify-content: center;
   }
@@ -226,26 +226,26 @@
     min-width: 0;
   }
   .note .nk {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
     color: #1A1A18;
     line-height: 1.2;
   }
   .note .nv {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 500;
     color: #6B6560;
     line-height: 1.26;
   }
   .note .nk code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
     color: #115E59;
   }
   .note .nv code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 600;
     color: #115E59;
   }
@@ -342,7 +342,7 @@
       <div class="conf-card notes">
         <div class="conf-head">
           <span class="badge badge-teal">읽는 법</span>
-          <span class="ctitle" style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:700;">필드별 의미</span>
+          <span class="ctitle" style="font-family:'Noto Sans KR',sans-serif;font-size:17px;font-weight:700;">필드별 의미</span>
         </div>
         <div class="note-body">
           <div class="note">

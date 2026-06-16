@@ -27,19 +27,19 @@
   }
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 590px;
     position: relative;
-    padding: 44px;
+    padding: 28px 44px;
     background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 26px;
+    gap: 16px;
   }
 
   .panel-label {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 22px;
+    font-size: 18px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--warm);
@@ -51,33 +51,33 @@
     min-height: 0;
     display: grid;
     grid-template-columns: 1fr 56px 1fr 56px 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 1fr auto 1fr;
     column-gap: 0;
-    row-gap: 26px;
+    row-gap: 16px;
   }
   .step {
     border: 1px solid var(--line);
     background: var(--panel-bg);
-    padding: 24px 26px;
+    padding: 14px 20px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 10px;
     min-height: 0;
   }
   .step-head {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 14px;
   }
   .step-num {
     font-family: var(--mono);
     font-weight: 700;
-    font-size: 40px;
+    font-size: 27px;
     line-height: 1;
     color: #FFFFFF;
     background: var(--teal);
-    width: 64px;
-    height: 64px;
+    width: 46px;
+    height: 46px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,7 +87,7 @@
   .step-cmd {
     font-family: var(--mono);
     font-weight: 700;
-    font-size: 26px;
+    font-size: 20px;
     line-height: 1.18;
     color: var(--teal-deep);
     letter-spacing: -0.01em;
@@ -96,17 +96,17 @@
   .step-doc {
     font-family: var(--mono);
     font-weight: 600;
-    font-size: 22px;
+    font-size: 16px;
     color: var(--teal-deep);
     background: rgba(15, 118, 110, 0.10);
     border: 1px solid rgba(15, 118, 110, 0.40);
-    padding: 7px 14px;
+    padding: 5px 11px;
     align-self: flex-start;
     letter-spacing: 0.01em;
   }
   .step-role {
-    font-size: 24px;
-    line-height: 1.45;
+    font-size: 18px;
+    line-height: 1.35;
     color: var(--ink);
     font-weight: 500;
     margin-top: auto;
@@ -114,10 +114,10 @@
   .step-tag {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 15px;
     letter-spacing: 0.03em;
     align-self: flex-start;
-    padding: 7px 14px;
+    padding: 5px 11px;
     border: 1px solid;
   }
   .tag-fixed { color: var(--blue); border-color: var(--blue); }
@@ -139,33 +139,33 @@
   .callout {
     border: 1px solid var(--line);
     background: var(--callout);
-    padding: 22px 28px;
+    padding: 13px 24px;
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 18px;
   }
   .callout-label {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 16px;
     color: var(--blue);
     background: rgba(30, 64, 175, 0.12);
     border: 1px solid rgba(30, 64, 175, 0.30);
-    padding: 8px 16px;
+    padding: 6px 13px;
     white-space: nowrap;
     flex-shrink: 0;
     letter-spacing: 0.02em;
   }
   .callout-text {
-    font-size: 23px;
-    line-height: 1.45;
+    font-size: 18px;
+    line-height: 1.4;
     color: var(--ink);
     font-weight: 500;
   }
   .callout-text code {
     font-family: var(--mono);
     font-weight: 600;
-    font-size: 22px;
+    font-size: 17px;
     color: var(--teal-deep);
   }
 </style>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8; --hair:#ECE9E3;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{
+    width:1280px; height:474px; position:relative; padding:22px 30px;
+    background:transparent; display:flex; flex-direction:column; gap:15px;
+  }
+
+  /* hero */
+  .hero{ border:1px solid var(--line); background:var(--cream); padding:10px 20px; display:flex; align-items:center; gap:16px; }
+  .hero .chip{ font-family:var(--mono); font-weight:700; font-size:17px; padding:5px 13px; border:1px solid; white-space:nowrap; flex:0 0 auto; }
+  .hero .chip.good{ color:var(--green); border-color:var(--green); }
+  .hero .chip.bad{ color:var(--red); border-color:var(--red); }
+  .hero .gt{ font-family:var(--mono); font-weight:700; font-size:20px; color:var(--teal-deep); flex:0 0 auto; }
+  .hero .msg{ font-size:16px; font-weight:700; color:var(--ink); line-height:1.3; word-break:keep-all; }
+  .hero .msg .em{ color:var(--teal-deep); }
+
+  /* habit cards */
+  .habits{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .hcard{ border:1px solid var(--line); background:var(--panel-bg); padding:11px 14px; display:flex; flex-direction:column; gap:5px; }
+  .hcard .ht{ display:flex; align-items:center; gap:9px; }
+  .hcard .hn{ flex:0 0 auto; width:24px; height:24px; border:1px solid var(--teal-deep); color:var(--teal-deep); font-family:var(--mono); font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .hcard .hname{ font-size:15.5px; font-weight:700; color:var(--ink); line-height:1.15; word-break:keep-all; }
+  .hcard .hd{ font-size:13px; line-height:1.4; color:var(--warm); word-break:keep-all; }
+  .hcard .hd .em{ color:var(--ink); font-weight:600; }
+
+  /* workflow */
+  .wf{ border:1px solid var(--line); background:var(--panel-bg); padding:13px 18px 15px; display:flex; flex-direction:column; gap:12px; }
+  .wf-head{ font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--warm); text-transform:uppercase; }
+  .wf-head b{ color:var(--teal-deep); }
+  .flow{ display:flex; align-items:stretch; gap:0; }
+  .node{ flex:1; border:1px solid var(--line); padding:18px 8px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; text-align:center; }
+  .node .nt{ font-size:16px; font-weight:700; color:var(--ink); line-height:1.1; white-space:nowrap; }
+  .node .ns{ font-size:11.5px; color:var(--warm); }
+  .node.commit{ border-color:var(--green); }
+  .node.commit .nt{ color:var(--green); }
+  .arrow{ flex:0 0 30px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:18px; font-weight:700; color:var(--warm); }
+  .fb{ display:flex; align-items:center; gap:12px; border:1px solid var(--red); background:#FBF1F1; padding:9px 16px; }
+  .fb .tag{ font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--red); border:1px solid var(--red); padding:3px 10px; white-space:nowrap; flex:0 0 auto; }
+  .fb .ft{ font-size:14px; line-height:1.4; color:var(--ink); word-break:keep-all; }
+  .fb .ft .em{ color:var(--red); font-weight:700; }
+  .fb .ft code{ font-family:var(--mono); font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- 50줄 vs 500줄 -->
+    <div class="hero">
+      <span class="chip good">50줄 × 10번</span>
+      <span class="gt">&gt;</span>
+      <span class="chip bad">500줄 × 1번</span>
+      <span class="msg">작은 작업 = 작은 리뷰 — <span class="em">잘게 나눠 자주 리뷰</span>하는 것이 한꺼번에 보는 것보다 효과적이다.</span>
+    </div>
+
+    <!-- 4 습관 -->
+    <div class="habits">
+      <section class="hcard">
+        <div class="ht"><span class="hn">1</span><span class="hname">작은 작업 = 작은 리뷰</span></div>
+        <div class="hd"><span class="em">맥락 파악</span>이 쉽고 문제 발견도 쉽다</div>
+      </section>
+      <section class="hcard">
+        <div class="ht"><span class="hn">2</span><span class="hname">승인 전 실행</span></div>
+        <div class="hd">문법은 맞아도 <span class="em">논리는 틀릴 수 있다</span> — 커밋·머지 전 직접 실행</div>
+      </section>
+      <section class="hcard">
+        <div class="ht"><span class="hn">3</span><span class="hname">테스트 먼저</span></div>
+        <div class="hd"><span class="em">기존 테스트 통과</span> + 신규 테스트 동작 확인</div>
+      </section>
+      <section class="hcard">
+        <div class="ht"><span class="hn">4</span><span class="hname">질문하기</span></div>
+        <div class="hd">이해 안 되는 부분은 <span class="em">AI에게 직접 설명 요청</span></div>
+      </section>
+    </div>
+
+    <!-- 리뷰 워크플로 -->
+    <div class="wf">
+      <div class="wf-head">리뷰 워크플로 — 테스트를 <b>통과해야 커밋</b></div>
+      <div class="flow">
+        <div class="node"><div class="nt">요청 작성</div><div class="ns">프롬프트 입력</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nt">AI 코드 생성</div><div class="ns">클로드 실행</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nt">코드 리뷰</div><div class="ns">개발자 검토</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nt">테스트 실행</div><div class="ns">검증</div></div>
+        <div class="arrow">→</div>
+        <div class="node commit"><div class="nt">커밋</div><div class="ns">git commit</div></div>
+      </div>
+      <div class="fb">
+        <span class="tag">✗ 실패 시</span>
+        <span class="ft">리뷰·테스트에서 문제 발생 → <span class="em">수정 요청 / 되돌리기</span> → 재시도. <code>/rewind</code> 는 코드뿐 아니라 <span class="em">컨텍스트·대화까지 함께 롤백</span>한다.</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

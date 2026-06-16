@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857; --blue:#1E3A8A; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{
+    width:1280px; height:600px; position:relative; padding:30px 36px;
+    background:transparent;
+    display:grid; grid-template-columns:1fr 1fr; gap:30px;
+  }
+  .col-label{
+    font-family:var(--mono); font-weight:700; font-size:18px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--warm); margin-bottom:14px;
+  }
+
+  /* ── LEFT: the paradox ── */
+  .left{ display:flex; flex-direction:column; }
+  .lead{
+    font-size:25px; font-weight:900; line-height:1.32; color:var(--ink);
+    word-break:keep-all; margin-bottom:18px;
+  }
+  .lead .hi{ color:var(--teal-deep); }
+  .row{
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:15px 20px; display:flex; flex-direction:column; gap:6px;
+  }
+  .row + .row{ margin-top:12px; }
+  .row .k{
+    font-family:var(--mono); font-size:17px; font-weight:700; letter-spacing:.02em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .row.good .k{ color:var(--green); }
+  .row.gap  .k{ color:var(--red); }
+  .row .k .tag{ font-size:13px; border:1px solid; padding:2px 9px; white-space:nowrap; }
+  .row .v{ font-size:18px; line-height:1.45; color:var(--ink); word-break:keep-all; }
+  .row .v .em{ font-weight:700; }
+  .note{
+    margin-top:auto; border:1px solid var(--line); background:var(--cream);
+    padding:14px 20px; font-size:18px; line-height:1.5; color:var(--ink); word-break:keep-all;
+  }
+  .note b{ color:var(--teal-deep); font-weight:700; }
+
+  /* ── RIGHT: 3 prerequisites ── */
+  .right{ display:flex; flex-direction:column; }
+  .steps{ display:flex; flex-direction:column; gap:13px; flex:1; }
+  .step{
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:15px 20px; display:flex; gap:18px; align-items:flex-start; flex:1;
+  }
+  .step .n{
+    flex:0 0 auto; width:44px; height:44px; border:1px solid var(--teal-deep);
+    color:var(--teal-deep); font-family:var(--mono); font-weight:700; font-size:24px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step .b{ display:flex; flex-direction:column; justify-content:center; }
+  .step .t{ font-size:23px; font-weight:700; color:var(--ink); line-height:1.2; white-space:nowrap; }
+  .step .d{ font-size:17.5px; line-height:1.45; color:var(--warm); margin-top:4px; word-break:keep-all; }
+  .step .d .em{ color:var(--teal-deep); font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: AI 시대의 역설 -->
+    <section class="left">
+      <div class="col-label">AI 시대의 역설</div>
+      <div class="lead">코드 생성이 쉬워질수록,<br><span class="hi">설계</span>가 더 중요해진다</div>
+
+      <div class="row good">
+        <div class="k"><span class="tag">HOW</span> AI가 잘하는 것</div>
+        <div class="v"><span class="em">'어떻게'</span> 구현할지 — 코드 생성 · 문법 · 패턴</div>
+      </div>
+      <div class="row gap">
+        <div class="k"><span class="tag">WHAT</span> AI가 모르는 것</div>
+        <div class="v"><span class="em">'무엇을'</span> 만들지 — 요구사항 · 맥락 · 우선순위</div>
+      </div>
+
+      <div class="note">코드 생성이 쉬워진 만큼 <b>유지보수·완성도를 위한 설계</b>가 더 중요해졌다. <b>'What'을 정의하는 설계는 개발자의 몫</b>이다.</div>
+    </section>
+
+    <!-- RIGHT: 구현 전 선행 3가지 -->
+    <section class="right">
+      <div class="col-label">구현 전 선행되어야 할 3가지</div>
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <div class="b">
+            <div class="t">요구사항 분석</div>
+            <div class="d">무엇을 만들 것인가? <span class="em">핵심 기능</span>과 비기능적 요구사항 수립</div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <div class="b">
+            <div class="t">아키텍처 결정</div>
+            <div class="d">어떤 기술·구조로 만들 것인가? <span class="em">빌드/배포까지 영향</span> — 신중히 결정</div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <div class="b">
+            <div class="t">인터페이스 정의</div>
+            <div class="d">기능 정의 · <span class="em">API 규격</span> · 데이터 흐름 사전 정의</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-template="report">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Level 7 — 하네스 엔지니어링·클로드 코드 베스트 프렉티스</title>
+<title>Level 9 — 하네스 엔지니어링·클로드 코드 베스트 프렉티스</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
 <style>
@@ -94,7 +94,10 @@
     letter-spacing: .08em;
     color: var(--amber);
     font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    cursor: pointer;
   }
+  .slide-logo-text:hover { text-decoration: underline; }
 
   /* ── Top accent line ── */
   .slide-topbar {
@@ -222,6 +225,26 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .link:hover { color: #1D4ED8; }
+
+  /* Unify every slide anchor (incl. auto-detected / class-less links) on the
+     brand link color so they match `.link` (e.g. github.com/...lecture) instead
+     of the browser's default dark blue. `:where()` keeps the rule at zero
+     specificity, so `.link`, `.slide-logo-url`, `.slide-logo-text`, etc. still
+     win with their own colors; only un-classed anchors fall back to this. */
+  :where(.slide a) { color: var(--link); }
+  :where(.slide a:hover) { color: #1D4ED8; }
+
+  /* Watermark is decorative text, never a link. Some decks have a stray <a>
+     baked inside the `.cc-watermark` span (legacy / re-export); neutralize its
+     link styling so it renders as plain watermark text (same as the email line)
+     regardless of the generic `.slide a` color above. */
+  .cc-watermark a {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    pointer-events: none;
+    cursor: inherit;
+  }
 
   /* ── 불릿 리스트 ── */
   .bullet-list {
@@ -622,10 +645,10 @@
   .slide-cover .cover-deco {
     position: absolute;
     right: 80px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.08;
-    font-size: 220px;
+    top: 36px;
+    transform: none;
+    opacity: 0.07;
+    font-size: 188px;
     line-height: 1;
     font-family: 'JetBrains Mono', monospace;
     color: var(--amber);
@@ -668,8 +691,685 @@ body {
 
 
 
-html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
-body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+  /* ────────────────────────────────────────────
+     CURRICULUM OVERVIEW (page 3) — dark theme
+  ──────────────────────────────────────────── */
+  .curriculum-slide .slide-inner { padding: 28px 44px 50px; }
+
+  .curr-head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:12px; }
+  .curr-label { font-size:10px; font-family:'JetBrains Mono', monospace; letter-spacing:0.18em; color:var(--muted); font-weight:600; margin-bottom:5px; }
+  .curr-title { font-size:25px; font-weight:900; color:var(--text); letter-spacing:-0.02em; line-height:1.15; }
+  .curr-title em { color:var(--amber); font-style:normal; }
+  .curr-sub { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.45; }
+  .curr-sub b { color:var(--amber); font-weight:700; }
+  .curr-ecc { background:#7C3AED; color:#fff; padding:1px 6px; border-radius:3px; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:9px; }
+  .curr-head-right { text-align:right; font-family:'JetBrains Mono', monospace; }
+  .curr-brand { font-size:14px; color:var(--amber); font-weight:700; letter-spacing:0.05em; }
+  .curr-url { font-size:9.5px; color:var(--muted); margin-top:2px; }
+  .curr-ver { font-size:9px; color:var(--blue); margin-top:4px; background:rgba(96,165,250,0.15); padding:1px 6px; border-radius:3px; display:inline-block; font-weight:700; }
+
+  .curr-tracks { flex:1; display:flex; flex-direction:column; gap:8px; min-height:0; }
+  .curr-track { display:grid; grid-template-columns:98px 1fr; gap:7px; flex:1; min-height:0; }
+
+  .curr-tlabel { border-radius:7px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; overflow:hidden; background:#060B16; border:1px solid var(--border); }
+  .curr-tlabel::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .curr-tlabel.non-dev::before { background:var(--amber); }
+  .curr-tlabel.dev::before { background:var(--blue); }
+  .curr-tlabel.it-pro::before { background:var(--green); }
+  .curr-tlabel .ico { font-size:18px; line-height:1; margin-bottom:3px; }
+  .curr-tlabel .nm { font-size:13px; font-weight:900; color:var(--text); line-height:1.1; margin-bottom:2px; }
+  .curr-tlabel .nm-en { font-size:7.5px; font-family:'JetBrains Mono', monospace; color:#64748B; letter-spacing:0.06em; margin-bottom:4px; line-height:1.2; }
+  .curr-tlabel .stg { font-size:9px; color:#020617; padding:2px 7px; border-radius:3px; font-family:'JetBrains Mono', monospace; font-weight:700; margin-bottom:3px; }
+  .curr-tlabel.non-dev .stg { background:var(--amber); }
+  .curr-tlabel.dev .stg { background:var(--blue); }
+  .curr-tlabel.it-pro .stg { background:var(--green); }
+  .curr-tlabel .pro { font-size:8px; color:var(--blue); font-family:'JetBrains Mono', monospace; letter-spacing:0.1em; font-weight:700; }
+  .curr-tlabel .time { font-size:8.5px; color:#64748B; font-family:'JetBrains Mono', monospace; margin-top:2px; }
+
+  .curr-stages { display:flex; gap:6px; align-items:stretch; min-height:0; }
+  .curr-stage { flex:1; min-width:0; border:1px solid var(--border); border-radius:7px; padding:7px 9px 21px; background:#060B16; display:flex; flex-direction:column; gap:3px; position:relative; }
+  /* track/stage 구분은 균일한 테두리로만 — 상단 컬러 액센트·채움 제거 */
+  .curr-stage.ecc::after { content:'📘 ECC'; position:absolute; top:6px; right:7px; font-size:7.5px; background:#7C3AED; color:#fff; padding:1px 5px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; z-index:2; }
+  .curr-stage.new::after { content:'NEW'; position:absolute; top:6px; right:7px; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.final { border-color:#475569; }
+  /* 현재 덱(Effective Claude Code) 강의 영역 강조 — IT 프로페셔널 트랙만, 보라 테두리 + 글로우 */
+  .curr-stage.it-pro.ecc { border-color:#7C3AED; border-width:2px; box-shadow:0 0 0 1px rgba(124,58,237,0.45), 0 0 16px rgba(124,58,237,0.40); background:#0C0A1E; }
+  /* IT 프로페셔널 4개 과정 상단 NEW 배지 (::before, ECC 배지와 공존) */
+  .curr-stage.it-pro::before { content:'NEW'; position:absolute; top:6px; right:7px; z-index:3; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.it-pro:not(.ecc):not(.new) .curr-shead { padding-right:42px; }
+  .curr-stage.it-pro.ecc::before { right:46px; }
+  .curr-stage.it-pro.ecc .curr-shead { padding-right:86px; }
+
+  .curr-shead { display:flex; align-items:center; justify-content:space-between; padding-bottom:3px; border-bottom:1px dashed var(--border); gap:4px; padding-right:42px; }
+  .curr-stage:not(.ecc):not(.new) .curr-shead { padding-right:0; }
+  .curr-snum { font-size:8px; color:var(--muted); font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.08em; flex-shrink:0; }
+  .curr-stime { font-size:8px; font-family:'JetBrains Mono', monospace; background:var(--border); color:var(--text); padding:1px 5px; border-radius:3px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+  .curr-stitle { font-size:12px; font-weight:900; color:var(--text); letter-spacing:-0.02em; margin-top:2px; line-height:1.2; }
+  .curr-stitle .fb { color:#020617; font-size:7.5px; padding:1px 4px; border-radius:2px; margin-left:3px; font-weight:700; letter-spacing:0.05em; vertical-align:middle; }
+  .curr-stitle .fb.amber { background:var(--amber); }
+  .curr-stitle .fb.blue { background:var(--blue); }
+  .curr-stitle .fb.green { background:var(--green); }
+
+  /* 🎯 프로젝트 — 컬러 액센트 콜아웃 대신 중성 아웃라인 칩(태그) */
+  .curr-proj { align-self:flex-start; display:inline-block; font-size:8.5px; font-family:'JetBrains Mono', monospace; font-weight:700; line-height:1.3; padding:2px 8px; border-radius:4px; margin:2px 0; border:1px solid #334155; background:transparent; color:var(--text); }
+  .curr-proj::before { content:'🎯 '; font-size:8.5px; }
+
+  .curr-topics { display:flex; flex-direction:column; gap:1px; flex:1; margin-top:1px; list-style:none; padding:0; }
+  .curr-topics li { font-size:9px; color:#CBD5E1; line-height:1.32; display:flex; gap:3px; padding-left:1px; }
+  .curr-topics li > div { min-width:0; }
+  .curr-topics li::before { content:'▸'; font-weight:700; flex-shrink:0; font-size:8px; line-height:1.5; margin-top:0; }
+  .curr-stage.non-dev .curr-topics li::before { color:var(--amber); }
+  .curr-stage.dev .curr-topics li::before { color:var(--blue); }
+  .curr-stage.it-pro .curr-topics li::before { color:var(--green); }
+  .curr-topics li code { font-family:'JetBrains Mono', monospace; background:var(--code-bg); padding:0 3px; border-radius:2px; font-size:8px; color:var(--amber); }
+  .curr-topics li .ch { color:#C4B5FD; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:8.5px; background:rgba(124,58,237,0.25); padding:0 3px; border-radius:2px; }
+  .curr-topics li .kw { color:var(--blue); font-weight:700; }
+  .curr-topics li .kw-amber { color:var(--amber); font-weight:700; }
+  .curr-topics li .kw-green { color:var(--green); font-weight:700; }
+
+  .curr-deliv { position:absolute; bottom:4px; left:9px; right:9px; font-size:7.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; line-height:1.25; border-top:1px dotted var(--border); padding-top:3px; display:flex; align-items:center; gap:4px; }
+  .curr-deliv .out { color:var(--text); font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .curr-deliv .out::before { content:'📦 '; font-size:8px; }
+  .curr-deliv .lv { background:var(--code-bg); padding:0 4px; border-radius:2px; font-weight:600; color:var(--muted); white-space:nowrap; font-size:7.5px; }
+
+  .curr-foot { display:flex; justify-content:space-between; align-items:center; padding-top:8px; margin-top:6px; border-top:1px solid var(--border); }
+  .curr-legend { display:flex; gap:12px; font-family:'JetBrains Mono', monospace; font-size:9px; align-items:center; flex-wrap:wrap; color:var(--muted); }
+  .curr-legend .li { display:flex; align-items:center; gap:4px; }
+  .curr-dot { width:8px; height:8px; border-radius:50%; border:1.5px solid; }
+  .curr-dot.amber { border-color:var(--amber); background:rgba(245,158,11,0.2); }
+  .curr-dot.blue { border-color:var(--blue); background:rgba(96,165,250,0.2); }
+  .curr-dot.green { border-color:var(--green); background:rgba(52,211,153,0.2); }
+  .curr-pill { padding:1px 5px; border-radius:2px; font-weight:700; font-size:8.5px; font-family:'JetBrains Mono', monospace; }
+  .curr-pill.final { background:var(--amber); color:#020617; }
+  .curr-pill.new { background:var(--amber); color:#020617; }
+  .curr-pill.ecc { background:#7C3AED; color:#fff; }
+  .curr-fnote { font-family:'JetBrains Mono', monospace; font-size:8.5px; color:var(--muted); letter-spacing:0.02em; }
+  .curr-fnote .em { color:var(--amber); font-weight:700; }
+  .curr-fnote .pro { color:var(--blue); font-weight:700; }
+
+
+/* Code-block / terminal chrome. brewnet-dark.css already defines `.code-block`
+   so we only fill in `.terminal` + cross-cutting `.code-dots` and tighten
+   `<pre><code>` so shiki output sits flush with the existing dark cards. */
+
+.slide-canvas-host .code-dots {
+  display: flex;
+  gap: 5px;
+}
+.slide-canvas-host .code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.slide-canvas-host .code-dots .dot-r { background: #ef4444; }
+.slide-canvas-host .code-dots .dot-y { background: #f59e0b; }
+.slide-canvas-host .code-dots .dot-g { background: #10b981; }
+
+.slide-canvas-host .terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  /* `.slide-inner` is a column flex container — without an explicit
+     flex-shrink:0 the terminal collapses to header-height when a slide
+     packs multiple terminals, leaving only the dark title band visible
+     with the body clipped by overflow:hidden. Pin to content height. */
+  flex: 0 0 auto;
+}
+
+/* Same pinning for plain code blocks; brewnet-dark's `.code-block` rule
+   doesn't set flex sizing so the same collapse happens for code-heavy
+   slides on multi-block layouts. */
+.slide-canvas-host .code-block {
+  flex: 0 0 auto;
+}
+
+.slide-canvas-host .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0b1220;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.slide-canvas-host .terminal-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.slide-canvas-host .terminal pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  /* Bumped from #cbd5e1 — base color only paints text that *isn't* wrapped
+     in a shiki <span style="color:…">. Once shiki runs that's mostly
+     punctuation, but a brighter fallback also helps unhighlighted plaintext
+     terminals read against the near-black bg. */
+  color: #f1f5f9;
+  padding: 16px 20px;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* shiki injects inline-styled <span>s, but their wrapper <pre class="shiki">
+   would carry shiki's own bg color. We re-host the highlighted code inside
+   our own .code-block / .terminal pre so the outer chrome wins, and tighten
+   the inner <code> reset accordingly. */
+.slide-canvas-host .code-block pre,
+.slide-canvas-host .terminal pre {
+  background: transparent;
+}
+.slide-canvas-host .code-block pre code,
+.slide-canvas-host .terminal pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  display: block;
+  /* shiki bakes inline `style="color:#…"` on every token span, so we can't
+     re-color them via CSS rules. github-dark in particular paints comments
+     at #8b949e — readable but visibly dimmer than the active code. A scoped
+     brightness filter on the <code> wrapper lifts every token uniformly
+     (comments, strings, keywords) without touching the chrome / dots. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+/* Targeted override: shiki's `github-dark` theme paints comment tokens
+   inline as `style="color:#6A737D"` (verified by probing the actual
+   highlighter output — it uses the legacy GitHub-Octicons palette, NOT
+   the newer #8b949e variant). The filter above lifts them proportionally,
+   but #6A737D against #020408 still reads as mid-gray. Repaint to a
+   near-white tone so comments are clearly legible against the terminal
+   bg. `!important` is required because shiki writes the color inline on
+   the span, which would otherwise beat normal CSS specificity. The `i`
+   flag handles upper/lowercase variations across shiki versions. */
+.slide-canvas-host .code-block pre code span[style*="#6A737D" i],
+.slide-canvas-host .terminal pre code span[style*="#6A737D" i],
+.slide-canvas-host .code-block pre code span[style*="#8b949e" i],
+.slide-canvas-host .terminal pre code span[style*="#8b949e" i] {
+  color: #b0b1b2 !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Portfolio template — sibling theme to brewnet-dark.
+   Strategy: re-declare the design tokens under
+   [data-template="portfolio"] and patch only the components
+   whose dark→light conversion is non-trivial (code blocks,
+   tables, cover, callouts). Markup is identical to the
+   presentation template; planRenderer only flips the
+   data-template attribute.
+
+   Reference design: docs/html/portfolio/portfolio.html
+   (white background, blue accent #3D5AF1, dark text on white).
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="portfolio"] {
+  --bg:            #FFFFFF;
+  --text:          #111111;
+  --muted:         #888888;
+  --border:        #DDDDDD;
+  --amber:         #3D5AF1;   /* portfolio brand blue, reused via brewnet's --amber slot */
+  --amber-d:       #2A3EC9;
+  --blue:          #3D5AF1;
+  --cyan:          #0891B2;
+  --green:         #047857;
+  --code-bg:       #F8F9FB;
+  --prompt-bg:     #F0F2F5;
+  --prompt-border: #3D5AF1;
+  --link:          #3D5AF1;
+}
+
+/* Slide shell: white card on neutral page background */
+[data-template="portfolio"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: blue gradient instead of amber */
+[data-template="portfolio"] .slide-topbar {
+  background: linear-gradient(90deg, #3D5AF1 0%, #2A3EC9 50%, transparent 100%);
+}
+
+/* Footer: light border + softer caption color */
+[data-template="portfolio"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="portfolio"] .slide-footer-left,
+[data-template="portfolio"] .slide-footer-right {
+  color: #888888;
+}
+
+/* ── Typography ── */
+[data-template="portfolio"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="portfolio"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="portfolio"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .bullet-list li::before {
+  color: var(--blue);
+}
+[data-template="portfolio"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="portfolio"] .num-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .num-list li::before {
+  background: var(--blue);
+  color: #FFFFFF;
+}
+
+/* ── Tables ── */
+[data-template="portfolio"] .tbl th {
+  background: #F0F2F5;
+  border-bottom: 2px solid var(--blue);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl tr:hover td {
+  background: #F7F8FB;
+}
+
+/* ── Callouts: lighter tint on white BG ── */
+[data-template="portfolio"] .callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+[data-template="portfolio"] .callout-blue {
+  background: rgba(61, 90, 241, 0.06);
+  border: 1px solid rgba(61, 90, 241, 0.30);
+}
+[data-template="portfolio"] .callout-green {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+[data-template="portfolio"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (keeps shiki output readable) ──
+   Code chrome (.code-dots / terminal-header) is stamped by
+   upgradeSlideCodeBlocks — the dark surface contrasts well
+   against the white slide and matches the editor's existing
+   experience. Only adjust the surface so it doesn't bleed
+   into the white card. */
+[data-template="portfolio"] .code-block {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+[data-template="portfolio"] .terminal {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+
+/* ── Badges: solid pill on white BG ── */
+[data-template="portfolio"] .badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #B45309;
+}
+[data-template="portfolio"] .badge-blue {
+  background: rgba(61, 90, 241, 0.12);
+  color: #2A3EC9;
+}
+[data-template="portfolio"] .badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+[data-template="portfolio"] .badge-red {
+  background: rgba(239, 68, 68, 0.10);
+  color: #B91C1C;
+}
+[data-template="portfolio"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="portfolio"] .hl-amber { color: #B45309; font-weight: 700; }
+[data-template="portfolio"] .hl-blue  { color: #2A3EC9; font-weight: 700; }
+[data-template="portfolio"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="portfolio"] .hl-cyan  { color: #0891B2; font-weight: 700; }
+
+/* ── Cover slide: blue background, white type ── */
+[data-template="portfolio"].slide-cover {
+  background: #3D5AF1;
+}
+[data-template="portfolio"].slide-cover::before {
+  background: none;
+}
+[data-template="portfolio"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 4px;
+}
+[data-template="portfolio"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item strong {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .cover-deco {
+  color: rgba(255, 255, 255, 0.18);
+}
+[data-template="portfolio"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="portfolio"].slide-cover .slide-footer-left,
+[data-template="portfolio"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: white bg, large light blue numeral ── */
+[data-template="portfolio"] .slide-section .section-num {
+  color: #E8EAF0;
+}
+
+/* ── Architecture / Step flow nodes (used rarely but covered) ── */
+[data-template="portfolio"] .step-circle {
+  background: var(--blue);
+}
+[data-template="portfolio"] .step-arrow {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-box {
+  background: #F8F9FB;
+  border-color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-line {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="portfolio"] .link {
+  color: var(--link);
+}
+[data-template="portfolio"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: light surface ── */
+[data-template="portfolio"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="portfolio"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="portfolio"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="portfolio"] .divider {
+  background: var(--border);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Report template — sibling theme to brewnet-dark + portfolio.
+   Strategy: re-declare the design tokens under
+   [data-template="report"] and patch only the components whose
+   business-report intent is non-trivial (tables, callouts,
+   cover, code blocks).
+
+   Reference designs: docs/html/report/{biz,biz-strategy,marketing}-report.html
+   Tone: warm off-white BG (#FAFAF8) with teal accent (#0F766E)
+   for the brewnet "amber" slot. Tables get extra weight (zebra
+   rows, 2px header underline) since report decks are
+   data-centric. Code blocks stay dark for shiki readability —
+   identical to portfolio's strategy.
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="report"] {
+  --bg:            #FAFAF8;
+  --text:          #1A1A18;
+  --muted:         #6B6560;
+  --border:        #D4D0C8;
+  --amber:         #0F766E;   /* report accent: teal-700 in brewnet's --amber slot */
+  --amber-d:       #115E59;
+  --blue:          #1E40AF;
+  --cyan:          #0E7490;
+  --green:         #059669;
+  --code-bg:       #F5F3F0;
+  --prompt-bg:     #EFEDE8;
+  --prompt-border: #0F766E;
+  --link:          #0F766E;
+}
+
+/* Slide shell: cream card on neutral page background */
+[data-template="report"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: teal gradient instead of amber */
+[data-template="report"] .slide-topbar {
+  background: linear-gradient(90deg, #0F766E 0%, #115E59 50%, transparent 100%);
+}
+
+/* Footer: warm border + softer caption color */
+[data-template="report"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="report"] .slide-footer-left,
+[data-template="report"] .slide-footer-right {
+  color: var(--muted);
+}
+
+/* ── Typography ── */
+[data-template="report"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="report"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="report"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="report"] .bullet-list li::before {
+  color: var(--amber);
+}
+[data-template="report"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="report"] .num-list li {
+  color: var(--text);
+}
+[data-template="report"] .num-list li::before {
+  background: var(--amber);
+  color: #FFFFFF;
+}
+
+/* ── Tables (report-grade emphasis) ── */
+[data-template="report"] .tbl th {
+  background: #F0EDE8;
+  border-bottom: 2px solid var(--amber);
+  color: var(--text);
+  font-weight: 700;
+}
+[data-template="report"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="report"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.04);
+}
+[data-template="report"] .tbl tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* ── Callouts: lighter tint on cream BG ── */
+[data-template="report"] .callout-amber {
+  background: rgba(15, 118, 110, 0.06);
+  border: 1px solid rgba(15, 118, 110, 0.40);
+}
+[data-template="report"] .callout-blue {
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.30);
+}
+[data-template="report"] .callout-green {
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.40);
+}
+[data-template="report"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (matches portfolio strategy) ──
+   shiki output reads best on dark surface; we border with the
+   warm card color so the dark block doesn't feel grafted on. */
+[data-template="report"] .code-block {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+[data-template="report"] .terminal {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+
+/* ── Badges: solid pill on cream BG ── */
+[data-template="report"] .badge-amber {
+  background: rgba(15, 118, 110, 0.14);
+  color: #115E59;
+}
+[data-template="report"] .badge-blue {
+  background: rgba(30, 64, 175, 0.12);
+  color: #1E3A8A;
+}
+[data-template="report"] .badge-green {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+[data-template="report"] .badge-red {
+  background: rgba(220, 38, 38, 0.10);
+  color: #B91C1C;
+}
+[data-template="report"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="report"] .hl-amber { color: #115E59; font-weight: 700; }
+[data-template="report"] .hl-blue  { color: #1E3A8A; font-weight: 700; }
+[data-template="report"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="report"] .hl-cyan  { color: #0E7490; font-weight: 700; }
+
+/* ── Cover slide: deep slate BG with teal underline accent ── */
+[data-template="report"].slide-cover {
+  background: #0F172A;
+}
+[data-template="report"].slide-cover::before {
+  background: none;
+}
+[data-template="report"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="report"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 4px;
+}
+[data-template="report"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="report"].slide-cover .cover-meta-item strong {
+  color: #0F766E;
+}
+[data-template="report"].slide-cover .cover-deco {
+  color: rgba(15, 118, 110, 0.25);
+}
+[data-template="report"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="report"].slide-cover .slide-footer-left,
+[data-template="report"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: warm cream with large faded teal numeral ── */
+[data-template="report"] .slide-section .section-num {
+  color: rgba(15, 118, 110, 0.10);
+}
+
+/* ── Architecture / Step flow nodes ── */
+[data-template="report"] .step-circle {
+  background: var(--amber);
+}
+[data-template="report"] .step-arrow {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-box {
+  background: #F5F3F0;
+  border-color: #C5C2BC;
+}
+[data-template="report"] .arch-line {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="report"] .link {
+  color: var(--link);
+}
+[data-template="report"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: warm light surface ── */
+[data-template="report"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="report"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="report"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="report"] .divider {
+  background: var(--border);
+}
+
+
+/* Page surround follows the deck theme. Set the surface on `html` (not
+   `body`) because brewnet-dark's editor-iframe block force-styles `body`
+   with !important; `html` carries data-template so var(--bg)/var(--text)
+   resolve to the deck's palette — cream for report, dark for brewnet. */
+html { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { width: 100%; margin: 0; }
+body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
 .export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
 .export-slide:last-child { border-bottom: 0; }
 .export-stage { position: relative; width: 1280px; height: 720px; transform-origin: center center; }
@@ -693,14 +1393,14 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </head>
 <body>
 <section class="export-slide" data-index="0">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-cover" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
     <div class="cover-deco" data-slot="number" data-block-id="bU9VAUvdN">07</div>
-    <div class="cover-level" data-slot="label" data-block-id="bCCBSkxTO" style="width: 1136px; height: 24px; position: absolute; left: 72px; top: 323px;" draggable="false">CHAPTER 7</div>
-    <div class="t-hero" data-slot="title" data-block-id="brkGwRcGf" style="width: 1136px; height: 60px; position: absolute; left: 72px; top: 346px;"><span style="font-size: 51px;">Level 7 — 하네스 엔지니어링·클로드 코드 베스트 프렉티스</span></div>
-    <div class="cover-subtitle" data-slot="subtitle" data-block-id="bNtf6BdzN">하네스 엔지니어링 with SubAgent CLI 구축하기 Level 7은 Claude Code를 단순 AI 코딩 어시스턴트에서 자기 검증 가능한 자율 시스템으로 끌어올리는 단계</div>
+    <div class="cover-level" data-slot="label" data-block-id="bCCBSkxTO" style="width: 1136px; height: 24px; position: absolute; left: 72px; top: 323px;">CHAPTER 7</div>
+    <div class="t-hero" data-slot="title" data-block-id="brkGwRcGf" style="width: 1136px; height: 60px; position: absolute; left: 72px; top: 346px;"><span style="font-size: 51px;">Level 9 — 하네스 엔지니어링</span></div>
+    <div class="cover-subtitle" data-slot="subtitle" data-block-id="bNtf6BdzN">하네스 엔지니어링 with SubAgent CLI 구축하기 Level 9은 Claude Code를 단순 AI 코딩 어시스턴트에서 자기 검증 가능한 자율 시스템으로 끌어올리는 단계</div>
     <div class="cover-meta" data-slot="body" data-block-id="bQfIAERpk">
       <div class="cover-meta-item"><strong>키워드</strong> 하네스 엔지니어링 · SubAgent CLI · GAN 멀티 에이전트 · 자율 운용</div>
       <div class="cover-meta-item"><strong>실습</strong> 8 에이전트 + 9 커맨드 + 3 훅 SubAgent CLI 빌드・배포,&nbsp; 하네스 엔지니어링·클로드 코드 베스트 프렉티스</div>
@@ -714,12 +1414,12 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="1">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
     <div class="t-chapter" data-slot="label">INTRO</div>
-    <div class="t-title" data-slot="title">Level 7 전체 구성 — 6개 섹션 개요</div>
+    <div class="t-title" data-slot="title">Level 9 전체 구성 — 6개 섹션 개요</div>
     <div class="t-body" data-slot="body">7.1에서 오픈소스 SubAgent CLI를 만들고, 7.2~7.3에서 하네스 이론을 배운다. 7.4에서 10단계 적용 가이드, 7.5~7.6에서 멀티 에이전트·자율 운용.</div>
     <div data-slot="table" style="flex:1; margin-top:14px;">
       <table class="tbl">
@@ -738,14 +1438,14 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
     </div>
   </div>
   <div class="slide-footer">
-    <span class="slide-footer-left" data-slot="caption">Level 7 전체 구성 — 6개 섹션 개요</span>
+    <span class="slide-footer-left" data-slot="caption">Level 9 전체 구성 — 6개 섹션 개요</span>
     <span class="slide-footer-right" data-slot="page-num">01</span>
   </div>
 </div>
 </div>
 </section>
 <section class="export-slide" data-index="2">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -762,7 +1462,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="3">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -790,7 +1490,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="4">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -822,7 +1522,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="5">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -856,7 +1556,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="6">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -888,7 +1588,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="7">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -922,7 +1622,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="8">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -952,7 +1652,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="9">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -980,7 +1680,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="10">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1013,7 +1713,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="11">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1040,7 +1740,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="12">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1066,7 +1766,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="13">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1097,7 +1797,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="14">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1123,7 +1823,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="15">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1150,7 +1850,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="16">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1175,7 +1875,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="17">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1205,7 +1905,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="18">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1240,7 +1940,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="19">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1265,7 +1965,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="20">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1294,7 +1994,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="21">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1332,7 +2032,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="22">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1362,7 +2062,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="23">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -1379,7 +2079,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="24">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1405,7 +2105,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="25">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1430,7 +2130,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="26">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1455,7 +2155,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="27">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1483,7 +2183,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="28">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1508,7 +2208,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="29">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1533,7 +2233,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="30">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1557,7 +2257,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="31">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1585,7 +2285,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="32">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1622,7 +2322,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="33">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1655,7 +2355,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="34">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1685,7 +2385,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="35">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -1702,7 +2402,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="36">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -1733,7 +2433,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="37">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1760,7 +2460,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="38">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1789,7 +2489,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="39">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1813,7 +2513,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="40">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1843,7 +2543,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="41">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1868,7 +2568,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="42">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1899,7 +2599,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="43">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1924,7 +2624,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="44">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1953,7 +2653,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="45">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -1986,7 +2686,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="46">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2009,7 +2709,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="47">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2040,7 +2740,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="48">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -2057,7 +2757,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="49">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2092,7 +2792,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="50">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2118,7 +2818,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="51">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2145,7 +2845,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="52">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2178,7 +2878,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="53">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2207,7 +2907,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="54">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2233,7 +2933,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="55">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2261,7 +2961,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="56">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2297,7 +2997,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="57">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2324,7 +3024,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="58">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2373,7 +3073,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="59">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2405,7 +3105,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="60">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2440,7 +3140,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="61">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2472,7 +3172,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="62">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2505,7 +3205,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="63">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2536,7 +3236,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="64">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2572,7 +3272,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="65">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2609,7 +3309,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="66">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2640,7 +3340,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="67">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2665,7 +3365,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="68">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2702,7 +3402,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="69">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -2719,7 +3419,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="70">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2753,7 +3453,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="71">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2783,7 +3483,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="72">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2818,7 +3518,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="73">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2845,7 +3545,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="74">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -2873,7 +3573,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="75">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" style="justify-content:center; gap:0;">
@@ -2890,7 +3590,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="76">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2925,7 +3625,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="77">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2961,7 +3661,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="78">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -2997,7 +3697,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="79">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3023,7 +3723,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="80">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3051,7 +3751,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="81">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3077,7 +3777,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="82">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3105,7 +3805,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="83">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3133,7 +3833,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="84">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3162,7 +3862,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="85">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -3204,7 +3904,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="86">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
@@ -3243,12 +3943,12 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="87">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner">
     <div class="t-chapter" data-slot="label">SUMMARY</div>
-    <div class="t-title" data-slot="title">Level 7 핵심 요약</div>
+    <div class="t-title" data-slot="title">Level 9 핵심 요약</div>
     <div class="t-body" data-slot="body">하네스 엔지니어링으로 Claude Code를 자기 검증 가능한 자율 시스템으로</div>
     <div class="callout callout-amber" style="margin-top:14px;">
       <div class="callout-icon">💡</div>
@@ -3268,14 +3968,14 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
     </div>
   </div>
   <div class="slide-footer">
-    <span class="slide-footer-left" data-slot="caption">Level 7 핵심 요약</span>
+    <span class="slide-footer-left" data-slot="caption">Level 9 핵심 요약</span>
     <span class="slide-footer-right" data-slot="page-num">51</span>
   </div>
 </div>
 </div>
 </section>
 <section class="export-slide" data-index="88">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
@@ -3307,7 +4007,7 @@ body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: 
 </div>
 </section>
 <section class="export-slide" data-index="89">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">

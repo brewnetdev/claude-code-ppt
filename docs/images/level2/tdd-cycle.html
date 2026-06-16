@@ -13,19 +13,19 @@
   }
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 590px;
     position: relative;
-    padding: 44px;
+    padding: 32px 44px;
     background: transparent;
     display: flex;
     align-items: stretch;
-    gap: 36px;
+    gap: 30px;
   }
 
   /* ── Left: the cycle ── */
   .cycle {
-    width: 540px;
-    flex: 0 0 540px;
+    width: 520px;
+    flex: 0 0 520px;
     border: 1px solid #D4D0C8;
     background: transparent;
     position: relative;
@@ -33,7 +33,7 @@
     flex-direction: column;
   }
   .cycle-head {
-    padding: 20px 26px;
+    padding: 13px 22px;
     border-bottom: 1px solid #D4D0C8;
     display: flex;
     align-items: baseline;
@@ -41,7 +41,7 @@
   }
   .cycle-head .seq {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: #0F766E;
     letter-spacing: 0.2px;
@@ -49,7 +49,7 @@
   .cycle-head .seq .arr { color: #6B6560; padding: 0 3px; }
   .cycle-stage {
     flex: 1;
-    padding: 20px 26px;
+    padding: 16px 22px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -59,40 +59,40 @@
   .node {
     border: 1px solid #D4D0C8;
     background: transparent;
-    padding: 12px 20px 13px;
+    padding: 10px 18px 11px;
   }
   .node .nlabel {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 5px;
+    gap: 12px;
+    margin-bottom: 4px;
   }
   .node .badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
-    padding: 3px 13px;
+    padding: 3px 12px;
     border: 1px solid;
     line-height: 1.4;
   }
   .node .step {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 42px;
+    font-size: 33px;
     font-weight: 700;
     color: #6B6560;
     margin-left: auto;
     line-height: 1;
   }
   .node .ntitle {
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 700;
     color: #1A1A18;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     line-height: 1.2;
   }
   .node .nsub {
-    font-size: 22px;
-    line-height: 1.45;
+    font-size: 18px;
+    line-height: 1.4;
     color: #6B6560;
   }
 
@@ -106,20 +106,20 @@
     align-items: center;
     justify-content: center;
     color: #6B6560;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     line-height: 1;
-    height: 24px;
+    height: 18px;
   }
   /* loop-back caption */
   .loop-note {
-    padding: 11px 16px;
+    padding: 9px 14px;
     border: 1px dashed #C7C2BA;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 500;
     color: #6B6560;
     text-align: center;
@@ -127,7 +127,7 @@
   }
   .loop-note .lturn {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 26px;
+    font-size: 21px;
     font-weight: 700;
     color: #0F766E;
   }
@@ -141,9 +141,9 @@
     flex-direction: column;
   }
   .rules-head {
-    padding: 20px 26px;
+    padding: 13px 22px;
     border-bottom: 1px solid #D4D0C8;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: #1A1A18;
   }
@@ -161,47 +161,47 @@
   }
   .rule-row:last-child { border-bottom: none; }
   .rule-tag {
-    flex: 0 0 188px;
+    flex: 0 0 202px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 12px;
-    padding: 20px 22px;
+    gap: 10px;
+    padding: 16px 20px;
     border-right: 1px solid #D4D0C8;
   }
   .rule-tag .rbadge {
     align-self: flex-start;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
-    padding: 3px 13px;
+    padding: 3px 12px;
     border: 1px solid;
     line-height: 1.4;
   }
   .rule-tag .rgist {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     color: #1A1A18;
     line-height: 1.35;
   }
   .rule-list {
     flex: 1;
-    padding: 20px 26px;
+    padding: 16px 24px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
   }
   .rule-list .ri {
-    font-size: 22px;
+    font-size: 18px;
     line-height: 1.4;
     color: #1A1A18;
     display: flex;
-    gap: 13px;
+    gap: 12px;
   }
   .rule-list .ri .k {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 700;
     color: #6B6560;
     flex: 0 0 auto;

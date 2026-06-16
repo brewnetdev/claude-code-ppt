@@ -13,13 +13,13 @@
   }
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 628px;
     position: relative;
-    padding: 44px;
+    padding: 28px 32px;
     background: transparent;
     display: grid;
-    grid-template-columns: 522px 1fr;
-    gap: 32px;
+    grid-template-columns: 540px 1fr;
+    gap: 26px;
     align-items: stretch;
   }
 
@@ -27,11 +27,11 @@
   .col-label {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 17px;
     letter-spacing: 0.04em;
     color: #6B6560;
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   code, .mono { font-family: 'JetBrains Mono', monospace; }
 
@@ -42,8 +42,8 @@
 
   .step {
     border: 1px solid #D4D0C8;
-    border-radius: 10px;
-    padding: 14px 20px;
+    border-radius: 8px;
+    padding: 11px 18px;
     background: transparent;
     display: flex;
     gap: 18px;
@@ -51,14 +51,14 @@
   }
   .step .num {
     flex: none;
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     border: 1px solid #0F766E;
-    border-radius: 8px;
+    border-radius: 6px;
     color: #0F766E;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,13 +66,13 @@
   .step .body { flex: 1; }
   .step .title {
     font-weight: 700;
-    font-size: 24px;
+    font-size: 20px;
     color: #1A1A18;
     margin-bottom: 5px;
   }
   .step .desc {
-    font-size: 22px;
-    line-height: 1.42;
+    font-size: 18px;
+    line-height: 1.38;
     color: #1A1A18;
   }
   .step .desc .muted { color: #6B6560; }
@@ -86,7 +86,7 @@
   .term .bar {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 15px;
     letter-spacing: 0.04em;
     color: #6B6560;
     padding: 6px 16px;
@@ -95,7 +95,7 @@
   .term .line {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 26px;
+    font-size: 21px;
     color: #1A1A18;
     padding: 11px 16px;
   }
@@ -107,16 +107,16 @@
     color: #6B6560;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 18px;
     line-height: 1;
-    padding: 5px 0;
+    padding: 3px 0;
   }
 
   .note {
     border: 1px solid #D4D0C8;
-    border-radius: 10px;
-    padding: 15px 20px;
-    margin-top: 12px;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -126,7 +126,7 @@
     flex: none;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15px;
     letter-spacing: 0.02em;
     color: #1E3A8A;
     border: 1px solid #1E3A8A;
@@ -135,8 +135,8 @@
     white-space: nowrap;
   }
   .note .txt {
-    font-size: 21px;
-    line-height: 1.45;
+    font-size: 17px;
+    line-height: 1.4;
     color: #1A1A18;
   }
   .note .txt b { font-weight: 700; }
@@ -155,31 +155,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 24px;
+    padding: 11px 20px;
     border-bottom: 1px solid #D4D0C8;
   }
   .file .head .name {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 20px;
     color: #1A1A18;
   }
   .file .head .stack {
-    font-size: 19px;
+    font-size: 15px;
     font-weight: 600;
     color: #6B6560;
   }
   .file .body {
-    padding: 16px 28px;
+    padding: 13px 22px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 21px;
-    line-height: 1.46;
+    font-size: 17px;
+    line-height: 1.5;
     color: #1A1A18;
     flex: 1;
   }
-  .file .body .h1 { font-weight: 700; font-size: 23px; color: #1A1A18; }
-  .file .body .p  { color: #6B6560; font-family: 'Noto Sans KR','Inter',sans-serif; font-size: 20px; margin-top: 2px; }
-  .file .body .h2 { font-weight: 700; color: #0F766E; margin-top: 11px; font-size: 22px; }
+  .file .body .h1 { font-weight: 700; font-size: 19px; color: #1A1A18; }
+  .file .body .p  { color: #6B6560; font-family: 'Noto Sans KR','Inter',sans-serif; font-size: 16px; margin-top: 2px; }
+  .file .body .h2 { font-weight: 700; color: #0F766E; margin-top: 9px; font-size: 18px; }
   .file .body .cmd { color: #1A1A18; }
   .file .body .cm  { color: #6B6560; }
   .file .body .li  { color: #1A1A18; }

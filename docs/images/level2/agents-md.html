@@ -13,27 +13,27 @@
   }
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 590px;
     position: relative;
-    padding: 44px;
+    padding: 36px 44px;
     background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 13px;
   }
 
   /* ── Two-column body ── */
-  .cols { display: flex; gap: 34px; align-items: stretch; flex: 1; min-height: 0; }
+  .cols { display: flex; gap: 30px; align-items: stretch; flex: 1; min-height: 0; }
   .col-l { flex: 1.12; min-width: 0; display: flex; flex-direction: column; }
   .col-r { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
   .panel-label {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 17px;
     letter-spacing: 0.03em;
     color: #6B6560;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   /* ── Reference table ── */
@@ -50,17 +50,17 @@
     text-align: left;
     font-family: 'Noto Sans KR', 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 20px;
     color: #1A1A18;
-    padding: 0 18px 14px 0;
+    padding: 0 16px 10px 0;
     vertical-align: bottom;
   }
   table.ref thead tr { border-bottom: 1px solid #D4D0C8; }
 
   table.ref tbody td {
-    font-size: 22px;
-    line-height: 1.42;
-    padding: 13px 18px 13px 0;
+    font-size: 18px;
+    line-height: 1.4;
+    padding: 11px 16px 11px 0;
     vertical-align: top;
     border-bottom: 1px solid #D4D0C8;
     color: #1A1A18;
@@ -70,15 +70,15 @@
   td.key {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
-    font-size: 22px;
+    font-size: 18px;
     color: #0F766E;
   }
   td.desc { color: #1A1A18; font-weight: 500; }
-  td.desc .sub { color: #6B6560; font-weight: 500; font-size: 20px; }
+  td.desc .sub { color: #6B6560; font-weight: 500; font-size: 16px; }
   td.desc code {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
-    font-size: 20px;
+    font-size: 17px;
     color: #0F766E;
   }
 
@@ -86,12 +86,12 @@
     display: inline-block;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15px;
     letter-spacing: 0.02em;
-    padding: 3px 11px;
+    padding: 3px 9px;
     border: 1px solid #D4D0C8;
     border-radius: 7px;
-    margin-left: 9px;
+    margin-left: 8px;
     vertical-align: middle;
   }
   .badge.std  { color: #1E3A8A; }
@@ -101,7 +101,7 @@
   .code-card {
     border: 1px solid #D4D0C8;
     border-radius: 10px;
-    padding: 17px 26px;
+    padding: 14px 22px;
     background: transparent;
     flex: 1;
     display: flex;
@@ -110,16 +110,16 @@
   .code-card .filename {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 17px;
     color: #1A1A18;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #D4D0C8;
   }
   pre.code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
-    line-height: 1.36;
+    font-size: 16px;
+    line-height: 1.34;
     color: #1A1A18;
     white-space: pre;
     overflow: visible;
@@ -140,31 +140,31 @@
   }
   .links .lk {
     flex: 1;
-    padding: 10px 22px;
+    padding: 9px 20px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     min-width: 0;
   }
   .links .lk + .lk { border-left: 1px solid #D4D0C8; }
   .links .lk .lk-cap {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15px;
     color: #6B6560;
     letter-spacing: 0.02em;
   }
   .links .lk .lk-url {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
-    font-size: 22px;
+    font-size: 18px;
     color: #0F766E;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .links .lk .lk-meta {
-    font-size: 20px;
+    font-size: 16px;
     color: #047857;
     font-weight: 600;
   }
@@ -174,27 +174,27 @@
     background: #FAF3E6;
     border: 1px solid #B45309;
     border-radius: 10px;
-    padding: 11px 24px;
+    padding: 10px 22px;
     display: flex;
     align-items: flex-start;
-    gap: 18px;
+    gap: 16px;
   }
   .callout .tag {
     flex: none;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15px;
     color: #7C4A02;
     border: 1px solid #B45309;
     border-radius: 7px;
-    padding: 5px 13px;
+    padding: 4px 11px;
     letter-spacing: 0.02em;
     white-space: nowrap;
     margin-top: 2px;
   }
   .callout .txt {
-    font-size: 22px;
-    line-height: 1.42;
+    font-size: 18px;
+    line-height: 1.4;
     color: #7C4A02;
     font-weight: 500;
   }

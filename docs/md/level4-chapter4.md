@@ -1,6 +1,6 @@
 # ③ 심화 개념
 
-## 🟣 LEVEL 3 — 스킬·커맨드·Hook·프롬프트·컨텍스트
+## 🟣 LEVEL 4 — 스킬·커맨드·Hook·프롬프트·컨텍스트
 
 > **실습 프로젝트**: markflow — 마크다운 에디터 기반 지식 관리 시스템  
 > 오픈소스 리포지토리: https://github.com/claude-code-expert/markflow  

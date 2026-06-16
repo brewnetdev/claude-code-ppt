@@ -14,22 +14,22 @@
   /* 16:9 — 슬라이드 본문 영역을 꽉 채우는 큰 폰트 */
   .frame {
     width: 1280px;
-    height: 720px;
+    height: 590px;
     position: relative;
-    padding: 44px;
+    padding: 34px 44px;
     background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 18px;
   }
   .grid {
     display: grid;
     grid-template-columns: 472px 1fr;
-    gap: 34px;
+    gap: 30px;
     flex: 1;
     min-height: 0;
   }
-  .box { border: 1px solid #D4D0C8; background: transparent; padding: 28px 30px; }
+  .box { border: 1px solid #D4D0C8; background: transparent; padding: 22px 26px; }
   .label {
     font-family: 'Inter', sans-serif;
     font-size: 18px; font-weight: 700; letter-spacing: 0.05em;
@@ -37,43 +37,43 @@
   }
   .badge {
     display: inline-block; font-family: 'Inter', sans-serif;
-    font-size: 18px; font-weight: 700; letter-spacing: 0.04em;
-    padding: 7px 15px; border: 1px solid;
+    font-size: 16px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 6px 13px; border: 1px solid;
   }
   .badge-teal { color: #115E59; border-color: #0F766E; }
   .badge-red  { color: #B91C1C; border-color: #B91C1C; }
 
   .concept { display: flex; flex-direction: column; height: 100%; }
-  .concept-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-  .concept-title { font-size: 32px; font-weight: 700; color: #1A1A18; }
-  .concept-lead { font-size: 23px; line-height: 1.6; color: #1A1A18; margin-bottom: 26px; }
-  .principle { border: 1px solid #D4D0C8; background: #F5F3F0; padding: 22px 24px; }
-  .principle-label { font-family: 'Inter', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 0.04em; color: #115E59; margin-bottom: 12px; }
-  .principle-text { font-size: 23px; line-height: 1.6; color: #1A1A18; font-weight: 500; }
+  .concept-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .concept-title { font-size: 27px; font-weight: 700; color: #1A1A18; }
+  .concept-lead { font-size: 19px; line-height: 1.55; color: #1A1A18; margin-bottom: 18px; }
+  .principle { border: 1px solid #D4D0C8; background: #F5F3F0; padding: 16px 20px; }
+  .principle-label { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; color: #115E59; margin-bottom: 9px; }
+  .principle-text { font-size: 19px; line-height: 1.55; color: #1A1A18; font-weight: 500; }
   .principle-text b { color: #115E59; font-weight: 700; }
-  .pillars { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
-  .pillar { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: #1A1A18; border: 1px solid #D4D0C8; padding: 10px 18px; }
+  .pillars { display: flex; gap: 11px; margin-top: 16px; flex-wrap: wrap; }
+  .pillar { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: #1A1A18; border: 1px solid #D4D0C8; padding: 8px 15px; }
 
   .warn { display: flex; flex-direction: column; height: 100%; }
-  .warn-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-  .warn-title { font-size: 31px; font-weight: 700; color: #1A1A18; }
-  .signs { display: flex; flex-direction: column; gap: 16px; flex: 1; }
-  .sign { border: 1px solid #D4D0C8; padding: 22px 26px; display: grid; grid-template-columns: 56px 1fr; gap: 22px; align-items: start; flex: 1; }
-  .sign-num { font-family: 'JetBrains Mono', monospace; font-size: 42px; font-weight: 700; color: #B91C1C; line-height: 1; padding-top: 2px; }
+  .warn-head { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+  .warn-title { font-size: 22px; font-weight: 700; color: #1A1A18; white-space: nowrap; }
+  .signs { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .sign { border: 1px solid #D4D0C8; padding: 16px 22px; display: grid; grid-template-columns: 48px 1fr; gap: 18px; align-items: start; flex: 1; }
+  .sign-num { font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 700; color: #B91C1C; line-height: 1; padding-top: 2px; }
   .sign-body { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .sign-name-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
-  .sign-name { font-size: 25px; font-weight: 700; color: #1A1A18; }
-  .sign-en { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: #6B6560; }
-  .tag-danger { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.03em; color: #B91C1C; border: 1px solid #B91C1C; padding: 3px 12px; }
-  .sign-desc { font-size: 22px; line-height: 1.55; color: #1A1A18; font-weight: 500; }
+  .sign-name-row { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; margin-bottom: 6px; }
+  .sign-name { font-size: 21px; font-weight: 700; color: #1A1A18; }
+  .sign-en { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; color: #6B6560; }
+  .tag-danger { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.03em; color: #B91C1C; border: 1px solid #B91C1C; padding: 3px 11px; }
+  .sign-desc { font-size: 18px; line-height: 1.5; color: #1A1A18; font-weight: 500; }
   .sign-desc .danger { color: #B91C1C; font-weight: 700; }
 
   /* full-width source/link callout — independent bottom section */
-  .linkbar { border: 1px solid #B45309; background: #FAF3E6; border-radius: 8px; padding: 18px 24px; display: flex; align-items: center; gap: 16px; }
-  .linkbar .lb-badge { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.04em; color: #7C4A02; border: 1px solid #B45309; border-radius: 6px; padding: 5px 13px; flex: 0 0 auto; }
-  .linkbar .lb-text { font-size: 22px; color: #1A1A18; font-weight: 500; }
+  .linkbar { border: 1px solid #B45309; background: #FAF3E6; border-radius: 8px; padding: 13px 20px; display: flex; align-items: center; gap: 14px; }
+  .linkbar .lb-badge { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; color: #7C4A02; border: 1px solid #B45309; border-radius: 6px; padding: 5px 12px; flex: 0 0 auto; }
+  .linkbar .lb-text { font-size: 18px; color: #1A1A18; font-weight: 500; }
   .linkbar .lb-text b { font-weight: 700; }
-  .linkbar .lb-url { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: #7C4A02; }
+  .linkbar .lb-url { font-family: 'JetBrains Mono', monospace; font-size: 17px; color: #7C4A02; }
 </style>
 </head>
 <body>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8; --hair:#ECE9E3;
+    --teal:#0F766E; --teal-deep:#115E59; --blue:#1E3A8A; --green:#047857; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6; --code-bg:#F5F3F0;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{
+    width:1280px; height:590px; position:relative; padding:24px 30px;
+    background:transparent; display:flex; flex-direction:column; gap:18px;
+  }
+
+  /* ── pipeline ── */
+  .flow{
+    flex:1; min-height:0;
+    display:grid; grid-template-columns:repeat(6,1fr); column-gap:30px; row-gap:12px;
+    grid-template-rows:auto 1fr;
+  }
+  .ph{
+    grid-row:1; font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.04em;
+    padding-bottom:8px; border-bottom:2px solid; display:flex; align-items:baseline; gap:9px;
+  }
+  .ph .en{ font-size:12px; font-weight:600; color:var(--warm); letter-spacing:.06em; }
+  .ph.spec{ grid-column:1 / span 3; color:var(--teal-deep); border-color:var(--teal); }
+  .ph.plan{ grid-column:4 / span 2; color:var(--blue); border-color:var(--blue); }
+  .ph.build{ grid-column:6 / span 1; color:var(--green); border-color:var(--green); }
+
+  .card{
+    grid-row:2; position:relative; border:1px solid var(--line); background:var(--panel-bg);
+    padding:16px 16px; display:flex; flex-direction:column; justify-content:center; gap:10px;
+  }
+  /* arrow connectors between cards (in the column gap) */
+  .card.arr::before{
+    content:'→'; position:absolute; left:-23px; top:50%; transform:translateY(-50%);
+    font-family:var(--mono); font-size:20px; font-weight:700; color:var(--warm);
+  }
+  .kick{ font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--warm); }
+  .step{ font-family:var(--mono); font-size:19px; font-weight:700; color:var(--ink); line-height:1.05; }
+  .out{
+    font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--teal-deep);
+    border:1px solid var(--line); background:var(--code-bg); padding:3px 8px; align-self:flex-start;
+    white-space:nowrap;
+  }
+  .out.muted{ color:var(--warm); }
+  .role{ font-size:14px; line-height:1.4; color:var(--warm); word-break:keep-all; }
+
+  /* ── supplementary commands ── */
+  .aux{
+    flex:0 0 auto; border:1px solid var(--line); background:var(--cream);
+    display:grid; grid-template-columns:auto 1fr 1fr 1fr; align-items:stretch;
+  }
+  .aux .lab{
+    font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:.03em; color:#7C4A02;
+    display:flex; align-items:center; padding:0 18px; border-right:1px solid var(--line); white-space:nowrap;
+  }
+  .aux .it{ padding:12px 18px; border-right:1px solid var(--line); }
+  .aux .it:last-child{ border-right:0; }
+  .aux .cmd{ font-family:var(--mono); font-size:14.5px; font-weight:700; color:var(--ink); }
+  .aux .dsc{ font-size:13px; line-height:1.35; color:var(--warm); margin-top:3px; word-break:keep-all; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="flow">
+      <!-- phase headers -->
+      <div class="ph spec">명세 <span class="en">SPEC</span></div>
+      <div class="ph plan">계획 <span class="en">PLAN</span></div>
+      <div class="ph build">구현 <span class="en">BUILD</span></div>
+
+      <!-- 6 step cards -->
+      <div class="card">
+        <div class="kick">/speckit.</div>
+        <div class="step">constitution</div>
+        <div class="out">constitution.md</div>
+        <div class="role">프로젝트 원칙 수립</div>
+      </div>
+      <div class="card arr">
+        <div class="kick">/speckit.</div>
+        <div class="step">specify</div>
+        <div class="out">spec.md</div>
+        <div class="role">요구사항 명세 작성</div>
+      </div>
+      <div class="card arr">
+        <div class="kick">/speckit.</div>
+        <div class="step">clarify</div>
+        <div class="out muted">↳ spec.md 보완</div>
+        <div class="role">모호한 요구사항 명확화</div>
+      </div>
+      <div class="card arr">
+        <div class="kick">/speckit.</div>
+        <div class="step">plan</div>
+        <div class="out">plan.md</div>
+        <div class="role">기술 구현 계획 수립</div>
+      </div>
+      <div class="card arr">
+        <div class="kick">/speckit.</div>
+        <div class="step">tasks</div>
+        <div class="out">tasks.md</div>
+        <div class="role">태스크 분해</div>
+      </div>
+      <div class="card arr">
+        <div class="kick">/speckit.</div>
+        <div class="step">implement</div>
+        <div class="out muted">코드 생성</div>
+        <div class="role">태스크별 구현</div>
+      </div>
+    </div>
+
+    <div class="aux">
+      <div class="lab">보조 · 품질</div>
+      <div class="it">
+        <div class="cmd">/speckit.taskstoissues</div>
+        <div class="dsc">tasks.md를 GitHub 이슈로 자동 생성</div>
+      </div>
+      <div class="it">
+        <div class="cmd">/speckit.analyze</div>
+        <div class="dsc">아티팩트 정합성·커버리지 분석 (tasks 후 · implement 전)</div>
+      </div>
+      <div class="it">
+        <div class="cmd">/speckit.checklist</div>
+        <div class="dsc">요구사항 완전성·일관성 품질 게이트</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
