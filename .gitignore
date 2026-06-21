@@ -152,3 +152,5 @@ playwright-report/
 # Generator scratch
 .tmp/
 
+# Auto-generated backups
+*.bak.*
