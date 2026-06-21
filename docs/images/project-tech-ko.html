@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --amber: #B45309;      /* 라이트 톤 진한 amber */
+    --teal:  #0F766E;
+    --text:  #1A1A18;
+    --muted: #6B6560;
+    --dim:   #6B6560;
+    --border:#D4D0C8;
+    --line:  #D4D0C8;
+    --bg:    #FAFAF8;
+    --panel: #FFFFFF;
+    --cream: #FAF3E6;
+    --code:  #F5F3F0;
+  }
+  html, body { background: #FAFAF8; }
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .topbar { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amber); z-index: 5; }
+
+  .inner {
+    position: relative; z-index: 2; height: 100%;
+    padding: 44px 72px 64px 72px;
+    display: flex; flex-direction: column;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: 14px;
+  }
+  .title {
+    font-size: 44px; font-weight: 900; line-height: 1.15;
+    letter-spacing: -.02em; color: var(--text);
+  }
+  .title em { font-style: normal; color: var(--amber); }
+  .rule { width: 56px; height: 3px; background: var(--amber); margin: 18px 0 14px; }
+  .subtitle { font-size: 17px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+
+  .learn {
+    width: 100%; border-collapse: collapse; margin-top: 22px;
+    table-layout: fixed;
+  }
+  .learn col.c-num { width: 64px; }
+  .learn col.c-cap { width: 320px; }
+  .learn col.c-why { width: auto; }
+
+  .learn thead th {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0 16px 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .learn thead th.num { padding-left: 0; }
+
+  .learn tbody td {
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .learn tbody tr:last-child td { border-bottom: none; }
+
+  .learn td.num {
+    padding-left: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: var(--amber);
+    line-height: 1.2;
+  }
+  .learn td.cap {
+    color: var(--text);
+    font-size: 17px; font-weight: 700; line-height: 1.35;
+  }
+  .learn td.cap .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    color: var(--muted);
+    letter-spacing: .02em;
+    margin-top: 4px;
+  }
+  .learn td.why {
+    color: var(--text);
+    font-size: 14.5px; line-height: 1.55;
+    font-weight: 400;
+  }
+  .learn td.why strong { color: var(--text); font-weight: 700; }
+  .learn td.why em {
+    font-style: normal; color: var(--amber); font-weight: 700;
+    font-family: 'JetBrains Mono', monospace; font-size: 13.5px;
+  }
+
+  .footer {
+    position: absolute; left: 72px; right: 72px; bottom: 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--dim); border-top: 1px solid var(--border); padding-top: 14px; z-index: 3;
+  }
+  .footer .brand { color: var(--amber); font-weight: 700; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="topbar"></div>
+    <div class="inner">
+      <div class="eyebrow">Claude Code Master · 카페 메뉴판 프로젝트</div>
+      <h1 class="title">이 프로젝트로 <em>배우는 기술</em></h1>
+      <div class="rule"></div>
+      <div class="subtitle">5가지 백엔드·아키텍처 핵심 — 작은 프로젝트, 큰 패턴</div>
+
+      <table class="learn">
+        <colgroup>
+          <col class="c-num" />
+          <col class="c-cap" />
+          <col class="c-why" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>핵심 기술</th>
+            <th>무엇을 배우는가 — 의미·맥락</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">01</td>
+            <td class="cap">SSE (Server-Sent Events)<span class="sub">단방향 푸시 · WebSocket 대안</span></td>
+            <td class="why">메뉴판처럼 <strong>읽기 전용·서버→클라이언트 일방향</strong>이면 WebSocket보다 가볍다. 본 프로젝트에서는 <em>"data: 1"</em> 한 글자 트리거만 보낸다.</td>
+          </tr>
+          <tr>
+            <td class="num">02</td>
+            <td class="cap">파일 감시 + 디바운스<span class="sub">chokidar · FSEvents · 300ms</span></td>
+            <td class="why">OS 파일 시스템 이벤트로 <strong>외부 변경에 자동 반응</strong>. Excel 저장 시 중복 이벤트를 <em>debounce 300ms</em> 로 한 번으로 합친다 — 실서비스 안정성의 기초.</td>
+          </tr>
+          <tr>
+            <td class="num">03</td>
+            <td class="cap">풀(pull) / 푸시(push) 분리<span class="sub">알림 채널 + 데이터 채널 분리</span></td>
+            <td class="why"><strong>알림은 가볍게 푸시(SSE), 데이터는 요청 시 풀(fetch)</strong>. 채널이 독립이라 알림 채널은 단순하게 유지되고, 데이터는 항상 파일의 최신 상태를 반영한다.</td>
+          </tr>
+          <tr>
+            <td class="num">04</td>
+            <td class="cap">단일 진실원천 (SSoT)<span class="sub">Single Source of Truth</span></td>
+            <td class="why">Excel 직접 편집과 <em>/admin</em> UI 두 채널이 결국 <strong>같은 menu.xlsx 한 파일</strong>을 바꾼다. 출처가 하나라 동기화·정합성 문제가 사라진다.</td>
+          </tr>
+          <tr>
+            <td class="num">05</td>
+            <td class="cap">데이터 / 표현 분리<span class="sub">Excel = 데이터 · CSS = 표현</span></td>
+            <td class="why">Excel은 <strong>데이터</strong>, <em>cafe-dark / bistro-light</em> CSS 템플릿은 <strong>표현</strong>. 코드 수정 없이 운영자가 _설정 시트의 한 셀로 디자인을 바꾼다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+      <span class="brand">CLAUDE CODE MASTER</span>
+      <span>Practice</span>
+    </div>
+  </div>
+</body>
+</html>

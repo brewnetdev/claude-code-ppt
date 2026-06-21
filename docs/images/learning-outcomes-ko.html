@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --amber: #F59E0B;
+    --text:  #F1F5F9;
+    --muted: #94A3B8;
+    --border:#1E293B;
+    --bg:    #0F172A;
+  }
+  html, body { background: #020617; }
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .topbar { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amber); z-index: 5; }
+
+  .inner {
+    position: relative; z-index: 2; height: 100%;
+    padding: 44px 72px 64px 72px;
+    display: flex; flex-direction: column;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: 14px;
+  }
+  .title {
+    font-size: 48px; font-weight: 900; line-height: 1.15;
+    letter-spacing: -.02em; color: var(--text);
+  }
+  .title em { font-style: normal; color: var(--amber); }
+  .rule { width: 56px; height: 3px; background: var(--amber); margin: 18px 0 14px; }
+  .subtitle { font-size: 18px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+
+  .learn {
+    width: 100%; border-collapse: collapse; margin-top: 22px;
+    table-layout: fixed;
+  }
+  .learn col.c-num { width: 64px; }
+  .learn col.c-cap { width: 360px; }
+  .learn col.c-why { width: auto; }
+
+  .learn thead th {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0 16px 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .learn thead th.num { padding-left: 0; }
+
+  .learn tbody td {
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .learn tbody tr:last-child td { border-bottom: none; }
+
+  .learn td.num {
+    padding-left: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; color: var(--amber);
+    line-height: 1.2;
+  }
+  .learn td.cap {
+    color: var(--text);
+    font-size: 18px; font-weight: 700; line-height: 1.35;
+  }
+  .learn td.cap .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    color: var(--muted);
+    letter-spacing: .02em;
+    margin-top: 4px;
+  }
+  .learn td.why {
+    color: var(--text);
+    font-size: 15px; line-height: 1.55;
+    font-weight: 400;
+  }
+  .learn td.why strong { color: var(--text); font-weight: 700; }
+  .learn td.why em {
+    font-style: normal; color: var(--amber); font-weight: 500;
+    font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  }
+
+  .footer {
+    position: absolute; left: 72px; right: 72px; bottom: 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: #475569; border-top: 1px solid var(--border); padding-top: 14px; z-index: 3;
+  }
+  .footer .brand { color: var(--amber); font-weight: 700; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="topbar"></div>
+    <div class="inner">
+      <div class="eyebrow">Claude Code Master · 학습 목표</div>
+      <h1 class="title">이 프로젝트로 <em>배우는 것</em></h1>
+      <div class="rule"></div>
+      <div class="subtitle">5가지 역량 — 강의에서 왜 중요한가</div>
+
+      <table class="learn">
+        <colgroup>
+          <col class="c-num" />
+          <col class="c-cap" />
+          <col class="c-why" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>얻는 역량</th>
+            <th>강의에서 왜 중요한가</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">01</td>
+            <td class="cap">프론트엔드 어휘집<span class="sub">요소의 이름 · 역할 · 생김새</span></td>
+            <td class="why">AI 협업의 <strong>공용어</strong>. <em>"드롭다운 말고 라디오로"</em>, <em>"여기 모달 띄워줘"</em>가 가능해진다.</td>
+          </tr>
+          <tr>
+            <td class="num">02</td>
+            <td class="cap">관심사 분리 감각<span class="sub">HTML 구조 / CSS 표현 / JS 동작</span></td>
+            <td class="why">탭 3분리를 직접 보며 <strong>"역할이 다르다"</strong>를 체감 → <strong>유지보수의 기초</strong>.</td>
+          </tr>
+          <tr>
+            <td class="num">03</td>
+            <td class="cap">상태 + 이벤트 패턴<span class="sub">state change → render</span></td>
+            <td class="why">토글·탭·모달·스테퍼가 전부 <strong>상태 변경 → 화면 반영</strong>. 럭키드로우의 인터랙션이 일반 패턴으로 정착.</td>
+          </tr>
+          <tr>
+            <td class="num">04</td>
+            <td class="cap">컴포넌트적 사고<span class="sub">조각의 조립</span></td>
+            <td class="why">React 등 프레임워크로 넘어가는 <strong>직접적인 다리</strong>.</td>
+          </tr>
+          <tr>
+            <td class="num">05</td>
+            <td class="cap">좋은 코드·디자인의 기준선<span class="sub">시맨틱 태그 · aria · 절제된 디자인</span></td>
+            <td class="why">AI가 뱉은 코드가 좋은지 나쁜지 <strong>판별하는 안목</strong> — 손으로 본 적 있어야 평가 가능.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+      <span class="brand">CLAUDE CODE MASTER</span>
+      <span>claude.ai/code</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="-apple-system, system-ui, sans-serif">
+  <!-- background: report theme cream -->
+  <rect x="0" y="0" width="1280" height="720" fill="#f4f1ea"/>
+
+  <!-- topbar (thin) -->
+  <rect x="0" y="0" width="1280" height="6" fill="#1f6f6a"/>
+
+  <!-- chapter label -->
+  <text x="72" y="74" font-size="14" font-weight="600" fill="#1f6f6a" letter-spacing="0.08em">3.3 SDD CYCLE</text>
+
+  <!-- title -->
+  <text x="72" y="112" font-size="28" font-weight="700" fill="#1a1a1a">SpecKit 9단계 인용문 — 카페 메뉴판 실습 사이클</text>
+
+  <!-- subtitle (one-line cycle) -->
+  <text x="72" y="146" font-size="13" fill="#4a4a4a">constitution → specify → clarify → plan → tasks → taskstoissues → analyze → checklist → implement</text>
+
+  <!-- main 6 cards grid: 2 rows x 3 cols, starts at y=170, card 360x140, gap 12 -->
+  <!-- Row 1 -->
+  <g>
+    <!-- 1 constitution -->
+    <rect x="72" y="170" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="86" y="194" font-size="13" font-weight="600" fill="#1f6f6a">①</text>
+    <text x="104" y="194" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.constitution</text>
+    <text x="86" y="220" font-size="12" fill="#1a1a1a">이 카페 메뉴판 프로젝트의 구현 원칙</text>
+    <text x="86" y="238" font-size="12" fill="#1a1a1a">잡아줘 — 데이터(Excel)와 표현(CSS</text>
+    <text x="86" y="256" font-size="12" fill="#1a1a1a">테마) 분리, 코드 수정 없이 Excel만</text>
+    <text x="86" y="274" font-size="12" fill="#1a1a1a">으로 운영자가 바꿀 수 있을 것</text>
+    <text x="86" y="298" font-size="11" fill="#6b6b6b">→ constitution.md</text>
+
+    <!-- 2 specify -->
+    <rect x="459" y="170" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="473" y="194" font-size="13" font-weight="600" fill="#1f6f6a">②</text>
+    <text x="491" y="194" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.specify</text>
+    <text x="473" y="220" font-size="12" fill="#1a1a1a">Excel 한 파일로 카페 메뉴판을 띄우</text>
+    <text x="473" y="238" font-size="12" fill="#1a1a1a">고, 저장하면 브라우저가 자동 갱신</text>
+    <text x="473" y="256" font-size="12" fill="#1a1a1a">되는 시스템 명세 작성해줘</text>
+    <text x="473" y="298" font-size="11" fill="#6b6b6b">→ spec.md</text>
+
+    <!-- 3 clarify -->
+    <rect x="846" y="170" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="860" y="194" font-size="13" font-weight="600" fill="#1f6f6a">③</text>
+    <text x="878" y="194" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.clarify</text>
+    <text x="860" y="220" font-size="12" fill="#1a1a1a">_설정 시트의 자동전환초가 0/양수</text>
+    <text x="860" y="238" font-size="12" fill="#1a1a1a">일 때 동작 차이, 품절 표기 규칙은</text>
+    <text x="860" y="256" font-size="12" fill="#1a1a1a">정확히 뭔지 모호한 부분 짚어줘</text>
+    <text x="860" y="298" font-size="11" fill="#6b6b6b">→ spec.md 보완</text>
+  </g>
+
+  <!-- Row 2: plan / tasks / implement(9) -->
+  <g>
+    <!-- 4 plan -->
+    <rect x="72" y="322" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="86" y="346" font-size="13" font-weight="600" fill="#1f6f6a">④</text>
+    <text x="104" y="346" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.plan</text>
+    <text x="86" y="372" font-size="12" fill="#1a1a1a">Express + chokidar + SheetJS + SSE</text>
+    <text x="86" y="390" font-size="12" fill="#1a1a1a">로 메뉴판 단계별 구현 계획 세워줘</text>
+    <text x="86" y="408" font-size="12" fill="#1a1a1a">— 파일 감시 디바운스 300ms 포함</text>
+    <text x="86" y="450" font-size="11" fill="#6b6b6b">→ plan.md</text>
+
+    <!-- 5 tasks -->
+    <rect x="459" y="322" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="473" y="346" font-size="13" font-weight="600" fill="#1f6f6a">⑤</text>
+    <text x="491" y="346" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.tasks</text>
+    <text x="473" y="372" font-size="12" fill="#1a1a1a">계획을 서버(chokidar/파싱/SSE),</text>
+    <text x="473" y="390" font-size="12" fill="#1a1a1a">클라이언트(SSE 수신/렌더), 테마</text>
+    <text x="473" y="408" font-size="12" fill="#1a1a1a">(cafe-dark/bistro-light) 단위로 쪼개줘</text>
+    <text x="473" y="450" font-size="11" fill="#6b6b6b">→ tasks.md</text>
+
+    <!-- 9 implement -->
+    <rect x="846" y="322" width="362" height="140" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+    <text x="860" y="346" font-size="13" font-weight="600" fill="#1f6f6a">⑨</text>
+    <text x="878" y="346" font-size="13" font-family="monospace" fill="#1a1a1a">/speckit.implement</text>
+    <text x="860" y="372" font-size="12" fill="#1a1a1a">태스크 순서대로 구현 시작 — 통과</text>
+    <text x="860" y="390" font-size="12" fill="#1a1a1a">기준은 menu.xlsx 저장 시 브라우저</text>
+    <text x="860" y="408" font-size="12" fill="#1a1a1a">가 새로고침 없이 갱신되는 것</text>
+    <text x="860" y="450" font-size="11" fill="#6b6b6b">→ 코드 생성</text>
+  </g>
+
+  <!-- aux 3 box: tasks 이후 · implement 이전 -->
+  <rect x="72" y="478" width="1136" height="170" fill="#faf7f1" stroke="#cfcabf" stroke-width="1" rx="4"/>
+  <text x="86" y="500" font-size="11" fill="#6b6b6b" letter-spacing="0.04em">⑤ tasks 이후 · ⑨ implement 이전에 끼워넣기</text>
+
+  <!-- 6 taskstoissues -->
+  <rect x="86" y="510" width="362" height="128" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+  <text x="100" y="534" font-size="13" font-weight="600" fill="#1f6f6a">⑥</text>
+  <text x="118" y="534" font-size="12" font-family="monospace" fill="#1a1a1a">/speckit.taskstoissues</text>
+  <text x="100" y="560" font-size="12" fill="#1a1a1a">쪼개진 태스크를 GitHub 이슈로</text>
+  <text x="100" y="578" font-size="12" fill="#1a1a1a">자동 등록 — 라벨은 server/client</text>
+  <text x="100" y="596" font-size="12" fill="#1a1a1a">/theme로</text>
+  <text x="100" y="624" font-size="11" fill="#6b6b6b">→ GitHub Issues</text>
+
+  <!-- 7 analyze -->
+  <rect x="473" y="510" width="362" height="128" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+  <text x="487" y="534" font-size="13" font-weight="600" fill="#1f6f6a">⑦</text>
+  <text x="505" y="534" font-size="12" font-family="monospace" fill="#1a1a1a">/speckit.analyze</text>
+  <text x="487" y="560" font-size="12" fill="#1a1a1a">spec·plan·tasks 정합성 검사 —</text>
+  <text x="487" y="578" font-size="12" fill="#1a1a1a">_설정 시트 항목 전부 태스크에</text>
+  <text x="487" y="596" font-size="12" fill="#1a1a1a">매핑됐는지 확인</text>
+  <text x="487" y="624" font-size="11" fill="#6b6b6b">→ 정합성 리포트</text>
+
+  <!-- 8 checklist -->
+  <rect x="860" y="510" width="362" height="128" fill="#ffffff" stroke="#cfcabf" stroke-width="1" rx="4"/>
+  <text x="874" y="534" font-size="13" font-weight="600" fill="#1f6f6a">⑧</text>
+  <text x="892" y="534" font-size="12" font-family="monospace" fill="#1a1a1a">/speckit.checklist</text>
+  <text x="874" y="560" font-size="12" fill="#1a1a1a">품질 체크리스트 — 저장→갱신</text>
+  <text x="874" y="578" font-size="12" fill="#1a1a1a">디바운스, 품절·테마 교체·시트 추가</text>
+  <text x="874" y="596" font-size="12" fill="#1a1a1a">전부 명세에 적혔는지</text>
+  <text x="874" y="624" font-size="11" fill="#6b6b6b">→ 체크리스트 결과</text>
+
+  <!-- footer -->
+  <line x1="72" y1="680" x2="1208" y2="680" stroke="#cfcabf" stroke-width="1"/>
+  <text x="72" y="704" font-size="11" fill="#6b6b6b">SpecKit 9단계 인용문 — 카페 메뉴판 실습 사이클</text>
+  <text x="1208" y="704" font-size="11" fill="#6b6b6b" text-anchor="end">21</text>
+</svg>
