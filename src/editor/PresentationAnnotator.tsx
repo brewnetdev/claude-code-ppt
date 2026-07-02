@@ -44,6 +44,7 @@ export function PresentationAnnotator() {
 
   const idRef = useRef(0);
   const timersRef = useRef<Set<number>>(new Set());
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
 
   const track = useCallback((id: number) => {
     timersRef.current.add(id);
@@ -122,7 +123,36 @@ export function PresentationAnnotator() {
   const endDrag = useCallback(
     (e: React.MouseEvent) => {
       if (!dragStart) return;
-      commitBox(dragStart, { x: e.clientX, y: e.clientY });
+      const end = { x: e.clientX, y: e.clientY };
+      const moved =
+        Math.abs(end.x - dragStart.x) >= CLICK_THRESHOLD_PX ||
+        Math.abs(end.y - dragStart.y) >= CLICK_THRESHOLD_PX;
+
+      if (!moved) {
+        // A click, not a drag. The surface (inset:0) sits above the whole
+        // slide, so the click never reaches the slide's own anchors. Hit-test
+        // what's underneath and, if it's a link, open it in a new tab — this
+        // is what keeps presentation-mode links working while the annotator
+        // toolbar is expanded.
+        const surface = surfaceRef.current;
+        let under: Element | null = null;
+        if (surface) {
+          const prev = surface.style.pointerEvents;
+          surface.style.pointerEvents = 'none';
+          under = document.elementFromPoint(end.x, end.y);
+          surface.style.pointerEvents = prev;
+        }
+        const a = under?.closest('a');
+        const href = a?.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('#')) {
+          window.open(href, '_blank', 'noopener,noreferrer');
+        }
+        setDragStart(null);
+        setDragNow(null);
+        return;
+      }
+
+      commitBox(dragStart, end);
       setDragStart(null);
       setDragNow(null);
     },
@@ -148,6 +178,7 @@ export function PresentationAnnotator() {
           collapsed toolbar fully restores the slide's native click behaviour. */}
       {!collapsed ? (
         <div
+          ref={surfaceRef}
           data-testid="annotator-surface"
           onMouseDown={onSurfaceDown}
           onMouseMove={onSurfaceMove}

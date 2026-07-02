@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
+import { linkifyHtml } from '../exporter/linkify';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
 import { PresentationAnnotator } from './PresentationAnnotator';
@@ -108,6 +109,14 @@ export function PresentationView({ onExit }: Props) {
   }, [onExit]);
 
   const slide = slides[currentIndex];
+  // Reuse the export pipeline's linkifier so bare `https://…` text becomes
+  // real anchors here too (the editor DOM is intentionally left un-linkified).
+  // Existing <a> tags also get target/rel stamped. The capture-phase click
+  // handler above then opens every resulting anchor in a new tab.
+  const slideHtml = useMemo(
+    () => (slide ? linkifyHtml(slide.html, document) : ''),
+    [slide],
+  );
   if (!slide) return null;
   const overlays = overlaysBySlide[slide.id] ?? [];
 
@@ -133,7 +142,7 @@ export function PresentationView({ onExit }: Props) {
         <div
           className="slide-canvas-host"
           style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, position: 'relative' }}
-          dangerouslySetInnerHTML={{ __html: slide.html }}
+          dangerouslySetInnerHTML={{ __html: slideHtml }}
         />
         <PresentationOverlays overlays={overlays} />
       </div>

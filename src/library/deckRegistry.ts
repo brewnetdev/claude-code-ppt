@@ -210,28 +210,16 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
         topic: '기획·명세·SDD 풀스택, 디버깅·리팩토링·플러그인',
         deckId: 'claude-code-level5-chapter5',
       },
-      {
-        level: 6,
-        label: '프론트엔드 고도화',
-        topic: '디자인 시스템·컴포넌트·검증',
-        deckId: 'claude-code-level6-chapter6',
-      },
     ],
   },
   {
     name: '배포 · 운영',
     levels: [
       {
-        level: 7,
-        label: '토큰 제어 · 보안 · SEO',
-        topic: '토큰 절약, 보안 점검, SEO',
+        level: 6,
+        label: '빌드, 배포, 서비스 운영',
+        topic: 'CI/CD·Vercel·Railway·Cloudflare 셀프호스팅·보안 점검·구글/네이버 검색 등록',
         deckId: 'claude-code-level7-chapter7',
-      },
-      {
-        level: 8,
-        label: '빌드·배포 · 셀프호스팅',
-        topic: 'Vercel·Railway·Cloudflare 실서비스 론칭',
-        deckId: 'claude-code-level8-chapter8',
       },
     ],
   },
@@ -239,18 +227,24 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     name: '고급',
     levels: [
       {
-        level: 9,
+        level: 7,
+        label: '멀티 에이전트 & 워크플로우 오케스트레이션',
+        topic: '서브에이전트 · Dynamic Workflows · Agent Teams · 선택 기준 · CI/CD 자동화',
+        deckId: 'claude-code-level7-subagent',
+      },
+      {
+        level: 8,
         label: '하네스 엔지니어링 · 베스트 프렉티스',
-        topic: '서브에이전트·하네스 엔지니어링·자율 운용 베스트 프렉티스',
+        topic: '하네스 이론·오픈소스 케이스·10단계 적용 가이드·자율 운용',
         deckId: 'claude-code-level9-chapter9',
       },
       {
-        level: 10,
+        level: 9,
         label: '클로드 코드 딥 다이브',
         topic: '에이전트 내부 동작·소스 분석',
       },
       {
-        level: 11,
+        level: 10,
         label: 'Local LLM 설치와 활용',
         topic: '로컬 LLM·Ollama·Qwen·Gemma 활용',
       },

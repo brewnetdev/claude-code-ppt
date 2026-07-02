@@ -96,7 +96,7 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
     () => BUILTIN_DECKS.map((d) => ({ ...d, slideCount: countSlides(d.html) })),
     [],
   );
-  // Level cards (Lv.1~Lv.10) in course-outline order, each tagged with its
+  // Level cards (Lv.1~Lv.10) sorted by level number, each tagged with its
   // stage category. Levels with no backing deck render as a non-clickable
   // "발표자료 준비 중" card so the full curriculum (목차) is always visible.
   const levelItems = useMemo(() => {
@@ -109,7 +109,7 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
         const deck = l.deckId ? byId.get(l.deckId) : undefined;
         return { ...l, category: s.name, deck, slideCount: deck?.slideCount ?? 0 };
       }),
-    );
+    ).sort((a, b) => a.level - b.level);
   }, [decksWithMeta]);
   // Non-level decks (커리큘럼 리포트 · 발표 소개 등) — kept in a separate section.
   const visibleOther = useMemo(

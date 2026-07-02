@@ -32,6 +32,10 @@
 
 ### S5. 섹션 표지 — 3.1 Prompt & Context Engineering ⏱ ~10초
 > "프롬프트 엔지니어링"에서 **"컨텍스트 엔지니어링"** 으로 — 모델에 무엇을 주느냐가 결과물의 품질을 좌우합니다.
+이 챕터에서는 "AI 협업을 **'운'**이 아니라 **'시스템'**으로 — 검증·재현 가능한 출력으로 만드는 것이 핵심." 이기 때문에 프롬프트 작성을 기본으로 컨텍스트를 어떤식으로  주입해줘야 하는가
+이를 바탕으로 시스템화 할 수 있는 방안은 무었인가를 다룰거구요, 그 워크플로우에 TDD, SDD 방법론을 설명할 예정입니다.
+그 전에 반드시 알아야 할 내용으로 프롬프트, 컨텍스트를 먼저 설명하고 넘어가도록 하겠습니다. 
+
 
 ### S6. 3.1.1 FOUNDATION — 프롬프트 vs 컨텍스트 ⏱ ~70초
 > 두 기술은 던지는 질문이 다릅니다.
@@ -113,65 +117,72 @@
 ### S21. 3.1.7 4 STRATEGIES — 4대 컨텍스트 전략 ⏱ ~50초
 > Anthropic이 정리한 4대 전략입니다.
 > ① **Write** — 외부에 기록(CLAUDE.md·메모리). ② **Select** — 필요한 것만 골라서 적재. ③ **Compress** — 압축(/compact). ④ **Isolate** — 격리(서브에이전트).
+> 이 네 단어는 터미널에 치는 명령어가 아니라, "이 상황에서 어떤 방향으로 컨텍스트를 다룰지"를 정하는 사고의 분류입니다.
 > 6원칙을 4범주로 묶은 메타 분류. 이 네 단어만 외우면 어떤 상황에서도 "지금 어떤 전략 쓸지" 즉시 결정.
+
+### S22. 3.1.7 LONG CONTEXT — 장문 컨텍스트 배치 원칙 ⏱ ~50초
+> 4대 전략에서 한 걸음 더 — 긴 자료(20k 토큰+)를 붙여 넣고 시킬 때의 **순서**입니다. 실무에서 매일 하는 그 동작이에요.
+> 화면을 보시면 — 위에는 **첨부 자료**(기획서·코드·로그·검색결과), 아래에는 **질문·지시·출력 형식**. 즉 ① 긴 자료는 **맨 위에 모아 두고** ② "이걸로 ○○ 해줘"라는 지시는 **맨 아래**에 둡니다.
+> 왜 이 순서냐 — 모델은 **끝부분을 가장 강하게 주목**하기 때문입니다. 자료를 위에 깔고 질문을 끝에 두면 응답 품질이 **최대 30%** 올라갑니다(Anthropic 측정, 여러 문서를 한꺼번에 줄 때 특히).
+> 근본 이유는 **Context Rot** — 토큰이 늘수록 핵심을 골라내는 정확도가 떨어집니다(모든 모델 공통). 컨텍스트는 한정 자원이라 **무엇을 어디에 두느냐가 곧 품질**. 출처: Anthropic 「Prompting best practices」·「Effective Context Engineering for AI Agents」.
 
 ---
 
 ## PART 02 — Kent Beck의 증강코딩
 
-### S22. 섹션 표지 — 3.2 Kent Beck의 증강코딩 ⏱ ~10초
+### S23. 섹션 표지 — 3.2 Kent Beck의 증강코딩 ⏱ ~10초
 > TDD 창시자 Kent Beck이 2025년 제시한 AI 시대 코딩 방법론입니다.
 
-### S23. 3.2 AUGMENTED CODING — 증강코딩 개념 ⏱ ~60초
+### S24. 3.2 AUGMENTED CODING — 증강코딩 개념 ⏱ ~60초
 > `**Augmented Coding(증강코딩)** = AI가 타이핑을 대신해주되 사람이 손으로 직접 쓸 때와 동일한 가치 체계(품질·복잡도·테스트·커버리지)를 유지하는 방법론`. Kent Beck이 BPlusTree3 프로젝트(B+ Tree 라이브러리)에서 탐구·문서화했어요.
 > 핵심 원칙: **"손으로 직접 코드를 작성할 때와 동일한 가치 체계를 유지하면서, 타이핑을 AI가 대신해줄 뿐이다."**
 > AI 궤도 이탈 3가지 경고 신호 — ①**루프**(같은 작업 반복 진전 없음) ②**요청 안 한 기능 추가**(복잡성 폭발) ③**치팅**(테스트 자체를 비활성화·삭제 — **가장 위험**).
 
-### S24. 3.2 PRINCIPLE — Make it work · right · fast ⏱ ~55초
+### S25. 3.2 PRINCIPLE — Make it work · right · fast ⏱ ~55초
 > 점진적 개발 3단계입니다.
 > ① **Make it work** — 일단 돌아가게. 못생긴 코드라도 OK.
 > ② **Make it right** — 가독성·구조 정리. 테스트 통과 유지.
 > ③ **Make it fast** — 성능 최적화. **이 단계 전엔 성능 걱정 ✗**.
 > 순서가 핵심. AI가 1단계도 안 됐는데 "최적화해줘" 하면 망가집니다. 먼저 작동 → 리팩토링 → 그 다음 빠르게.
 
-### S25. 3.2 STEPS — Small Safe Steps ⏱ ~50초
+### S26. 3.2 STEPS — Small Safe Steps ⏱ ~50초
 > `**Small Safe Steps** = 작고 안전한 단계로만 진행하는 원칙`. 한 번에 큰 변경 ✗, 매번 검증 가능한 작은 변경 ○. 좋은 예 vs 나쁜 예 코드로 보여드립니다. 한 줄 요약 — **"되돌릴 수 있는 변경"** 만 한다. git commit이 한 줄 변경 단위 OK.
 
 ---
 
 ## PART 03 — TDD: Red · Green · Refactor
 
-### S26. 섹션 표지 — 3.3 TDD ⏱ ~10초
+### S27. 섹션 표지 — 3.3 TDD ⏱ ~10초
 > 테스트 주도 개발 — Red · Green · Refactor 사이클. AI는 왜 이걸 무시하는지부터.
 
-### S27. 3.3 AI는 왜 TDD를 무시하는가 ⏱ ~50초
+### S28. 3.3 AI는 왜 TDD를 무시하는가 ⏱ ~50초
 > `**TDD(Test-Driven Development)** = 테스트를 먼저 작성하고 → 그걸 통과하는 최소 구현 → 리팩토링하는 개발 방법론`.
 > AI는 학습 데이터에서 본 **"구현 먼저"** 패턴이 압도적으로 많아 별 말 없으면 테스트를 건너뜁니다. 그래서 명시적으로 TDD 사이클을 요청해야 합니다.
 
-### S28. 3.3 RED-GREEN-REFACTOR — 명시적 사이클 요청 ⏱ ~50초
+### S29. 3.3 RED-GREEN-REFACTOR — 명시적 사이클 요청 ⏱ ~50초
 > 매번 "TDD로 해줘" 한 줄로 시작합니다. **Red** = 실패하는 테스트 먼저. **Green** = 그걸 통과하는 최소 구현. **Refactor** = 중복·이름 정리, 테스트는 그대로 통과. 한 사이클이 너무 크면 작게 분해.
 
-### S29. 3.3 CLAUDE.md TDD 규칙 ⏱ ~45초
+### S30. 3.3 CLAUDE.md TDD 규칙 ⏱ ~45초
 > 매번 "TDD로 해줘" 반복은 비효율. CLAUDE.md에 한 줄 룰 박으면 자동 적용:
 > > "모든 신규 함수는 테스트 먼저 작성. Red → Green → Refactor 순서 강제. 테스트 없는 구현은 즉시 거부."
 > 이 한 룰이 전체 프로젝트의 AI 출력 품질을 좌우합니다.
 
-### S30. 3.3 /tdd-red — Red 단계 자동화 ⏱ ~40초
+### S31. 3.3 /tdd-red — Red 단계 자동화 ⏱ ~40초
 > 슬래시 커맨드로 Red 단계만 자동화합니다. `**slash command(슬래시 커맨드)** = 자주 쓰는 프롬프트를 / 명령어로 등록해 한 단어로 호출하는 기능`. `/tdd-red 이메일 검증 함수` → 실패하는 테스트 3종(정상·비정상·경계값) 자동 생성.
 
-### S31. 3.3 /tdd-green — Green 단계 자동화 ⏱ ~30초
+### S32. 3.3 /tdd-green — Green 단계 자동화 ⏱ ~30초
 > `/tdd-green` → 테스트를 통과시키는 **최소 구현**만 작성. 과한 추상화·옵션 추가 금지가 룰.
 
-### S32. 3.3 /tdd-refactor — Refactor 단계 자동화 ⏱ ~30초
+### S33. 3.3 /tdd-refactor — Refactor 단계 자동화 ⏱ ~30초
 > `/tdd-refactor` → 중복 제거·이름 개선·정규식 상수 추출. **테스트는 그대로 통과** 유지가 조건.
 
-### S33. 3.3 HOOKS — 자동 테스트 실행 ⏱ ~50초
+### S34. 3.3 HOOKS — 자동 테스트 실행 ⏱ ~50초
 > `**Hook** = 도구 호출 시점·세션 종료 시점에 사용자 정의 명령을 자동 실행하는 메커니즘`. 파일 수정(Write·Edit) 직후 자동으로 `npm test` 실행 같은 룰을 박을 수 있어요. AI가 코드 고치자마자 테스트가 돌고, 실패하면 즉시 알림. **수동 확인 단계 ✗**.
 
-### S34. 3.3 USAGE — TDD 슬래시 사용 예 ⏱ ~50초
+### S35. 3.3 USAGE — TDD 슬래시 사용 예 ⏱ ~50초
 > 실전 시나리오 — 이메일 검증 함수 만들기. ① `/tdd-red 이메일 검증 함수` → test 3종 자동, FAIL 3건. ② `/tdd-green` → validate_email.py 작성, PASS 3건. ③ `/tdd-refactor` → EMAIL_RE 상수 추출, PASS 3건 유지. 세 명령으로 한 사이클 완성.
 
-### S35. 3.3 TEST AS SPEC — 명세 역할을 하는 테스트 ⏱ ~40초
+### S36. 3.3 TEST AS SPEC — 명세 역할을 하는 테스트 ⏱ ~40초
 > 테스트가 단순 검증을 넘어 **"이 함수는 어떻게 동작해야 한다"는 명세** 역할을 합니다. 잘 쓴 테스트는 코드 주석보다 정확. AI에게 "이 테스트를 통과하도록 함수 작성"이라 명령하면 출력 품질이 명세 수준만큼 보장됩니다.
 
 ### S36~S38. Practice — 실습 ⏱ ~30초/each
@@ -181,58 +192,141 @@
 
 ## PART 04 — SDD · SpecKit
 
-### S39. 섹션 표지 — 3.4 SDD · SpecKit ⏱ ~10초
+> **표기 안내 (커맨드 형식)** — 본 교재는 Claude Code 기준 슬래시 커맨드를 **하이픈** 표기 `/speckit-constitution` 으로 통일합니다. spec-kit 공식 README에는 슬래시 커맨드가 점 표기 `/speckit.*` 로, Agent Skill(skills 모드) 이름이 하이픈 `speckit-*` 로 **병기**되어 있으니, 수강생은 본인 환경에서 자동완성(`/speckit-`)으로 한 번 확인하세요.
+
+### S40. 섹션 표지 — 3.4 SDD · SpecKit ⏱ ~10초
 > Spec → Plan → Tasks → Implement. 명세 주도 개발로 AI 출력의 재현 가능성을 확보합니다.
 
-### S40. 3.4 SDD — Spec-Driven Development ⏱ ~55초
+### S41. 3.4 SDD — Spec-Driven Development ⏱ ~55초
 > `**SDD(Spec-Driven Development)** = 코드를 짜기 전에 명세(Spec)를 먼저 정의하고, 그로부터 계획·작업·구현을 순차적으로 도출하는 개발 방법론`. TDD가 "테스트 먼저"라면 SDD는 **"명세 먼저"**. 한 단계 더 위에서 시작합니다.
 > 효과: 같은 명세에서 출발하면 AI가 매번 비슷한 구현을 만듭니다. 재현 가능성↑.
 
-### S41. 3.4 INSTALL — SpecKit 설치 ⏱ ~40초
+### S42. 3.4 INSTALL — SpecKit 설치 ⏱ ~40초
 > `**SpecKit** = SDD 워크플로를 슬래시 커맨드로 구현한 오픈 도구`. `npx speckit init` 한 줄로 설치. .specify/ 디렉터리 생성됨.
 
-### S42. 3.4 INSTALL · 계속 — 디렉터리 구조 ⏱ ~30초
+### S43. 3.4 INSTALL · 계속 — 디렉터리 구조 ⏱ ~30초
 > .specify/ 안에 constitution.md / spec.md / plan.md / tasks.md 가 자동 생성됨. 각 파일이 한 단계의 산출물.
 
-### S43. 3.4 COMMANDS — SpecKit 슬래시 커맨드 체인 ⏱ ~50초
+### S44. 3.4 COMMANDS — SpecKit 슬래시 커맨드 체인 ⏱ ~50초
 > 6개의 핵심 슬래시 커맨드입니다.
-> `/speckit.constitution` → 프로젝트 원칙 → constitution.md
-> `/speckit.specify` → 요구사항 명세 → spec.md
-> `/speckit.clarify` → 모호한 부분 명확화 → spec.md 보완
-> `/speckit.plan` → 기술 구현 계획 → plan.md
-> `/speckit.tasks` → 태스크 분해 → tasks.md
-> `/speckit.implement` → 태스크별 구현 → 실제 코드.
+> `/speckit-constitution` → 프로젝트 원칙 → constitution.md
+> `/speckit-specify` → 요구사항 명세 → spec.md
+> `/speckit-clarify` → 모호한 부분 명확화 → spec.md 보완
+> `/speckit-plan` → 기술 구현 계획 → plan.md
+> `/speckit-tasks` → 태스크 분해 → tasks.md
+> `/speckit-implement` → 태스크별 구현 → 실제 코드.
 
-### S44. 3.4 PROCESS — 프로세스 + 보조 명령 ⏱ ~40초
-> 메인 6단계 + 보조 3개. 보조는 `/speckit.taskstoissues` (tasks → GitHub 이슈) · `/speckit.analyze` (spec·plan·tasks 정합성) · `/speckit.checklist` (완전성·일관성 게이트). 보조는 tasks와 implement 사이에 끼워넣어 품질 게이트로 활용.
+### S45. 3.4 PROCESS — 프로세스 + 보조 명령 ⏱ ~40초
+> 메인 6단계 + 보조 3개. 보조는 `/speckit-taskstoissues` (tasks → GitHub 이슈) · `/speckit-analyze` (spec·plan·tasks 정합성) · `/speckit-checklist` (완전성·일관성 게이트). 보조는 tasks와 implement 사이에 끼워넣어 품질 게이트로 활용.
 
-### S45. 3.4 SDD CONTRAST — 좋은 요청 vs 나쁜 요청 ⏱ ~45초
-> 나쁜 요청: "회원가입 만들어줘" — 너무 모호, AI가 빈칸을 임의로 채움. 좋은 요청: `/speckit.specify` 로 먼저 명세 작성 → spec.md에 "이메일 검증·비밀번호 정책·중복 확인·세션 발급" 4 항목 → `/speckit.implement` 호출. 같은 결과를 매번 재현.
+### S46. 3.4 SDD CONTRAST — 좋은 요청 vs 나쁜 요청 ⏱ ~45초
+> 나쁜 요청: "회원가입 만들어줘" — 너무 모호, AI가 빈칸을 임의로 채움. 좋은 요청: `/speckit-specify` 로 먼저 명세 작성 → spec.md에 "이메일 검증·비밀번호 정책·중복 확인·세션 발급" 4 항목 → `/speckit-implement` 호출. 같은 결과를 매번 재현.
 
-### S46. 3.4 CONNECT — CLAUDE.md 연결 ⏱ ~35초
-> CLAUDE.md에 SpecKit 섹션 추가: `## SDD 워크플로 - 모든 기능은 /speckit.specify 로 시작 - implement 전 /speckit.analyze 강제`. 한 번 박으면 매 세션 자동 적용.
+### S47. 3.4 CONNECT — CLAUDE.md 연결 ⏱ ~35초
+> CLAUDE.md에 SpecKit 섹션 추가: `## SDD 워크플로 - 모든 기능은 /speckit-specify 로 시작 - implement 전 /speckit-analyze 강제`. 한 번 박으면 매 세션 자동 적용.
 
-### S47. 3.4 SDD CYCLE — 카페 메뉴판 실습 사이클 ⏱ ~80초
+### S48. 3.4 SDD CYCLE — 카페 메뉴판 실습 사이클 ⏱ ~80초
 > 9단계 사이클을 메뉴판 프로젝트로 인용해봅니다.
-> ① `/speckit.constitution` "카페 메뉴판 구현 원칙 — 데이터(Excel)와 표현(CSS 테마) 분리"
-> ② `/speckit.specify` "요구사항 — Excel 시트 1개 = 페이지 1개, _설정 시트로 매장명·테마·자동전환초"
-> ③ `/speckit.clarify` "OneDrive vs Ctrl+S 차이 명확화"
-> ④ `/speckit.plan` "Express + chokidar(파일 감시) + SheetJS + SSE 푸시"
-> ⑤ `/speckit.tasks` "server.mjs · 파일 감시 · Excel 파서 · SSE · public 템플릿 2종"
-> ⑥ `/speckit.taskstoissues` "tasks → GitHub 이슈"
-> ⑦ `/speckit.analyze` "spec·plan·tasks 정합성"
-> ⑧ `/speckit.checklist` "구현 전 품질 게이트"
-> ⑨ `/speckit.implement` "tasks 순서대로 실제 구현".
+> ① `/speckit-constitution` "카페 메뉴판 구현 원칙 — 데이터(Excel)와 표현(CSS 테마) 분리"
+> ② `/speckit-specify` "요구사항 — Excel 시트 1개 = 페이지 1개, _설정 시트로 매장명·테마·자동전환초"
+> ③ `/speckit-clarify` "OneDrive vs Ctrl+S 차이 명확화"
+> ④ `/speckit-plan` "Express + chokidar(파일 감시) + SheetJS + SSE 푸시"
+> ⑤ `/speckit-tasks` "server.mjs · 파일 감시 · Excel 파서 · SSE · public 템플릿 2종"
+> ⑥ `/speckit-taskstoissues` "tasks → GitHub 이슈"
+> ⑦ `/speckit-analyze` "spec·plan·tasks 정합성"
+> ⑧ `/speckit-checklist` "구현 전 품질 게이트"
+> ⑨ `/speckit-implement` "tasks 순서대로 실제 구현".
 > 용어 풀이: `**SSE(Server-Sent Events)** = 서버→클라이언트 단방향 푸시 채널, WebSocket보다 가벼움`. `**chokidar** = Node.js 파일 시스템 변경 감시 라이브러리`.
 
 ---
 
 ## PART 05 — 프로젝트 구조 설계
 
-### S48. 섹션 표지 — 3.5 프로젝트 구조 설계 ⏱ ~10초
+### S49. 섹션 표지 — 3.5 프로젝트 구조 설계 ⏱ ~10초
 > 파일별 역할 명확화 + AGENTS.md 표준 — 도구가 바뀌어도 유지되는 구조.
 
-### S49. 3.5 PROJECT LAYOUT — 구조 살펴보기 ⏱ ~70초
+  Next.js App Router 단일 배포 — 기술스택 & 배포 가이드
+  
+  ▎ 핵심 전제: 하나의 코드베이스 = 하나의 Vercel 배포. app/ 페이지와 app/api/**/route.ts가 같은 빌드에서 함께 나갑니다.
+
+  1) 기술스택
+
+  프레임워크 / 런타임
+
+  ┌────────────┬──────────────────────┬─────────────────────────────────────────────────────────────────────────┐
+  │    항목    │         선택         │                                   왜                                    │
+  ├────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ 프레임워크 │ Next.js (App Router) │ 프론트(페이지)와 백엔드(Route Handlers)를 한 앱에 통합, Vercel 1급 지원 │
+  ├────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ UI         │ React 19             │ Server Components / Server Actions / use 훅                             │
+  ├────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ 언어       │ TypeScript           │ 타입 안정성 + path alias                                                │
+  ├────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────┤
+  │ 런타임     │ Node (기본) vs Edge  │ DB 접근=Node, 가벼운 가드/리다이렉트=Edge. middleware.ts는 항상 Edge    │
+  └────────────┴──────────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+  프론트엔드
+
+  - 라우팅: App Router 파일 기반. (auth)·(app) 라우트 그룹은 URL에 안 드러나는 논리적 묶음으로 레이아웃/가드 격리, [slug] 동적 라우트.
+  - 컴포넌트 경계: 기본 Server Component, 'use client'는 상호작용 잎(leaf)에만 — 트리 상단에 두지 말고 아래로 밀어내리기.
+  - 상태관리: Zustand는 UI/세션성 상태에 한정. 서버 상태는 서버에서 해결.
+  - 스타일링: Tailwind CSS 권장.
+  - 데이터 페칭 3모델: 읽기=Server Component fetch, 뮤테이션=Server Actions, 외부/웹훅=Route Handler.
+
+  백엔드 (Route Handlers as API)
+
+  route.ts (HTTP I/O + zod 검증)   ← 얇게
+    → lib/server/services/*.ts (비즈니스 규칙)   ← 두껍게
+      → lib/server/db.ts (Drizzle 쿼리)
+  - v1/ 경로 prefix로 API 버저닝, 서버 전용 코드는 lib/server/에 격리(server-only).
+
+  데이터베이스 
+
+  - Postgres (Vercel Postgres / Neon / Supabase) + Drizzle ORM + drizzle-kit 마이그레이션, db/schema/에 단일 소스화.
+  - 서버리스 커넥션 주의: 함수 폭증 시 max_connections 소진 → Neon serverless driver 또는 pooled URL 사용.
+
+  기타
+
+  - 테스트: Playwright(e2e) + Vitest/Testing Library(유닛)
+  - 인증: Auth.js(NextAuth) 권장, 판정 로직은 server-only
+  - 도구체인: ESLint + Prettier + tsconfig path alias
+
+  2) 배포 (Vercel 단일 배포) 
+
+  ┌────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │      주제      │                                                             핵심                                                             │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ 단일 배포 모델 │ page.tsx=SSG/SSR, route.ts=서버리스 Function 자동 배포 → git push 한 번에 프론트+API 원자적 배포, 버전 스큐 원천 차단        │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ 환경변수       │ .env.local(❌Git) / .env.example(✅키만) / Vercel 대시보드 Production·Preview·Development 스코프. 시크릿엔 NEXT_PUBLIC_ 금지 │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ DB 연결        │ 런타임=pooled URL, 마이그레이션=direct URL 분리                                                                              │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ 마이그레이션   │ generate→커밋→적용. 빌드 통합(간단) vs 별도 CI 스텝(안전·권장, Production은 승인된 것만)                                     │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Cron           │ vercel.json crons로 /api/cron/cleanup 스케줄 + CRON_SECRET 헤더 검증                                                         │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ 리전/런타임    │ regions를 DB와 동일 리전(예 icn1), functions.maxDuration 상향                                                                │
+  ├────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ CI/CD          │ feature push→Preview URL, main merge→Production. PR마다 Preview에 E2E 가능                                                   │
+  └────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  // vercel.json 종합 예시
+  {
+    "regions": ["icn1"],
+    "crons": [{ "path": "/api/cron/cleanup", "schedule": "0 3 * * *" }],
+    "functions": { "app/api/**/route.ts": { "maxDuration": 30 } }
+  }
+
+  핵심 원칙 (요약)
+
+  1. 단일 앱 = 단일 배포 — 프론트/백 버전 불일치 구조적 차단
+  2. route는 얇게, services는 두껍게
+  3. server-only 코드 격리 (lib/server/, NEXT_PUBLIC_ 미사용)
+  4. 환경별 시크릿 분리 (Vercel Production/Preview/Development)
+  5. DB 커넥션은 pooled, 마이그레이션은 direct
+
+### S50. 3.5 PROJECT LAYOUT — 구조 살펴보기 ⏱ ~70초
 > 표준 프로젝트 구조. `src/server/` (백엔드) · `src/components/` (프론트) · `migrations/` (DB) · `tests/` (테스트) · `docs/` (문서) · `.claude/` (Claude Code 설정 — agents·hooks·skills) · `CLAUDE.md` (메인 룰) · `AGENTS.md` (도구 중립 룰).
 > `**AGENTS.md** = 모든 AI 코딩 에이전트(Claude·Cursor·Copilot·Gemini)가 읽는 표준 README — 2025.7 공식화된 오픈 표준`. 도구 분열 해결책. CLAUDE.md에서 `@AGENTS.md` 참조하면 클로드 코드도 자동 적용. 모노레포에선 패키지별 AGENTS.md 계층 가능.
 
@@ -242,23 +336,33 @@
 
 ### S50~S52. Practice — Markdown Editor & 프리뷰 ⏱ ~30초/each
 > (화면) 실습 안내.
-> SDD 9단계 사이클을 그대로 적용해 Markdown Editor 만들기. ① `/speckit.constitution`부터 ⑨ `/speckit.implement`까지. 강의 예제 repo: github.com/claude-code-expert/inflearn-docs/tree/main/example.
+> SDD 9단계 사이클을 그대로 적용해 Markdown Editor 만들기. ① `/speckit-constitution`부터 ⑨ `/speckit-implement`까지. 강의 예제 repo: github.com/claude-code-expert/inflearn-docs/tree/main/example.
 > 완성 산출물: 좌측 입력 → 우측 실시간 프리뷰. XSS 차단 sanitize 단계 필수. 만든 후 Hook으로 자동 테스트 + git commit까지 연결해보세요.
 
 ---
 
 ## SUMMARY · REF
 
-### S53. LEVEL 3 핵심 요약 ⏱ ~90초
+### S54. LEVEL 3 핵심 요약 ⏱ ~90초
 > 오늘 배운 것을 묶어드리면 —
-> ① **컨텍스트 엔지니어링** — 프롬프트(한 번 잘 묻기)에서 컨텍스트(매 추론마다 보는 정보 전체 설계)로. Context Rot 6원칙 + 서브에이전트 + 4대 전략.
+> ① **프롬프트·컨텍스트 엔지니어링** — 프롬프트(한 번 잘 묻기)에서 컨텍스트(매 추론마다 보는 정보 전체 설계)로. 프롬프팅 기법 6선 + Context Rot 회피 6원칙 + 서브에이전트 + 4대 전략(Write·Select·Compress·Isolate) + 장문 배치.
 > ② **증강코딩** — Kent Beck의 Make it work · right · fast. Small Safe Steps. 궤도 이탈 3 경고 신호 식별.
 > ③ **TDD 자동화** — `/tdd-red·green·refactor` 슬래시 커맨드 + Hook으로 매번 검증 강제.
 > ④ **SDD·SpecKit** — `constitution → specify → clarify → plan → tasks → implement` 6단계 + 보조 3개. 명세 먼저 작성하면 같은 결과를 매번 재현.
-> ⑤ **프로젝트 구조** — AGENTS.md로 도구 중립 룰, CLAUDE.md에서 참조.
-> **한 줄로 — "AI 협업을 '운'이 아니라 '시스템'으로."** 다음 Level 4에서 Skills · Hooks · MCP를 본격적으로 다룹니다.
+> ⑤ **프로젝트 구조 설계** — CLAUDE.md · AGENTS.md · `.claude/`(settings·commands·agents·skills·rules). 경로별 자동 적용 규칙 + Git 공유/개인 분리.
+> ⑥ **실습** — 카페 메뉴판(엑셀 데이터 연동) · Markdown Editor & 프리뷰로 배운 것을 실제 산출물로 만들어 봤습니다.
+이밖에 클로드 디자인 요소 적용하는것과 공통 UI 컴포넌트 프로젝트를 현재 프로젝트에 연동해서 각 엘리먼트들을 재사용하고 프론트를 통일감 있게 
+배치하는것을 적용했구요 
+다음 Level 4에서 Skills · Hooks · MCP를 본격적으로 다루고 나서 Level5단계에서 지금 작성한 마크다운 에디터 프로젝트를 파일 시스템이 아니라 디비와 연동하는 방법, 마크다운 문서를 html이나 md, pdf로 export 하는 법 등을 만들어보고 완성되면 배포해서 웹 사이트 형태로 서비스 하는 방법 등을 고도화 해볼 예정입니다.
+마크다운 에디터 파일은 로컬 경로에 저장이 되는데 이걸 잘 활용하면 나만의 지식 마크 다운 시스템 안드레 카파시가 주장한 지식관리 LLM Wiki 같은 을 만들수 있고 원본 문서와 클로드를 연결해서 AI가 분석하고 업데이트 해서 계속 발전하는 LLM Wiki 같은 시스템 처럼 발전시킬 수 있겠죠?
 
-### S54. 참고 자료 ⏱ ~30초
+
+
+> **한 줄로 — "AI 협업을 '운'이 아니라 '시스템'으로."** 
+
+
+
+### S55. 참고 자료 ⏱ ~30초
 > 참고 링크는 슬라이드에 정리해뒀습니다. Anthropic 공식 블로그(Effective Context Engineering) · Chroma Research(Context Rot) · Kent Beck(Augmented Coding) · SpecKit 공식 repo · AGENTS.md 표준 사이트(agents.md). 영상 멈추고 캡처하셔도 좋고, 강의 예제 repo에 다 정리돼 있습니다.
 
 ---

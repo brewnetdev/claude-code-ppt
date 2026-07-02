@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- 폰트: 본문 Noto Sans KR(한글 가독), 토큰값/라벨 JetBrains Mono(수치 구분) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6; --soft:#F4F1EB; --tealtint:#ECF3F2;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{ width:1280px; height:476px; position:relative; padding:22px 34px;
+    background:transparent; display:flex; flex-direction:column; gap:13px; }
+
+  .head{ display:flex; align-items:baseline; gap:14px; }
+  .eyebrow{ font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.4px;
+    color:var(--teal); border:1px solid var(--teal); padding:3px 10px; white-space:nowrap; }
+  .h-title{ font-size:23px; font-weight:900; color:var(--ink); white-space:nowrap; }
+  .h-flow{ font-family:var(--mono); font-size:15px; font-weight:600; color:var(--warm); margin-left:auto; }
+
+  /* 한 zone = [스택 행들] [대괄호] [라벨] */
+  .zone{ display:grid; grid-template-columns:600px 30px 1fr; align-items:center; column-gap:0; }
+  .rows{ display:flex; flex-direction:column; gap:9px; }
+  .row{ border:1px solid var(--line); border-radius:8px; background:var(--panel-bg);
+    padding:11px 18px; display:flex; align-items:center; justify-content:space-between; }
+  .row.data{ background:var(--soft); }
+  .row.instr{ background:var(--tealtint); border-color:var(--teal); }
+  .r-label{ font-size:19px; font-weight:700; color:var(--ink); }
+  .r-label .n{ font-family:var(--mono); color:var(--teal-deep); margin-right:8px; }
+  .r-sub{ font-size:14px; color:var(--warm); font-weight:400; margin-left:10px; }
+  .r-val{ font-family:var(--mono); font-size:15px; font-weight:700; color:var(--warm); white-space:nowrap; }
+  .row.instr .r-val{ color:var(--teal-deep); }
+
+  /* 대괄호 [ : 3변 중성 테두리로 그룹 묶기 */
+  .bracket{ justify-self:center; width:14px; align-self:stretch; margin:2px 0;
+    border:1px solid var(--line); border-left:none; }
+  /* 대괄호 → 라벨 화살표 */
+  .label{ display:flex; align-items:center; gap:12px; padding-left:6px; }
+  .arrow{ font-size:20px; color:var(--warm); flex:0 0 auto; }
+  .label-body .l-title{ font-size:20px; font-weight:900; color:var(--ink); line-height:1.2; }
+  .label-body .l-sub{ font-size:15px; color:var(--warm); line-height:1.4; margin-top:4px; word-break:keep-all; }
+  .label-body .l-sub b{ color:var(--ink); font-weight:700; }
+  .uplift{ display:inline-flex; align-items:baseline; gap:7px; margin-top:7px;
+    border:1px solid var(--green); border-radius:6px; padding:4px 11px; }
+  .uplift .big{ font-family:var(--mono); font-size:23px; font-weight:900; color:var(--green); line-height:1; }
+  .uplift .txt{ font-size:14px; color:var(--ink); }
+
+  /* zone 사이 위→아래 흐름 화살표 (스택 컬럼 폭 안에서 중앙) */
+  .flow{ width:600px; text-align:center; color:var(--warm); font-family:var(--mono);
+    font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .flow .ln{ height:1px; background:var(--line); flex:1 1 auto; }
+
+  .foot{ margin-top:6px; border-top:1px solid var(--line); padding-top:10px;
+    font-size:14px; color:var(--warm); line-height:1.45; word-break:keep-all; }
+  .foot b{ color:var(--ink); font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="head">
+      <span class="eyebrow">LONG CONTEXT · 20k+ tokens</span>
+      <span class="h-title">긴 자료는 위, 지시는 아래</span>
+      <span class="h-flow">프롬프트 구성 · 위 ↓ 아래</span>
+    </div>
+
+    <!-- ZONE A : 장문 데이터 (맨 위) -->
+    <div class="zone">
+      <div class="rows">
+        <div class="row data">
+          <div><span class="r-label"><span class="n">A</span>첨부 문서 ① — 기획서·요구사항</span></div>
+          <span class="r-val">~12K</span>
+        </div>
+        <div class="row data">
+          <div><span class="r-label"><span class="n">B</span>첨부 문서 ② — 기존 코드·로그</span></div>
+          <span class="r-val">~9K</span>
+        </div>
+        <div class="row data">
+          <div><span class="r-label"><span class="n">C</span>참고 자료 — 검색·문서 발췌</span></div>
+          <span class="r-val">~4K</span>
+        </div>
+      </div>
+      <div class="bracket"></div>
+      <div class="label">
+        <span class="arrow">→</span>
+        <div class="label-body">
+          <div class="l-title">① 장문 데이터는 위로</div>
+          <div class="l-sub">붙여넣는 문서·코드·검색결과를 <b>프롬프트 맨 위</b>에 모아 둔다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><span class="ln"></span><span>위 = 자료 · 아래 = 지시</span><span class="ln"></span></div>
+
+    <!-- ZONE B : 쿼리·지시 (맨 아래) -->
+    <div class="zone">
+      <div class="rows">
+        <div class="row instr">
+          <div><span class="r-label"><span class="n">Q</span>질문·지시 — "위 자료 기준으로 ○○ 해줘"</span></div>
+          <span class="r-val">맨 끝</span>
+        </div>
+        <div class="row instr">
+          <div><span class="r-label"><span class="n">F</span>출력 형식·예시 — 원하는 결과 양식</span></div>
+          <span class="r-val">맨 끝</span>
+        </div>
+      </div>
+      <div class="bracket"></div>
+      <div class="label">
+        <span class="arrow">→</span>
+        <div class="label-body">
+          <div class="l-title">② 쿼리·지시는 맨 아래</div>
+          <div class="l-sub">모델은 <b>끝부분을 가장 강하게 주목</b>한다.</div>
+          <div class="uplift"><span class="big">+30%</span><span class="txt">응답 품질 향상 (다문서 입력)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <b>왜?</b> 토큰이 늘수록 핵심을 골라내는 정확도가 떨어진다(Context Rot, 모든 모델 공통) — 컨텍스트는 <b>한정 자원</b>이라 순서가 곧 품질이다.
+      <span style="color:var(--warm);">　출처: Anthropic 「Prompting best practices」·「Effective Context Engineering for AI Agents」</span>
+    </div>
+
+  </div>
+</body>
+</html>

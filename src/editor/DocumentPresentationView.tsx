@@ -76,8 +76,10 @@ export function DocumentPresentationView({ onExit }: Props) {
         srcDoc={srcDoc}
         className="h-full w-full border-0 bg-white"
         // allow-scripts is omitted (resource JS was stripped on import); the
-        // contained document is shown read-only.
-        sandbox="allow-same-origin"
+        // contained document is shown read-only. allow-popups(+escape) lets
+        // `target="_blank"` https links open a real new tab instead of being
+        // silently blocked by the sandbox.
+        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
       />
 
       <div className="pointer-events-none fixed bottom-4 right-6 select-none rounded bg-black/60 px-3 py-1 font-mono text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:opacity-100">
