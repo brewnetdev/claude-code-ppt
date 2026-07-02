@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 32px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  table.cat {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.cat col.c-grp { width: 19%; }
+  table.cat col.c-cnt { width: 9%; }
+  table.cat col.c-cmp { width: 72%; }
+
+  table.cat thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1A1A18;
+    padding: 0 22px 11px 22px;
+    vertical-align: bottom;
+  }
+  table.cat thead th.cnt { text-align: center; }
+  table.cat thead tr { border-bottom: 2px solid #0F766E; }
+
+  table.cat tbody td {
+    font-size: 18px;
+    line-height: 1.38;
+    padding: 11px 22px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  table.cat tbody tr:last-child td { border-bottom: none; }
+
+  td.grp {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    color: #1A1A18;
+  }
+  td.grp .en {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: #6B6560;
+    margin-top: 3px;
+    letter-spacing: 0.01em;
+  }
+  td.cnt { text-align: center; }
+  td.cnt .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 19px;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 5px 14px;
+    min-width: 68px;
+  }
+  td.cmp {
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  td.cmp .chip {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+  td.cmp .sep {
+    color: #6B6560;
+    font-weight: 400;
+    margin: 0 3px;
+  }
+
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 5px 14px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 18px;
+    line-height: 1.45;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cat">
+      <colgroup>
+        <col class="c-grp"><col class="c-cnt"><col class="c-cmp">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>그룹</th>
+          <th class="cnt">개수</th>
+          <th>컴포넌트 (32종)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="grp">입력<span class="en">Input</span></td>
+          <td class="cnt"><span class="badge">8종</span></td>
+          <td class="cmp"><span class="chip">Text Field</span><span class="sep"> · </span><span class="chip">Search Field</span><span class="sep"> · </span><span class="chip">Textarea</span><span class="sep"> · </span><span class="chip">Checkbox</span><span class="sep"> · </span><span class="chip">Radio</span><span class="sep"> · </span><span class="chip">Toggle</span><span class="sep"> · </span><span class="chip">Dropdown</span><span class="sep"> · </span><span class="chip">Date Picker</span></td>
+        </tr>
+        <tr>
+          <td class="grp">액션<span class="en">Action</span></td>
+          <td class="cnt"><span class="badge">5종</span></td>
+          <td class="cmp"><span class="chip">Button</span><span class="sep"> · </span><span class="chip">Icon Button</span><span class="sep"> · </span><span class="chip">Floating Action Button</span><span class="sep"> · </span><span class="chip">Link</span><span class="sep"> · </span><span class="chip">Tag (Chip)</span></td>
+        </tr>
+        <tr>
+          <td class="grp">네비게이션<span class="en">Navigation</span></td>
+          <td class="cnt"><span class="badge">6종</span></td>
+          <td class="cmp"><span class="chip">Navbar</span><span class="sep"> · </span><span class="chip">Sidebar</span><span class="sep"> · </span><span class="chip">Tab</span><span class="sep"> · </span><span class="chip">Breadcrumb</span><span class="sep"> · </span><span class="chip">Pagination</span><span class="sep"> · </span><span class="chip">Stepper</span></td>
+        </tr>
+        <tr>
+          <td class="grp">피드백<span class="en">Feedback</span></td>
+          <td class="cnt"><span class="badge">7종</span></td>
+          <td class="cmp"><span class="chip">Toast</span><span class="sep"> · </span><span class="chip">Alert</span><span class="sep"> · </span><span class="chip">Modal</span><span class="sep"> · </span><span class="chip">Tooltip</span><span class="sep"> · </span><span class="chip">Progress Bar</span><span class="sep"> · </span><span class="chip">Loader</span><span class="sep"> · </span><span class="chip">Skeleton</span></td>
+        </tr>
+        <tr>
+          <td class="grp">표시<span class="en">Display</span></td>
+          <td class="cnt"><span class="badge">6종</span></td>
+          <td class="cmp"><span class="chip">Card</span><span class="sep"> · </span><span class="chip">Avatar</span><span class="sep"> · </span><span class="chip">Badge</span><span class="sep"> · </span><span class="chip">Table</span><span class="sep"> · </span><span class="chip">List</span><span class="sep"> · </span><span class="chip">Accordion</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">학습 4단계</span>
+      <span class="txt">각 컴포넌트마다 <b>HTML 구조</b> <span class="step">→</span> <b>CSS 스타일</b> <span class="step">→</span> <b>상태 변형</b> (hover · focus · disabled · error) <span class="step">→</span> <b>접근성</b> (ARIA) 4단계로 학습</span>
+    </div>
+  </div>
+</body>
+</html>

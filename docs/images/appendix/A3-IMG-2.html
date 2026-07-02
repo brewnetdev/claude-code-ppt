@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A3-IMG-2 · --remote vs --teleport 방향 플로우</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">방향이 반대다 — <span class="mono">--remote</span> vs <span class="mono">--teleport</span></h1>
+  <p class="subtitle">CLI에서 클라우드로 보내기 · 클라우드를 CLI로 당겨오기</p>
+  <svg class="svgwrap" viewBox="0 0 1152 540" style="height:520px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <defs>
+      <marker id="m" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#2B2B2B"/>
+      </marker>
+      <marker id="m-teal" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#1A7F7A"/>
+      </marker>
+    </defs>
+
+    <!-- ============ TOP TIER (forward) ============ -->
+    <text x="0" y="32" font-size="16" font-weight="700" fill="#2B2B2B">순방향 (CLI → 클라우드)</text>
+
+    <!-- 주의 태그 above source box -->
+    <rect x="20" y="50" width="150" height="34" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="95" y="72" text-anchor="middle" font-size="15" fill="#1A7F7A" font-weight="700">먼저 git push</text>
+
+    <!-- 터미널 box -->
+    <rect x="20" y="96" width="300" height="96" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="170" y="151" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">터미널</text>
+
+    <!-- forward arrow + label -->
+    <line x1="324" y1="144" x2="828" y2="144" stroke="#2B2B2B" stroke-width="1.5" marker-end="url(#m)"/>
+    <text x="576" y="132" text-anchor="middle" font-size="16" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">claude --remote "작업"</text>
+
+    <!-- VM box -->
+    <rect x="832" y="96" width="300" height="96" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="982" y="139" text-anchor="middle" font-size="18" font-weight="700" fill="#2B2B2B">Anthropic 관리 VM</text>
+    <text x="982" y="164" text-anchor="middle" font-size="15" fill="#6E6A62">(독립 세션)</text>
+
+    <!-- divider -->
+    <line x1="0" y1="244" x2="1152" y2="244" stroke="#D8D2C8" stroke-width="1"/>
+
+    <!-- ============ BOTTOM TIER (reverse — Teleport) ============ -->
+    <text x="0" y="288" font-size="16" font-weight="700" fill="#1A7F7A">역방향 (클라우드 → CLI · Teleport)</text>
+
+    <!-- 클라우드 세션 box (right) -->
+    <rect x="832" y="308" width="300" height="96" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="982" y="363" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">클라우드 세션</text>
+
+    <!-- reverse arrow (right -> left), teal -->
+    <line x1="828" y1="356" x2="380" y2="356" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#m-teal)"/>
+    <text x="604" y="344" text-anchor="middle" font-size="16" fill="#1A7F7A" font-family="'JetBrains Mono',monospace">claude --teleport &lt;id&gt;</text>
+
+    <!-- 로컬 터미널 box (left) -->
+    <rect x="20" y="308" width="356" height="96" rx="8" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="198" y="363" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">로컬 터미널</text>
+
+    <!-- entry chips (3) bottom-left -->
+    <text x="20" y="438" font-size="14" fill="#6E6A62">진입 경로</text>
+    <rect x="20" y="450" width="320" height="34" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="36" y="472" font-size="15" fill="#2B2B2B"><tspan font-family="'JetBrains Mono',monospace">/tasks</tspan> → t 키</text>
+    <rect x="356" y="450" width="220" height="34" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="466" y="472" text-anchor="middle" font-size="15" fill="#2B2B2B">Open in CLI</text>
+    <rect x="592" y="450" width="280" height="34" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1"/>
+    <text x="732" y="472" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">/teleport (/tp)</text>
+  </svg>
+</div>
+</body>
+</html>

@@ -164,7 +164,7 @@ const LIST_DELETE_TYPES = new Set([
 //      caret at that position. Comment nodes are invisible and don't affect
 //      layout, so the user never sees them; computing parent+offset before
 //      removal keeps the new Range stable across the marker.remove() call.
-function mergeListItems(startLi: HTMLLIElement, endLi: HTMLLIElement, range: Range): void {
+export function mergeListItems(startLi: HTMLLIElement, endLi: HTMLLIElement, range: Range): void {
   const startWrap = ensureLiWrapper(startLi);
   const endWrap = ensureLiWrapper(endLi);
 
@@ -181,6 +181,17 @@ function mergeListItems(startLi: HTMLLIElement, endLi: HTMLLIElement, range: Ran
   const marker = document.createComment('cc-ppt-merge-caret');
   startWrap.appendChild(marker);
   startWrap.appendChild(suffixFrag);
+
+  // Preserve any nested sub-lists (or other trailing children) that live in
+  // endLi *after* its wrapper <div>. extractContents only pulled the wrapper's
+  // tail, so without re-parenting these into startLi they are lost when endLi
+  // is removed below.
+  let trailing = endWrap.nextSibling;
+  while (trailing) {
+    const nextTrailing = trailing.nextSibling;
+    startLi.appendChild(trailing);
+    trailing = nextTrailing;
+  }
 
   let cursor = startLi.nextElementSibling as HTMLElement | null;
   while (cursor) {
@@ -478,14 +489,27 @@ export function useSlideEditing(
       // on either side of the cursor offset. Without this, putting the caret
       // right after a code block and pressing Backspace would silently
       // delete the whole block.
-      if (range.collapsed && range.startContainer.nodeType === Node.ELEMENT_NODE) {
-        const parent = range.startContainer as Element;
-        const offset = range.startOffset;
-        const before = parent.childNodes[offset - 1];
-        const after = parent.childNodes[offset];
-        const matches = (n: Node | undefined): boolean =>
+      if (range.collapsed) {
+        const matches = (n: Node | null | undefined): boolean =>
           isReadOnlyCodeBlock(n instanceof HTMLElement ? n : null);
-        if (matches(before) || matches(after)) return true;
+        const c = range.startContainer;
+        if (c.nodeType === Node.ELEMENT_NODE) {
+          const parent = c as Element;
+          const offset = range.startOffset;
+          if (matches(parent.childNodes[offset - 1]) || matches(parent.childNodes[offset])) {
+            return true;
+          }
+        } else if (c.nodeType === Node.TEXT_NODE) {
+          // Caret at the very edge of a text node sitting beside a code block —
+          // Backspace at offset 0 (or Delete at end) would cross into the
+          // adjacent sibling and silently eat the whole block. The element-only
+          // check above missed this text-node-container case.
+          const text = c as Text;
+          if (range.startOffset === 0 && matches(text.previousSibling)) return true;
+          if (range.startOffset === (text.nodeValue?.length ?? 0) && matches(text.nextSibling)) {
+            return true;
+          }
+        }
       }
       return false;
     };

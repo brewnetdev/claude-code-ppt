@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .row {
+    display: grid;
+    gap: 24px;
+    min-height: 0;
+  }
+  .row.top {
+    flex: 1;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .row.bottom {
+    flex: 1;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    padding: 26px 24px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .badge {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 11px;
+    letter-spacing: 0.02em;
+  }
+  .title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .desc {
+    font-size: 23px;
+    font-weight: 400;
+    color: #1A1A18;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .desc .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #115E59;
+  }
+  .desc .em {
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .desc .sub {
+    color: #6B6560;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP ROW: 4.1 ~ 4.4 -->
+    <div class="row top">
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.1</span>
+          <span class="title">프로젝트 기획</span>
+        </div>
+        <p class="desc"><span class="mono">markflow</span> KMS · <span class="em">AI 친화 3대 기준</span> · FR 10건 / NFR 6건 / US 5건. <span class="mono">Connextra</span> 형식으로 가치까지 명세.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.2</span>
+          <span class="title">개발 문서</span>
+        </div>
+        <p class="desc"><span class="mono">PRD</span>(무엇을) · <span class="mono">TRD</span>(어떻게) · <span class="mono">REQUIREMENTS.md</span>(SSOT). 변경은 버전 헤더 + 이력으로 <span class="em">Spec Drift</span>를 차단.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.3</span>
+          <span class="title">명세서 설계</span>
+        </div>
+        <p class="desc"><span class="mono">Drizzle</span> 15테이블 + <span class="em">Closure Table</span>. REST 계약, 컴포넌트 계층, <span class="mono">TC↔FR↔US</span> 추적 매트릭스.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.4</span>
+          <span class="title">SDD · GSD</span>
+        </div>
+        <p class="desc"><span class="em">Discuss → Plan → Execute → Verify</span>. Phase별 독립 컨텍스트 + <span class="mono">1 Task = 1 Commit</span>.</p>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ROW: 4.5 ~ 4.7 -->
+    <div class="row bottom">
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.5</span>
+          <span class="title">Handoff / Changelog</span>
+        </div>
+        <p class="desc"><span class="mono">CHANGELOG</span> 자동화 Skill + GSD <span class="mono">HANDOFF.json</span>. <span class="em">SessionStart 훅</span>으로 자동 재개.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.6</span>
+          <span class="title">디버깅 · 리팩토링</span>
+        </div>
+        <p class="desc">에러 <span class="em">4단계 분석</span> → 회귀 체크리스트 → 단위별 리팩토링 → <span class="mono">Vitest + Playwright + CI</span> 3계층 안전망.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="badge">4.7</span>
+          <span class="title">Plugin Marketplace</span>
+        </div>
+        <p class="desc"><span class="mono">Skills · Commands · Agents · Hooks</span> 4 구성. 공식 13개 + 커뮤니티 + 자작 마켓플레이스. <span class="em">설치 전 코드 검토 필수</span>.</p>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

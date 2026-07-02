@@ -75,10 +75,22 @@ export function parsePresentationHTML(source: string): ParsedDeck {
       html = html.replace(/<\/div>\s*$/, `${orphanOverlays.join('\n')}\n</div>`);
     }
 
+    // Optional per-slide background hint. The editor owns slide backgrounds via
+    // the structured `background` field and strips inline `background` styles on
+    // mount (applySlideBackground), so a deck that wants a non-theme surface
+    // (e.g. the appendix deck's unified beige) declares it as `data-slide-bg`
+    // (a CSS color) on the `.slide` element rather than as inline CSS.
+    const bgAttr = (node.getAttribute('data-slide-bg') ?? '').trim();
+    const background: SlideBackground | undefined =
+      bgAttr && /^(#[0-9a-fA-F]{3,8}|rgb|hsl)/.test(bgAttr)
+        ? { kind: 'color', value: bgAttr }
+        : undefined;
+
     return {
       id: `slide-${idx + 1}`,
       html,
       title,
+      ...(background ? { background } : {}),
     };
   });
 

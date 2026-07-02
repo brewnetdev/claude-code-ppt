@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A6-IMG-1 · 권한 모드 스펙트럼</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">권한 모드 5종 — 감독적 ↔ 무인</h1>
+  <p class="subtitle">자동 승인 범위가 넓을수록 확인 프롬프트는 줄고 위험은 커진다</p>
+
+  <svg class="svgwrap" viewBox="0 0 1152 120" style="height:120px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <!-- spectrum bar (teal accent) -->
+    <line x1="80" y1="58" x2="1072" y2="58" stroke="#1A7F7A" stroke-width="3"/>
+
+    <!-- node names (mono) -->
+    <text x="100"  y="24" text-anchor="middle" font-size="14" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Default</text>
+    <text x="337.5" y="24" text-anchor="middle" font-size="14" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">acceptEdits</text>
+    <text x="575"  y="24" text-anchor="middle" font-size="14" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Plan</text>
+    <text x="812.5" y="24" text-anchor="middle" font-size="14" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">Auto</text>
+    <text x="1050" y="24" text-anchor="middle" font-size="14" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">bypassPermissions</text>
+
+    <!-- nodes -->
+    <circle cx="100"  cy="58" r="6" fill="#1A7F7A" stroke="#1A7F7A" stroke-width="1.5"/>
+    <circle cx="337.5" cy="58" r="6" fill="#1A7F7A" stroke="#1A7F7A" stroke-width="1.5"/>
+    <circle cx="575"  cy="58" r="6.5" fill="#F0EDE8" stroke="#1A7F7A" stroke-width="2"/>
+    <circle cx="812.5" cy="58" r="6" fill="#1A7F7A" stroke="#1A7F7A" stroke-width="1.5"/>
+    <circle cx="1050" cy="58" r="6" fill="#1A7F7A" stroke="#1A7F7A" stroke-width="1.5"/>
+    <text x="575" y="82" text-anchor="middle" font-size="12" fill="#6E6A62">읽기 전용으로 분리</text>
+
+    <!-- axis end labels -->
+    <text x="80"   y="92" text-anchor="start" font-size="15" fill="#2B2B2B" font-weight="700">감독적</text>
+    <text x="80"   y="110" text-anchor="start" font-size="12" fill="#6E6A62">프롬프트 많음 · 안전</text>
+    <text x="1072" y="92" text-anchor="end" font-size="15" fill="#2B2B2B" font-weight="700">무인</text>
+    <text x="1072" y="110" text-anchor="end" font-size="12" fill="#6E6A62">프롬프트 없음 · 위험</text>
+  </svg>
+
+  <table class="cmp" style="margin-top:20px">
+    <thead>
+      <tr>
+        <th style="width:160px"></th>
+        <th class="mono" style="color:#2B2B2B;font-size:13px">Default</th>
+        <th class="mono" style="color:#2B2B2B;font-size:13px">acceptEdits</th>
+        <th class="mono" style="color:#2B2B2B;font-size:13px">Plan</th>
+        <th class="mono" style="color:#2B2B2B;font-size:13px">Auto</th>
+        <th class="mono" style="color:#2B2B2B;font-size:13px">bypassPermissions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="k">자동 승인 범위</td>
+        <td>없음</td>
+        <td>파일편집 · mkdir · mv · cp</td>
+        <td>읽기 · 탐색만</td>
+        <td>검증 통과 명령</td>
+        <td>전부 (ask · rm -rf 제외)</td>
+      </tr>
+      <tr>
+        <td class="k">확인 프롬프트</td>
+        <td>매 작업마다</td>
+        <td>편집 외 작업</td>
+        <td>쓰기 · 실행 차단</td>
+        <td>미검증 명령만</td>
+        <td>없음</td>
+      </tr>
+      <tr>
+        <td class="k">권장 환경</td>
+        <td>일반</td>
+        <td>소규모 신뢰팀</td>
+        <td>탐색 · 계획</td>
+        <td>자동화 (연구 미리보기)</td>
+        <td>컨테이너 · <span class="teal bold">VM 전용</span></td>
+      </tr>
+      <tr>
+        <td class="k">비고</td>
+        <td>기본값</td>
+        <td>편집 자동 수락</td>
+        <td>읽기 전용 · 코드 변경 없음</td>
+        <td>검증 기반 승인</td>
+        <td>격리 환경 외 사용 금지</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

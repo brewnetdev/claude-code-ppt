@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A1-IMG-3 · 클로드와 협업하는 5가지 패턴</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">클로드와 협업하는 5가지 패턴</h1>
+  <p class="subtitle">명령어 조합 → 클로드에 무엇을 넘기는가</p>
+  <table class="cmp" style="font-size:17px">
+    <thead>
+      <tr>
+        <th style="width:248px">패턴</th>
+        <th class="mono" style="width:430px">명령어 조합</th>
+        <th>클로드에 넘기는 것</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="mono teal bold" style="margin-right:10px">1</span>버그 찾기</td>
+        <td class="mono">grep / rg</td>
+        <td>에러 위치 + 주변 코드</td>
+      </tr>
+      <tr>
+        <td><span class="mono teal bold" style="margin-right:10px">2</span>로그 수집</td>
+        <td class="mono">tail -f → 2&gt;&amp;1 → pbcopy</td>
+        <td>완전한 에러 로그</td>
+      </tr>
+      <tr>
+        <td><span class="mono teal bold" style="margin-right:10px">3</span>설정 확인</td>
+        <td class="mono">cat / jq</td>
+        <td>설정 구조 + 바꿀 값 질문</td>
+      </tr>
+      <tr>
+        <td><span class="mono teal bold" style="margin-right:10px">4</span>프로세스 관리</td>
+        <td class="mono">ps / top / lsof → kill</td>
+        <td>점유 상태 + 정리 결과</td>
+      </tr>
+      <tr>
+        <td><span class="mono teal bold" style="margin-right:10px">5</span>자동화</td>
+        <td class="mono">&amp;&amp; 연결 → chmod +x</td>
+        <td>실행 가능한 스크립트</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note" style="margin-top:22px;font-size:16px;line-height:1.6">
+    클로드 = <span class="teal bold">명령 제안</span> · 나 = <span class="teal bold">결과 읽고 로그 모아 피드백</span>
+    → 이 왕복이 빠를수록 협업이 매끄럽다
+  </div>
+</div>
+</body>
+</html>

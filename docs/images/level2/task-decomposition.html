@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --panel-bg: #FFFFFF;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 22px 22px;
+    background: transparent;
+    display: flex;
+    gap: 18px;
+  }
+
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 12px;
+  }
+
+  /* ── Left column: 4 decomposition criteria ── */
+  .left-col {
+    width: 673px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .crit-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 14px;
+  }
+  .crit {
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .crit-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .crit-num {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--teal-deep);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 27px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .crit-title {
+    font-family: var(--sans);
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    word-break: keep-all;
+  }
+  .crit-desc {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .crit-desc .em { color: var(--teal-deep); font-weight: 700; }
+  .crit-desc .mono { font-family: var(--mono); font-weight: 600; }
+
+  /* ── Right column: progressive design flow ── */
+  .right-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .note {
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 13px 18px;
+    margin-bottom: 14px;
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .note .lock { color: var(--red); font-weight: 700; }
+  .note .flex { color: var(--green); font-weight: 700; }
+
+  .flow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .stage {
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 15px 20px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .stage-tag {
+    flex: 0 0 auto;
+    width: 150px;
+  }
+  .stage-ord {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .stage-when {
+    font-family: var(--sans);
+    font-size: 14.5px;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+  .stage-when.lock { color: var(--red); }
+  .stage-when.flex { color: var(--green); }
+  .stage-items {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .stage-items .k {
+    color: var(--warm);
+    font-weight: 600;
+  }
+  .stage-items .v .mono { font-family: var(--mono); font-weight: 600; }
+
+  .flow-arrow {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .flow-arrow svg { display: block; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ── LEFT: 적절한 작업 크기의 4가지 기준 ── -->
+    <div class="left-col">
+      <div class="panel-label">적절한 작업 크기의 4가지 기준</div>
+      <div class="crit-grid">
+
+        <div class="crit">
+          <div class="crit-head">
+            <div class="crit-num">1</div>
+            <div class="crit-title">단일 책임 원칙</div>
+          </div>
+          <div class="crit-desc">하나의 요청은 하나의 책임만 — <span class="em">'사용자 생성'</span>과 <span class="em">'이메일 발송'</span>은 별개</div>
+        </div>
+
+        <div class="crit">
+          <div class="crit-head">
+            <div class="crit-num">2</div>
+            <div class="crit-title">테스트 가능한 단위</div>
+          </div>
+          <div class="crit-desc"><span class="em">예/아니오</span>로 답할 수 있는 크기</div>
+        </div>
+
+        <div class="crit">
+          <div class="crit-head">
+            <div class="crit-num">3</div>
+            <div class="crit-title">10분 내 검증 가능한 크기</div>
+          </div>
+          <div class="crit-desc">AI 출력 → 코드 훑기 → 테스트가 <span class="em">10분</span> 넘으면 더 쪼갠다</div>
+        </div>
+
+        <div class="crit">
+          <div class="crit-head">
+            <div class="crit-num">4</div>
+            <div class="crit-title">파일·기능 단위 경계</div>
+          </div>
+          <div class="crit-desc">회원가입·수정과 로그인·로그아웃은 <span class="em">별도 파일</span>로 분리</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── RIGHT: 점진적 설계 ── -->
+    <div class="right-col">
+      <div class="panel-label">점진적 설계 — 처음부터 완벽할 필요 없다</div>
+      <div class="note">1차 결정은 <span class="lock">바꾸기 어렵고</span> · 2~3차는 <span class="flex">구현 중 조정 가능</span></div>
+
+      <div class="flow">
+
+        <div class="stage">
+          <div class="stage-tag">
+            <div class="stage-ord">1차 설계</div>
+            <div class="stage-when lock">프로젝트 시작 전 · 필수</div>
+          </div>
+          <div class="stage-items">
+            <span class="k">배포 형태:</span> <span class="v">온프레미스</span> &nbsp;·&nbsp;
+            <span class="k">기술 스택:</span> <span class="v"><span class="mono">Node.js + PostgreSQL</span></span> &nbsp;·&nbsp;
+            <span class="k">인증 방식:</span> <span class="v">Google OAuth + 자체 인증</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow"><svg width="24" height="26" viewBox="0 0 24 26"><line x1="12" y1="0" x2="12" y2="13" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="4,13 20,13 12,25" fill="#0F766E"/></svg></div>
+
+        <div class="stage">
+          <div class="stage-tag">
+            <div class="stage-ord">2차 설계</div>
+            <div class="stage-when flex">1주차 — 구현 중</div>
+          </div>
+          <div class="stage-items">
+            API 엔드포인트 상세 정의 &nbsp;·&nbsp; 데이터베이스 스키마 확정 &nbsp;·&nbsp; 에러 코드 체계 정의
+          </div>
+        </div>
+
+        <div class="flow-arrow"><svg width="24" height="26" viewBox="0 0 24 26"><line x1="12" y1="0" x2="12" y2="13" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="4,13 20,13 12,25" fill="#0F766E"/></svg></div>
+
+        <div class="stage">
+          <div class="stage-tag">
+            <div class="stage-ord">3차 설계</div>
+            <div class="stage-when flex">2주차 — 통합 전</div>
+          </div>
+          <div class="stage-items">
+            프런트엔드 컴포넌트 구조 &nbsp;·&nbsp; 상태 관리 전략 &nbsp;·&nbsp; API 응답 형식 표준화
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

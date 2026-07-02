@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857; --blue:#1E3A8A; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{
+    width:1280px; height:590px; position:relative; padding:26px 30px;
+    background:transparent; display:flex; flex-direction:column; gap:18px;
+  }
+
+  /* hero comparison */
+  .hero{
+    border:1px solid var(--line); background:var(--cream);
+    padding:16px 24px; display:flex; align-items:center; gap:22px;
+  }
+  .hero .chip{
+    font-family:var(--mono); font-weight:700; font-size:21px; padding:8px 16px;
+    border:1px solid; white-space:nowrap; flex:0 0 auto;
+  }
+  .hero .chip.good{ color:var(--green); border-color:var(--green); }
+  .hero .chip.bad{ color:var(--red); border-color:var(--red); }
+  .hero .gt{ font-family:var(--mono); font-weight:700; font-size:24px; color:var(--teal-deep); flex:0 0 auto; }
+  .hero .msg{ font-size:20px; font-weight:700; color:var(--ink); line-height:1.35; word-break:keep-all; }
+  .hero .msg .em{ color:var(--teal-deep); }
+
+  /* habit cards */
+  .cards{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; flex:1; min-height:0; }
+  .card{
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:18px 18px; display:flex; flex-direction:column;
+  }
+  .card-n{
+    width:38px; height:38px; border:1px solid var(--teal-deep); color:var(--teal-deep);
+    font-family:var(--mono); font-weight:700; font-size:20px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+  }
+  .card-t{ font-size:21px; font-weight:700; color:var(--ink); line-height:1.25; margin-bottom:8px; word-break:keep-all; }
+  .card-d{ font-size:16.5px; line-height:1.5; color:var(--warm); word-break:keep-all; }
+  .card-d .em{ color:var(--ink); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="hero">
+      <span class="chip good">50줄 × 10번</span>
+      <span class="gt">&gt;</span>
+      <span class="chip bad">500줄 × 1번</span>
+      <span class="msg">작은 작업 = 작은 리뷰 — <span class="em">잘게 나눠 자주 리뷰</span>하는 것이 한꺼번에 보는 것보다 효과적이다.</span>
+    </div>
+
+    <div class="cards">
+      <section class="card">
+        <span class="card-n">1</span>
+        <div class="card-t">작은 작업 = 작은 리뷰</div>
+        <div class="card-d"><span class="em">맥락 파악</span>이 쉽고 문제 발견도 쉽다.</div>
+      </section>
+      <section class="card">
+        <span class="card-n">2</span>
+        <div class="card-t">승인 전 실행</div>
+        <div class="card-d">문법은 맞아도 <span class="em">논리는 틀릴 수 있다</span> — 커밋 전 · 머지 전 직접 실행.</div>
+      </section>
+      <section class="card">
+        <span class="card-n">3</span>
+        <div class="card-t">테스트 먼저</div>
+        <div class="card-d"><span class="em">기존 테스트 통과</span> + 신규 테스트 동작 모두 확인.</div>
+      </section>
+      <section class="card">
+        <span class="card-n">4</span>
+        <div class="card-t">질문하기</div>
+        <div class="card-d">이해 안 되는 부분은 <span class="em">AI에게 직접 설명 요청</span>.</div>
+      </section>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Noto Sans KR: 한국어 본문 · JetBrains Mono: 이벤트명/스크립트/명령 · Inter: 라틴 보조 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  /* 상단: 구성 3종 카드 그리드 */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 22px;
+    flex: 1;
+  }
+
+  /* 평범한 사각 카드 — 전체 균일 1px 테두리 */
+  .card {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card .chead {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 14px;
+  }
+  .card .num {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 3px 13px;
+  }
+  .card .ev {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 30px;
+    color: #0F766E;
+    line-height: 1.2;
+  }
+  .card .kind {
+    font-size: 21px;
+    font-weight: 600;
+    color: #6B6560;
+    margin-bottom: 16px;
+  }
+  .card .ctitle {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+  .card ul {
+    list-style: none;
+    margin-top: auto;
+  }
+  .card ul li {
+    position: relative;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+    font-weight: 400;
+    padding-left: 24px;
+    margin-top: 12px;
+  }
+  .card ul li:first-child { margin-top: 0; }
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid #6B6560;
+    border-radius: 1px;
+  }
+  .card ul li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #115E59;
+  }
+  .card ul li b {
+    font-weight: 600;
+    color: #1A1A18;
+  }
+  .card .desc-q {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #6B6560;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .card .desc-q .qk { color: #1E3A8A; font-weight: 600; }
+  .card .desc-q .qv { color: #1A1A18; }
+
+  /* 하단: 통합 시나리오 흐름 */
+  .scenario {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .scenario .shead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .scenario .stag {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.03em;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 5px 15px;
+  }
+  .scenario .stitle {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .step {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 18px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .step .scmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #0F766E;
+    line-height: 1.25;
+  }
+  .step .scmd.plain { color: #1A1A18; }
+  .step .stxt {
+    font-size: 22px;
+    line-height: 1.45;
+    color: #1A1A18;
+    font-weight: 400;
+    margin-top: 10px;
+  }
+  .step .stxt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #115E59;
+  }
+
+  /* 삼각형 화살표 (transparent border 예외만 사용) */
+  .arrow {
+    flex: none;
+    align-self: center;
+    width: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B6560;
+  }
+  .arrow .line {
+    width: 100%;
+    height: 0;
+    border-top: 1px solid #6B6560;
+    position: relative;
+  }
+  .arrow .head {
+    position: absolute;
+    right: -1px;
+    top: -6px;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 10px solid #6B6560;
+  }
+
+  /* 성과 라벨 */
+  .outcome {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 16px 22px;
+  }
+  .outcome .otag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.03em;
+    color: #047857;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 6px 15px;
+  }
+  .outcome .otxt {
+    font-size: 24px;
+    line-height: 1.5;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .outcome .otxt b {
+    font-weight: 700;
+    color: #047857;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- 구성 3종: PreCompact Hook · SessionEnd Hook · changelog-update Skill -->
+    <div class="grid">
+
+      <!-- ① PreCompact Hook -->
+      <div class="card">
+        <div class="chead">
+          <span class="num">①</span>
+          <span class="ev">PreCompact</span>
+        </div>
+        <div class="kind">Hook — HANDOFF.md 자동 생성</div>
+        <ul>
+          <li>컨텍스트 압축 직전에 발동</li>
+          <li>현재 진행 작업 · 미해결 TODO · 다음 단계 요약을 <code>HANDOFF.md</code>로 dump</li>
+          <li>다음 세션 시작 시 자동 임포트로 컨텍스트 복원</li>
+        </ul>
+      </div>
+
+      <!-- ② SessionEnd Hook -->
+      <div class="card">
+        <div class="chead">
+          <span class="num">②</span>
+          <span class="ev">SessionEnd</span>
+        </div>
+        <div class="kind">Hook — CHANGELOG.md 누적</div>
+        <ul>
+          <li>세션 종료 시 (정상 · crash 모두) 해당 세션의 <code>git diff</code> 요약 + 의사결정을 <code>CHANGELOG.md</code> 상단에 append</li>
+          <li>날짜 · 세션 ID 메타 포함</li>
+          <li>팀 데일리 빌드/공유에 활용</li>
+        </ul>
+      </div>
+
+      <!-- ③ changelog-update Skill -->
+      <div class="card">
+        <div class="chead">
+          <span class="num">③</span>
+          <span class="ev">changelog-update</span>
+        </div>
+        <div class="kind">Skill — 모델 자가 호출</div>
+        <div class="desc-q"><span class="qk">description:</span> <span class="qv">"사용자가 '오늘 한 일 정리해줘' 요청 시 자동 호출"</span></div>
+        <ul>
+          <li><code>git log</code> + 작업한 파일 + 결정 사항을 통합 markdown 생성</li>
+          <li>팀 위클리에 그대로 붙여넣기</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ④ 통합 시나리오 -->
+    <div class="scenario">
+      <div class="shead">
+        <span class="stag">④ 통합 시나리오</span>
+        <span class="stitle">세션 간 컨텍스트를 잃지 않는 핸드오프 키트</span>
+      </div>
+
+      <div class="flow">
+        <div class="step">
+          <div class="scmd plain">/compact 호출</div>
+          <div class="stxt">컨텍스트 압축 시작</div>
+        </div>
+        <div class="arrow"><span class="line"><span class="head"></span></span></div>
+        <div class="step">
+          <div class="scmd">PreCompact Hook</div>
+          <div class="stxt"><code>HANDOFF.md</code> 작성 → 압축 진행</div>
+        </div>
+        <div class="arrow"><span class="line"><span class="head"></span></span></div>
+        <div class="step">
+          <div class="scmd plain">다음 작업 재개</div>
+          <div class="stxt"><code>@HANDOFF.md</code> import로 즉시 복원</div>
+        </div>
+        <div class="arrow"><span class="line"><span class="head"></span></span></div>
+        <div class="step">
+          <div class="scmd">SessionEnd</div>
+          <div class="stxt">세션 끝나면 <code>CHANGELOG</code>에 누적</div>
+        </div>
+      </div>
+
+      <div class="outcome">
+        <span class="otag">RESULT</span>
+        <span class="otxt"><b>"세션 간 컨텍스트 손실 0"</b> 달성</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

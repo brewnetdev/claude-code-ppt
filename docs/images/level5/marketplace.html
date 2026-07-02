@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .box {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .box-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px 0 20px;
+  }
+  .badge {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .box-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .box-title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #6B6560;
+    margin-left: 10px;
+  }
+
+  /* ---- TOP: official marketplace ---- */
+  .official { flex: none; }
+  .off-body {
+    padding: 9px 20px 11px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .off-steps {
+    flex: 0 0 662px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .step .num {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #6B6560;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step .cmd {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .step .cmd .arg { color: #1E3A8A; }
+  .off-plugins {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+  .off-plugins .plug-cap {
+    font-size: 20px;
+    font-weight: 800;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+    margin-bottom: 0;
+  }
+  .plug-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 14px;
+    row-gap: 5px;
+  }
+  .plug {
+    display: flex;
+    align-items: baseline;
+    line-height: 1.05;
+  }
+  .plug .pn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---- MIDDLE: community + create ---- */
+  .mid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 0.86fr 1.14fr;
+    gap: 18px;
+    min-height: 0;
+  }
+  .codebox {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+  }
+  .code-body {
+    padding: 8px 20px 9px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .code-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.2;
+    color: #1A1A18;
+    white-space: pre;
+  }
+  pre.code .k { color: #1E3A8A; font-weight: 700; }
+  pre.code .s { color: #047857; }
+  pre.code .f { color: #0F766E; font-weight: 700; }
+  pre.code .arg { color: #1E3A8A; font-weight: 700; }
+  pre.code .c { color: #B45309; font-weight: 700; }
+  .code-div { border-top: 1px solid #D4D0C8; margin: 2px 0; }
+
+  /* ---- BOTTOM full-width source callout ---- */
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 11px 22px;
+  }
+  .callout .src {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 13px;
+    letter-spacing: 0.02em;
+  }
+  .callout .cbody { font-size: 22px; font-weight: 500; color: #7C4A02; line-height: 1.35; white-space: nowrap; }
+  .callout .cbody .strong { font-weight: 800; }
+  .callout .cbody code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: official marketplace -->
+    <div class="box official">
+      <div class="box-head">
+        <span class="badge">공식 마켓플레이스</span>
+        <span class="box-title">Anthropic 공식 플러그인<span class="en">anthropics/claude-code</span></span>
+      </div>
+      <div class="off-body">
+        <div class="off-steps">
+          <div class="step">
+            <span class="num">1</span>
+            <span class="cmd">/plugin marketplace add <span class="arg">anthropics/claude-code</span></span>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <span class="cmd">/plugin <span class="arg"># 플러그인 탐색</span></span>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <span class="cmd">/plugin install <span class="arg">code-review@anthropics/claude-code</span></span>
+          </div>
+        </div>
+        <div class="off-plugins">
+          <span class="plug-cap">대표 플러그인 (예시)</span>
+          <div class="plug-grid">
+            <div class="plug"><span class="pn">code-review</span></div>
+            <div class="plug"><span class="pn">pr-review-toolkit</span></div>
+            <div class="plug"><span class="pn">feature-dev</span></div>
+            <div class="plug"><span class="pn">plugin-dev</span></div>
+            <div class="plug"><span class="pn">hookify</span></div>
+            <div class="plug"><span class="pn">security-guidance</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: community (left) + create marketplace.json (right) -->
+    <div class="mid">
+
+      <!-- left: 커뮤니티 마켓플레이스 -->
+      <div class="box codebox">
+        <div class="box-head">
+          <span class="badge">커뮤니티</span>
+          <span class="box-title">커뮤니티 마켓플레이스</span>
+        </div>
+        <div class="code-body">
+          <div class="code-file"># 마켓플레이스 추가</div>
+<pre class="code"><span class="f">/plugin marketplace add</span> \
+  <span class="arg">gsd-build/get-shit-done</span>
+  <span class="arg">ccplugins/awesome-claude-code-plugins</span>
+  <span class="arg">hesreallyhim/awesome-claude-code</span></pre>
+          <div class="code-div"></div>
+          <div class="code-file"># 탐색·설치</div>
+<pre class="code"><span class="f">/plugin</span>
+<span class="f">/plugin install</span> <span class="arg">gsd@gsd-build/get-shit-done</span></pre>
+        </div>
+      </div>
+
+      <!-- right: 직접 만들기 — marketplace.json -->
+      <div class="box codebox">
+        <div class="box-head">
+          <span class="badge">직접 만들기</span>
+          <span class="box-title">marketplace.json</span>
+        </div>
+        <div class="code-body">
+          <div class="code-file">루트의 .claude-plugin/marketplace.json</div>
+<pre class="code">{
+  <span class="k">"name"</span>: <span class="s">"markflow-plugins"</span>,
+  <span class="k">"description"</span>: <span class="s">"markflow Claude Code 플러그인"</span>,
+  <span class="k">"plugins"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"markflow-dev-tools"</span>,
+      <span class="k">"path"</span>: <span class="s">"plugins/dev-tools"</span> },
+    { <span class="k">"name"</span>: <span class="s">"markflow-doc-generator"</span>,
+      <span class="k">"path"</span>: <span class="s">"plugins/doc-generator"</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM full-width source callout -->
+    <div class="callout">
+      <span class="src">출처</span>
+      <span class="cbody"><span class="strong">네임스페이싱</span> <code>/plugin-name:skill-name</code> · 개발 중 <code>--plugin-dir</code> 후 <code>/reload-plugins</code> &nbsp;<code>github.com/anthropics/claude-code</code></span>
+    </div>
+
+  </div>
+</body>
+</html>

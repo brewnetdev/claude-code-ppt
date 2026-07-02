@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ── two-column comparison ── */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 28px 30px;
+    gap: 24px;
+  }
+
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 7px 16px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge-bad  { color: #B91C1C; border-color: #B91C1C; }
+  .badge-good { color: #047857; border-color: #047857; }
+  .head-title {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    color: #1A1A18;
+    line-height: 1.25;
+  }
+
+  /* terminal / code block */
+  .term {
+    border: 1px solid #D4D0C8;
+    background: #F5F3F0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .term-bar {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #6B6560;
+    padding: 12px 22px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.62;
+    color: #1A1A18;
+    white-space: pre-wrap;
+    padding: 22px 22px;
+    flex: 1;
+  }
+  .cmt { color: #6B6560; }
+  .step { color: #1E3A8A; font-weight: 700; }
+  .arrow { color: #047857; font-weight: 600; }
+
+  /* consequences list (bad side) */
+  .conseq {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .conseq-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .tri {
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #B91C1C;
+    flex-shrink: 0;
+    margin-top: 9px;
+  }
+  .conseq-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    color: #B91C1C;
+    line-height: 1.4;
+  }
+
+  /* result list (good side) */
+  .result {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .result-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .tri-good {
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #047857;
+    flex-shrink: 0;
+    margin-top: 9px;
+  }
+  .result-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    color: #047857;
+    line-height: 1.4;
+  }
+
+  /* ── Bottom full-width source callout ── */
+  .source {
+    border: 1px solid #D4D0C8;
+    background: #FAF3E6;
+    padding: 22px 30px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+  .source-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 19px;
+    color: #115E59;
+    background: rgba(15, 118, 110, 0.10);
+    border: 1px solid rgba(15, 118, 110, 0.40);
+    padding: 9px 16px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+  }
+  .source-text {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .source-text .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    color: #047857;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- ── BAD (left, red) ── -->
+      <div class="col">
+        <div class="col-head">
+          <span class="badge badge-bad">BAD</span>
+          <span class="head-title">나쁜 예 — 크고 위험한 단계</span>
+        </div>
+
+        <div class="term">
+          <div class="term-bar">Terminal</div>
+<pre class="code"><span class="cmt"># 패턴 1: 테스트 없이 구현 먼저</span>
+"사용자 입력을 받아서 검증하고, DB에 저장하고,
+성공하면 이메일을 보내고, 실패하면 로그를 남기는
+기능을 만들어줘."</pre>
+        </div>
+
+        <div class="conseq">
+          <div class="conseq-row"><span class="tri"></span><span class="conseq-text">어디서 문제가 생겼는지 파악하기 어려움</span></div>
+          <div class="conseq-row"><span class="tri"></span><span class="conseq-text">되돌리기 어려움</span></div>
+          <div class="conseq-row"><span class="tri"></span><span class="conseq-text">복잡성이 한 번에 폭발</span></div>
+        </div>
+      </div>
+
+      <!-- ── GOOD (right, green) ── -->
+      <div class="col">
+        <div class="col-head">
+          <span class="badge badge-good">GOOD</span>
+          <span class="head-title">좋은 예 — 작고 안전한 단계</span>
+        </div>
+
+        <div class="term">
+          <div class="term-bar">Terminal</div>
+<pre class="code"><span class="cmt"># 좋은 예: 작고 안전한 단계</span>
+<span class="step">1단계:</span> "사용자 입력을 받는 함수를 작성해줘. 테스트 먼저."
+       <span class="arrow">→ 테스트 작성 → 구현 → 검증</span>
+
+<span class="step">2단계:</span> "입력값을 검증하는 로직을 추가해줘. 테스트 먼저."
+       <span class="arrow">→ 테스트 작성 → 구현 → 검증</span></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="source">
+      <div class="source-label">SOURCE</div>
+      <div class="source-text">각 단계는 <span class="mono">테스트 작성 → 구현 → 검증</span> 순으로 진행 — 작고 안전한 단계로 나누면 문제 지점 파악과 되돌리기가 쉬워진다</div>
+    </div>
+  </div>
+</body>
+</html>

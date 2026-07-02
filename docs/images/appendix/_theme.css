@@ -1,0 +1,65 @@
+/* Appendix image deck — shared anti-ai-slop theme (report 크림/teal).
+   Font choice (의도적 선택, system-ui 수렴 회피):
+   - 본문/라벨 = Pretendard : 한국어 정보 위계·라벨 정렬 가독성
+   - 코드/명령 = JetBrains Mono : 0/O · 1/l 구분, 등폭 정렬
+   All visuals: achromatic cream base + single teal accent (의미=강조/상태). */
+
+:root {
+  --cream: #F0EDE8;        /* canvas */
+  --cream-bright: #F4F1EC; /* raised surface (card/box/terminal) */
+  --header: #E7E2D9;       /* table header tone (무채색 한 단) */
+  --ink: #2B2B2B;          /* body text */
+  --muted: #6E6A62;        /* secondary text */
+  --line: #D8D2C8;         /* 1px borders */
+  --teal: #1A7F7A;         /* accent — 강조/상태 only */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+.frame {
+  width: 1280px; height: 720px;
+  background: var(--cream); color: var(--ink);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  padding: 52px 64px;
+  position: relative; overflow: hidden;
+  -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+}
+
+/* typography */
+.mono { font-family: 'JetBrains Mono', 'SFMono-Regular', monospace; }
+.teal { color: var(--teal); }
+.bold { font-weight: 700; }
+.title { font-size: 36px; font-weight: 700; letter-spacing: -.01em; margin: 0 0 6px; }
+.subtitle { font-size: 18px; color: var(--muted); font-weight: 500; margin: 0 0 26px; }
+.title.center, .subtitle.center { text-align: center; }
+
+/* comparison table */
+table.cmp { width: 100%; border-collapse: collapse; font-size: 18px; }
+table.cmp th, table.cmp td { border: 1px solid var(--line); padding: 14px 16px; text-align: left; vertical-align: middle; }
+table.cmp thead th { color: var(--teal); font-weight: 700; font-size: 16px; background: var(--header); }
+table.cmp td.mono, table.cmp th.mono { font-family: 'JetBrains Mono', monospace; }
+table.cmp td.k { color: var(--muted); font-weight: 600; width: 200px; }
+
+/* spec cards */
+.cards { display: grid; gap: 24px; }
+.card { border: 1px solid var(--line); border-radius: 8px; padding: 24px 26px; background: var(--cream-bright); }
+.card .big { font-size: 40px; font-weight: 700; line-height: 1.1; }
+.card .desc { font-size: 16px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+/* chips / notes / nodes (HTML flows) */
+.chip { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 7px 13px; font-size: 15px; background: var(--cream-bright); }
+.note { border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; font-size: 16px; background: var(--cream-bright); }
+.node { border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; background: var(--cream-bright); font-size: 17px; text-align: center; }
+.node.accent { border-color: var(--teal); }
+.legend { font-size: 14px; color: var(--muted); }
+
+/* terminal mockup */
+.term { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--cream-bright); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.term .bar { border-bottom: 1px solid var(--line); padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.term .dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--line); display: inline-block; }
+.term .body { padding: 22px 24px; font-family: 'JetBrains Mono', monospace; font-size: 18px; line-height: 2; color: var(--ink); }
+.term .body .out { color: var(--ink); }
+
+/* SVG host */
+.svgwrap { width: 100%; }

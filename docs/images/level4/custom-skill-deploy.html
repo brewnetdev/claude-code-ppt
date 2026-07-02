@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1.32fr;
+    gap: 34px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col { display: flex; flex-direction: column; gap: 22px; min-height: 0; }
+
+  /* section label badges */
+  .seclabel {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .seclabel .badge {
+    display: inline-block;
+    padding: 6px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    color: #0F766E;
+    white-space: nowrap;
+  }
+  .seclabel .ttl {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1A1A18;
+  }
+
+  /* code box (lighter mono panel) */
+  .code {
+    border: 1px solid #D4D0C8;
+    border-radius: 11px;
+    background: #FCFBF8;
+    padding: 26px 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    line-height: 1.95;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: hidden;
+    flex: 1;
+  }
+  .code .root { color: #1A1A18; font-weight: 700; }
+  .code .tree { color: #6B6560; }
+  .code .dir { color: #115E59; font-weight: 700; }
+  .code .file { color: #1A1A18; font-weight: 600; }
+  .code .cm { color: #6B6560; }
+
+  /* deploy steps */
+  .steps { display: flex; flex-direction: column; gap: 16px; flex: 1; justify-content: space-between; }
+  .step {
+    border: 1px solid #D4D0C8;
+    border-radius: 11px;
+    padding: 15px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+  }
+  .step .n {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 44px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1;
+    width: 42px;
+    text-align: center;
+  }
+  .step .body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .step .head {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .step .head .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .step .desc {
+    font-size: 23px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  .step .desc .em { font-weight: 700; color: #1A1A18; }
+  .step .desc .m {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #115E59;
+  }
+  .step .tag {
+    flex: none;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    padding: 6px 15px;
+    white-space: nowrap;
+  }
+  .step .tag.info { color: #1E3A8A; }
+  .step .tag.warn { color: #B91C1C; }
+  .step .tag.plug { color: #0F766E; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: directory structure -->
+      <div class="col">
+        <div class="seclabel">
+          <span class="badge">.claude/skills/</span>
+          <span class="ttl">디렉터리 구조</span>
+        </div>
+
+        <div class="code"><span class="root">.claude/skills/</span>
+<span class="tree">├── </span><span class="dir">drizzle-conventions/</span>
+<span class="tree">│   └── </span><span class="file">SKILL.md</span>
+<span class="tree">├── </span><span class="dir">db-migration/</span>
+<span class="tree">│   ├── </span><span class="file">SKILL.md</span>
+<span class="tree">│   └── </span><span class="dir">scripts/</span>
+<span class="tree">│       └── </span><span class="file">verify-migration.sh</span>
+<span class="tree">└── </span><span class="dir">markflow-review/</span>
+<span class="tree">    ├── </span><span class="file">SKILL.md</span>
+<span class="tree">    └── </span><span class="file">checklist.md</span>   <span class="cm"># SKILL.md에서 @import</span></div>
+      </div>
+
+      <!-- RIGHT: team deployment -->
+      <div class="col">
+        <div class="seclabel">
+          <span class="badge">deploy</span>
+          <span class="ttl">팀 배포</span>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="n">1</div>
+            <div class="body">
+              <div class="head">Project Skill을 git에 커밋</div>
+              <div class="desc">변경은 <span class="em">PR로 리뷰</span> — 스킬도 코드처럼.</div>
+            </div>
+            <span class="tag info">VCS</span>
+          </div>
+
+          <div class="step">
+            <div class="n">2</div>
+            <div class="body">
+              <div class="head">무분별 추가 금지</div>
+              <div class="desc">무분별 추가가 <span class="em">모델의 자가 호출을 망가뜨림</span>.</div>
+            </div>
+            <span class="tag warn">RISK</span>
+          </div>
+
+          <div class="step">
+            <div class="n">3</div>
+            <div class="body">
+              <div class="head">plugin 형태 배포는 별도</div>
+              <div class="desc">조직 공용 스킬 묶음은 <span class="m">plugin</span>으로 패키징해 <span class="em">사내 레지스트리에서 설치</span>.</div>
+            </div>
+            <span class="tag plug">PLUGIN</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 30px 38px;
+    background: transparent;
+    display: flex;
+    gap: 32px;
+  }
+
+  /* ── columns ── */
+  .col-flow { width: 500px; flex: none; display: flex; flex-direction: column; }
+  .col-ex   { flex: 1; display: flex; flex-direction: column; }
+
+  .col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: #6B6560;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* ── flow steps ── */
+  .steps { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .step {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .step .n {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border: 1px solid #0F766E;
+    border-radius: 10px;
+    color: #0F766E;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step .body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .step .t {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+  .step .s {
+    font-size: 18px;
+    color: #6B6560;
+    line-height: 1.3;
+  }
+  .step code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #0F766E;
+    font-size: 17px;
+  }
+  .step .s code { color: #1A1A18; font-weight: 600; }
+
+  /* vertical arrow between steps */
+  .v-arr {
+    align-self: center;
+    color: #6B6560;
+    font-size: 20px;
+    line-height: 1;
+    margin: 1px 0;
+  }
+
+  /* match badge inside step 2 */
+  .match {
+    flex: none;
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: #047857;
+    border: 1px solid #047857;
+    border-radius: 8px;
+    padding: 6px 12px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  /* ── example code box ── */
+  .code-box {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FBFBF9;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .code-head {
+    border-bottom: 1px solid #D4D0C8;
+    padding: 11px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .code-head .file {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 19px;
+    color: #1A1A18;
+  }
+  .code-head .src {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    color: #6B6560;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  pre.code {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #1A1A18;
+    padding: 13px 18px;
+    white-space: pre;
+    overflow: hidden;
+  }
+  pre.code .fm   { color: #6B6560; }
+  pre.code .path { color: #0F766E; font-weight: 700; }
+  pre.code .head { color: #1E3A8A; font-weight: 700; }
+  pre.code .key  { color: #047857; font-weight: 600; }
+  pre.code .cmt  { color: #6B6560; }
+  pre.code .num  { color: #B91C1C; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: injection flow -->
+    <div class="col-flow">
+      <div class="col-label">경로 기반 자동 컨텍스트 주입</div>
+
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <div class="body">
+            <div class="t">규칙 파일 정의</div>
+            <div class="s"><code>.claude/rules/*.md</code> 상단 frontmatter에 <code>paths:</code> Glob 선언</div>
+          </div>
+        </div>
+
+        <div class="v-arr">&#9660;</div>
+
+        <div class="step">
+          <span class="n">2</span>
+          <div class="body">
+            <div class="t">작업 파일 경로 매칭</div>
+            <div class="s">편집·열람 파일이 <code>paths</code> Glob와 일치하는지 검사</div>
+          </div>
+          <span class="match">Glob MATCH</span>
+        </div>
+
+        <div class="v-arr">&#9660;</div>
+
+        <div class="step">
+          <span class="n">3</span>
+          <div class="body">
+            <div class="t">해당 규칙만 자동 로드</div>
+            <div class="s">일치할 때만 본문이 컨텍스트에 주입 &mdash; <span style="color:#1A1A18;font-weight:600;">매칭 안 되면 로드되지 않음</span></div>
+          </div>
+        </div>
+
+        <div class="v-arr">&#9660;</div>
+
+        <div class="step">
+          <span class="n">4</span>
+          <div class="body">
+            <div class="t">특정 파일·디렉터리에서만 활성화</div>
+            <div class="s">해당 영역 작업 시에만 규칙이 적용되어 컨텍스트 절약</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: example rule file -->
+    <div class="col-ex">
+      <div class="col-label">예시 &mdash; api-routes.md</div>
+
+      <div class="code-box">
+        <div class="code-head">
+          <span class="file">.claude/rules/api-routes.md</span>
+          <span class="src">template/claude-rules/api-routes.md</span>
+        </div>
+<pre class="code"><span class="fm">---</span>
+<span class="key">paths:</span>
+<span class="key">  -</span> <span class="path">"src/api/**/*.ts"</span>
+<span class="fm">---</span>
+<span class="head"># API 개발 규칙</span>
+
+<span class="head">## 응답 형식</span>
+모든 API는 다음 형식으로 응답한다:
+{ "success": boolean, "data": any | null, "error": string | null }
+
+<span class="head">## 에러 처리</span>
+<span class="cmt">-</span> 비즈니스 로직 에러: <span class="num">400</span>번대
+<span class="cmt">-</span> 서버 에러: <span class="num">500</span>번대
+
+<span class="head">## 유효성 검사</span>
+<span class="cmt">-</span> 모든 입력은 zod 스키마로 검증
+<span class="cmt">-</span> 스키마 파일은 src/schemas/에 위치</pre>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

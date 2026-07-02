@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --panel-bg: #FFFFFF;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 21px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-bottom: 14px;
+  }
+
+  /* ── card grid: 2 cols x 3 rows ── */
+  .grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.9fr 1.02fr 1.08fr;
+    gap: 16px;
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 12px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .card-num {
+    flex: 0 0 auto;
+    width: 60px;
+    height: 42px;
+    border: 1px solid var(--teal-deep);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-title {
+    font-family: var(--sans);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    word-break: keep-all;
+  }
+
+  .card-body {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .card-body .em { color: var(--teal-deep); font-weight: 700; }
+  .card-body .lock { color: var(--red); font-weight: 700; }
+  .card-body .ok { color: var(--green); font-weight: 700; }
+  .card-body .info { color: var(--blue); font-weight: 700; }
+  .card-body .mono { font-family: var(--mono); font-weight: 600; }
+
+  .card-flow {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .step {
+    border: 1px solid var(--line);
+    padding: 5px 11px;
+    white-space: nowrap;
+  }
+  .step.r { border-color: var(--red); color: var(--red); }
+  .step.g { border-color: var(--green); color: var(--green); }
+  .step.t { border-color: var(--teal-deep); color: var(--teal-deep); }
+  .arr {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+  .arr svg { display: block; }
+
+  .tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .tag {
+    border: 1px solid var(--line);
+    padding: 5px 14px;
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="panel-label">LEVEL 2 핵심 요약 — 원칙 · 분해 · 지시 · 리뷰</div>
+
+    <div class="grid">
+
+      <!-- 2.1 설계의 중요성 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.1</div>
+          <div class="card-title">설계의 중요성</div>
+        </div>
+        <div class="card-body">
+          AI 작업이 길수록 <span class="lock">방향 수정 비용</span>이 커진다. 작은 단위로 커밋하고, 설계 완성도를 높이기 위해 <span class="em">요구사항 → 아키텍처 → 인터페이스</span>를 먼저 정의한다.
+        </div>
+      </div>
+
+      <!-- 2.2 Taste · 비결정성 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.2</div>
+          <div class="card-title">Taste · 비결정성</div>
+        </div>
+        <div class="card-body">
+          AI는 <span class="em">작동하는 코드</span>를 만들고, 개발자는 <span class="em">좋은 코드</span>를 판단한다. <span class="info">테스트</span>가 비결정성의 결정적 검문소.
+        </div>
+      </div>
+
+      <!-- 2.3 작업 단위 · 명확한 지시 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.3</div>
+          <div class="card-title">작업 단위 · 명확한 지시</div>
+        </div>
+        <div class="card-body">
+          <span class="em">10분 내 검증 가능한 크기</span> · 단일 책임 원칙. 명확한 지시 <span class="em">5요소</span>.
+        </div>
+        <div class="tags">
+          <div class="tag">목표</div>
+          <div class="tag">맥락</div>
+          <div class="tag">제약</div>
+          <div class="tag">완료</div>
+          <div class="tag">예시</div>
+        </div>
+      </div>
+
+      <!-- 2.4 CLAUDE.md -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.4</div>
+          <div class="card-title">CLAUDE.md</div>
+        </div>
+        <div class="card-body">
+          <span class="mono">/init</span> 자동 생성 후 점진적 발전. <span class="mono">.claude/rules/</span>로 경로 기반 분리. <span class="em">context, not enforcement.</span>
+        </div>
+      </div>
+
+      <!-- 2.5 증강코딩 + TDD -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.5</div>
+          <div class="card-title">증강코딩 + TDD</div>
+        </div>
+        <div class="card-body">
+          Kent Beck 원칙 — <span class="em">Small Safe Steps</span> + Red · Green · Refactor. 사이클 강제.
+        </div>
+        <div class="card-flow">
+          <span class="step r">/tdd-red</span>
+          <span class="arr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="13" y2="7" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#0F766E"/></svg></span>
+          <span class="step g">/tdd-green</span>
+          <span class="arr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="13" y2="7" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#0F766E"/></svg></span>
+          <span class="step t">/tdd-refactor</span>
+        </div>
+      </div>
+
+      <!-- 2.6 SDD · SpecKit -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">2.6</div>
+          <div class="card-title">SDD · SpecKit</div>
+        </div>
+        <div class="card-body">
+          <span class="em">SpecKit</span>으로 자동화하는 명세 주도 개발 흐름.
+        </div>
+        <div class="card-flow">
+          <span class="step">Specify</span>
+          <span class="arr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="13" y2="7" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#0F766E"/></svg></span>
+          <span class="step">Plan</span>
+          <span class="arr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="13" y2="7" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#0F766E"/></svg></span>
+          <span class="step">Implement</span>
+          <span class="arr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="13" y2="7" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#0F766E"/></svg></span>
+          <span class="step">Validate</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

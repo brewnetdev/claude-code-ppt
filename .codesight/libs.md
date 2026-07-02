@@ -1,5 +1,6 @@
 # Libraries
 
+- `scripts/insert-global-settings-slide.py` — function line: (inner)
 - `src/canvas/autoLinkUrl.ts` — function tryAutoLinkOnSpace: (e) => boolean
 - `src/canvas/documentEditingBridge.ts`
   - function setActiveDocFrame: (frame) => void
@@ -11,7 +12,7 @@
   - _...29 more_
 - `src/canvas/listInvariant.ts` — function ensureLiWrapper: (li) => HTMLDivElement, function enforceBulletListInvariant: (root) => void
 - `src/canvas/useDocumentEditing.ts` — function useDocumentEditing: (frameRef, // Re-run when the document is re-seeded (load / undo / redo) => void, const DOC_SELECTION_EVENT
-- `src/canvas/useSlideEditing.ts` — function useSlideEditing: (slideRootRef, onChange?) => void
+- `src/canvas/useSlideEditing.ts` — function mergeListItems: (startLi, endLi, range) => void, function useSlideEditing: (slideRootRef, onChange?) => void
 - `src/editor/codeBlockHtml.ts`
   - function readCodeSource: (el) => string
   - function readCodeLang: (el) => string
@@ -172,8 +173,12 @@
   - function makeBlockId: () => string
   - function ensureBlockId: (el) => string
   - const DATA_BLOCK_ID
-- `src/scene/pendingCommit.ts` — function registerPendingFlush: (fn) => void, function flushPendingCommit: () => void
+- `src/scene/pendingCommit.ts`
+  - function registerPendingFlush: (fn) => void
+  - function flushPendingCommit: () => void
+  - function usePendingFlush: (timerRef, commit) => void
 - `src/scene/store.ts` — function loadSlideClipboardFromSession: () => void, const useDeckStore
+- `src/scene/stripEditorChrome.ts` — function stripEditorChrome: (el) => void
 - `src/watermark/watermark.ts`
   - function watermarkSpansHtml: (lines) => string
   - function slideHasWatermark: (slideHtml) => boolean

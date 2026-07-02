@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>/carve-workflow — 사용 가이드</title>
+  <meta name="description" content="claude-code-ppt 프로젝트에서 /carve-workflow 스킬을 어떻게 쓰는가 — 7단계 루프, 8요소 출력, 완료 게이트, 프로젝트 사용 예시.">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    :root {
+      --ink:        #0F172A;
+      --ink-mute:   #475569;
+      --ink-faint:  #94A3B8;
+      --bg:         #FFFFFF;
+      --surface:    #F8FAFC;
+      --surface-2:  #F1F5F9;
+      --border:     #E2E8F0;
+      --border-2:   #CBD5E1;
+      --accent:     #0F766E;
+      --accent-bg:  #F0FDFA;
+      --warn:       #B45309;
+      --warn-bg:    #FFFBEB;
+      --good:       #15803D;
+      --good-bg:    #F0FDF4;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+              "Noto Sans KR", "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.72;
+      color: var(--ink);
+      background: var(--bg);
+      font-feature-settings: "kern" 1, "liga" 1;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 64px 32px 96px;
+    }
+
+    /* --- Header --- */
+    header.doc-head {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 28px;
+      margin-bottom: 40px;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin: 0 0 12px;
+    }
+    h1.doc-title {
+      font-size: 34px;
+      line-height: 1.25;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 14px;
+      letter-spacing: -0.01em;
+    }
+    h1.doc-title code { font-size: 30px; }
+    .doc-sub {
+      font-size: 16px;
+      color: var(--ink-mute);
+      margin: 0;
+      max-width: 720px;
+    }
+    .doc-meta {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+    }
+    .doc-meta > div { padding: 12px 14px; border-right: 1px solid var(--border); }
+    .doc-meta > div:last-child { border-right: 0; }
+    .doc-meta dt {
+      font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+      letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 4px;
+    }
+    .doc-meta dd { margin: 0; font-size: 14px; color: var(--ink); }
+
+    /* --- Section headings --- */
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 56px 0 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.005em;
+    }
+    h2 .part {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-right: 10px;
+      letter-spacing: 0.06em;
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 32px 0 12px;
+      color: var(--ink);
+    }
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-mute);
+      margin: 24px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--mono);
+    }
+
+    p { margin: 0 0 14px; }
+    p + p { margin-top: -2px; }
+
+    strong { color: var(--ink); font-weight: 600; }
+    em { font-style: italic; color: var(--ink); }
+
+    /* --- Inline code & code blocks --- */
+    code {
+      font-family: var(--mono);
+      font-size: 0.92em;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      color: var(--ink);
+    }
+    pre {
+      font-family: var(--mono);
+      font-size: 13.5px;
+      line-height: 1.65;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 14px 0 18px;
+    }
+    pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+    /* --- Tables --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 22px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: var(--surface);
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+    td code { font-size: 0.88em; }
+
+    /* --- Lists --- */
+    ul, ol { padding-left: 22px; margin: 8px 0 18px; }
+    li { margin: 4px 0; }
+    li > ul, li > ol { margin: 4px 0; }
+
+    /* --- Callouts (단색 + border, 그라데이션·글로우 금지) --- */
+    .callout {
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      padding: 14px 18px;
+      margin: 18px 0;
+    }
+    .callout .label {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 6px;
+    }
+    .callout.good { background: var(--good-bg); border-color: #BBF7D0; }
+    .callout.good .label { color: var(--good); }
+    .callout.warn { background: var(--warn-bg); border-color: #FDE68A; }
+    .callout.warn .label { color: var(--warn); }
+    .callout.accent { background: var(--accent-bg); border-color: #99F6E4; }
+    .callout.accent .label { color: var(--accent); }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* --- Example cards (Part 5) --- */
+    .example {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      margin: 20px 0;
+      background: var(--bg);
+    }
+    .example .ex-head {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .example .ex-call {
+      font-size: 13.5px;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .example .ex-call em {
+      background: var(--accent-bg);
+      border-bottom: 1px solid #99F6E4;
+      padding: 0 4px;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .example .ex-or {
+      color: var(--ink-faint);
+      font-size: 12px;
+      font-family: var(--mono);
+      margin: 0 6px;
+    }
+    .example .ex-task {
+      font-size: 13px;
+      color: var(--ink-mute);
+      margin: 0 0 14px;
+      font-style: italic;
+    }
+    .example .ex-label {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-right: 8px;
+    }
+    .example table { margin: 0 0 14px; }
+    .example .ex-foot {
+      font-size: 13px;
+      color: var(--ink-mute);
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-2);
+      margin-top: 4px;
+    }
+    .example .ex-foot dt {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-faint);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 8px 0 2px;
+    }
+    .example .ex-foot dd { margin: 0; }
+
+    /* --- Utterance patterns (Part 5 발화 3패턴) --- */
+    .utterances { margin: 10px 0 16px; }
+    .utterance { margin: 8px 0; }
+    .utterance .ex-label { display: block; margin-bottom: 4px; }
+    .utterance pre { margin: 0 0 4px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+    .utterance pre em {
+      background: var(--accent-bg);
+      padding: 0 4px;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* --- 7-step + 8-element quick block --- */
+    .seven-step, .eight-element {
+      font-family: var(--mono);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      font-size: 13.5px;
+      line-height: 1.85;
+    }
+    .seven-step strong, .eight-element strong { color: var(--accent); }
+
+    /* --- Footnote / closing --- */
+    .pull {
+      margin: 36px 0 0;
+      padding: 22px 24px;
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .pull p { margin: 0; }
+
+    footer.doc-foot {
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+    }
+
+    /* --- Anchor links --- */
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    a:hover { border-bottom-color: var(--accent); }
+
+    @media print {
+      body { font-size: 11pt; }
+      .wrap { padding: 0; max-width: none; }
+      pre, table, .callout, .example { break-inside: avoid; }
+      h2 { break-after: avoid; }
+      a { color: var(--ink); border-bottom: 0; }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 32px 18px 64px; }
+      h1.doc-title { font-size: 26px; }
+      h1.doc-title code { font-size: 22px; }
+      .doc-meta { grid-template-columns: 1fr; }
+      .doc-meta > div { border-right: 0; border-bottom: 1px solid var(--border); }
+      .doc-meta > div:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <p class="eyebrow">claude-code-ppt · skill guide</p>
+    <h1 class="doc-title"><code>/carve-workflow</code> — 사용 가이드</h1>
+    <p class="doc-sub">
+      7단계 절차 루프와 8요소 보고 형식으로 다단계·고모호 작업을 "장기 실행"으로 끌고 가는 메타 스킬. 직접 코드를 만들지 않고
+      <code>sprint-contract</code> · <code>evaluation-criteria</code> · <code>iterate</code> · <code>squad-*</code> 를
+      지휘한다.
+    </p>
+    <dl class="doc-meta">
+      <div>
+        <dt>GitHub</dt>
+        <dd><a href="https://github.com/claude-code-expert/carve-harness">claude-code-expert/carve-harness</a></dd>
+      </div>
+      <div>
+        <dt>도구 버전</dt>
+        <dd><code>carve-harness v1.7.0</code> · 2026-06-15</dd>
+      </div>
+      <div>
+        <dt>라이선스</dt>
+        <dd>MIT · TypeScript ESM · Node ≥22.18</dd>
+      </div>
+    </dl>
+  </header>
+
+  <!-- About carve-harness -->
+  <section>
+    <h2><span class="part">ABOUT</span>carve-harness 한눈에</h2>
+
+    <p>
+      <strong>carve-harness</strong>는 코드베이스를 분석해 그 프로젝트에 맞는 스킬·훅·서브에이전트를
+      대화형으로 선택 설치하는 <em>하네스 엔지니어링 CLI</em>입니다.
+      이 가이드의 <code>/carve-workflow</code> 스킬은 <strong>v1.7.0(2026-06-15)에 새로 추가된 기능</strong>입니다.
+    </p>
+
+    <h3>핵심 동작 한 줄</h3>
+
+    <pre><code>carve install → 스택 탐지 → (구성요소 선택) → .claude/에 자산 생성
+              → 생성된 검증 훅이 위험 명령을 exit code 2로 결정적 차단</code></pre>
+
+    <h3>7대 특징</h3>
+
+    <ul>
+      <li><strong>토큰 효율 기본 탑재</strong> — codesight·LSP MCP 자동 등록. grep 대신 정확 탐색.</li>
+      <li><strong>결정적 안전</strong> — 위험 명령·시크릿 파일을 <code>exit 2</code>로 강제 차단 (권고 아님).</li>
+      <li><strong>맞춤 선택 설치</strong> — 탐지 → 추천 → 선택. 일괄 없음, 멱등 재설치·클린 제거.</li>
+      <li><strong>anti-slop 게이트</strong> — HTML·SVG·문서 슬롭을 <code>check-slop</code> 린터로 결정적 차단.</li>
+      <li><strong>Squad 9 에이전트</strong> — <code>review · plan · refactor · qa · debug · docs · gitops · audit · evaluator</code>.</li>
+      <li><strong>자기검증 auditor</strong> — 설치 전 secret·과도 권한·훅 주입·셸 문법 스캔, 통과해야 설치.</li>
+      <li><strong>빌드 0</strong> — <code>.ts</code> 직접 실행 (Node 22.18+ 타입 스트리핑).</li>
+    </ul>
+
+    <div class="callout accent">
+      <span class="label">이 가이드의 위상</span>
+      <p style="margin-bottom:0;">
+        <code>/carve-workflow</code>는 carve-harness v1.7.0의 신규 스킬로,
+        <strong>Fable5 모델식 7단계 루프</strong>와 최소 출력형식·완료 게이트·에스컬레이션을 구현합니다.
+        기존 자산(<code>iterate</code> · <code>sprint-contract</code> · <code>squad-evaluator</code>)을 지휘하고,
+        net-new 원칙(불신·결정외화·범위수렴)을 항상-켜짐으로 주입합니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- Part 1 -->
+  <section>
+    <h2><span class="part">PART 1</span>한 문장 정의</h2>
+    <p>
+      <strong>workflow는 7단계 절차 루프와 8요소 보고 형식으로 다단계·고모호 작업을
+      "장기 실행"으로 끌고 가는 <em>메타 스킬</em>입니다.</strong>
+      직접 코드를 만들지 않고 <code>sprint-contract</code> · <code>evaluation-criteria</code> ·
+      <code>iterate</code> · <code>squad-*</code> · <code>tdd</code> 같은 <em>기존 자산을 지휘</em>합니다.
+    </p>
+    <p>쉽게 말해 — "이번 작업은 즉답이 아니라 <em>프로젝트</em>로 다뤄야 한다"고 선언하는 스위치입니다.</p>
+
+    <div class="callout accent">
+      <span class="label">스킬을 부르는 방법 — 2가지</span>
+      <p style="margin-bottom:8px;"><strong>① 슬래시 명시</strong> — 채팅 입력에 <code>/carve-workflow</code> 한 줄.</p>
+      <p style="margin-bottom:8px;"><strong>② 자연어 트리거 어구</strong> — 다음 어구 중 하나가 사용자 발화에 포함되면 Claude가 이 스킬을 <em>자동 invoke</em>합니다 (단일 출처: <code>.claude/skills/workflow/SKILL.md</code>의 <code>description</code> 필드):</p>
+      <ul style="margin-bottom:0;">
+        <li><em>"절차대로 완수해"</em></li>
+        <li><em>"목표 분해해서 검증까지"</em></li>
+        <li><em>"장기 작업으로 진행"</em></li>
+        <li><em>"Fablize"</em></li>
+      </ul>
+      <p style="margin-top:10px; margin-bottom:0; color:var(--ink-mute); font-size:13px;">
+        ⚠ <strong>주의</strong> — 이 어구 없이 그냥 작업 내용만 적으면 workflow는 켜지지 않습니다. Claude는 평범한 다단계 요청으로 처리하며, 7단계 게이트와 8요소 보고는 보장되지 않습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- Part 2 -->
+  <section>
+    <h2><span class="part">PART 2</span>7단계 루프 + 3원칙</h2>
+
+    <h3>7단계 (<code>.claude/skills/workflow/SKILL.md</code> 단일 출처)</h3>
+
+    <div class="seven-step">
+      1.목표 재정의 → 2.작업 분해 → 3.완료 기준 → 4.가정 정리 →
+      5.실행 → 6.자체 검증 → <strong>7.리스크 + 다음</strong>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th style="width:42px;">#</th><th style="width:160px;">단계</th><th>한 줄</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>목표 재정의</strong></td><td>요청을 <em>측정 가능한 형태</em>로 바꾼다. 모호하면 가정 명시 후 진행, 치명적 모호성은 멈춤.</td></tr>
+        <tr><td>2</td><td><strong>작업 분해</strong></td><td>2단계 이상이면 분해 + 단계별 완료기준·의존성. <code>squad-plan</code>에 위임 가능.</td></tr>
+        <tr><td>3</td><td><strong>완료 기준</strong></td><td>"무엇이 완료의 증거인가"에 먼저 답 — 테스트·실행 결과·로그.</td></tr>
+        <tr><td>4</td><td><strong>가정 정리</strong></td><td>가정·검증법·fallback을 <em>표</em>로 외화. <code>sprint-contract.md</code>의 <code>## 가정</code> 절.</td></tr>
+        <tr><td>5</td><td><strong>실행</strong></td><td>즉시 실행. 약속만 하고 미루지 않음.</td></tr>
+        <tr><td>6</td><td><strong>자체 검증</strong></td><td>산출물을 <em>실제로</em> 실행·관찰 — 코드는 테스트, 시각물은 렌더, 설정은 적용. <code>iterate</code>·<code>squad-qa</code>에 위임 가능.</td></tr>
+        <tr><td>7</td><td><strong>리스크 + 다음</strong></td><td>남은 불확실성·"검증되지 않음"을 정직 표시, 다음 액션/에스컬레이션 제안.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>베이스라인 3원칙 (<code>.claude/CLAUDE.md</code>가 단일 출처)</h3>
+    <table>
+      <thead>
+        <tr><th>원칙</th><th>풀어쓰기</th><th>실전 적용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Contractual Distrust</strong></td>
+          <td><em>계약적 불신</em> — 입력·출력·미래의 나를 의심하라</td>
+          <td>경계 4종(정상·매핑·None·변조)을 테스트. <em>"이 함수에 빈 배열이 들어오면?"</em> 같은 질문.</td>
+        </tr>
+        <tr>
+          <td><strong>Externalized Decisions</strong></td>
+          <td><em>결정의 외화</em> — 결정에 D1·D2 같은 ID를 붙이고 주석에 <em>이유·비용·탈출구</em> 명시</td>
+          <td>"왜 zod 대신 valibot?" 같은 결정은 코드 위에 <code>// D3:</code> 주석으로.</td>
+        </tr>
+        <tr>
+          <td><strong>Scope Convergence</strong></td>
+          <td><em>범위 수렴</em> — <em>"안 건드릴 것"</em>을 먼저 적어 변경 반경을 좁힌다</td>
+          <td><code>sprint-contract</code>의 <code>## 범위 밖</code>을 <em>계획 전</em>에 채운다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Part 3 -->
+  <section>
+    <h2><span class="part">PART 3</span>8요소 출력 형식 + 완료 게이트</h2>
+
+    <p>작업 보고는 이 <strong>8요소</strong>로 <em>고정</em>됩니다 (이게 workflow의 시그니처):</p>
+
+    <div class="eight-element">
+      [목표]  무엇을 측정 가능한 형태로 완수하려는가<br>
+      [계획]  어떤 단계로 쪼개 진행하는가<br>
+      [가정]  무엇을 사실로 가정하고, 어떻게 검증하는가<br>
+      [실행]  실제로 무엇을 했는가 (약속 아님)<br>
+      [증거]  실행 결과 — 명령 출력, 파일 diff, 스크린샷<br>
+      [검증]  자체 검증 결과 — 게이트 통과 여부<br>
+      [리스크] 남은 불확실성 / "검증 안 된 부분"<br>
+      [다음]  다음 액션 또는 에스컬레이션
+    </div>
+
+    <h3>완료 게이트 (<code>evaluation-criteria.md</code> — 100점 만점, <strong>PASS ≥ 90</strong>)</h3>
+
+    <p>
+      <code>G</code>는 <strong>Gate</strong>(게이트), <code>DoD</code>는
+      <strong>Definition of Done</strong>(완료 정의), <code>MUST PASS</code>는
+      <em>"하나라도 0점이면 총점과 무관하게 FAIL"</em>인 결정적 항목입니다.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th style="width:60px;">게이트</th><th>항목</th><th>0점 = 즉시 FAIL</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>G1</strong></td><td>빌드/타입체크 (<code>npm run build</code> / <code>typecheck</code> exit 0)</td><td>빌드 실패</td></tr>
+        <tr><td><strong>G2</strong></td><td>테스트 통과 (<code>npm run test</code>)</td><td>테스트 1개라도 fail</td></tr>
+        <tr><td><strong>G3</strong></td><td>안전 위반 0건 (파괴 명령·비밀 노출 검증 훅)</td><td>1건 이상 위반</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      이 3개는 <em>총점 90/100을 받아도</em> 0이면 즉시 탈락.
+      workflow의 6단계(자체 검증)는 항상 <em>이 3개부터</em> 돕니다.
+    </p>
+  </section>
+
+  <!-- Part 4 -->
+  <section>
+    <h2><span class="part">PART 4</span>언제 쓰고 언제 쓰지 말 것</h2>
+
+    <div class="callout good">
+      <span class="label">쓸 때 (네 조건 중 둘 이상 해당)</span>
+      <ul>
+        <li><strong>다단계</strong> — 3개 이상의 독립 작업이 직렬·병렬로 묶임</li>
+        <li><strong>고모호</strong> — <em>"어떤 게 완료인지"</em>가 시작 시점에 불명</li>
+        <li><strong>검증 필수</strong> — 테스트·렌더·anti-slop·게이트 중 <em>둘 이상</em>을 만족해야 함</li>
+        <li><strong>시간 분산</strong> — 한 세션에 안 끝남, <code>handoff</code>로 다음 세션에 인계 가능성</li>
+      </ul>
+    </div>
+
+    <div class="callout warn">
+      <span class="label">쓰지 말 것</span>
+      <ul>
+        <li>1줄 typo 수정</li>
+        <li>단발 질문(<em>"이 함수가 뭐 해?"</em>)</li>
+        <li>탐색만 하는 작업(<em>"이 폴더에 뭐가 있어?"</em>)</li>
+        <li>사용자가 <em>대화</em>를 원하는 상황 — workflow는 <em>완수</em>가 목적</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Part 5 -->
+  <section>
+    <h2><span class="part">PART 5</span>프로젝트에서 사용 예시</h2>
+
+    <p>
+      각 예시는 <strong>슬래시 + 자연어 트리거 2종</strong>을 회전 노출합니다.
+      자연어 트리거의 <strong>전체 4종</strong>(<code>"절차대로 완수해"</code> · <code>"목표 분해해서 검증까지"</code> · <code>"장기 작업으로 진행"</code> · <code>"Fablize"</code>)은
+      위 <strong>PART 1 callout</strong>에 정리돼 있으며, 어느 것으로 발화해도 동일한 workflow가 발동됩니다.
+      7단계 매핑은 <strong>PART 2</strong>를 참조하세요.
+    </p>
+
+    <!-- Example A -->
+    <article class="example">
+      <p class="ex-head">예시 A — Level 8 신규 챕터 덱 작성</p>
+      <div class="utterances">
+        <div class="utterance">
+          <span class="ex-label">방법 1 · 슬래시 명시</span>
+<pre><code>/carve-workflow
+Level 8 챕터 덱을 처음부터 작성해서 anti-slop 통과·export viewer까지 가져가줘</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 2 · "절차대로 완수"</span>
+<pre><code>Level 8 챕터 덱을 처음부터 만드는 걸 <em>절차대로 완수</em>해줘 — 토픽 매핑·다이어그램·page-num·slop 검증·export까지</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 3 · "장기 작업으로 진행"</span>
+<pre><code>Level 8 챕터 덱 0→완성을 <em>장기 작업으로 진행</em>해줘. md-to-slidedeck → slide-to-image → check-slop → export-html-deck 순으로</code></pre>
+        </div>
+      </div>
+      <dl class="ex-foot">
+        <dt>작업 핵심</dt><dd>토픽 매핑 → 슬라이드 골격 → 다이어그램 → 임베드 → page-num → slop 검증 → export</dd>
+        <dt>호출 자산</dt><dd><code>md-to-slidedeck</code> · <code>slide-to-image</code> · <code>clean-html</code> · <code>check-slop.mjs</code> · <code>export-html-deck</code></dd>
+        <dt>완료 게이트</dt><dd>anti-slop 0 ERROR · page-num 연속 · <code>typecheck</code> 통과 · viewer 정상</dd>
+      </dl>
+    </article>
+
+    <!-- Example B -->
+    <article class="example">
+      <p class="ex-head">예시 B — 전 덱(Level 1~7) watermark 일괄 적용</p>
+      <div class="utterances">
+        <div class="utterance">
+          <span class="ex-label">방법 1 · 슬래시 명시</span>
+<pre><code>/carve-workflow
+전 덱에 brand watermark 입히고 슬라이드 깨짐 없는지 확인해줘</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 2 · "Fablize"</span>
+<pre><code><em>Fablize</em>: 전 덱 watermark 적용 — Level 1부터 7까지, 한 덱 적용 후 diff·렌더 확인 다음 덱</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 3 · "목표 분해해서 검증까지"</span>
+<pre><code>전 덱 watermark 일괄 적용을 <em>목표 분해해서 검증까지</em> 가져가줘. 1덱 파일럿 → 회귀 점검 → 나머지 6덱 순으로</code></pre>
+        </div>
+      </div>
+      <dl class="ex-foot">
+        <dt>작업 핵심</dt><dd>1덱 파일럿 → diff·렌더 확인 → 나머지 6덱 반복 → 전체 회귀 점검</dd>
+        <dt>호출 자산</dt><dd><code>watermark</code> · <code>export-html-deck</code> · <code>check-slop.mjs</code></dd>
+        <dt>완료 게이트</dt><dd>watermark 7/7 적용 · check-slop 신규 ERROR 0 · 기존 viewer 시각 회귀 0</dd>
+      </dl>
+    </article>
+
+    <!-- Example C -->
+    <article class="example">
+      <p class="ex-head">예시 C — 다른 챕터 발표 스크립트 일괄 작성</p>
+      <div class="utterances">
+        <div class="utterance">
+          <span class="ex-label">방법 1 · 슬래시 명시</span>
+<pre><code>/carve-workflow
+다른 챕터도 ch2.5와 같은 양식으로 docs/keynote/levelN-X.X-주제-상세.md 파일로 일괄 작성해줘</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 2 · "절차대로 완수"</span>
+<pre><code>다른 챕터도 ch2.5와 같은 양식으로 일괄 작성하는 걸 <em>절차대로 완수</em>해줘 — 양식 확정부터 일괄 작성까지 단계별로</code></pre>
+        </div>
+        <div class="utterance">
+          <span class="ex-label">방법 3 · "목표 분해해서 검증까지"</span>
+<pre><code>다른 챕터 일괄 작성을 <em>목표 분해해서 검증까지</em> 가져가줘. 양식 확정 → 파일럿 → 나머지 순으로</code></pre>
+        </div>
+      </div>
+      <dl class="ex-foot">
+        <dt>작업 핵심</dt><dd>양식 확정 → ch2.5 파일럿 저장 → 사용자 리뷰 → 양식 조정 → 나머지 챕터 일괄</dd>
+        <dt>호출 자산</dt><dd><code>docs/html/report/*.html</code> · <code>docs/images/levelN/*.html</code> · <code>squad-docs</code></dd>
+        <dt>완료 게이트</dt><dd>전 챕터 파일 존재 · 용어 풀네임 표 일관 · 사용자 양식 승인</dd>
+      </dl>
+    </article>
+  </section>
+
+  <!-- Part 6 -->
+  <section>
+    <h2><span class="part">PART 6</span>Anti-pattern (이렇게 쓰면 안 된다)</h2>
+    <p>workflow를 <em>형식만</em> 빌려 쓰면 오히려 해롭습니다. 다음 네 가지 시그널은 즉시 폐기 대상입니다.</p>
+
+    <div class="callout warn">
+      <span class="label">Anti-pattern 4종</span>
+      <ol>
+        <li><strong>약속형 5단계</strong> — <code>[실행]</code>에 <em>"이렇게 진행하겠습니다"</em>만 쓰고 실제 도구 호출이 없는 경우. 5단계는 <em>동사 + 결과</em>여야 합니다.</li>
+        <li><strong>검증 우회</strong> — <code>[검증]</code>을 생략하거나 <em>"통과한 것으로 보입니다"</em> 같은 모호한 문장으로 게이트 G1·G2·G3을 <em>건너뛰는</em> 경우. 게이트는 <em>명령 + exit code</em>로 적어야 합니다.</li>
+        <li><strong>가정으로 덮기</strong> — 치명적 모호성(스펙 밖 결함, 고정 답 없는 창의 디테일)을 <code>[가정]</code> 표에 적어 <em>밀어붙이는</em> 경우. 에스컬레이션이 정답입니다.</li>
+        <li><strong>단발 과적용</strong> — 1줄 typo 수정에 8요소를 채우는 경우. 오버헤드만 발생합니다. 그냥 고치세요.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Part 7 -->
+  <section>
+    <h2><span class="part">PART 7</span>마무리 격언</h2>
+
+    <div class="pull">
+      <p>
+        <strong>workflow는 새 도구가 아니라 <em>기존 도구를 결합하는 규율</em>입니다.</strong><br>
+        <em>7단계는 회의실 화이트보드, 8요소는 회의록, G1·G2·G3 게이트는 출입증.</em>
+      </p>
+    </div>
+
+    <p style="margin-top:18px;">
+      설치된 자산(<code>iterate</code> · <code>tdd</code> · <code>test-gen</code> · <code>squad-plan</code> ·
+      <code>squad-evaluator</code> · <code>squad-qa</code> · <code>handoff</code> ·
+      <code>check-slop.mjs</code> · <code>export-html-deck</code> · <code>slide-to-image</code> ·
+      <code>watermark</code>)이 모두 그대로 있고,
+      <strong>workflow는 이들을 <em>언제·어떤 순서로</em> 부를지 결정하는 지휘봉</strong>입니다.
+      7단계의 ①②③이 <em>plan</em>, ④가 <em>contract</em>, ⑤가 <em>execute</em>, ⑥이 <em>evaluate</em>,
+      ⑦이 <em>handoff</em> — 결국 이 프로젝트의 하네스 전체가 7단계에 한 번씩 호출되는 구조입니다.
+    </p>
+  </section>
+
+  <footer class="doc-foot">
+    docs/keynote/carve-workflow-guide.html · 단일출처: <code>.claude/skills/workflow/SKILL.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

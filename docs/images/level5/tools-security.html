@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── section heads ── */
+  .block { display: flex; flex-direction: column; min-height: 0; flex: none; }
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .block-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.18; }
+  .badge {
+    flex: none;
+    padding: 6px 14px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.teal { color: #0F766E; border-color: #115E59; }
+
+  /* ── table (settings_json_key_reference style) ── */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead th {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+    padding: 0 14px 12px 14px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: bottom;
+  }
+  tbody td {
+    font-size: 22px;
+    line-height: 1.34;
+    color: #1A1A18;
+    padding: 9px 14px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .k {
+    font-weight: 700;
+    color: #1A1A18;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+  }
+  td.inst {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: #047857;
+    word-break: break-all;
+    line-height: 1.34;
+  }
+  td.inst.official { color: #1E3A8A; }
+
+  table.tools col.c1 { width: 270px; }
+  table.tools col.c2 { width: 430px; }
+
+  /* ── warning callout (security — red) ── */
+  .warn {
+    margin-top: 14px;
+    border: 1px solid #B91C1C;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 13px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .warn .wlbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #B91C1C;
+    border: 1px solid #B91C1C;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .warn .wtext { font-size: 22px; line-height: 1.46; color: #B91C1C; }
+  .warn .wtext .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  .warn .wtext code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #B91C1C;
+  }
+
+  /* ── bottom full-width source callout ── */
+  .callout {
+    margin-top: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 13px 18px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .callout .ctext { font-size: 22px; line-height: 1.46; color: #7C4A02; }
+  .callout .ctext .em { font-weight: 700; }
+  .callout .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-title">유용한 도구 + 보안 주의사항</span>
+        <span class="badge teal">RECOMMENDED TOOLS</span>
+      </div>
+      <table class="tools">
+        <colgroup><col class="c1"><col class="c2"><col></colgroup>
+        <thead>
+          <tr><th>도구</th><th>설치</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="k">GSD</td>
+            <td class="inst">/plugin marketplace add gsd-build/get-shit-done</td>
+            <td>SDD 워크플로 자동화</td>
+          </tr>
+          <tr>
+            <td class="k">cc-sdd</td>
+            <td class="inst">npx cc-sdd@latest --claude-skills</td>
+            <td>Kiro 스타일 SDD &middot; 17 Skills (progressive disclosure)</td>
+          </tr>
+          <tr>
+            <td class="k">claude-code-spec-workflow</td>
+            <td class="inst">npx @pimzino/claude-code-spec-workflow</td>
+            <td>Requirements &rarr; Design &rarr; Tasks</td>
+          </tr>
+          <tr>
+            <td class="k">security-guidance</td>
+            <td class="inst official">공식 마켓플레이스</td>
+            <td>보안 검토&middot;가이던스</td>
+          </tr>
+          <tr>
+            <td class="k">code-review</td>
+            <td class="inst official">공식 마켓플레이스</td>
+            <td>다중 에이전트 PR 리뷰</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="warn">
+      <span class="wlbl">플러그인 보안</span>
+      <span class="wtext">플러그인은 <span class="em">셸 스크립트와 Hooks</span>를 포함할 수 있다. 설치 전 <span class="step">&#9312;</span> GitHub 소스 직접 검토 <span class="step">&#9313;</span> <code>hooks.json</code>의 실행 명령 확인</span>
+    </div>
+
+    <div class="callout">
+      <span class="clbl">공식 가이드라인</span>
+      <span class="ctext">플러그인은 <span class="em">임의 코드(스크립트&middot;Hooks)</span>를 실행할 수 있다. 신뢰할 수 있는 출처에서만 설치하고, 마켓플레이스 추가 전 GitHub 소스를 직접 확인하라. &mdash; <span class="url">code.claude.com/docs/en/plugin-marketplaces</span> 권고 요약</span>
+    </div>
+
+  </div>
+</body>
+</html>

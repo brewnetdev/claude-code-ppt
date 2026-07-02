@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── phase rail (3 stages across the row of cards) ── */
+  .stages {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+  }
+  .stage {
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+  .stage.s1 { flex: 2.55; }
+  .stage.s2 { flex: 2.18; }
+  .stage.s3 { flex: 1.27; }
+
+  /* stage header */
+  .shead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid #D4D0C8;
+    background: #F4F2EC;
+    flex-wrap: wrap;
+  }
+  .shead .ev {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px; font-weight: 700; color: #1A1A18; letter-spacing: 0.01em;
+  }
+  .shead .matcher {
+    flex: none;
+    padding: 5px 12px;
+    font-size: 18px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8; border-radius: 6px;
+    color: #6B6560; background: #FFFFFF;
+    white-space: nowrap; letter-spacing: 0.02em;
+  }
+
+  /* card area inside a stage */
+  .cards {
+    flex: 1;
+    display: flex;
+    gap: 11px;
+    padding: 12px;
+    min-height: 0;
+    min-width: 0;
+  }
+  .stage.s3 .cards { flex-direction: column; }
+
+  .card {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FAFAF8;
+    padding: 8px 13px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .ctop { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .ctitle { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.08; }
+  .badge {
+    flex: none;
+    padding: 4px 12px;
+    font-size: 18px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #D4D0C8; border-radius: 6px;
+    white-space: nowrap; letter-spacing: 0.02em;
+  }
+  /* exit code semantics: 2 = 차단/거부, 0 = 통과 */
+  .badge.block { color: #B91C1C; border-color: #B91C1C; }
+  .badge.pass  { color: #047857; border-color: #047857; }
+  .badge.cont  { color: #1E3A8A; border-color: #1E3A8A; }
+
+  .cfile {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #0F766E; line-height: 1.2;
+    word-break: break-all;
+  }
+  .cdesc {
+    margin-top: 6px;
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.24;
+  }
+  .cdesc .mut { color: #6B6560; }
+
+  /* code hint block */
+  .hint {
+    margin-top: auto;
+    border: 1px solid #E2DED5; border-radius: 8px;
+    background: #F4F2EC;
+    padding: 8px 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; line-height: 1.26; color: #1A1A18; font-weight: 600;
+  }
+  .hint .cmt  { color: #6B6560; font-weight: 600; }
+  .hint .teal { color: #0F766E; font-weight: 700; }
+  .hint .red  { color: #B91C1C; font-weight: 700; }
+  .hint .grn  { color: #047857; font-weight: 700; }
+  .hint .blu  { color: #1E3A8A; font-weight: 700; }
+
+  /* ── flow arrows between stages ── */
+  .arrow {
+    flex: none;
+    align-self: center;
+    width: 0; height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 14px solid #6B6560;
+  }
+
+  /* ── bottom config strip (settings.json wiring) ── */
+  .cfg {
+    flex: none;
+    display: flex; align-items: center; gap: 18px;
+    border: 1px solid #D4D0C8; border-radius: 12px;
+    background: #FFFFFF;
+    padding: 9px 22px;
+  }
+  .cfg .lab {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 700; color: #1A1A18;
+    border: 1px solid #D4D0C8; border-radius: 6px;
+    padding: 6px 14px; background: #F4F2EC;
+    letter-spacing: 0.01em;
+  }
+  .cfg .txt {
+    font-size: 22px; font-weight: 500; color: #1A1A18; line-height: 1.28;
+  }
+  .cfg .txt .mut { color: #6B6560; }
+  .cfg .txt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600; color: #0F766E;
+    background: #F4F2EC; border: 1px solid #E2DED5; border-radius: 5px; padding: 0 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="stages">
+
+      <!-- STAGE 1: PreToolUse -->
+      <section class="stage s1">
+        <div class="shead">
+          <span class="ev">PreToolUse</span>
+          <span class="matcher">matcher: "Edit|Write"</span>
+        </div>
+        <div class="cards">
+
+          <div class="card">
+            <div class="ctop">
+              <span class="ctitle">보호 파일</span>
+              <span class="badge block">exit 2 차단</span>
+            </div>
+            <div class="cfile">.claude/hooks/protect-paths.sh</div>
+            <div class="cdesc">보호 경로 수정 차단 <span class="mut">— 매칭 시 거부, Claude에게 사유 전달</span></div>
+            <div class="hint"><span class="cmt"># 보호 경로 매칭</span><br>case <span class="teal">"$file"</span> in *"/.env"*) <span class="red">exit 2</span></div>
+          </div>
+
+          <div class="card">
+            <div class="ctop">
+              <span class="ctitle">자동 백업</span>
+              <span class="badge pass">exit 0 통과</span>
+            </div>
+            <div class="cfile">.claude/hooks/backup-files.sh</div>
+            <div class="cdesc">수정 직전 파일 백업 <span class="mut">— 1KB 이상만(작은 파일은 Git이 충분)</span></div>
+            <div class="hint"><span class="cmt"># 1KB 이상만 백업</span><br>if [ <span class="teal">"$size"</span> -gt <span class="grn">1000</span> ]; then mkdir -p <span class="teal">"$BACKUP_DIR"</span></div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="arrow"></div>
+
+      <!-- STAGE 2: PostToolUse -->
+      <section class="stage s2">
+        <div class="shead">
+          <span class="ev">PostToolUse</span>
+          <span class="matcher">파일 수정 직후</span>
+        </div>
+        <div class="cards">
+
+          <div class="card">
+            <div class="ctop">
+              <span class="ctitle">자동 포매팅</span>
+              <span class="badge pass">exit 0 정리만</span>
+            </div>
+            <div class="cfile">.claude/hooks/format-on-edit.sh</div>
+            <div class="cdesc">차단 없이 정리만 <span class="mut">— *.ts/tsx/js/jsx</span></div>
+            <div class="hint"><span class="teal">eslint</span> "$file" --fix<br><span class="teal">prettier</span> --write "$file"</div>
+          </div>
+
+          <div class="card">
+            <div class="ctop">
+              <span class="ctitle">lint 검증</span>
+              <span class="badge block">exit 2 차단</span>
+            </div>
+            <div class="cfile">.claude/hooks/lint-verify.sh</div>
+            <div class="cdesc">위반 발견 시 Claude에게 피드백 <span class="mut">— *.ts/tsx</span></div>
+            <div class="hint"><span class="teal">eslint</span> "$file" --max-warnings <span class="grn">0</span><br>if [ $? -ne 0 ]; then <span class="red">exit 2</span></div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="arrow"></div>
+
+      <!-- STAGE 3: Stop -->
+      <section class="stage s3">
+        <div class="shead">
+          <span class="ev">Stop</span>
+          <span class="matcher">종료 시 1회</span>
+        </div>
+        <div class="cards">
+
+          <div class="card">
+            <div class="ctop">
+              <span class="ctitle">타입 체크</span>
+              <span class="badge cont">exit 2 계속</span>
+            </div>
+            <div class="cfile">.claude/hooks/typecheck-on-stop.sh</div>
+            <div class="cdesc">응답 종료 시 1회 전체 검사 <span class="mut">— file_path 없음</span></div>
+            <div class="hint"><span class="teal">tsc</span> --noEmit<br><span class="cmt"># Stop의 exit 2 = "계속 작업"</span><br>if [ $? -ne 0 ]; then <span class="blu">exit 2</span></div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- settings.json wiring -->
+    <div class="cfg">
+      <span class="lab">settings.json</span>
+      <span class="txt"><span class="mut">하나의 </span><code>"matcher": "Edit|Write"</code><span class="mut"> 아래 </span><code>protect-paths.sh</code><span class="mut"> · </span><code>backup-files.sh</code><span class="mut">를 순서대로 등록 — </span><code>type: "command"</code><span class="mut"> 훅이 한 이벤트에 여러 개 연결된다.</span></span>
+    </div>
+
+  </div>
+</body>
+</html>

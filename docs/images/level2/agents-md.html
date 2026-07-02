@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 36px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  /* ── Two-column body ── */
+  .cols { display: flex; gap: 30px; align-items: stretch; flex: 1; min-height: 0; }
+  .col-l { flex: 1.12; min-width: 0; display: flex; flex-direction: column; }
+  .col-r { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.03em;
+    color: #6B6560;
+    margin-bottom: 12px;
+  }
+
+  /* ── Reference table ── */
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1;
+  }
+  table.ref col.c-key { width: 32%; }
+  table.ref col.c-desc { width: 68%; }
+
+  table.ref thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1A1A18;
+    padding: 0 16px 10px 0;
+    vertical-align: bottom;
+  }
+  table.ref thead tr { border-bottom: 1px solid #D4D0C8; }
+
+  table.ref tbody td {
+    font-size: 18px;
+    line-height: 1.4;
+    padding: 11px 16px 11px 0;
+    vertical-align: top;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.key {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 18px;
+    color: #0F766E;
+  }
+  td.desc { color: #1A1A18; font-weight: 500; }
+  td.desc .sub { color: #6B6560; font-weight: 500; font-size: 16px; }
+  td.desc code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 17px;
+    color: #0F766E;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    padding: 3px 9px;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge.std  { color: #1E3A8A; }
+  .badge.ok   { color: #047857; }
+
+  /* ── Code block (CLAUDE.md reference pattern) ── */
+  .code-card {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 14px 22px;
+    background: transparent;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .code-card .filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 17px;
+    color: #1A1A18;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 1.34;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: visible;
+    flex: 1;
+  }
+  pre.code .cmt  { color: #6B6560; }
+  pre.code .head { color: #1A1A18; font-weight: 700; }
+  pre.code .at   { color: #0F766E; font-weight: 700; }
+  pre.code .li   { color: #1A1A18; }
+
+  /* ── Bottom links / sources callout (full width) ── */
+  .links {
+    display: flex;
+    gap: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .links .lk {
+    flex: 1;
+    padding: 9px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .links .lk + .lk { border-left: 1px solid #D4D0C8; }
+  .links .lk .lk-cap {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: #6B6560;
+    letter-spacing: 0.02em;
+  }
+  .links .lk .lk-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 18px;
+    color: #0F766E;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .links .lk .lk-meta {
+    font-size: 16px;
+    color: #047857;
+    font-weight: 600;
+  }
+
+  /* ── Bottom callout ── */
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 10px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 7px;
+    padding: 4px 11px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .callout .txt {
+    font-size: 18px;
+    line-height: 1.4;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="cols">
+      <!-- LEFT: composition / contents reference table -->
+      <div class="col-l">
+        <div class="panel-label">AGENTS.md 구성 — 모든 에이전트를 위한 표준 문서</div>
+        <table class="ref">
+          <colgroup><col class="c-key"><col class="c-desc"></colgroup>
+          <thead>
+            <tr><th>항목</th><th>내용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key">표준 성격</td>
+              <td class="desc">OpenAI 주도 오픈 표준<span class="badge std">OPEN STD</span><br><span class="sub">Linux Foundation 산하 · 60,000+ 프로젝트에서 사용</span></td>
+            </tr>
+            <tr>
+              <td class="key">대상 도구</td>
+              <td class="desc">단일 도구가 아닌 <b>모든 AI 에이전트</b>가 공유<br><span class="sub">여러 AI 도구를 혼용하는 팀의 단일 진실 공급원</span></td>
+            </tr>
+            <tr>
+              <td class="key">CLAUDE.md 관계</td>
+              <td class="desc">AGENTS.md 먼저 작성 후 CLAUDE.md에서 <code>@AGENTS.md</code> 참조<span class="badge ok">권장</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RIGHT: reference-pattern code -->
+      <div class="col-r">
+        <div class="panel-label">CLAUDE.md — AGENTS.md 참조 방식 (권장)</div>
+        <div class="code-card">
+          <div class="filename">CLAUDE.md</div>
+<pre class="code"><span class="head"># CLAUDE.md</span>
+
+<span class="head">## 프로젝트 지침</span>
+<span class="at">@AGENTS.md</span> 를 반드시 읽고 지침을 따를 것.
+
+<span class="head">## Claude Code 전용 설정</span>
+<span class="li">-</span> 코드 수정 전 반드시 관련
+  테스트를 먼저 실행할 것
+<span class="li">-</span> 대규모 변경은 서브에이전트를
+  활용할 것</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="tag">언제 쓰는가</span>
+      <span class="txt">혼자 / 소규모는 <b>CLAUDE.md</b>로 충분하다. <b>모노레포</b>이거나 팀이 여러 AI 도구를 혼용한다면 <b>AGENTS.md</b>를 먼저 작성하고 CLAUDE.md에서 참조한다.</span>
+    </div>
+
+    <div class="links">
+      <div class="lk">
+        <span class="lk-cap">공식 사이트</span>
+        <span class="lk-url">https://agents.md</span>
+      </div>
+      <div class="lk">
+        <span class="lk-cap">GitHub 저장소</span>
+        <span class="lk-url">github.com/agentsmd/agents.md</span>
+        <span class="lk-meta">Star 20k 이상 · fork 1.5k 이상</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

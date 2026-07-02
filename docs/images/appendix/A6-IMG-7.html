@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A6-IMG-7 · 권한∩샌드박스 교집합</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">최종 접근 경계 — 권한 deny ∩ 샌드박스</h1>
+  <p class="subtitle">서로 다른 두 계층의 교집합이 Bash 실제 접근 경계</p>
+  <svg class="svgwrap" viewBox="0 0 1152 530" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+
+    <!-- left layer: 권한 규칙 deny (앱 레벨) -->
+    <rect x="40" y="70" width="640" height="330" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <!-- right layer: 샌드박스 deny (OS·커널 레벨) -->
+    <rect x="472" y="70" width="640" height="330" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+
+    <!-- intersection (teal) -->
+    <rect x="472" y="70" width="208" height="330" rx="4" fill="#F0EDE8" stroke="#1A7F7A" stroke-width="2"/>
+
+    <!-- left labels (non-overlap area, center 256) -->
+    <text x="256" y="206" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">권한 규칙 deny</text>
+    <text x="256" y="234" text-anchor="middle" font-size="15" fill="#6E6A62">앱 레벨</text>
+    <text x="256" y="276" text-anchor="middle" font-size="15" fill="#6E6A62" font-family="'JetBrains Mono',monospace">deny · ask · allow</text>
+
+    <!-- right labels (non-overlap area, center 896) -->
+    <text x="896" y="206" text-anchor="middle" font-size="20" font-weight="700" fill="#2B2B2B">샌드박스 deny</text>
+    <text x="896" y="234" text-anchor="middle" font-size="15" fill="#6E6A62">OS · 커널 레벨</text>
+    <text x="896" y="276" text-anchor="middle" font-size="15" fill="#6E6A62" font-family="'JetBrains Mono',monospace">filesystem · network</text>
+
+    <!-- intersection labels (center 576) -->
+    <text x="576" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#1A7F7A">최종 경계</text>
+    <text x="576" y="222" text-anchor="middle" font-size="16" font-weight="700" fill="#1A7F7A">최종 접근 경계</text>
+    <text x="576" y="252" text-anchor="middle" font-size="14" fill="#2B2B2B">= 샌드박스 ∩</text>
+    <text x="576" y="274" text-anchor="middle" font-size="14" fill="#2B2B2B">권한 <tspan font-family="'JetBrains Mono',monospace">deny</tspan></text>
+
+    <!-- bottom caption -->
+    <text x="576" y="452" text-anchor="middle" font-size="16" fill="#2B2B2B">프롬프트 인젝션 · 모델 오류로도 <tspan font-weight="700">경계 밖 접근 불가</tspan></text>
+    <text x="576" y="478" text-anchor="middle" font-size="14" fill="#6E6A62">커널 강제 (kernel-enforced)</text>
+  </svg>
+</div>
+</body>
+</html>

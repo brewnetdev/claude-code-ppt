@@ -35,7 +35,7 @@ description: >
 - **모션 장식 금지**: hover 시 `transform: translate/scale`, 로드 시 fade/stagger, `pulse·shimmer·float·glow` 키프레임. `transition`은 색·투명도 등 **기능적 상태 변화에만** 150ms 이하로 한정.
 - **그라데이션 텍스트 금지**: `background-clip: text` + 컬러 그라데이션.
 - **배경 장식 금지**: 거대 반투명 워터마크 글자/아이콘, 닷·그리드 배경, 페이드 마스크, 광선(rays/beams).
-- **카드 상단 컬러 액센트 바 금지**: `border-top: Npx solid color`로 카드를 꾸미지 않는다.
+- **카드 컬러 액센트 바·사이드 레일 금지(상·하·좌·우 전부)**: `border-top/bottom/left/right: Npx solid color`로 한 변만 굵게·색으로 꾸미는 'blockquote식 사이드바' 금지. 위치지정·flex로 만든 좁은 세로/가로 컬러 막대(`.rail`·`.marker` 류)도 금지. 구분·의미는 **전체 테두리(`border: 1px solid`)의 색·여백·라벨/뱃지·텍스트 색**으로만 표현한다. (예외: 한 변 1px 중성색 구분선·표 행 구분선, 그리고 삼각형 화살표용 `border: ... transparent` 기법)
 - **이모지를 불릿·장식으로 사용 금지.** 뱃지/pill 남발 금지.
 - **마케팅 보일러플레이트 단어 금지**: Seamlessly, Elevate, Unlock, Empower, Supercharge, "차원이 다른", "혁신적인" 류 + ✨ 등.
 

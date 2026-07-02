@@ -2,9 +2,9 @@
 
 > **Stack:** raw-http | none | react | typescript
 
-> 0 routes | 0 models | 31 components | 45 lib files | 2 env vars | 0 middleware | 0% test coverage
-> **Token savings:** this file is ~4,400 tokens. Without it, AI exploration would cost ~31,100 tokens. **Saves ~26,800 tokens per conversation.**
-> **Last scanned:** 2026-06-07 06:33 — re-run after significant changes
+> 0 routes | 0 models | 32 components | 47 lib files | 3 env vars | 0 middleware | 0% test coverage
+> **Token savings:** this file is ~4,500 tokens. Without it, AI exploration would cost ~32,100 tokens. **Saves ~27,600 tokens per conversation.**
+> **Last scanned:** 2026-06-21 10:18 — re-run after significant changes
 
 ---
 
@@ -29,6 +29,7 @@
 - **HelpModal** — props: open, onClose — `src/editor/HelpModal.tsx`
 - **IconPicker** — props: className, onPick — `src/editor/IconPicker.tsx`
 - **ImportFromDeckModal** — props: open, onClose, activeDeckId — `src/editor/ImportFromDeckModal.tsx`
+- **PresentationAnnotator** — `src/editor/PresentationAnnotator.tsx`
 - **PresentationView** — props: onExit — `src/editor/PresentationView.tsx`
 - **PropertiesPanel** — props: editorKind — `src/editor/PropertiesPanel.tsx`
 - **SlideBackgroundSection** — `src/editor/SlideBackgroundSection.tsx`
@@ -46,6 +47,7 @@
 
 # Libraries
 
+- `scripts/insert-global-settings-slide.py` — function line: (inner)
 - `src/canvas/autoLinkUrl.ts` — function tryAutoLinkOnSpace: (e) => boolean
 - `src/canvas/documentEditingBridge.ts`
   - function setActiveDocFrame: (frame) => void
@@ -57,7 +59,7 @@
   - _...29 more_
 - `src/canvas/listInvariant.ts` — function ensureLiWrapper: (li) => HTMLDivElement, function enforceBulletListInvariant: (root) => void
 - `src/canvas/useDocumentEditing.ts` — function useDocumentEditing: (frameRef, // Re-run when the document is re-seeded (load / undo / redo) => void, const DOC_SELECTION_EVENT
-- `src/canvas/useSlideEditing.ts` — function useSlideEditing: (slideRootRef, onChange?) => void
+- `src/canvas/useSlideEditing.ts` — function mergeListItems: (startLi, endLi, range) => void, function useSlideEditing: (slideRootRef, onChange?) => void
 - `src/editor/codeBlockHtml.ts`
   - function readCodeSource: (el) => string
   - function readCodeLang: (el) => string
@@ -218,8 +220,12 @@
   - function makeBlockId: () => string
   - function ensureBlockId: (el) => string
   - const DATA_BLOCK_ID
-- `src/scene/pendingCommit.ts` — function registerPendingFlush: (fn) => void, function flushPendingCommit: () => void
+- `src/scene/pendingCommit.ts`
+  - function registerPendingFlush: (fn) => void
+  - function flushPendingCommit: () => void
+  - function usePendingFlush: (timerRef, commit) => void
 - `src/scene/store.ts` — function loadSlideClipboardFromSession: () => void, const useDeckStore
+- `src/scene/stripEditorChrome.ts` — function stripEditorChrome: (el) => void
 - `src/watermark/watermark.ts`
   - function watermarkSpansHtml: (lines) => string
   - function slideHasWatermark: (slideHtml) => boolean
@@ -235,6 +241,7 @@
 
 ## Environment Variables
 
+- `BUMP` **required** — docs/images/level5/_batch-bump.mjs
 - `CI` **required** — playwright.config.ts
 - `DEV` **required** — src/main.tsx
 
@@ -254,46 +261,46 @@
 
 ## Most Imported Files (change these carefully)
 
-- `src/scene/store.ts` — imported by **20** files
-- `src/importer/parsePresentation.ts` — imported by **19** files
+- `src/importer/parsePresentation.ts` — imported by **22** files
+- `src/scene/store.ts` — imported by **21** files
 - `src/scene/constants.ts` — imported by **11** files
 - `src/canvas/OverlayLayer.tsx` — imported by **9** files
 - `src/scene/resourceStore.ts` — imported by **7** files
+- `src/generator/planRenderer.ts` — imported by **6** files
+- `src/generator/slidePlan.ts` — imported by **6** files
 - `src/importer/detectResource.ts` — imported by **6** files
 - `src/library/resourceRegistry.ts` — imported by **6** files
-- `src/generator/planRenderer.ts` — imported by **5** files
-- `src/generator/slidePlan.ts` — imported by **5** files
+- `src/scene/pendingCommit.ts` — imported by **6** files
 - `src/library/deckRegistry.ts` — imported by **5** files
 - `src/persistence/persistenceStore.ts` — imported by **5** files
 - `src/highlight/highlighter.ts` — imported by **5** files
 - `src/generator/blockify.ts` — imported by **5** files
+- `src/generator/inlineThemeCss.ts` — imported by **4** files
 - `src/generator/quality/detector.ts` — imported by **4** files
 - `src/editor/Toast.tsx` — imported by **4** files
 - `src/exporter/linkify.ts` — imported by **4** files
+- `src/scene/applySlideBackground.ts` — imported by **4** files
 - `src/scene/blockId.ts` — imported by **4** files
-- `src/generator/quality/rubric.ts` — imported by **4** files
-- `src/generator/inlineThemeCss.ts` — imported by **3** files
-- `src/generator/parseMarkdown.ts` — imported by **3** files
 
 ## Import Map (who imports what)
 
-- `src/scene/store.ts` ← `src/App.tsx`, `src/canvas/OverlayLayer.tsx`, `src/canvas/SlideCanvas.tsx`, `src/canvas/SlideRenderer.tsx`, `src/canvas/useSlideEditing.ts` +15 more
-- `src/importer/parsePresentation.ts` ← `src/App.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx`, `src/exporter/htmlBundle.ts` +14 more
+- `src/importer/parsePresentation.ts` ← `src/App.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx`, `src/exporter/htmlBundle.ts` +17 more
+- `src/scene/store.ts` ← `src/App.tsx`, `src/canvas/OverlayLayer.tsx`, `src/canvas/SlideCanvas.tsx`, `src/canvas/SlideRenderer.tsx`, `src/canvas/useSlideEditing.ts` +16 more
 - `src/scene/constants.ts` ← `src/canvas/SlideCanvas.tsx`, `src/editor/BlockFormatPanel.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/PresentationView.tsx`, `src/editor/PropertiesPanel.tsx` +6 more
 - `src/canvas/OverlayLayer.tsx` ← `src/canvas/SlideCanvas.tsx`, `src/editor/PresentationView.tsx`, `src/editor/SlideThumbnail.tsx`, `src/editor/TextBlockTemplates.tsx`, `src/editor/TextOverlayPropertiesSection.tsx` +4 more
 - `src/scene/resourceStore.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/canvas/useDocumentEditing.ts`, `src/editor/DocumentPresentationView.tsx`, `src/editor/DocumentPropertiesSection.tsx` +2 more
+- `src/generator/planRenderer.ts` ← `scripts/build-appendix-deck.ts`, `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `src/persistence/slideMigrations.ts`, `tests/generator/planRenderer.test.ts` +1 more
+- `src/generator/slidePlan.ts` ← `scripts/build-appendix-deck.ts`, `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts` +1 more
 - `src/importer/detectResource.ts` ← `src/App.tsx`, `src/canvas/DocumentCanvas.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/DocumentPresentationView.tsx`, `src/editor/Toolbar.tsx` +1 more
 - `src/library/resourceRegistry.ts` ← `src/App.tsx`, `src/editor/DeckLibraryView.tsx`, `src/editor/Toolbar.tsx`, `src/importer/detectResource.ts`, `src/persistence/recentResources.ts` +1 more
-- `src/generator/planRenderer.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `src/persistence/slideMigrations.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`
-- `src/generator/slidePlan.ts` ← `scripts/render-plan-fixture.ts`, `scripts/slideplan.ts`, `tests/generator/planRenderer.test.ts`, `tests/generator/standaloneHtml.test.ts`, `tests/generator/validateSlidePlan.test.ts`
-- `src/library/deckRegistry.ts` ← `src/App.tsx`, `src/editor/ImportFromDeckModal.tsx`, `src/editor/StaleCacheBanner.tsx`, `src/editor/Toolbar.tsx`, `src/persistence/useAutoSave.ts`
+- `src/scene/pendingCommit.ts` ← `src/canvas/OverlayLayer.tsx`, `src/canvas/SlideRenderer.tsx`, `src/editor/Toolbar.tsx`, `src/scene/store.ts`, `tests/scene/pendingCommit.test.ts` +1 more
 
 ---
 
 # Test Coverage
 
 > **0%** of routes and models are covered by tests
-> 16 test files found
+> 24 test files found
 
 ---
 

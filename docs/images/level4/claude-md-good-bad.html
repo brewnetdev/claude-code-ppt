@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    gap: 28px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    justify-content: space-between;
+  }
+
+  /* column header badge row */
+  .colhead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    min-height: 42px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 7px 14px;
+    border: 1px solid;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .badge.bad { color: #B91C1C; border-color: #B91C1C; }
+  .badge.good { color: #047857; border-color: #047857; }
+  .colhead .title {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.12;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+
+  /* code box (mono, light) */
+  .codebox {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 11px 20px;
+  }
+  .codebox .fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    padding-bottom: 9px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.24;
+    color: #1A1A18;
+    white-space: pre-wrap;
+  }
+  .code .gap { display: block; height: 3px; }
+  .code .hd { font-weight: 700; color: #6B6560; }
+  .code .bd { font-weight: 700; color: #1E3A8A; }
+  .code .path { color: #115E59; font-weight: 700; }
+  .code .li { color: #1A1A18; }
+
+  /* problems / patterns list box */
+  .top { display: flex; flex-direction: column; }
+  .listbox {
+    margin-top: 9px;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 12px 20px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .listbox .lbl {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .listbox.bad .lbl { color: #B91C1C; }
+  .listbox.good .lbl { color: #047857; }
+
+  ol.pts {
+    list-style: none;
+    counter-reset: pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 22px;
+    row-gap: 8px;
+  }
+  ol.pts li {
+    counter-increment: pt;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 22px;
+    line-height: 1.3;
+    color: #1A1A18;
+  }
+  ol.pts li.wide { grid-column: 1 / -1; }
+  ol.pts li::before {
+    content: counter(pt);
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .listbox.bad ol.pts li::before { color: #B91C1C; border-color: #B91C1C; }
+  .listbox.good ol.pts li::before { color: #047857; border-color: #047857; }
+  ol.pts li .q { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #1A1A18; }
+  ol.pts li .em { font-weight: 700; color: #1A1A18; }
+  ol.pts li .imp { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #115E59; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- BAD -->
+      <div class="col">
+        <div class="top">
+        <div class="colhead">
+          <span class="badge bad">ANTI-PATTERN</span>
+          <span class="title">나쁜 예 — 추상적·길이만 김</span>
+        </div>
+
+        <div class="codebox">
+          <div class="fname">CLAUDE.md</div>
+          <div class="code"><span class="li">- 코드는 항상 깔끔하고 가독성 있게 작성하라.</span>
+<span class="li">- 좋은 함수를 만들어라.</span>
+<span class="li">- 베스트 프랙티스를 따르라.</span>
+<span class="li">- 모든 엣지 케이스를 처리하라.</span>
+<span class="li">- 테스트를 충분히 작성하라.</span></div>
+        </div>
+        </div>
+
+        <div class="listbox bad">
+          <div class="lbl">문제</div>
+          <ol class="pts">
+            <li><span><span class="q">"깔끔"·"좋은"·"베스트"</span>는 측정 불가 → 모델이 임의 해석</span></li>
+            <li><span>강제 명령만 있고 컨텍스트가 없어서 토큰만 소모</span></li>
+            <li><span>5줄이 50줄 되면 위치 편향으로 후반부 무시</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- GOOD -->
+      <div class="col">
+        <div class="top">
+        <div class="colhead">
+          <span class="badge good">BEST PRACTICE</span>
+          <span class="title">좋은 예 — 컨텍스트가 있는 규칙</span>
+        </div>
+
+        <div class="codebox">
+          <div class="fname">CLAUDE.md</div>
+          <div class="code"><span class="hd"># Project Context</span>
+<span class="li">markflow — 마크다운 문서 협업 SaaS.</span>
+<span class="li">PostgreSQL · Drizzle · Next.js 15.</span>
+<span class="gap"></span><span class="hd">## Coding Conventions</span>
+<span class="li">- 신규 React 컴포넌트는 함수형 + TypeScript strict.</span>
+<span class="li">- DB 스키마 변경은 <span class="bd">drizzle-kit push</span> 후 PR 분리.</span>
+<span class="li">- 테스트는 Vitest, 파일 옆 <span class="bd">*.test.ts</span>로 둔다.</span>
+<span class="gap"></span><span class="hd">## What NOT to do</span>
+<span class="li">- <span class="bd">src/legacy/</span> 안의 코드는 수정하지 말고 호출만.</span>
+<span class="li">- <span class="bd">console.log</span> 절대 커밋 — pre-commit 훅이 막는다.</span>
+<span class="gap"></span><span class="hd">## Detailed Guides (lazy-load)</span>
+<span class="li">- API 컨벤션: <span class="path">@docs/api-conventions.md</span></span>
+<span class="li">- 스키마 컨벤션: <span class="path">@docs/schema-conventions.md</span></span></div>
+        </div>
+        </div>
+
+        <div class="listbox good">
+          <div class="lbl">핵심 패턴</div>
+          <ol class="pts">
+            <li><span>한 화면에 들어갈 분량</span></li>
+            <li><span><span class="em">"왜"</span>가 같이 있는 규칙</span></li>
+            <li class="wide"><span>디테일은 <span class="imp">@import</span>로 분리 — 필요할 때만 모델이 그 파일을 읽도록 경로만 남김</span></li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

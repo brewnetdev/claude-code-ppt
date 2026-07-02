@@ -300,17 +300,31 @@ export function TextFormatPanel() {
                   return;
                 }
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                  // Native number-input step fires *after* this handler runs,
-                  // so read the value on the next frame to capture the
-                  // post-step number and apply it to the selected text.
+                  // Block the native number-input step so we control the value
+                  // synchronously here, then briefly blur the input before
+                  // applying. Both matter because applyFontSize -> restoreRange
+                  // calls sel.addRange(lastCanvasRange) on the live selection,
+                  // and Chromium collapses that range back into the focused
+                  // <input>'s caret when focus stays on the input — making the
+                  // subsequent selectionInsideCanvas() return null and the
+                  // wrap silently no-op. Manual step + blur/refocus puts us
+                  // in the same focus-outside-input state as preset clicks,
+                  // which already work.
+                  e.preventDefault();
                   const target = e.target as HTMLInputElement;
-                  requestAnimationFrame(() => {
-                    const n = Number(target.value);
-                    if (Number.isFinite(n) && n > 0) {
-                      setFontSizeInput(String(n));
-                      applyFontSize(n);
-                    }
-                  });
+                  const current = Number(fontSizeInput) || 0;
+                  const delta = e.shiftKey ? 10 : 1;
+                  const next = Math.max(
+                    6,
+                    Math.min(
+                      200,
+                      e.key === 'ArrowUp' ? current + delta : current - delta,
+                    ),
+                  );
+                  setFontSizeInput(String(next));
+                  target.blur();
+                  applyFontSize(next);
+                  requestAnimationFrame(() => target.focus());
                 }
               }}
               onBlur={(e) => {

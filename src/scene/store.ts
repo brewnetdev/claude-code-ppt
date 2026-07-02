@@ -5,6 +5,7 @@ import { deriveSlideTitleFromHtml } from '../importer/parsePresentation';
 import { setSlideWatermark } from '../watermark/watermark';
 import { DATA_BLOCK_ID } from './blockId';
 import { flushPendingCommit } from './pendingCommit';
+import { stripEditorChrome } from './stripEditorChrome';
 
 let slideSeq = 0;
 const makeSlideId = () => `slide-new-${Date.now()}-${++slideSeq}`;
@@ -244,7 +245,13 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   future: [],
   revision: 0,
 
-  loadDeck: (slides) =>
+  loadDeck: (slides) => {
+    // Land any in-flight debounced edit on the OUTGOING deck before we wipe
+    // state — otherwise the unmount-time commit fires after the swap and bakes
+    // the old deck's DOM onto the new deck's same-id slide (cross-deck
+    // contamination). flushPendingCommit clears the timer so the unmount is a
+    // no-op.
+    flushPendingCommit();
     set((state) => ({
       slides,
       currentIndex: 0,
@@ -259,9 +266,12 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       // deterministic (slide-1..N), so without a revision change the key
       // stays the same and stale HTML is shown.
       revision: state.revision + 1,
-    })),
+    }));
+  },
 
-  loadDeckFull: ({ slides, overlaysBySlide, currentIndex }) =>
+  loadDeckFull: ({ slides, overlaysBySlide, currentIndex }) => {
+    // Same cross-deck-contamination guard as loadDeck.
+    flushPendingCommit();
     set((state) => ({
       slides,
       currentIndex: Math.max(0, Math.min(currentIndex, slides.length - 1)),
@@ -271,7 +281,8 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       past: [],
       future: [],
       revision: state.revision + 1,
-    })),
+    }));
+  },
 
   setCurrentIndex: (i) => set({ currentIndex: i, selectedOverlayId: null, selectedBlockId: null }),
 
@@ -397,7 +408,12 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       const slides = state.slides.filter((_, i) => i !== index);
       const { [victim.id]: _dropped, ...rest } = state.overlaysBySlide;
       void _dropped;
-      const nextIndex = Math.min(state.currentIndex, slides.length - 1);
+      // Keep the user on the same slide they were viewing. Removing a slide
+      // *before* the current one shifts everything down by one, so the index
+      // must decrement to stay put; removing the current/later slide keeps the
+      // index (clamped to the new last slide).
+      const shifted = index < state.currentIndex ? state.currentIndex - 1 : state.currentIndex;
+      const nextIndex = Math.max(0, Math.min(shifted, slides.length - 1));
       return {
         past: pushPast(state.past, snap(state)),
         future: [],
@@ -540,14 +556,14 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     const doc = parseSlideWithLiveIds(slide.html);
     const block = doc.querySelector(`[${DATA_BLOCK_ID}="${blockId}"]`);
     if (!block) return;
-    // Strip ephemeral runtime decoration the source block accumulated:
-    //   - data-block-id (pasted clone gets a fresh id from useSlideEditing)
-    //   - .block-drag-handle (re-injected on mount)
-    //   - .selected-block class (selection ring is transient)
+    // Strip ephemeral runtime decoration the source block accumulated. The
+    // pasted clone gets a fresh id from useSlideEditing, so drop data-block-id;
+    // stripEditorChrome removes drag/col-resize handles, contenteditable,
+    // transient classes (incl. .selected-block) and ZWSP placeholders — the
+    // same set the slide commit path strips.
     const clone = block.cloneNode(true) as HTMLElement;
     clone.removeAttribute(DATA_BLOCK_ID);
-    clone.querySelectorAll('.block-drag-handle').forEach((n) => n.remove());
-    clone.classList.remove('selected-block');
+    stripEditorChrome(clone);
     // Force the pasted clone to size to its content. Tables, two-col grids,
     // and other layout wrappers commonly carry `flex: 1` (inline or via
     // class rules) so they fill the slide's empty space. When pasted into
@@ -712,3 +728,12 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   canUndo: () => get().past.length > 0,
   canRedo: () => get().future.length > 0,
 }));
+
+// Dev/e2e-only signal: mirror the store revision onto window.__storeRevision so
+// e2e tests can poll for a settled commit instead of waitForTimeout. No app
+// logic reads this; it is inert in Node (unit tests) where window is undefined.
+if (typeof window !== 'undefined') {
+  useDeckStore.subscribe((s) => {
+    (window as unknown as { __storeRevision?: number }).__storeRevision = s.revision;
+  });
+}

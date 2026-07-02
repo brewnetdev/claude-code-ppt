@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="ko" data-template="report">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Level 7 — 멀티 에이전트 &amp; 워크플로우 오케스트레이션</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
+<style>
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:   #F59E0B;
+    --amber-d: #D97706;
+    --blue:    #60A5FA;
+    --cyan:    #22D3EE;
+    --green:   #34D399;
+    --text:    #F1F5F9;
+    --muted:   #94A3B8;
+    --border:  #1E293B;
+    --bg:      #0F172A;
+    --code-bg: #1E293B;
+    --prompt-bg: #1E293B;
+    --prompt-border: #F59E0B;
+    --link:    #60A5FA;
+  }
+
+  body {
+    background: #020617;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  /* ── Slide Shell (16:9 = 1280×720) ── */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    /* border: 1px solid #ccc; */
+  }
+
+  /* ── Background Art (brewnet-art.svg inline) ── */
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;   /* 다크 테마 — 첫 슬라이드 전용 배경 */
+  }
+
+  /* ── Logo (top-right) ── */
+  .slide-logo {
+    position: absolute;
+    top: 28px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .slide-logo svg { width: 32px; height: 32px; }
+  .slide-logo-url {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em;
+    text-decoration: none;
+    margin-right: 12px;
+    border-right: 1px solid #1E293B;
+    padding-right: 14px;
+    line-height: 1;
+  }
+  .slide-logo-url:hover { color: var(--amber); }
+  .slide-logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .slide-logo-text:hover { text-decoration: underline; }
+
+  /* ── Top accent line ── */
+  .slide-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-d) 40%, transparent 100%);
+    z-index: 5;
+  }
+
+  /* ── Inner content area ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 56px 72px 48px 72px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ────────────────────────────────────────────
+     TYPOGRAPHY SYSTEM
+  ──────────────────────────────────────────── */
+
+  /* 대제목 (타이틀 슬라이드 전용) */
+  .t-hero {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+  }
+  .t-hero em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  /* 챕터 헤딩 */
+  .t-chapter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .t-chapter::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* 슬라이드 메인 타이틀 */
+  .t-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+
+  /* 중제목 */
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .t-h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--amber);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 소제목 */
+  .t-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 본문 */
+  .t-body {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* 부제 / 캡션 */
+  .t-caption {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── 링크 스타일 ── */
+  .link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .link:hover { color: #1D4ED8; }
+
+  /* Unify every slide anchor (incl. auto-detected / class-less links) on the
+     brand link color so they match `.link` (e.g. github.com/...lecture) instead
+     of the browser's default dark blue. `:where()` keeps the rule at zero
+     specificity, so `.link`, `.slide-logo-url`, `.slide-logo-text`, etc. still
+     win with their own colors; only un-classed anchors fall back to this. */
+  :where(.slide a) { color: var(--link); }
+  :where(.slide a:hover) { color: #1D4ED8; }
+
+  /* Watermark is decorative text, never a link. Some decks have a stray <a>
+     baked inside the `.cc-watermark` span (legacy / re-export); neutralize its
+     link styling so it renders as plain watermark text (same as the email line)
+     regardless of the generic `.slide a` color above. */
+  .cc-watermark a {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    pointer-events: none;
+    cursor: inherit;
+  }
+
+  /* ── 불릿 리스트 ── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .bullet-list li::before {
+    content: '▸';
+    color: var(--amber);
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .bullet-list li .sub {
+    font-size: 18px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+    line-height: 1.55;
+  }
+
+  /* 번호 리스트 */
+  .num-list {
+    list-style: none;
+    counter-reset: num-cnt;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .num-list li {
+    counter-increment: num-cnt;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 21px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .num-list li::before {
+    content: counter(num-cnt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Prompt Box ── */
+  .prompt-box {
+    background: var(--prompt-bg);
+    border-left: 4px solid var(--prompt-border);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .prompt-box-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--amber);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .prompt-box pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #CBD5E1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-box pre .cmd { color: #059669; font-weight: 600; }
+  .prompt-box pre .arg { color: #2563EB; }
+  .prompt-box pre .cmt { color: #9CA3AF; font-style: italic; }
+  .prompt-box pre .str { color: #D97706; }
+
+  /* ── Code Block (Terminal) ── */
+  .code-block {
+    background: #111827;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .code-block-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #EF4444; }
+  .dot-y { background: #F59E0B; }
+  .dot-g { background: #10B981; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #E5E7EB;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .code-block pre .green  { color: #10B981; }
+  .code-block pre .yellow { color: #FCD34D; }
+  .code-block pre .cyan   { color: #67E8F9; }
+  .code-block pre .blue   { color: #93C5FD; }
+  .code-block pre .red    { color: #F87171; }
+  .code-block pre .gray   { color: #9CA3AF; }
+
+  /* ── Badge / Tag ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .badge-blue   { background: rgba(96,165,250,.15); color: #93C5FD; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #6EE7B7; }
+  .badge-red    { background: rgba(248,113,113,.15); color: #FCA5A5; }
+  .badge-gray   { background: rgba(100,116,139,.20); color: #CBD5E1; }
+
+  /* ── Callout Box ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .callout-amber { background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30); }
+  .callout-blue  { background: rgba(96,165,250,.10); border: 1px solid rgba(96,165,250,.30); }
+  .callout-green { background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.30); }
+  .callout-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+  .callout-body { font-size: 17px; color: var(--text); line-height: 1.6; }
+  .callout-body strong { font-weight: 700; }
+
+  /* ── Table ── */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin-top: 12px;
+  }
+  .tbl th {
+    background: #1E293B;
+    border-bottom: 2px solid var(--amber);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .tbl td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: #1E293B; }
+
+  /* ── Two Column Layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+  }
+  .two-col.ratio-6-4 { grid-template-columns: 6fr 4fr; }
+  .two-col.ratio-4-6 { grid-template-columns: 4fr 6fr; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #1E293B;
+    margin: 16px 0;
+  }
+
+  /* ── Footer ── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    z-index: 5;
+    border-top: 1px solid #1E293B;
+  }
+  .slide-footer-left {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-footer-right {
+    font-size: 11px;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Step Flow (horizontal) ── */
+  .step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .step-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 20px;
+    color: #334155;
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding-bottom: 24px;
+  }
+
+  /* ── Highlight Text ── */
+  .hl-amber { color: var(--amber); font-weight: 700; }
+  .hl-blue  { color: var(--blue);  font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+  .hl-cyan  { color: var(--cyan);  font-weight: 700; }
+
+  /* slide nav label */
+  .slide-label {
+    font-size: 11px;
+    color: #334155;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Architecture Diagram Area ── */
+  .arch-box {
+    border: 1.5px dashed #334155;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E293B;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .arch-node-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .arch-node-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+  }
+  .arch-line {
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* ─────────────────── SLIDE TYPES ─────────────────── */
+
+  /* 1. Cover slide */
+  .slide-cover .slide-inner {
+    justify-content: center;
+    gap: 0;
+  }
+  .slide-cover .cover-level {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 18px;
+  }
+  .slide-cover .cover-subtitle {
+    font-size: 18px;
+    color: #CBD5E1;
+    margin-top: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .slide-cover .cover-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .slide-cover .cover-meta-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .slide-cover .cover-meta-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  /* dark cover overlay */
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.50) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .slide-cover .slide-inner { z-index: 3; }
+  .slide-cover .slide-logo { z-index: 4; }
+  .slide-cover .slide-topbar { z-index: 4; }
+  .slide-cover .slide-footer { z-index: 4; }
+
+  .slide-cover .cover-deco {
+    position: absolute;
+    right: 80px;
+    top: 36px;
+    transform: none;
+    opacity: 0.07;
+    font-size: 188px;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  /* 2. Section divider */
+  .slide-section .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-section .section-num {
+    font-size: 96px;
+    font-weight: 900;
+    color: #1E293B;
+    line-height: 1;
+    position: absolute;
+    right: 72px;
+    bottom: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 1;
+  }
+
+
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+  overflow: hidden !important;
+  background: var(--v-bg) !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  flex-direction: initial !important;
+  gap: 0 !important;
+}
+.slide-wrapper { position: static; width: auto; }
+
+
+
+
+  /* ────────────────────────────────────────────
+     CURRICULUM OVERVIEW (page 3) — dark theme
+  ──────────────────────────────────────────── */
+  .curriculum-slide .slide-inner { padding: 28px 44px 50px; }
+
+  .curr-head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:12px; }
+  .curr-label { font-size:10px; font-family:'JetBrains Mono', monospace; letter-spacing:0.18em; color:var(--muted); font-weight:600; margin-bottom:5px; }
+  .curr-title { font-size:25px; font-weight:900; color:var(--text); letter-spacing:-0.02em; line-height:1.15; }
+  .curr-title em { color:var(--amber); font-style:normal; }
+  .curr-sub { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.45; }
+  .curr-sub b { color:var(--amber); font-weight:700; }
+  .curr-ecc { background:#7C3AED; color:#fff; padding:1px 6px; border-radius:3px; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:9px; }
+  .curr-head-right { text-align:right; font-family:'JetBrains Mono', monospace; }
+  .curr-brand { font-size:14px; color:var(--amber); font-weight:700; letter-spacing:0.05em; }
+  .curr-url { font-size:9.5px; color:var(--muted); margin-top:2px; }
+  .curr-ver { font-size:9px; color:var(--blue); margin-top:4px; background:rgba(96,165,250,0.15); padding:1px 6px; border-radius:3px; display:inline-block; font-weight:700; }
+
+  .curr-tracks { flex:1; display:flex; flex-direction:column; gap:8px; min-height:0; }
+  .curr-track { display:grid; grid-template-columns:98px 1fr; gap:7px; flex:1; min-height:0; }
+
+  .curr-tlabel { border-radius:7px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; overflow:hidden; background:#060B16; border:1px solid var(--border); }
+  .curr-tlabel::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .curr-tlabel.non-dev::before { background:var(--amber); }
+  .curr-tlabel.dev::before { background:var(--blue); }
+  .curr-tlabel.it-pro::before { background:var(--green); }
+  .curr-tlabel .ico { font-size:18px; line-height:1; margin-bottom:3px; }
+  .curr-tlabel .nm { font-size:13px; font-weight:900; color:var(--text); line-height:1.1; margin-bottom:2px; }
+  .curr-tlabel .nm-en { font-size:7.5px; font-family:'JetBrains Mono', monospace; color:#64748B; letter-spacing:0.06em; margin-bottom:4px; line-height:1.2; }
+  .curr-tlabel .stg { font-size:9px; color:#020617; padding:2px 7px; border-radius:3px; font-family:'JetBrains Mono', monospace; font-weight:700; margin-bottom:3px; }
+  .curr-tlabel.non-dev .stg { background:var(--amber); }
+  .curr-tlabel.dev .stg { background:var(--blue); }
+  .curr-tlabel.it-pro .stg { background:var(--green); }
+  .curr-tlabel .pro { font-size:8px; color:var(--blue); font-family:'JetBrains Mono', monospace; letter-spacing:0.1em; font-weight:700; }
+  .curr-tlabel .time { font-size:8.5px; color:#64748B; font-family:'JetBrains Mono', monospace; margin-top:2px; }
+
+  .curr-stages { display:flex; gap:6px; align-items:stretch; min-height:0; }
+  .curr-stage { flex:1; min-width:0; border:1px solid var(--border); border-radius:7px; padding:7px 9px 21px; background:#060B16; display:flex; flex-direction:column; gap:3px; position:relative; }
+  /* track/stage 구분은 균일한 테두리로만 — 상단 컬러 액센트·채움 제거 */
+  .curr-stage.ecc::after { content:'📘 ECC'; position:absolute; top:6px; right:7px; font-size:7.5px; background:#7C3AED; color:#fff; padding:1px 5px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; z-index:2; }
+  .curr-stage.new::after { content:'NEW'; position:absolute; top:6px; right:7px; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.final { border-color:#475569; }
+  /* 현재 덱(Effective Claude Code) 강의 영역 강조 — IT 프로페셔널 트랙만, 보라 테두리 + 글로우 */
+  .curr-stage.it-pro.ecc { border-color:#7C3AED; border-width:2px; box-shadow:0 0 0 1px rgba(124,58,237,0.45), 0 0 16px rgba(124,58,237,0.40); background:#0C0A1E; }
+  /* IT 프로페셔널 4개 과정 상단 NEW 배지 (::before, ECC 배지와 공존) */
+  .curr-stage.it-pro::before { content:'NEW'; position:absolute; top:6px; right:7px; z-index:3; font-size:7.5px; background:var(--amber); color:#020617; padding:1px 4px; border-radius:2px; font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.04em; }
+  .curr-stage.it-pro:not(.ecc):not(.new) .curr-shead { padding-right:42px; }
+  .curr-stage.it-pro.ecc::before { right:46px; }
+  .curr-stage.it-pro.ecc .curr-shead { padding-right:86px; }
+
+  .curr-shead { display:flex; align-items:center; justify-content:space-between; padding-bottom:3px; border-bottom:1px dashed var(--border); gap:4px; padding-right:42px; }
+  .curr-stage:not(.ecc):not(.new) .curr-shead { padding-right:0; }
+  .curr-snum { font-size:8px; color:var(--muted); font-family:'JetBrains Mono', monospace; font-weight:700; letter-spacing:0.08em; flex-shrink:0; }
+  .curr-stime { font-size:8px; font-family:'JetBrains Mono', monospace; background:var(--border); color:var(--text); padding:1px 5px; border-radius:3px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+  .curr-stitle { font-size:12px; font-weight:900; color:var(--text); letter-spacing:-0.02em; margin-top:2px; line-height:1.2; }
+  .curr-stitle .fb { color:#020617; font-size:7.5px; padding:1px 4px; border-radius:2px; margin-left:3px; font-weight:700; letter-spacing:0.05em; vertical-align:middle; }
+  .curr-stitle .fb.amber { background:var(--amber); }
+  .curr-stitle .fb.blue { background:var(--blue); }
+  .curr-stitle .fb.green { background:var(--green); }
+
+  /* 🎯 프로젝트 — 컬러 액센트 콜아웃 대신 중성 아웃라인 칩(태그) */
+  .curr-proj { align-self:flex-start; display:inline-block; font-size:8.5px; font-family:'JetBrains Mono', monospace; font-weight:700; line-height:1.3; padding:2px 8px; border-radius:4px; margin:2px 0; border:1px solid #334155; background:transparent; color:var(--text); }
+  .curr-proj::before { content:'🎯 '; font-size:8.5px; }
+
+  .curr-topics { display:flex; flex-direction:column; gap:1px; flex:1; margin-top:1px; list-style:none; padding:0; }
+  .curr-topics li { font-size:9px; color:#CBD5E1; line-height:1.32; display:flex; gap:3px; padding-left:1px; }
+  .curr-topics li > div { min-width:0; }
+  .curr-topics li::before { content:'▸'; font-weight:700; flex-shrink:0; font-size:8px; line-height:1.5; margin-top:0; }
+  .curr-stage.non-dev .curr-topics li::before { color:var(--amber); }
+  .curr-stage.dev .curr-topics li::before { color:var(--blue); }
+  .curr-stage.it-pro .curr-topics li::before { color:var(--green); }
+  .curr-topics li code { font-family:'JetBrains Mono', monospace; background:var(--code-bg); padding:0 3px; border-radius:2px; font-size:8px; color:var(--amber); }
+  .curr-topics li .ch { color:#C4B5FD; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:8.5px; background:rgba(124,58,237,0.25); padding:0 3px; border-radius:2px; }
+  .curr-topics li .kw { color:var(--blue); font-weight:700; }
+  .curr-topics li .kw-amber { color:var(--amber); font-weight:700; }
+  .curr-topics li .kw-green { color:var(--green); font-weight:700; }
+
+  .curr-deliv { position:absolute; bottom:4px; left:9px; right:9px; font-size:7.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; line-height:1.25; border-top:1px dotted var(--border); padding-top:3px; display:flex; align-items:center; gap:4px; }
+  .curr-deliv .out { color:var(--text); font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .curr-deliv .out::before { content:'📦 '; font-size:8px; }
+  .curr-deliv .lv { background:var(--code-bg); padding:0 4px; border-radius:2px; font-weight:600; color:var(--muted); white-space:nowrap; font-size:7.5px; }
+
+  .curr-foot { display:flex; justify-content:space-between; align-items:center; padding-top:8px; margin-top:6px; border-top:1px solid var(--border); }
+  .curr-legend { display:flex; gap:12px; font-family:'JetBrains Mono', monospace; font-size:9px; align-items:center; flex-wrap:wrap; color:var(--muted); }
+  .curr-legend .li { display:flex; align-items:center; gap:4px; }
+  .curr-dot { width:8px; height:8px; border-radius:50%; border:1.5px solid; }
+  .curr-dot.amber { border-color:var(--amber); background:rgba(245,158,11,0.2); }
+  .curr-dot.blue { border-color:var(--blue); background:rgba(96,165,250,0.2); }
+  .curr-dot.green { border-color:var(--green); background:rgba(52,211,153,0.2); }
+  .curr-pill { padding:1px 5px; border-radius:2px; font-weight:700; font-size:8.5px; font-family:'JetBrains Mono', monospace; }
+  .curr-pill.final { background:var(--amber); color:#020617; }
+  .curr-pill.new { background:var(--amber); color:#020617; }
+  .curr-pill.ecc { background:#7C3AED; color:#fff; }
+  .curr-fnote { font-family:'JetBrains Mono', monospace; font-size:8.5px; color:var(--muted); letter-spacing:0.02em; }
+  .curr-fnote .em { color:var(--amber); font-weight:700; }
+  .curr-fnote .pro { color:var(--blue); font-weight:700; }
+
+
+/* Code-block / terminal chrome. brewnet-dark.css already defines `.code-block`
+   so we only fill in `.terminal` + cross-cutting `.code-dots` and tighten
+   `<pre><code>` so shiki output sits flush with the existing dark cards. */
+
+.slide-canvas-host .code-dots {
+  display: flex;
+  gap: 5px;
+}
+.slide-canvas-host .code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.slide-canvas-host .code-dots .dot-r { background: #ef4444; }
+.slide-canvas-host .code-dots .dot-y { background: #f59e0b; }
+.slide-canvas-host .code-dots .dot-g { background: #10b981; }
+
+.slide-canvas-host .terminal {
+  background: #020408;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  /* `.slide-inner` is a column flex container — without an explicit
+     flex-shrink:0 the terminal collapses to header-height when a slide
+     packs multiple terminals, leaving only the dark title band visible
+     with the body clipped by overflow:hidden. Pin to content height. */
+  flex: 0 0 auto;
+}
+
+/* Same pinning for plain code blocks; brewnet-dark's `.code-block` rule
+   doesn't set flex sizing so the same collapse happens for code-heavy
+   slides on multi-block layouts. */
+.slide-canvas-host .code-block {
+  flex: 0 0 auto;
+}
+
+.slide-canvas-host .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0b1220;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.slide-canvas-host .terminal-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.slide-canvas-host .terminal pre {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  /* Bumped from #cbd5e1 — base color only paints text that *isn't* wrapped
+     in a shiki <span style="color:…">. Once shiki runs that's mostly
+     punctuation, but a brighter fallback also helps unhighlighted plaintext
+     terminals read against the near-black bg. */
+  color: #f1f5f9;
+  padding: 16px 20px;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* shiki injects inline-styled <span>s, but their wrapper <pre class="shiki">
+   would carry shiki's own bg color. We re-host the highlighted code inside
+   our own .code-block / .terminal pre so the outer chrome wins, and tighten
+   the inner <code> reset accordingly. */
+.slide-canvas-host .code-block pre,
+.slide-canvas-host .terminal pre {
+  background: transparent;
+}
+.slide-canvas-host .code-block pre code,
+.slide-canvas-host .terminal pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  display: block;
+  /* shiki bakes inline `style="color:#…"` on every token span, so we can't
+     re-color them via CSS rules. github-dark in particular paints comments
+     at #8b949e — readable but visibly dimmer than the active code. A scoped
+     brightness filter on the <code> wrapper lifts every token uniformly
+     (comments, strings, keywords) without touching the chrome / dots. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+/* Targeted override: shiki's `github-dark` theme paints comment tokens
+   inline as `style="color:#6A737D"` (verified by probing the actual
+   highlighter output — it uses the legacy GitHub-Octicons palette, NOT
+   the newer #8b949e variant). The filter above lifts them proportionally,
+   but #6A737D against #020408 still reads as mid-gray. Repaint to a
+   near-white tone so comments are clearly legible against the terminal
+   bg. `!important` is required because shiki writes the color inline on
+   the span, which would otherwise beat normal CSS specificity. The `i`
+   flag handles upper/lowercase variations across shiki versions. */
+.slide-canvas-host .code-block pre code span[style*="#6A737D" i],
+.slide-canvas-host .terminal pre code span[style*="#6A737D" i],
+.slide-canvas-host .code-block pre code span[style*="#8b949e" i],
+.slide-canvas-host .terminal pre code span[style*="#8b949e" i] {
+  color: #b0b1b2 !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Portfolio template — sibling theme to brewnet-dark.
+   Strategy: re-declare the design tokens under
+   [data-template="portfolio"] and patch only the components
+   whose dark→light conversion is non-trivial (code blocks,
+   tables, cover, callouts). Markup is identical to the
+   presentation template; planRenderer only flips the
+   data-template attribute.
+
+   Reference design: docs/html/portfolio/portfolio.html
+   (white background, blue accent #3D5AF1, dark text on white).
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="portfolio"] {
+  --bg:            #FFFFFF;
+  --text:          #111111;
+  --muted:         #888888;
+  --border:        #DDDDDD;
+  --amber:         #3D5AF1;   /* portfolio brand blue, reused via brewnet's --amber slot */
+  --amber-d:       #2A3EC9;
+  --blue:          #3D5AF1;
+  --cyan:          #0891B2;
+  --green:         #047857;
+  --code-bg:       #F8F9FB;
+  --prompt-bg:     #F0F2F5;
+  --prompt-border: #3D5AF1;
+  --link:          #3D5AF1;
+}
+
+/* Slide shell: white card on neutral page background */
+[data-template="portfolio"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: blue gradient instead of amber */
+[data-template="portfolio"] .slide-topbar {
+  background: linear-gradient(90deg, #3D5AF1 0%, #2A3EC9 50%, transparent 100%);
+}
+
+/* Footer: light border + softer caption color */
+[data-template="portfolio"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="portfolio"] .slide-footer-left,
+[data-template="portfolio"] .slide-footer-right {
+  color: #888888;
+}
+
+/* ── Typography ── */
+[data-template="portfolio"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="portfolio"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="portfolio"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .bullet-list li::before {
+  color: var(--blue);
+}
+[data-template="portfolio"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="portfolio"] .num-list li {
+  color: var(--text);
+}
+[data-template="portfolio"] .num-list li::before {
+  background: var(--blue);
+  color: #FFFFFF;
+}
+
+/* ── Tables ── */
+[data-template="portfolio"] .tbl th {
+  background: #F0F2F5;
+  border-bottom: 2px solid var(--blue);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="portfolio"] .tbl tr:hover td {
+  background: #F7F8FB;
+}
+
+/* ── Callouts: lighter tint on white BG ── */
+[data-template="portfolio"] .callout-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+}
+[data-template="portfolio"] .callout-blue {
+  background: rgba(61, 90, 241, 0.06);
+  border: 1px solid rgba(61, 90, 241, 0.30);
+}
+[data-template="portfolio"] .callout-green {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.40);
+}
+[data-template="portfolio"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (keeps shiki output readable) ──
+   Code chrome (.code-dots / terminal-header) is stamped by
+   upgradeSlideCodeBlocks — the dark surface contrasts well
+   against the white slide and matches the editor's existing
+   experience. Only adjust the surface so it doesn't bleed
+   into the white card. */
+[data-template="portfolio"] .code-block {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+[data-template="portfolio"] .terminal {
+  background: #1E293B;
+  border: 1px solid #DDDDDD;
+}
+
+/* ── Badges: solid pill on white BG ── */
+[data-template="portfolio"] .badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #B45309;
+}
+[data-template="portfolio"] .badge-blue {
+  background: rgba(61, 90, 241, 0.12);
+  color: #2A3EC9;
+}
+[data-template="portfolio"] .badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+[data-template="portfolio"] .badge-red {
+  background: rgba(239, 68, 68, 0.10);
+  color: #B91C1C;
+}
+[data-template="portfolio"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="portfolio"] .hl-amber { color: #B45309; font-weight: 700; }
+[data-template="portfolio"] .hl-blue  { color: #2A3EC9; font-weight: 700; }
+[data-template="portfolio"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="portfolio"] .hl-cyan  { color: #0891B2; font-weight: 700; }
+
+/* ── Cover slide: blue background, white type ── */
+[data-template="portfolio"].slide-cover {
+  background: #3D5AF1;
+}
+[data-template="portfolio"].slide-cover::before {
+  background: none;
+}
+[data-template="portfolio"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 4px;
+}
+[data-template="portfolio"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="portfolio"].slide-cover .cover-meta-item strong {
+  color: #FFFFFF;
+}
+[data-template="portfolio"].slide-cover .cover-deco {
+  color: rgba(255, 255, 255, 0.18);
+}
+[data-template="portfolio"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="portfolio"].slide-cover .slide-footer-left,
+[data-template="portfolio"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: white bg, large light blue numeral ── */
+[data-template="portfolio"] .slide-section .section-num {
+  color: #E8EAF0;
+}
+
+/* ── Architecture / Step flow nodes (used rarely but covered) ── */
+[data-template="portfolio"] .step-circle {
+  background: var(--blue);
+}
+[data-template="portfolio"] .step-arrow {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-box {
+  background: #F8F9FB;
+  border-color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-line {
+  color: #C5C9D0;
+}
+[data-template="portfolio"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="portfolio"] .link {
+  color: var(--link);
+}
+[data-template="portfolio"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: light surface ── */
+[data-template="portfolio"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="portfolio"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="portfolio"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="portfolio"] .divider {
+  background: var(--border);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Report template — sibling theme to brewnet-dark + portfolio.
+   Strategy: re-declare the design tokens under
+   [data-template="report"] and patch only the components whose
+   business-report intent is non-trivial (tables, callouts,
+   cover, code blocks).
+
+   Reference designs: docs/html/report/{biz,biz-strategy,marketing}-report.html
+   Tone: warm off-white BG (#FAFAF8) with teal accent (#0F766E)
+   for the brewnet "amber" slot. Tables get extra weight (zebra
+   rows, 2px header underline) since report decks are
+   data-centric. Code blocks stay dark for shiki readability —
+   identical to portfolio's strategy.
+   ───────────────────────────────────────────────────────────── */
+
+[data-template="report"] {
+  --bg:            #FAFAF8;
+  --text:          #1A1A18;
+  --muted:         #6B6560;
+  --border:        #D4D0C8;
+  --amber:         #0F766E;   /* report accent: teal-700 in brewnet's --amber slot */
+  --amber-d:       #115E59;
+  --blue:          #1E40AF;
+  --cyan:          #0E7490;
+  --green:         #059669;
+  --code-bg:       #F5F3F0;
+  --prompt-bg:     #EFEDE8;
+  --prompt-border: #0F766E;
+  --link:          #0F766E;
+}
+
+/* Slide shell: cream card on neutral page background */
+[data-template="report"].slide {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Topbar: teal gradient instead of amber */
+[data-template="report"] .slide-topbar {
+  background: linear-gradient(90deg, #0F766E 0%, #115E59 50%, transparent 100%);
+}
+
+/* Footer: warm border + softer caption color */
+[data-template="report"] .slide-footer {
+  border-top: 1px solid var(--border);
+}
+[data-template="report"] .slide-footer-left,
+[data-template="report"] .slide-footer-right {
+  color: var(--muted);
+}
+
+/* ── Typography ── */
+[data-template="report"] .t-h3 {
+  color: var(--muted);
+}
+[data-template="report"] .t-caption {
+  color: var(--muted);
+}
+
+/* ── Lists ── */
+[data-template="report"] .bullet-list li {
+  color: var(--text);
+}
+[data-template="report"] .bullet-list li::before {
+  color: var(--amber);
+}
+[data-template="report"] .bullet-list li .sub {
+  color: var(--muted);
+}
+[data-template="report"] .num-list li {
+  color: var(--text);
+}
+[data-template="report"] .num-list li::before {
+  background: var(--amber);
+  color: #FFFFFF;
+}
+
+/* ── Tables (report-grade emphasis) ── */
+[data-template="report"] .tbl th {
+  background: #F0EDE8;
+  border-bottom: 2px solid var(--amber);
+  color: var(--text);
+  font-weight: 700;
+}
+[data-template="report"] .tbl td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+[data-template="report"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(15, 118, 110, 0.04);
+}
+[data-template="report"] .tbl tr:hover td {
+  background: rgba(15, 118, 110, 0.08);
+}
+
+/* ── Callouts: lighter tint on cream BG ── */
+[data-template="report"] .callout-amber {
+  background: rgba(15, 118, 110, 0.06);
+  border: 1px solid rgba(15, 118, 110, 0.40);
+}
+[data-template="report"] .callout-blue {
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.30);
+}
+[data-template="report"] .callout-green {
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.40);
+}
+[data-template="report"] .callout-body {
+  color: var(--text);
+}
+
+/* ── Code blocks: dark scheme stays (matches portfolio strategy) ──
+   shiki output reads best on dark surface; we border with the
+   warm card color so the dark block doesn't feel grafted on. */
+[data-template="report"] .code-block {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+[data-template="report"] .terminal {
+  background: #1E293B;
+  border: 1px solid var(--border);
+}
+
+/* ── Badges: solid pill on cream BG ── */
+[data-template="report"] .badge-amber {
+  background: rgba(15, 118, 110, 0.14);
+  color: #115E59;
+}
+[data-template="report"] .badge-blue {
+  background: rgba(30, 64, 175, 0.12);
+  color: #1E3A8A;
+}
+[data-template="report"] .badge-green {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+[data-template="report"] .badge-red {
+  background: rgba(220, 38, 38, 0.10);
+  color: #B91C1C;
+}
+[data-template="report"] .badge-gray {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+}
+
+/* ── Highlight tokens (text emphasis) ── */
+[data-template="report"] .hl-amber { color: #115E59; font-weight: 700; }
+[data-template="report"] .hl-blue  { color: #1E3A8A; font-weight: 700; }
+[data-template="report"] .hl-green { color: #047857; font-weight: 700; }
+[data-template="report"] .hl-cyan  { color: #0E7490; font-weight: 700; }
+
+/* ── Cover slide: deep slate BG with teal underline accent ── */
+[data-template="report"].slide-cover {
+  background: #0F172A;
+}
+[data-template="report"].slide-cover::before {
+  background: none;
+}
+[data-template="report"].slide-cover .t-hero {
+  color: #FFFFFF;
+}
+[data-template="report"].slide-cover .t-hero em {
+  color: #FFFFFF;
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 4px;
+}
+[data-template="report"].slide-cover .cover-level {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-template="report"].slide-cover .cover-meta-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-template="report"].slide-cover .cover-meta-item strong {
+  color: #0F766E;
+}
+[data-template="report"].slide-cover .cover-deco {
+  color: rgba(15, 118, 110, 0.25);
+}
+[data-template="report"].slide-cover .slide-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-template="report"].slide-cover .slide-footer-left,
+[data-template="report"].slide-cover .slide-footer-right {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Section divider: warm cream with large faded teal numeral ── */
+[data-template="report"] .slide-section .section-num {
+  color: rgba(15, 118, 110, 0.10);
+}
+
+/* ── Architecture / Step flow nodes ── */
+[data-template="report"] .step-circle {
+  background: var(--amber);
+}
+[data-template="report"] .step-arrow {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-box {
+  background: #F5F3F0;
+  border-color: #C5C2BC;
+}
+[data-template="report"] .arch-line {
+  color: #C5C2BC;
+}
+[data-template="report"] .arch-node-label {
+  color: var(--muted);
+}
+
+/* ── Links ── */
+[data-template="report"] .link {
+  color: var(--link);
+}
+[data-template="report"] .link:hover {
+  color: var(--amber-d);
+}
+
+/* ── Prompt box: warm light surface ── */
+[data-template="report"] .prompt-box {
+  background: var(--prompt-bg);
+}
+[data-template="report"] .prompt-box pre {
+  color: #1F2937;
+}
+[data-template="report"] .prompt-box pre .cmt { color: #6B7280; }
+
+/* ── Divider ── */
+[data-template="report"] .divider {
+  background: var(--border);
+}
+
+
+/* Page surround follows the deck theme. Set the surface on `html` (not
+   `body`) because brewnet-dark's editor-iframe block force-styles `body`
+   with !important; `html` carries data-template so var(--bg)/var(--text)
+   resolve to the deck's palette — cream for report, dark for brewnet. */
+html { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { width: 100%; margin: 0; }
+body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+.export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
+.export-slide:last-child { border-bottom: 0; }
+.export-stage { position: relative; width: 1280px; height: 720px; transform-origin: center center; }
+/* Overlays must paint above every in-slide layer, including .slide-logo (z-index: 10) */
+.export-overlay { position: absolute; user-select: none; pointer-events: none; opacity: 1 !important; z-index: 100; }
+.export-nav {
+  position: fixed; right: 20px; bottom: 16px; z-index: 1000;
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace; color: #94a3b8;
+  background: rgba(15,23,42,0.8); padding: 8px 12px;
+  border: 1px solid #1e293b; border-radius: 6px; user-select: none;
+}
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { overflow: visible !important; background: var(--bg) !important; scroll-snap-type: none !important; }
+  .export-slide { position: relative !important; width: 1920px !important; height: 1080px !important; page-break-after: always; break-after: page; display: flex !important; border: 0 !important; }
+  .export-slide:last-child { page-break-after: auto; break-after: auto; }
+  .export-stage { transform: scale(1.5) !important; }
+  .export-nav { display: none !important; }
+}
+</style>
+</head>
+<body>
+<section class="export-slide" data-index="0">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-cover" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="cover-deco" data-slot="number">07</div>
+    <div class="cover-level" data-slot="label">CHAPTER 7</div>
+    <div class="t-hero" data-slot="title">Level 7 — 멀티 에이전트 &amp; 워크플로우 오케스트레이션</div>
+    <div class="cover-subtitle" data-slot="subtitle">하나의 작업을 몇 개의 에이전트로, 어떻게 나눠 돌릴 것인가 — 서브에이전트 · Dynamic Workflows · Agent Teams · 선택 기준</div>
+    <div class="cover-meta" data-slot="body">
+      <div class="cover-meta-item"><strong>키워드</strong> 서브에이전트 · Dynamic Workflows · Agent Teams · Agent View · Worktree · /batch</div>
+      <div class="cover-meta-item"><strong>분리</strong> 하네스 엔지니어링 = Level 8 · 비용 절약 = Level 6 연계</div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">멀티 에이전트 &amp; 워크플로우 오케스트레이션</span>
+    <span class="slide-footer-right" data-slot="page-num">COVER</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="1">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" style="position:absolute; left:72px; top:56px;">LEVEL 7 · GLOSSARY</div>
+    <div class="t-title" data-slot="title" style="position:absolute; left:72px; top:84px; width:1136px;">용어 참조</div>
+    <div data-slot="body" style="position:absolute; left:72px; top:150px; width:1136px; display:grid; grid-template-columns:1fr 1fr; column-gap:44px; row-gap:0;">
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">서브에이전트</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">독립 컨텍스트 윈도우를 가진 전문 작업자 — 메인엔 요약만 반환</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">.claude/agents</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">서브에이전트 정의 파일(<name>.md) 위치</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">/agents</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">서브에이전트 대화형 생성·편집 커맨드(Running·Library 탭)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">description</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">자동 위임 트리거 — "언제 부를지"를 구체적으로</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Explore·Plan</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">빌트인 서브에이전트(읽기 탐색·계획)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Dynamic Workflows</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">Claude가 JS 오케스트레이션 스크립트를 짜 서브에이전트를 대규모 병렬 실행(research preview)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">fan-out→reduce→synthesize</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">워크플로우 일반 형태 — 분산→집계→종합</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">ultracode</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">세션 설정(xhigh+자동 오케스트레이션) — 세션 한정</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">xhigh</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">모델 추론 강도 최고 레벨(지속)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">ultrathink</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">1턴만 추론 강화하는 프롬프트 키워드</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">acceptEdits</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">워크플로우 서브에이전트가 파일 편집을 자동 승인하는 모드</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">/workflows</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">실행/완료 워크플로 목록·단계·에이전트 수 관리</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">/deep-research</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">번들 워크플로 — 검색 fan-out→교차검증→검증 통과 주장만 cited</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Agent Teams</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">여러 세션이 메일박스로 직접 통신하는 협업(experimental)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Agent View</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">백그라운드 세션 멀티플렉싱 대시보드(claude agents)</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">/bg · claude --bg</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">작업을 백그라운드 세션으로 던지기</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Git Worktree</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">세션별 별도 체크아웃 — 병렬 세션 파일 격리</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">isolation: worktree</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">서브에이전트를 worktree로 자동 격리하는 frontmatter</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">/batch</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">큰 변경을 5~30개 worktree 서브에이전트로 쪼개 각자 PR</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">adversarial verify</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">독립 검증자로 발견을 반박해 거짓 양성 제거</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">judge panel</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">여러 심사자로 결과 평가·투표</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Continue vs Spawn</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">기존 세션 계속 vs 새 작업자 생성 판단</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">Convergence</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">병렬 결과 수렴·충돌 해소 단계</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">모델 티어링</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">오케스트레이터 Opus/워커 Sonnet/포매팅 Haiku로 비용 절감</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">BOLA</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">객체 수준 인가 누락 — 보안 감사 관점</div></div>
+<div style="display:flex; gap:14px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border);"><div style="flex:0 0 128px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--amber); line-height:1.4; word-break:break-word;">16 / 1,000</div><div style="flex:1; font-size:12px; color:var(--text); line-height:1.4;">워크플로 동시 16개·1회 누적 1,000개 에이전트 상한</div></div>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">Level 7 · 용어 참조</span>
+    <span class="slide-footer-right" data-slot="page-num">REF</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="2">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">CONTENTS</div>
+    <div class="t-title" data-slot="title">Level 7 전체 구성 — 5개 섹션</div>
+    <div class="t-body" data-slot="body">병렬·위임·협업 메커니즘 자체에 집중한다. 작업을 직접 끌고 갈 것인가 / 던져두고 확인할 것인가 / Claude가 한 무리를 지휘하게 할 것인가.</div>
+    <div data-slot="table" style="flex:1; margin-top:12px;">
+      <table class="tbl">
+        <thead><tr><th>섹션</th><th>주제</th><th>핵심 키워드</th></tr></thead>
+        <tbody>
+          <tr><td>7.1</td><td>서브에이전트</td><td>독립 컨텍스트 · 도구 제한 · /agents · 안티패턴</td></tr>
+          <tr><td>7.2</td><td>Dynamic Workflows</td><td>조율을 코드로 · fan-out/reduce · ultracode · 비용 안전장치</td></tr>
+          <tr><td>7.3</td><td>멀티 세션 협업</td><td>Agent Teams · Agent View/백그라운드 · Worktree · /batch</td></tr>
+          <tr><td>7.4</td><td>종합 — 무엇을 언제</td><td>의사결정 3단 질문 · 역할별 처방 · 비용 가이드</td></tr>
+          <tr><td>7.5</td><td>CI/CD 자동화</td><td>Headless <code>claude -p</code> · GitHub Actions 자동 리뷰</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Level 7 전체 구성 — 5개 섹션</span>
+    <span class="slide-footer-right" data-slot="page-num">01</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="3">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label">LEVEL 7 · 무엇을 왜 어떻게 배우나?</div>
+    <div class="t-title" data-slot="title">멀티 에이전트 &amp; 워크플로우 오케스트레이션 — 작업을 어떻게 나눠 돌릴까</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;">하나의 작업을 <strong>몇 개의 에이전트로, 어떻게 나눠</strong> 돌릴지 — 병렬·위임·협업 메커니즘 자체를 다룬다.</div>
+    <div data-slot="body" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-top:4px;">
+      <div style="border:1px solid rgba(185,28,28,0.32); background:rgba(185,28,28,0.05); border-radius:8px; padding:18px 20px; display:flex; flex-direction:column;"><div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;"><span style="font-size:23px;">🎯</span><span style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:700; color:#B91C1C;">WHY</span></div><div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; margin-bottom:9px;">왜 배우나</div><p style="font-size:13.5px; color:var(--text); line-height:1.65; margin:0;">한 세션·한 에이전트로는 <strong>큰 작업이 컨텍스트에 안 들어간다</strong>. 병렬·위임·협업 메커니즘을 알아야 코드베이스 규모 작업을 통제 — 잘못 고르면 <span class="hl-amber">비용 폭증·통합 실패</span>로 이어진다.</p></div>
+      <div style="border:1px solid rgba(30,58,138,0.32); background:rgba(30,58,138,0.05); border-radius:8px; padding:18px 20px; display:flex; flex-direction:column;"><div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;"><span style="font-size:23px;">📚</span><span style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:700; color:#1E3A8A;">WHAT</span></div><div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; margin-bottom:9px;">무엇을 배우나 — 5개 파트</div><ul style="list-style:none; padding:0; margin:0; font-size:13px; color:var(--text); line-height:1.55;"><li style="padding-left:15px; position:relative; padding-bottom:3px;"><span style="position:absolute; left:0; color:#1E3A8A;">▸</span> <strong>7.1</strong> 서브에이전트</li><li style="padding-left:15px; position:relative; padding-bottom:3px;"><span style="position:absolute; left:0; color:#1E3A8A;">▸</span> <strong>7.2</strong> Dynamic Workflows</li><li style="padding-left:15px; position:relative; padding-bottom:3px;"><span style="position:absolute; left:0; color:#1E3A8A;">▸</span> <strong>7.3</strong> 멀티 세션 협업(Teams·View)</li><li style="padding-left:15px; position:relative; padding-bottom:3px;"><span style="position:absolute; left:0; color:#1E3A8A;">▸</span> <strong>7.4</strong> 종합 — 선택 기준</li><li style="padding-left:15px; position:relative; padding-bottom:3px;"><span style="position:absolute; left:0; color:#1E3A8A;">▸</span> <strong>7.5</strong> CI/CD 자동화</li></ul></div>
+      <div style="border:1px solid rgba(4,120,87,0.32); background:rgba(4,120,87,0.05); border-radius:8px; padding:18px 20px; display:flex; flex-direction:column;"><div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;"><span style="font-size:23px;">🛠️</span><span style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:700; color:#047857;">HOW</span></div><div style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; margin-bottom:9px;">어떻게 배우나</div><p style="font-size:13.5px; color:var(--text); line-height:1.65; margin:0;">4가지 방식을 <span class="hl-amber">비용·통신·파일 충돌</span> 관점에서 비교 → 의사결정 3단 질문으로 고르기 → 좁게 시작해 리뷰 속도에 맞춰 동시성을 늘린다.</p></div>
+    </div>
+    <div style="margin-top:18px; border:1.5px solid rgba(15,118,110,0.5); background:rgba(15,118,110,0.07); border-radius:8px; padding:16px 20px; display:flex; align-items:flex-start; gap:14px;"><span style="font-size:23px; line-height:1;">⭐</span><div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.1em; color:#115E59; margin-bottom:4px;">CHECKPOINT · 핵심 한 줄</div><div style="font-size:16px; font-weight:700; color:var(--text); line-height:1.5;"><span class="hl-amber">모델은 판단, 코드는 조율</span> — 작업이 독립 조각으로 쪼개질 때만 병렬이 이득. 단일 세션이 정답인 경우가 많다.</div></div></div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">무엇을 · 왜 · 어떻게 배우나</span>
+    <span class="slide-footer-right" data-slot="page-num">02</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="4">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">INTRO</div>
+    <div class="t-title" data-slot="title">학습 목표 — 4가지 병렬 방식</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">작업을 직접 끌고 갈 것인가 / 던져두고 나중에 확인할 것인가 / Claude가 한 무리의 작업자를 지휘하게 할 것인가 — 그 메커니즘을 고른다.</p><ul class="bullet-list" data-slot="bullets"><li><div>서브에이전트<span class="sub">한 세션 안에서 곁가지 작업을 격리·위임하는 기본 단위</span></div></li><li><div>Dynamic Workflows<span class="sub">조율 로직을 컨텍스트가 아닌 코드(스크립트)로 옮기는 대규모 병렬</span></div></li><li><div>Agent Teams<span class="sub">작업자끼리 직접 메시지를 주고받는 멀티 세션 협업</span></div></li><li><div>Agent View · Worktree · /batch<span class="sub">직접 돌리는 병렬 세션의 관리·격리</span></div></li></ul><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body"><strong>하네스 엔지니어링은 Level 8</strong>, 비용 절약 기법은 Level 6에서 다룬다. 이 레벨은 병렬·위임·협업 메커니즘 자체에 집중.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">학습 목표 — 4가지 병렬 방식</span>
+    <span class="slide-footer-right" data-slot="page-num">02</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="5">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">OVERVIEW</div>
+    <div class="t-title" data-slot="title">4가지 병렬 방식 — 한눈에 비교</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>방식</th><th>누가 조율?</th><th>작업자끼리 통신?</th><th>파일 격리</th><th>출시 상태</th></tr></thead><tbody><tr><td><strong>서브에이전트</strong></td><td>메인 세션(나+Claude)</td><td>❌ 메인에만 보고</td><td>옵션(<code>isolation: worktree</code>)</td><td>정식(GA)</td></tr><tr><td><strong>Agent View / 백그라운드</strong></td><td>내가 던지고 확인</td><td>❌ 나에게만 보고</td><td>자동(worktree)</td><td>research preview</td></tr><tr><td><strong>Agent Teams</strong></td><td>Claude(팀 리드)가 지휘</td><td>✅ 메일박스로 직접</td><td>❌ 수동 분할</td><td>experimental(기본 비활성)</td></tr><tr><td><strong>Dynamic Workflows</strong></td><td>스크립트(코드)</td><td>단계 간 전달</td><td>acceptEdits 자동 승인</td><td>research preview</td></tr></tbody></table></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><strong>녹화 전 재확인</strong> Dynamic Workflows·Agent View·Agent Teams는 research preview/experimental — 상한·트리거·플랜 범위·버전이 바뀔 수 있다. 출처: code.claude.com/docs/en/agents</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">4가지 병렬 방식 — 한눈에 비교</span>
+    <span class="slide-footer-right" data-slot="page-num">03</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="6">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">01</div>
+    <div class="t-chapter" data-slot="label">7.1</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:820px; line-height:1.2;">서브에이전트(Subagent)</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:660px; line-height:1.7;">단일 세션 안의 격리된 작업자</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">단일 세션 안의 격리된 작업자</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="7">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.1</div>
+    <div class="t-title" data-slot="title">서브에이전트란?</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">메인 세션이 띄우는 <strong>독립 컨텍스트 윈도우를 가진 전문 작업자</strong>. 무거운 곁가지 작업(테스트 실행·코드베이스 탐색·로그 처리)을 자기 컨텍스트에서 처리하고 <strong>메인에는 요약만 반환</strong>한다.</p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>[인라인]      사용자 → Claude(메인) : git diff 30k + 파일 16k + 분석 15k 전부 메인에 누적
+[서브에이전트]  사용자 → Claude(메인) → Agent 위임
+                            └ 새 컨텍스트에서 작업 → 요약 2k만 반환 → 컨텍스트 폐기</code></pre></div><div class="callout callout-green" style="margin-top:14px;"><div class="callout-icon">✅</div><div class="callout-body"><strong>핵심 가치</strong> ① 컨텍스트 격리 ② 도구 제한(하드 제약) ③ 병렬 실행 ④ 모델 라우팅. 출처: code.claude.com/docs/en/sub-agents</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">서브에이전트란?</span>
+    <span class="slide-footer-right" data-slot="page-num">04</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="8">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.2</div>
+    <div class="t-title" data-slot="title">정의 파일 형식</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;"><code>.claude/agents/&lt;name&gt;.md</code> (프로젝트) 또는 <code>~/.claude/agents/&lt;name&gt;.md</code> (사용자 전역)</div><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>---
+name: security-reviewer
+description: &gt;
+  코드 변경의 보안 취약점·인젝션·인증 문제를 검토한다.
+  인증/결제/사용자 데이터를 건드리는 커밋 직전 PROACTIVELY 사용.
+tools: Read, Grep, Glob        # 목록에 없는 도구는 호출 자체가 차단
+model: sonnet                  # haiku / sonnet / opus / inherit
+---
+당신은 시니어 보안 리뷰어다. Critical/High/Medium/Low로 분류해 보고.
+- 절대 파일을 수정하지 않는다(Read-only).</code></pre></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">💡</div><div class="callout-body"><strong>description이 자동 위임의 트리거</strong> "보안 전문가"보다 "커밋 직전 인증 코드 검토 시"처럼 <strong>언제 부를지</strong>를 구체적으로 쓴다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">정의 파일 형식</span>
+    <span class="slide-footer-right" data-slot="page-num">05</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="9">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.3</div>
+    <div class="t-title" data-slot="title">빌트인 서브에이전트와 <code>/agents</code></div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>빌트인<span class="sub"><code>Explore</code>(읽기 중심 탐색) · <code>Plan</code>(계획 수립) · general-purpose — 커스텀 전에 빌트인부터</span></div></li><li><div><code>/agents</code> 커맨드<span class="sub">대화형 생성·편집. Running 탭(실행 중) + Library 탭(생성·편집). 설명만 적으면 초안 자동 생성</span></div></li><li><div>중복 이름 점검<span class="sub">v2.1.196부터 <code>/doctor</code>가 같은 스코프 내 이름 중복 보고</span></div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><code>/agents</code>(현재 세션 서브에이전트)와 <code>claude agents</code>(백그라운드 세션 대시보드)는 <strong>이름만 비슷한 별개 기능</strong>이다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">빌트인 서브에이전트와 /agents</span>
+    <span class="slide-footer-right" data-slot="page-num">06</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="10">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.4</div>
+    <div class="t-title" data-slot="title">언제 쓰나 / 언제 쓰지 말까</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>쓴다 ✅</th><th>쓰지 않는다 ❌</th></tr></thead><tbody><tr><td>출력 많은 작업(테스트·문서 fetch·로그) 격리</td><td>일회성 단일 도구 호출, 사소한 계산</td></tr><tr><td>같은 종류 작업자 반복 호출(코드리뷰·테스트)</td><td>토큰 예산 빠듯, 레이트리밋 근처</td></tr><tr><td>독립 영역 병렬 탐색(인증·DB·API 동시)</td><td>단계가 서로 의존하는 순차 작업</td></tr><tr><td>구현 후 맥락 모르는 신선한 눈으로 검증</td><td>같은 파일을 동시에 수정해야 하는 작업</td></tr></tbody></table></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body"><strong>비용 직관</strong> 서브에이전트 중심은 단일 스레드 대비 <strong>대략 7배</strong> 토큰을 쓸 수 있다(2차 자료·대략치). 동시 <strong>3~5개가 스위트 스폿</strong>, 그 이상은 요약 병합 비용이 이득 잠식.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">언제 쓰나 / 언제 쓰지 말까</span>
+    <span class="slide-footer-right" data-slot="page-num">07</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="11">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.5</div>
+    <div class="t-title" data-slot="title">예제 프롬프트 — 탐색·병렬·리서치</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;"><strong>① 무거운 탐색 격리</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>서브에이전트를 써서 테스트 스위트를 실행하고,
+실패한 테스트와 에러 메시지만 요약해서 보고해줘.</code></pre></div><p class="t-body" data-slot="body" style="line-height:1.6;"><strong>② 독립 영역 병렬 조사</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>인증, 데이터베이스, API 모듈을 각각 별도 서브에이전트로
+동시에 조사해줘. 각자 독립 탐색 후 종합해줘.</code></pre></div><p class="t-body" data-slot="body" style="line-height:1.6;"><strong>③ 구현 전 사전 리서치 → 계획</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>알림 기능 구현 전 서브에이전트로 먼저 조사:
+현재 이메일 발송 위치 / 기존 알림 패턴 / 새 로직의 아키텍처 위치
+요약 후 같이 구현 계획을 세우자.</code></pre></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">예제 프롬프트 — 탐색·병렬·리서치</span>
+    <span class="slide-footer-right" data-slot="page-num">08</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="12">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.6</div>
+    <div class="t-title" data-slot="title">예제 프롬프트 — 검증/파이프라인</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;"><strong>④ 편향 없는 코드 리뷰 (구현 맥락 차단)</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>읽기 전용 서브에이전트로 결제 플로우 구현을 리뷰해줘.
+이전 대화 맥락은 보지 말고, 보안 취약점·미처리 엣지케이스·
+에러 핸들링 누락을 비판적으로 봐줘.</code></pre></div><p class="t-body" data-slot="body" style="line-height:1.6;"><strong>⑤ 단계별 핸드오프 파이프라인</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>1) 첫 서브에이전트: API 계약 설계 → docs/api-spec.md
+2) 둘째: 그 명세대로 구현
+3) 셋째: 읽기 전용으로 구현 리뷰
+각 단계는 앞 단계 산출물만 입력으로 받는다.</code></pre></div><div class="callout callout-green" style="margin-top:14px;"><div class="callout-icon">✅</div><div class="callout-body">출력 형식을 명시할수록(JSON·표) 메인의 종합이 안정적이다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">예제 프롬프트 — 검증/파이프라인</span>
+    <span class="slide-footer-right" data-slot="page-num">09</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="13">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.1.7</div>
+    <div class="t-title" data-slot="title">안티패턴</div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>만능 에이전트 금지<span class="sub">리뷰·수정·테스트·배포를 다 하는 에이전트는 그냥 두 번째 generalist 대화 — <strong>결과(outcome) 단위로 분리</strong></span></div></li><li><div>페르소나 이름 금지<span class="sub">"보안 전문가"는 트리거 약함 → "커밋 직전 인증 코드 검토 시"처럼 조건을 적어라</span></div></li><li><div>중첩 위임 불가<span class="sub">서브에이전트는 자기 서브에이전트를 못 띄운다 — <code>tools</code>에 <code>Agent</code>(Task) 넣지 마라</span></div></li><li><div>검토 없는 대량 실행 금지<span class="sub">띄운 백그라운드보다 더 많이 검토할 수 없다 — 완료 요약도 사람/메인 검토 필요</span></div></li></ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">안티패턴</span>
+    <span class="slide-footer-right" data-slot="page-num">10</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="14">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">02</div>
+    <div class="t-chapter" data-slot="label">7.2</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:820px; line-height:1.2;">Dynamic Workflows</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:660px; line-height:1.7;">조율 로직을 컨텍스트가 아니라 코드로 — research preview</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">조율 로직을 컨텍스트가 아니라 코드로 — research preview</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="15">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.1</div>
+    <div class="t-title" data-slot="title">Dynamic Workflows란?</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">Claude가 작업을 받아 <strong>즉석에서 JavaScript 오케스트레이션 스크립트</strong>를 작성하고, 그 스크립트가 서브에이전트들을 띄워 병렬 실행·결과 수집·검증·종합한다.</p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>[일반 서브에이전트]  Claude가 턴마다 무엇을 띄울지 판단 → 결과가 메인 컨텍스트로 복귀
+                     → 3~5개까진 OK, 그 이상이면 컨텍스트가 꽉 차 길을 잃음
+[Dynamic Workflow]   Claude=계획자(planner), 스크립트=조율자(dispatcher)
+                     → 조율 로직이 컨텍스트 밖(.js 파일)으로 이동, 조율 코드 토큰 0</code></pre></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">💡</div><div class="callout-body"><strong>"모델은 판단을, 코드는 조율을 한다"</strong> 조율이 컨텍스트를 안 먹어 수백 에이전트가 가능. (research preview · 2026-05-28 · v2.1.154+)</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Dynamic Workflows란?</span>
+    <span class="slide-footer-right" data-slot="page-num">11</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="16">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.2</div>
+    <div class="t-title" data-slot="title">실행 흐름과 형태(shape)</div>
+    <div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>1. 분해(plan)     : 요청을 독립 서브태스크로 쪼갬, 병렬/의존 판별
+2. 스크립트 작성   : 생성·수명관리·결과수집·에러처리 담은 .js
+3. 백그라운드 실행 : 세션은 계속 응답 가능
+4. 교차 검증      : 일부는 풀고 일부는 반박 → 수렴까지 반복</code></pre></div><ul class="bullet-list" data-slot="bullets"><li><div>일반화 형태<span class="sub"><code>fan out → reduce → synthesize</code></span></div></li><li><div>재사용 품질 패턴<span class="sub">adversarial verify(반박 검증) · diverse lenses · judge panel · loop-until-dry</span></div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><strong>상한</strong> 동시 최대 16개, 1회 실행 누적 최대 1,000개 에이전트. 출처: code.claude.com/docs/en/workflows</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">실행 흐름과 형태(shape)</span>
+    <span class="slide-footer-right" data-slot="page-num">12</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="17">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.3</div>
+    <div class="t-title" data-slot="title">트리거 방법 (4가지)</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>방법</th><th>동작</th><th>비고</th></tr></thead><tbody><tr><td>프롬프트 <code>workflow</code> 키워드</td><td>그 작업 1건만 워크플로우</td><td>v2.1.160 이전 리터럴 트리거</td></tr><tr><td>프롬프트 <code>ultracode</code> 키워드</td><td>그 작업 1건만 워크플로우</td><td>세션 effort는 안 바뀜</td></tr><tr><td>자연어 "use a workflow"</td><td>직접 요청으로 처리</td><td>두 버전 모두 동작</td></tr><tr><td><code>/effort ultracode</code></td><td>xhigh + 모든 substantive 작업 자동 오케스트레이션</td><td>세션 한정, 새 세션이면 리셋</td></tr></tbody></table></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><strong>한국어 학습자 주의</strong> 트리거는 영문 토큰 <code>workflow</code>/<code>ultracode</code>가 강조된다. 한글만으론 강조 안 될 수 있음 → 영문 키워드 또는 <code>/effort ultracode</code> 권장. 해제: macOS <code>Option+W</code> / Win·Linux <code>Alt+W</code>.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">트리거 방법 (4가지)</span>
+    <span class="slide-footer-right" data-slot="page-num">13</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="18">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.4</div>
+    <div class="t-title" data-slot="title">ultracode vs xhigh vs ultrathink (혼동 주의)</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>용어</th><th>정체</th><th>범위</th><th>워크플로우 발동?</th></tr></thead><tbody><tr><td><strong>ultracode</strong></td><td>Claude Code 세션 설정</td><td>세션 전체(리셋됨)</td><td>✅ 자동 오케스트레이션</td></tr><tr><td><strong>xhigh</strong></td><td>모델 추론 강도 레벨</td><td>지속(low~xhigh)</td><td>❌</td></tr><tr><td><strong>ultrathink</strong></td><td>1턴 프롬프트 키워드</td><td>그 한 응답만</td><td>❌ 추론만 강화</td></tr></tbody></table></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body">"think / think hard / think more"는 특수 동작이 없다(그냥 텍스트). 한 턴만 더 깊게는 <code>ultrathink</code>. 출처: claudefa.st</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">ultracode vs xhigh vs ultrathink (혼동 주의)</span>
+    <span class="slide-footer-right" data-slot="page-num">14</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="19">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.5</div>
+    <div class="t-title" data-slot="title">플랜 · 권한 · 관리 · 끄기</div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>플랜<span class="sub">Max·Team 기본 ON / Pro는 <code>/config</code>에서 활성화 / Enterprise 관리자 승인. API·Bedrock·Vertex·Foundry 지원</span></div></li><li><div>번들 워크플로우<span class="sub"><code>/deep-research</code> — 웹 fan-out → 교차검증 → 주장 투표 → 검증 통과만 cited 리포트</span></div></li><li><div>관리·저장<span class="sub"><code>/workflows</code>(실행/완료·단계·완료 에이전트 수) · <code>.claude/workflows/</code>에 재사용 저장</span></div></li><li><div>끄기<span class="sub"><code>CLAUDE_CODE_DISABLE_WORKFLOWS=1</code> 또는 managed <code>"disableWorkflows": true</code></span></div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><strong>권한 특이점</strong> 워크플로우 서브에이전트는 세션 권한모드와 무관하게 <strong>acceptEdits 모드</strong> → 파일 편집이 자동 승인됨(첫 대규모 실행 전 인지 필수).</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">플랜 · 권한 · 관리 · 끄기</span>
+    <span class="slide-footer-right" data-slot="page-num">15</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="20">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.6</div>
+    <div class="t-title" data-slot="title">언제 쓰나 / 언제 쓰지 말까</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>쓴다 ✅ — 한 컨텍스트가 못 담는 규모/검증</th><th>쓰지 않는다 ❌</th></tr></thead><tbody><tr><td>코드베이스 전체 버그 헌트·보안 감사</td><td>단일 파일·소규모(오버헤드 손해)</td></tr><tr><td>대규모 마이그레이션(수천 파일 포팅)</td><td>강하게 의존하는 순차 추론</td></tr><tr><td>"틀리면 손해 큰" 작업 — 독립 시도+반박 검증</td><td>토큰 예산 빠듯할 때</td></tr><tr><td>같은 변환을 수백 파일·레코드에 반복(batch)</td><td>범위 작은데 무분별 ultracode(요금 폭증 1순위)</td></tr></tbody></table></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body"><strong>판단 한 줄</strong> "이 작업이 정말 더 많은 연산을 필요로 하나?" 대부분의 일상 코딩은 5명 리뷰어 패널이 필요 없다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">언제 쓰나 / 언제 쓰지 말까</span>
+    <span class="slide-footer-right" data-slot="page-num">16</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="21">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.7</div>
+    <div class="t-title" data-slot="title">예제 프롬프트</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;"><strong>① 전 코드베이스 보안 감사 (fan-out + 검증)</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>workflow: 모든 인증 경로를 BOLA(객체 수준 인가 누락) 관점에서 감사.
+파일별 에이전트를 띄우고, 발견은 독립 검증 후 심각도순 정리.</code></pre></div><p class="t-body" data-slot="body" style="line-height:1.6;"><strong>② 대규모 마이그레이션</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>ultracode: 1,200개 파일을 CommonJS→ESM으로 마이그레이션.
+각 파일 변환 후 테스트 실행, 실패는 보고만(임의 수정 금지).</code></pre></div><p class="t-body" data-slot="body" style="line-height:1.6;"><strong>③ 안전 캘리브레이션 먼저 (강력 권장)</strong></p><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>workflow: src/api/ 에 한정해 인증 경로만 감사.
+# 좁게 → /workflows로 단계·에이전트·토큰 확인 → 범위 확대</code></pre></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">예제 프롬프트</span>
+    <span class="slide-footer-right" data-slot="page-num">17</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="22">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.8</div>
+    <div class="t-title" data-slot="title">번들 워크플로우 체험 — <code>/deep-research</code></div>
+    <div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>/deep-research Node.js 권한 모델은 v20과 v22 사이에 무엇이 바뀌었나?</code></pre></div><ul class="bullet-list" data-slot="bullets"><li><div>동작<span class="sub">여러 각도로 검색 분산 → 출처 교차 검증 → 각 주장 투표 → <strong>검증 통과 못 한 주장 제거</strong>한 cited 리포트</span></div></li><li><div>용도<span class="sub">내 코드에 워크플로우 쓰기 전, verify-then-converge(검증 후 수렴) 루프를 안전하게 체감</span></div></li></ul><div class="callout callout-green" style="margin-top:14px;"><div class="callout-icon">✅</div><div class="callout-body">첫 실행은 항상 <code>/deep-research</code>나 좁은 범위로 "감"을 잡은 뒤, 사용량 대시보드 확인 후 본 작업 투입.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">번들 워크플로우 체험 — /deep-research</span>
+    <span class="slide-footer-right" data-slot="page-num">18</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="23">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.2.9</div>
+    <div class="t-title" data-slot="title">비용 안전장치 (Anthropic 3번 반복 경고)</div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>좁게 시작<span class="sub">전 모노레포 대신 한 디렉터리부터</span></div></li><li><div>승인 카드 Once로 단계 계획 검토<span class="sub">작업 대비 단계 과하면 Deny 후 범위 좁혀 재요청</span></div></li><li><div>첫 몇 회 후 사용량 대시보드 확인<span class="sub">작업 유형별 비용 감 잡기</span></div></li><li><div>타이트한 예산이면 ultracode 대신 좁은 타깃 프롬프트</div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body"><strong>흔한 실패 "too clever"</strong> 3-서브에이전트면 될 일을 7단계 파이프라인으로. 중단하고 <code>"use at most 10 agents"</code>처럼 명시. Bun 포팅(Zig→Rust ~75만 줄 ~11일, 테스트 99.8%)은 <strong>보도된 사례</strong>로 인용.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">비용 안전장치 (Anthropic 3번 반복 경고)</span>
+    <span class="slide-footer-right" data-slot="page-num">19</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="24">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">03</div>
+    <div class="t-chapter" data-slot="label">7.3</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:820px; line-height:1.2;">멀티 세션 협업</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:660px; line-height:1.7;">Agent Teams · Agent View · Worktree — 작업자끼리 직접 대화하거나 여러 세션 동시 운용</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Agent Teams · Agent View · Worktree — 작업자끼리 직접 대화하거나 여러 세션 동시 운용</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="25">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.3.1</div>
+    <div class="t-title" data-slot="title">Agent Teams란? (vs 서브에이전트)</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">여러 Claude Code <strong>세션</strong>이 한 프로젝트에서 협업. 한 세션이 <strong>팀 리드</strong>로 분해·할당·종합하고, 팀원들은 각자 독립 컨텍스트에서 일하며 <strong>서로 직접 메시지</strong>를 주고받는다.</p><div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th></th><th>서브에이전트</th><th>Agent Teams</th></tr></thead><tbody><tr><td>통신</td><td>메인에만 보고</td><td><strong>팀원끼리 직접(메일박스)</strong></td></tr><tr><td>조율</td><td>메인이 중개</td><td>공유 작업목록 + 자율 협업</td></tr><tr><td>컨텍스트</td><td>격리</td><td>격리(각 1M), 메시지로 연결</td></tr><tr><td>비용</td><td>보통</td><td><strong>가장 비쌈</strong>(메시지마다 왕복)</td></tr></tbody></table></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body"><strong>한 줄 구분</strong> 서로 발견 공유·가정 반박이 필요하면 Teams, 빠른 위임 후 보고면 서브에이전트.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Agent Teams란? (vs 서브에이전트)</span>
+    <span class="slide-footer-right" data-slot="page-num">20</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="26">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.3.2</div>
+    <div class="t-title" data-slot="title">Agent Teams — 활성화와 운용</div>
+    <div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>// settings.json (또는 환경변수)
+{ "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" } }</code></pre></div><ul class="bullet-list" data-slot="bullets"><li><div>experimental · 기본 비활성<span class="sub">이 변수 없으면 팀이 구성되지 않음</span></div></li><li><div>팀 생성·순환<span class="sub">자연어로 "팀원 3명 팀 만들어줘" · <code>Shift+Down</code>으로 팀원 순환(tmux/iTerm2 split pane)</span></div></li><li><div>서브에이전트 정의 재사용<span class="sub">"security-reviewer 타입으로 팀원을 띄워" — 역할 한 번 정의해 위임·팀원 양쪽 사용</span></div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body">팀원은 <strong>worktree로 격리되지 않는다</strong> → 파일 겹치지 않게 수동 분할 필수. 정의의 <code>skills</code>·<code>mcpServers</code> frontmatter는 팀원 실행 시 미적용. (Opus 4.6 research preview)</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Agent Teams — 활성화와 운용</span>
+    <span class="slide-footer-right" data-slot="page-num">21</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="27">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.3.3</div>
+    <div class="t-title" data-slot="title">Agent Teams — 언제 쓰나 / 예제</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>쓴다 ✅</th><th>쓰지 않는다 ❌</th></tr></thead><tbody><tr><td>프론트·백·테스트가 서로 의존하며 교차 변경</td><td>순차 작업</td></tr><tr><td>한 팀원이 다른 팀원 접근을 반박하길 원할 때</td><td>여러 작업자가 같은 파일 수정</td></tr><tr><td>리서치+아키텍처+구현이 한 작업에 섞일 때</td><td>단순 버그 픽스</td></tr></tbody></table></div><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>프론트엔드 리팩터 + 필요한 API 변경 + 테스트 업데이트 + 통합 PR을
+팀으로 진행. 각 팀원은 서로 다른 파일 집합을 소유하고,
+계약(인터페이스/스키마)은 먼저 합의한 뒤 작업해.</code></pre></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body">개별로는 맞아도 서로 안 맞을 수 있다 → <strong>검증 팀원(validator)</strong> 또는 통합 테스트를 마지막에(builder-validator 체인).</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Agent Teams — 언제 쓰나 / 예제</span>
+    <span class="slide-footer-right" data-slot="page-num">22</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="28">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.3.4</div>
+    <div class="t-title" data-slot="title">Agent View / 백그라운드 세션</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">서로 <strong>무관한 작업 여러 개를 동시에</strong> 돌리고 필요할 때만 확인하는 "멀티플렉싱"(조율 아님).</p><ul class="bullet-list" data-slot="bullets"><li><div><code>claude agents</code><span class="sub">모든 백그라운드 세션 대시보드(Needs input / Working / Completed)</span></div></li><li><div>던지기<span class="sub">뷰 입력창 / 세션 안 <code>/bg</code> / 셸 <code>claude --bg</code></span></div></li><li><div>supervisor 프로세스<span class="sub">터미널 닫아도 살아있고 <code>claude --resume</code>로 재개. 편집 전 자동 <code>.claude/worktrees/</code>로 격리</span></div></li></ul><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">⚠️</div><div class="callout-body">각 백그라운드 세션이 <strong>독립적으로 쿼터 소비</strong> → 많이 던지기 전 한도 확인.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Agent View / 백그라운드 세션</span>
+    <span class="slide-footer-right" data-slot="page-num">23</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="29">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.3.5</div>
+    <div class="t-title" data-slot="title">Worktree와 <code>/batch</code></div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">"에이전트를 돌리는 방식"이 아니라 <strong>병렬 작업을 받쳐주는 도구</strong>.</p><ul class="bullet-list" data-slot="bullets"><li><div>Git Worktree<span class="sub">세션마다 별도 체크아웃 → 병렬 세션이 같은 파일 안 건드림. frontmatter <code>isolation: worktree</code>로 자동 격리</span></div></li><li><div><code>/batch</code><span class="sub">큰 변경을 5~30개 worktree 격리 서브에이전트로 쪼개 각자 PR. <strong>기계적 마이그레이션</strong>(API 이름 변경·타입 정리)에 적합, 모호한 기능엔 부적합</span></div></li></ul><div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>---
+name: backend-builder
+tools: Read, Glob, Grep, Bash, Edit, Write
+model: sonnet
+isolation: worktree
+---
+할당된 백엔드 디렉터리에서만 작업. 공유 스키마·lockfile·루트 설정은 금지.</code></pre></div><div class="callout callout-green" style="margin-top:14px;"><div class="callout-icon">✅</div><div class="callout-body">가장 복잡한 메커니즘부터 시작하지 마라. worktree 2개 또는 서브에이전트 2개로 시작, <strong>내 리뷰 속도가 따라올 때만</strong> 동시성 증가.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Worktree와 /batch</span>
+    <span class="slide-footer-right" data-slot="page-num">24</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="30">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">04</div>
+    <div class="t-chapter" data-slot="label">7.4</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:820px; line-height:1.2;">종합 — 무엇을 언제 고를까</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:660px; line-height:1.7;">의사결정 · 역할별 처방 · 비용 · 안티패턴</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">의사결정 · 역할별 처방 · 비용 · 안티패턴</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="31">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.4.1</div>
+    <div class="t-title" data-slot="title">의사결정 3단 질문</div>
+    <div class="code-block" style="font-size:13px; margin-top:12px;"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code>Q1. 누가 조율하나?
+    내가 각 대화에 머문다        → 직접 병렬 세션(+worktree)
+    던져놓고 나중에 확인         → Agent View / 백그라운드
+    Claude가 한 무리를 지휘      → Agent Teams
+    계획을 코드(스크립트)가 보유  → Dynamic Workflows
+Q2. 작업자끼리 대화해야 하나?
+    아니오(보고만)              → 서브에이전트
+    예(발견 공유·반박)           → Agent Teams
+Q3. 같은 파일을 건드리나?
+    예                          → worktree 격리(또는 파일 분할)</code></pre></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body">출처: Run agents in parallel — code.claude.com/docs/en/agents</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">의사결정 3단 질문</span>
+    <span class="slide-footer-right" data-slot="page-num">25</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="32">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.4.2</div>
+    <div class="t-title" data-slot="title">역할별 빠른 처방</div>
+    <div data-slot="table" style="margin-top:12px;"><table class="tbl"><thead><tr><th>상황</th><th>권장</th><th>이유</th></tr></thead><tbody><tr><td>구독제 솔로, 대부분의 위임</td><td><strong>서브에이전트</strong></td><td>가장 싼 기본 단위, 대부분 커버</td></tr><tr><td>500~수천 파일 마이그레이션</td><td><strong>Dynamic Workflows</strong></td><td>1,000 에이전트 상한이 비용 천장, 저장 재사용</td></tr><tr><td>서로 무관한 작업 여러 개 동시</td><td><strong>Agent View + 백그라운드</strong></td><td>조율 아니라 멀티플렉싱</td></tr><tr><td>의존성 있는 교차 도메인 변경</td><td><strong>Agent Teams</strong></td><td>팀원 간 직접 통신·합의 필요</td></tr><tr><td>기계적·규칙 명확한 대량 변경</td><td><strong>/batch</strong></td><td>worktree 격리 + 자동 PR</td></tr></tbody></table></div><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">💡</div><div class="callout-body"><strong>단일 세션이 정답인 경우가 많다.</strong> 순차·같은 파일·의존성 많은 작업은 단일 세션/서브에이전트가 더 효과적. 병렬은 독립 조각으로 쪼개질 때만 이득.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">역할별 빠른 처방</span>
+    <span class="slide-footer-right" data-slot="page-num">26</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="33">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.4.3</div>
+    <div class="t-title" data-slot="title">비용 · 토큰 가이드 (공통)</div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>병렬 = 토큰 병렬 소비<span class="sub">3-에이전트 팀은 레이트리밋을 약 3배 빨리 소진(2차 자료)</span></div></li><li><div>모델 티어링<span class="sub">오케스트레이터 Opus / 워커 Sonnet / 포매팅 Haiku → 전부 Opus 대비 <strong>약 40% 절감</strong>(대략치)</span></div></li><li><div>합산 과금<span class="sub">별도 과금 없지만 모든 실행이 플랜 사용량·레이트리밋에 합산</span></div></li><li><div>끝난 세션은 정지<span class="sub">세션 <code>/stop</code>, Agent View <code>Ctrl+X</code> — 유휴 Opus도 쿼터 소비</span></div></li><li><div>모델 상한 repo에 커밋<span class="sub">frontmatter <code>model:</code>로 팀원이 비싼 모델 기본값 두는 것 방지</span></div></li></ul><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">ⓘ</div><div class="callout-body">상세 비용 기법은 Level 6(토큰 절약) 연계. 이 레벨은 멀티 에이전트의 비용 구조만.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">비용 · 토큰 가이드 (공통)</span>
+    <span class="slide-footer-right" data-slot="page-num">27</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="34">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">7.4.4</div>
+    <div class="t-title" data-slot="title">안티패턴 종합</div>
+    <ul class="bullet-list" data-slot="bullets"><li><div>기본값으로 무거운 옵션 선택<span class="sub">모든 게 Agent Teams일 필요 없다 — 작업에 모드를 맞춰라</span></div></li><li><div>범위 미설정 ultracode<span class="sub">요금 폭증 1순위 — 좁게 시작</span></div></li><li><div>공유 계약을 각자 발명<span class="sub">API/인터페이스/스키마를 따로 만들면 통합 실패 → <strong>계약 먼저 합의</strong></span></div></li><li><div>리뷰 못 따라가는 동시성<span class="sub">띄운 만큼 검토 못 하면 품질 붕괴</span></div></li><li><div>의존 작업의 병렬화<span class="sub">동기화 복잡성만 늘고 속도 이득 없음</span></div></li></ul>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">안티패턴 종합</span>
+    <span class="slide-footer-right" data-slot="page-num">28</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="35">
+<div class="export-stage slide-canvas-host">
+<div class="slide slide-section" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" style="justify-content:center; gap:0;">
+    <div class="section-num" data-slot="number">05</div>
+    <div class="t-chapter" data-slot="label">7.5</div>
+    <div class="t-title" data-slot="title" style="font-size:48px; max-width:820px; line-height:1.2;">CI/CD 자동화</div>
+    <div data-slot="subtitle" style="margin-top:22px; font-size:20px; color:var(--muted); max-width:660px; line-height:1.7;">Headless claude -p · GitHub Actions 자동 리뷰</div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Headless claude -p · GitHub Actions 자동 리뷰</span>
+    <span class="slide-footer-right" data-slot="page-num">SECTION</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="36">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="buFR2GuDv">7.5.1</div>
+    <div class="t-title" data-slot="title" data-block-id="ba1ozKLUU">7.5.1 Headless 모드 — claude -p + CI/CD</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;" data-block-id="bAN7vlFzV">사람 입력 없이 한 번 실행하고 끝 — CI/CD, cron, 스크립트, 일괄 처리에 적합</div>
+    <div data-slot="table" data-block-id="batRxfE3y"><table class="tbl"><thead><tr><th spellcheck="false" style="position: relative;">포맷<div class="col-resize-handle" draggable="false" aria-label="Resize column"></div></th><th spellcheck="false" style="position: relative;">형태<div class="col-resize-handle" draggable="false" aria-label="Resize column"></div></th><th spellcheck="false">용도</th></tr></thead><tbody><tr><td spellcheck="false"><strong>`text` (기본)</strong></td><td spellcheck="false">사람용 평문</td><td spellcheck="false">터미널 출력</td></tr>
+          <tr><td spellcheck="false"><code>json</code></td><td spellcheck="false">종료 후 단일 JSON 객체</td><td spellcheck="false">스크립트 결과 파싱</td></tr>
+          <tr><td spellcheck="false"><code>stream-json</code></td><td spellcheck="false">한 줄당 한 이벤트 (JSONL)</td><td spellcheck="false">진행상황 실시간 추적, 채팅 봇</td></tr></tbody></table></div>
+    <div class="terminal" data-slot="code" data-block-id="tb-6be5f37e" data-code-source="%23%20%EA%B8%B0%EB%B3%B8%20%EC%82%AC%EC%9A%A9%0Aclaude%20-p%20%22%EC%96%B4%EB%8A%90%20%ED%8C%8C%EC%9D%BC%EC%9D%B4%20%EA%B6%8C%ED%95%9C%20%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84%20%EC%A0%95%EC%9D%98%ED%95%98%EB%8A%94%EA%B0%80%3F%22%0A%23%20JSON%20%EC%B6%9C%EB%A0%A5%0Aclaude%20-p%20%22main.py%20%ED%95%A8%EC%88%98%20%EB%AA%A9%EB%A1%9D%22%20--output-format%20json%0A%23%20%EC%9E%90%EC%A3%BC%20%EC%93%B0%EB%8A%94%20%ED%94%8C%EB%9E%98%EA%B7%B8%20%EC%A1%B0%ED%95%A9%0Aclaude%20-p%20%22...%22%20%5C%0A%20%20%20%20--allowedTools%20%22Read%2CBash%2CGlob%2CGrep%22%20%5C%0A%20%20%20%20--output-format%20json%20%5C%0A%20%20%20%20--max-turns%2010%20%5C%0A%20%20%20%20--model%20sonnet" data-code-lang="bash">
+    <div class="terminal-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="terminal-title">Terminal</span></div><pre><code><span class="line"><span style="color:#6A737D"># 기본 사용</span></span>
+<span class="line"><span style="color:#B392F0">claude</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> "어느 파일이 권한 시스템을 정의하는가?"</span></span>
+<span class="line"><span style="color:#6A737D"># JSON 출력</span></span>
+<span class="line"><span style="color:#B392F0">claude</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> "main.py 함수 목록"</span><span style="color:#79B8FF"> --output-format</span><span style="color:#9ECBFF"> json</span></span>
+<span class="line"><span style="color:#6A737D"># 자주 쓰는 플래그 조합</span></span>
+<span class="line"><span style="color:#B392F0">claude</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> "..."</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    --allowedTools</span><span style="color:#9ECBFF"> "Read,Bash,Glob,Grep"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    --output-format</span><span style="color:#9ECBFF"> json</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    --max-turns</span><span style="color:#79B8FF"> 10</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    --model</span><span style="color:#9ECBFF"> sonnet</span></span></code></pre>
+    </div>
+    <div class="callout callout-amber" style="margin-top:14px;" data-block-id="b0cT4WKr6">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>Headless의 한계</strong> 인터랙티브 prompt 불가 — 권한 모달이 뜨면 hang. allowedTools 또는 bypassPermissions 미리 지정 필수. 세션 영속성 없음 — 장기 작업은 Channels 또는 **Remote Control** 검토.</div>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">7.5.1 Headless 모드 — claude -p + CI/CD</span>
+    <span class="slide-footer-right" data-slot="page-num">29</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="37">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="b6wcJwMwK">7.5.1</div>
+    <div class="t-title" data-slot="title" data-block-id="b5v0gdRRP">7.5.1 CI/CD 통합 — GitHub Actions 자동 리뷰</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;" data-block-id="b5ZBrhSyo">PR 생성 시 claude -p로 자동 코드 리뷰 실행 → PR 코멘트로 게시</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-86ab421a" data-code-source="name%3A%20Auto%20Review%0Aon%3A%0A%20%20pull_request%3A%0A%20%20%20%20branches%3A%20%5Bmain%5D%0Ajobs%3A%0A%20%20review%3A%0A%20%20%20%20runs-on%3A%20ubuntu-latest%0A%20%20%20%20permissions%3A%0A%20%20%20%20%20%20contents%3A%20read%0A%20%20%20%20%20%20pull-requests%3A%20write%0A%20%20%20%20steps%3A%0A%20%20%20%20%20%20-%20uses%3A%20actions%2Fcheckout%40v4%0A%20%20%20%20%20%20%20%20with%3A%0A%20%20%20%20%20%20%20%20%20%20fetch-depth%3A%200%0A%20%20%20%20%20%20-%20name%3A%20Install%20Claude%20Code%0A%20%20%20%20%20%20%20%20run%3A%20npm%20install%20-g%20%40anthropic-ai%2Fclaude-code%0A%20%20%20%20%20%20-%20name%3A%20Run%20Code%20Review%0A" data-code-lang="yaml">
+    <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Auto Review</span></span>
+<span class="line"><span style="color:#79B8FF">on</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  pull_request</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    branches</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">main</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">jobs</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  review</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    runs-on</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">ubuntu-latest</span></span>
+<span class="line"><span style="color:#85E89D">    permissions</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      contents</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">read</span></span>
+<span class="line"><span style="color:#85E89D">      pull-requests</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">write</span></span>
+<span class="line"><span style="color:#85E89D">    steps</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/checkout@v4</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          fetch-depth</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">0</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Install Claude Code</span></span>
+<span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">npm install -g @anthropic-ai/claude-code</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Run Code Review</span></span>
+<span class="line"></span></code></pre>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">7.5.1 CI/CD 통합 — GitHub Actions 자동 리뷰</span>
+    <span class="slide-footer-right" data-slot="page-num">30</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="38">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-slot="label" data-block-id="b6wcJwMwK">7.5.1</div>
+    <div class="t-title" data-slot="title" data-block-id="b5v0gdRRP">7.5.1 CI/CD 통합 — GitHub Actions 자동 리뷰</div>
+    <div class="t-caption" data-slot="subtitle" style="margin-bottom:14px;" data-block-id="b5ZBrhSyo">PR 생성 시 claude -p로 자동 코드 리뷰 실행 → PR 코멘트로 게시</div>
+    <div class="code-block" data-slot="code" data-block-id="cb-86ab421a" data-code-source="%20%20%20%20%20%20%20%20run%3A%20%7C%0A%20%20%20%20%20%20%20%20%20%20claude%20-p%20%22git%20diff%20origin%2Fmain...HEAD%EB%A5%BC%20%EB%B6%84%EC%84%9D%ED%95%B4%EC%84%9C%20%EB%B3%B4%EC%95%88%C2%B7%EC%84%B1%EB%8A%A5%C2%B7%EB%A1%9C%EC%A7%81%20%EC%9D%B4%EC%8A%88%20%EC%B0%BE%EC%95%84%EC%A4%98.%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--allowedTools%20%22Read%2CBash%2CGlob%2CGrep%22%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--output-format%20text%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20--max-turns%2015%20%5C%0A%20%20%20%20%20%20%20%20%20%20%20%20%3E%20review.txt%0A%20%20%20%20%20%20%20%20env%3A%0A%20%20%20%20%20%20%20%20%20%20ANTHROPIC_API_KEY%3A%20%24%7B%7B%20secrets.ANTHROPIC_API_KEY%20%7D%7D%0A%20%20%20%20%20%20-%20name%3A%20Post%20Review%0A%20%20%20%20%20%20%20%20uses%3A%20actions%2Fgithub-script%40v7%0A%20%20%20%20%20%20%20%20with%3A%0A%20%20%20%20%20%20%20%20%20%20script%3A%20%7C%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20review%20%3D%20require('fs').readFileSync('review.txt'%2C'utf8')%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20github.rest.issues.createComment(%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20issue_number%3A%20context.issue.number%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20owner%3A%20context.repo.owner%2C%20repo%3A%20context.repo.repo%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20body%3A%20%60%23%23%20Automated%20Review%5Cn%5Cn%24%7Breview%7D%60%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D)%3B" data-code-lang="yaml">
+    <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><pre><code><span class="line"><span style="color:#85E89D">        run</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">          claude -p "git diff origin/main...HEAD를 분석해서 보안·성능·로직 이슈 찾아줘." \</span></span>
+<span class="line"><span style="color:#9ECBFF">            --allowedTools "Read,Bash,Glob,Grep" \</span></span>
+<span class="line"><span style="color:#9ECBFF">            --output-format text \</span></span>
+<span class="line"><span style="color:#9ECBFF">            --max-turns 15 \</span></span>
+<span class="line"><span style="color:#9ECBFF">            &gt; review.txt</span></span>
+<span class="line"><span style="color:#85E89D">        env</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          ANTHROPIC_API_KEY</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">${{ secrets.ANTHROPIC_API_KEY }}</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Post Review</span></span>
+<span class="line"><span style="color:#85E89D">        uses</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">actions/github-script@v7</span></span>
+<span class="line"><span style="color:#85E89D">        with</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          script</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|</span></span>
+<span class="line"><span style="color:#9ECBFF">            const review = require('fs').readFileSync('review.txt','utf8');</span></span>
+<span class="line"><span style="color:#9ECBFF">            github.rest.issues.createComment({</span></span>
+<span class="line"><span style="color:#9ECBFF">              issue_number: context.issue.number,</span></span>
+<span class="line"><span style="color:#9ECBFF">              owner: context.repo.owner, repo: context.repo.repo,</span></span>
+<span class="line"><span style="color:#9ECBFF">              body: `## Automated Review\n\n${review}`</span></span>
+<span class="line"><span style="color:#9ECBFF">            });</span></span></code></pre>
+    </div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left" data-slot="caption">7.5.1 CI/CD 통합 — GitHub Actions 자동 리뷰</span>
+    <span class="slide-footer-right" data-slot="page-num">31</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="39">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label">SUMMARY</div>
+    <div class="t-title" data-slot="title">Level 7 핵심 요약</div>
+    <p class="t-body" data-slot="body" style="line-height:1.6;">하나의 작업을 몇 개의 에이전트로 나눠 돌릴지 — 메커니즘과 선택 기준.</p><div class="callout callout-amber" style="margin-top:14px;"><div class="callout-icon">💡</div><div class="callout-body"><strong>서브에이전트</strong> 독립 컨텍스트 + 도구 제한(하드 제약). 동시 3~5개가 스위트 스폿. 결과 단위로 분리, 페르소나 이름 금지, 중첩 위임 불가.</div></div><div class="callout callout-blue" style="margin-top:14px;"><div class="callout-icon">📘</div><div class="callout-body"><strong>Dynamic Workflows</strong> 조율을 코드로 → 수백 에이전트(동시 16/누적 1,000). fan-out→reduce→synthesize. acceptEdits 자동 승인 주의. 좁게 시작.</div></div><div class="callout callout-green" style="margin-top:14px;"><div class="callout-icon">✅</div><div class="callout-body"><strong>멀티 세션</strong> Agent Teams=팀원 직접 통신(가장 비쌈·수동 파일 분할) · Agent View=무관 작업 멀티플렉싱 · /batch=기계적 대량 변경. 단일 세션이 정답인 경우가 많다.</div></div>
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">Level 7 핵심 요약</span>
+    <span class="slide-footer-right" data-slot="page-num">32</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="40">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner">
+    <div class="t-chapter" data-slot="label" data-block-id="bqRhWc8kd">REFERENCES</div>
+    <div class="t-title" data-slot="title" data-block-id="b1c36rOEB">참고 자료</div>
+    <ul class="bullet-list refs-tight" data-slot="bullets" data-block-id="bUaeNzCdY">
+      <li><div>병렬 실행 비교<span class="sub"><a class="link" href="https://code.claude.com/docs/en/agents" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/agents</a> — 서브에이전트·View·Teams·Workflows 비교</span></div></li>
+      <li><div>서브에이전트<span class="sub"><a class="link" href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/sub-agents</a> — .claude/agents 정의·/agents</span></div></li>
+      <li><div>Dynamic Workflows<span class="sub"><a class="link" href="https://code.claude.com/docs/en/workflows" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/workflows</a> — 조율을 코드로·상한·트리거</span></div></li>
+      <li><div>Agent Teams<span class="sub"><a class="link" href="https://code.claude.com/docs/en/agent-teams" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/agent-teams</a> — 멀티 세션 협업(experimental)</span></div></li>
+      <li><div>Agent SDK 서브에이전트<span class="sub"><a class="link" href="https://platform.claude.com/docs/en/agent-sdk/subagents" target="_blank" rel="noopener noreferrer">https://platform.claude.com/docs/en/agent-sdk/subagents</a> — SDK 서브에이전트</span></div></li>
+      <li><div>Dynamic Workflows 발표<span class="sub"><a class="link" href="https://claude.com/blog/introducing-dynamic-workflows-in-claude-code" target="_blank" rel="noopener noreferrer">https://claude.com/blog/introducing-dynamic-workflows-in-claude-code</a> — 공식 블로그</span></div></li>
+      <li><div>서브에이전트 사용법<span class="sub"><a class="link" href="https://claude.com/blog/subagents-in-claude-code" target="_blank" rel="noopener noreferrer">https://claude.com/blog/subagents-in-claude-code</a> — 공식 블로그</span></div></li>
+    </ul>
+    
+  </div>
+  <div class="slide-footer">
+    <span class="slide-footer-left" data-slot="caption">참고 자료</span>
+    <span class="slide-footer-right" data-slot="page-num">REF</span>
+  </div>
+</div>
+</div>
+</section>
+<div class="export-nav" id="export-nav">1 / 41 · ↑ ↓ · P = Print</div>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
+  var nav = document.getElementById('export-nav');
+  function fitAll() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var s = Math.min(w / 1280, h / 720) * 0.96;
+    slides.forEach(function(sec){
+      var stage = sec.querySelector('.export-stage');
+      if (stage) stage.style.transform = 'scale(' + s + ')';
+    });
+  }
+  function currentIndex() {
+    var mid = window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      var r = slides[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return i;
+    }
+    return 0;
+  }
+  function updateNav() {
+    nav.textContent = (currentIndex() + 1) + ' / ' + slides.length + ' · \u2191 \u2193 · P = Print';
+  }
+  function goTo(n) {
+    if (n < 0) n = 0;
+    if (n > slides.length - 1) n = slides.length - 1;
+    slides[n].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.addEventListener('resize', fitAll);
+  window.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goTo(currentIndex() + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(currentIndex() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(slides.length - 1); }
+    else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); window.print(); }
+  });
+  fitAll();
+  updateNav();
+  if (window.location.hash === '#print') {
+    // Give fonts/layout a tick to settle before invoking the print dialog.
+    setTimeout(function(){ window.print(); }, 300);
+  }
+})();
+</script>
+</body>
+</html>

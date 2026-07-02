@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A1-IMG-1 · 검색 명령어 비교</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">검색 명령어 비교</h1>
+  <p class="subtitle">무엇을 · 어떻게 찾는지 · 언제 쓰나</p>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th style="width:140px">명령어</th>
+        <th style="width:180px">찾는 대상</th>
+        <th style="width:230px">속도/특징</th>
+        <th class="mono" style="width:180px">대표 옵션</th>
+        <th>언제 쓰나</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono teal bold">grep</td>
+        <td>파일 안 내용</td>
+        <td>표준 · 어디에나 있음</td>
+        <td class="mono">-rn -i -C</td>
+        <td>에러 메시지 위치 찾기</td>
+      </tr>
+      <tr>
+        <td class="mono teal bold">rg</td>
+        <td>파일 안 내용</td>
+        <td>빠름 · .gitignore 무시</td>
+        <td class="mono">--type</td>
+        <td>node_modules 빼고 코드 검색</td>
+      </tr>
+      <tr>
+        <td class="mono teal bold">find</td>
+        <td>파일 이름</td>
+        <td>이름 기준</td>
+        <td class="mono">-name</td>
+        <td>“그 설정파일 어디 있지?”</td>
+      </tr>
+      <tr>
+        <td class="mono teal bold">tree</td>
+        <td>폴더 구조</td>
+        <td>트리 형태 출력</td>
+        <td class="mono">-L -I</td>
+        <td>프로젝트 구조 클로드에 보여주기</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

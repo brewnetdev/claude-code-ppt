@@ -146,14 +146,13 @@ export function countSlides(html: string): number {
 // grid — Level 1~10 grouped by the 6-stage learning journey, mirroring the
 // curriculum report's "세부 주제와 프로젝트 설명" table (page 03).
 //
-// `deckId` points at an existing chapter deck (docs/html/report/*.html). The
-// new level numbering does NOT match the on-disk file numbering, so the mapping
-// is by TOPIC, not by filename:
-//   - L7 (빌드·배포·서비스 론칭)  → claude-code-level8-chapter8 ("배포 & 셀프호스팅")
-//   - L9 (하네스 엔지니어링)       → claude-code-level7-chapter7 ("하네스·베스트 프렉티스")
-// Levels with no dedicated 발표자료 (L8 베스트 프렉티스, L10 딥 다이브) omit
-// `deckId` and render as a non-clickable list entry. We intentionally do NOT
-// edit any deck's internal content — only this outline + the library view.
+// `deckId` points at a chapter deck (docs/html/report/*.html). After the
+// 2026-06 curriculum renumber the on-disk files are 1:1 with the new level
+// numbering (level2-chapter2 = L2, … level9-chapter9 = L9), so deckId == file
+// stem — no topic indirection. The old LEVEL 2 was split into L2 (협업 원칙 +
+// /init·CLAUDE.md) and L3 (증강코딩·TDD·SDD·실습); everything from the old L3
+// shifted +1; 베스트 프렉티스 folded into L9 (하네스 합본). Levels with no
+// dedicated 발표 덱 (L10 딥 다이브, L11 Local LLM) omit `deckId`.
 export type CourseLevel = {
   level: number;
   label: string;
@@ -185,14 +184,20 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       {
         level: 2,
         label: 'AI 시대 개발 방법론',
-        topic: 'AI 시대의 개발 방법론, 기본 프로젝트 세팅',
+        topic: '설계·쪼개기·명확한 지시·리뷰 · /init·CLAUDE.md 프로젝트 설정',
         deckId: 'claude-code-level2-chapter2',
       },
       {
         level: 3,
-        label: '프롬프트·컨텍스트 · 스킬·커맨드·Hook·MCP',
-        topic: 'CLAUDE.md, 슬래시 커맨드, Skill·Hook·MCP',
+        label: 'TDD · SDD(SpecKit) 워크플로우',
+        topic: '증강코딩·TDD·SDD·프로젝트 구조·Git · 32 UI 컴포넌트 실습',
         deckId: 'claude-code-level3-chapter3',
+      },
+      {
+        level: 4,
+        label: '스킬·커맨드·Hook·MCP·컨텍스트',
+        topic: '프롬프트·컨텍스트, CLAUDE.md, 슬래시 커맨드, Skill·Hook·MCP',
+        deckId: 'claude-code-level4-chapter4',
       },
     ],
   },
@@ -200,15 +205,9 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     name: '개발',
     levels: [
       {
-        level: 4,
-        label: '실전 워크플로우',
-        topic: 'TDD·SDD·증강코딩, 디버깅·리팩토링·플러그인',
-        deckId: 'claude-code-level4-chapter4',
-      },
-      {
         level: 5,
-        label: '프론트엔드 고도화',
-        topic: '디자인 시스템·컴포넌트·검증',
+        label: '실전 워크플로우',
+        topic: '기획·명세·SDD 풀스택, 디버깅·리팩토링·플러그인',
         deckId: 'claude-code-level5-chapter5',
       },
     ],
@@ -218,25 +217,9 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     levels: [
       {
         level: 6,
-        label: '토큰 제어 · 보안 · SEO',
-        topic: '토큰 절약, 보안 점검, SEO',
-        deckId: 'claude-code-level6-chapter6',
-      },
-      {
-        level: 7,
-        label: '빌드·배포 · 서비스 론칭',
-        topic: 'Vercel·Railway·Cloudflare 실서비스 론칭',
-        deckId: 'claude-code-level8-chapter8',
-      },
-    ],
-  },
-  {
-    name: '자동화 · 활용',
-    levels: [
-      {
-        level: 8,
-        label: '클로드 코드 베스트 프렉티스',
-        topic: '자율 운용·자동화 베스트 프렉티스',
+        label: '빌드, 배포, 서비스 운영',
+        topic: 'CI/CD·Vercel·Railway·Cloudflare 셀프호스팅·보안 점검·구글/네이버 검색 등록',
+        deckId: 'claude-code-level7-chapter7',
       },
     ],
   },
@@ -244,15 +227,26 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
     name: '고급',
     levels: [
       {
+        level: 7,
+        label: '멀티 에이전트 & 워크플로우 오케스트레이션',
+        topic: '서브에이전트 · Dynamic Workflows · Agent Teams · 선택 기준 · CI/CD 자동화',
+        deckId: 'claude-code-level7-subagent',
+      },
+      {
+        level: 8,
+        label: '하네스 엔지니어링 · 베스트 프렉티스',
+        topic: '하네스 이론·오픈소스 케이스·10단계 적용 가이드·자율 운용',
+        deckId: 'claude-code-level9-chapter9',
+      },
+      {
         level: 9,
-        label: '하네스 엔지니어링',
-        topic: '서브에이전트·하네스 엔지니어링',
-        deckId: 'claude-code-level7-chapter7',
+        label: '클로드 코드 딥 다이브',
+        topic: '에이전트 내부 동작·소스 분석',
       },
       {
         level: 10,
-        label: '클로드 코드 딥 다이브',
-        topic: '에이전트 내부 동작·소스 분석',
+        label: 'Local LLM 설치와 활용',
+        topic: '로컬 LLM·Ollama·Qwen·Gemma 활용',
       },
     ],
   },

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A2-IMG-3 · 상황 → 명령 빠른 참조</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+<style>
+  table.cmp.map { font-size: 16px; table-layout: fixed; }
+  table.cmp.map th, table.cmp.map td { padding: 10px 16px; }
+  table.cmp.map thead th { font-size: 15px; }
+  table.cmp.map td.situ { width: 38%; }
+  table.cmp.map td.cmd { width: 62%; font-family: 'JetBrains Mono', monospace; font-size: 15px; }
+  table.cmp.map td.situ.key { color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="frame" style="padding:48px 64px">
+  <h1 class="title">상황 → 명령 빠른 참조</h1>
+  <p class="subtitle">하고 싶은 일(좌) → 써야 할 명령(우)</p>
+
+  <table class="cmp map">
+    <thead>
+      <tr>
+        <th style="width:38%">하고 싶은 일</th>
+        <th style="width:62%">명령</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="situ">파일 수정 되돌리기 (add 전)</td>
+        <td class="cmd">git restore &lt;file&gt;</td>
+      </tr>
+      <tr>
+        <td class="situ">add 취소</td>
+        <td class="cmd">git restore --staged &lt;file&gt;</td>
+      </tr>
+      <tr>
+        <td class="situ">마지막 커밋 메시지 수정</td>
+        <td class="cmd">git commit --amend -m "..."</td>
+      </tr>
+      <tr>
+        <td class="situ">push 전 커밋 취소</td>
+        <td class="cmd">git reset --soft|mixed|hard HEAD~1</td>
+      </tr>
+      <tr>
+        <td class="situ key">push한 커밋 되돌리기 (협업)</td>
+        <td class="cmd">git revert &lt;commit&gt; &amp;&amp; git push</td>
+      </tr>
+      <tr>
+        <td class="situ">개인 브랜치 정리</td>
+        <td class="cmd">git reset --hard &lt;commit&gt; &amp;&amp; git push --force-with-lease</td>
+      </tr>
+      <tr>
+        <td class="situ">날린 커밋 복구</td>
+        <td class="cmd">git reflog &amp;&amp; git reset --hard &lt;hash&gt;</td>
+      </tr>
+      <tr>
+        <td class="situ">머지 중단 (진행 중)</td>
+        <td class="cmd">git merge --abort</td>
+      </tr>
+      <tr>
+        <td class="situ">머지 취소 (push 전 / 후)</td>
+        <td class="cmd">git reset --hard ORIG_HEAD&nbsp;&nbsp;/&nbsp;&nbsp;git revert -m 1 &lt;merge&gt;</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── intro band (drift) ── */
+  .intro {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .intro .lbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #B91C1C;
+    border: 1px solid #B91C1C;
+    border-radius: 6px;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+  .intro .txt { font-size: 22px; line-height: 1.32; color: #1A1A18; }
+  .intro .txt .em { font-weight: 700; color: #B91C1C; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── main two columns ── */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1.18fr;
+    gap: 18px;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .block {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 15px 18px;
+  }
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .block-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.12; }
+  .badge {
+    flex: none;
+    padding: 6px 13px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.teal { color: #0F766E; border-color: #115E59; }
+  .badge.info { color: #1E3A8A; border-color: #1E3A8A; }
+
+  /* version header code card */
+  pre.yaml {
+    flex: 1;
+    min-height: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.42;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: hidden;
+  }
+  pre.yaml .cm { color: #6B6560; }
+  pre.yaml .dl { color: #6B6560; }
+  pre.yaml .key { color: #1E3A8A; font-weight: 600; }
+  pre.yaml .val { color: #047857; }
+  pre.yaml .li { color: #1A1A18; }
+
+  /* workflow steps */
+  .promptbox {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+  }
+  .promptbox .ph {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #1E3A8A;
+    margin-bottom: 5px;
+  }
+  .promptbox .pt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.32;
+    color: #1A1A18;
+  }
+  .promptbox .pt .mut { color: #6B6560; }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+    justify-content: space-between;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 9px 14px;
+    flex: 1;
+  }
+  .step .num {
+    flex: none;
+    width: 40px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1.18;
+  }
+  .step .sb { min-width: 0; }
+  .step .st { font-size: 22px; font-weight: 700; color: #1A1A18; line-height: 1.22; }
+  .step .sd { font-size: 20px; color: #6B6560; line-height: 1.26; margin-top: 2px; }
+  .step .sd .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #1A1A18; }
+
+  /* ── agent cross-check band ── */
+  .agent {
+    border: 1px solid #115E59;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .agent .lbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #0F766E;
+    border: 1px solid #115E59;
+    border-radius: 6px;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+  .agent .txt { font-size: 22px; line-height: 1.34; color: #1A1A18; }
+  .agent .txt .em { font-weight: 700; color: #047857; }
+
+  /* ── source callout ── */
+  .callout {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 13px 16px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #7C4A02;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  .callout .ctext .em { color: #1A1A18; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- intro: spec drift problem -->
+    <div class="intro">
+      <span class="lbl">SPEC DRIFT</span>
+      <span class="txt">개발이 진행되면서 요구사항은 변경된다. 체계 없이 두면 코드와 명세가 어긋나는 <span class="em">Spec Drift</span>가 누적된다.</span>
+    </div>
+
+    <!-- main: version header | change workflow -->
+    <div class="cols">
+
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">버전 헤더</span>
+          <span class="badge info">REQUIREMENTS.md</span>
+        </div>
+<pre class="yaml"><span class="cm"># REQUIREMENTS.md 헤더</span>
+<span class="dl">---</span>
+<span class="key">version</span><span class="dl">:</span> <span class="val">1.2.0</span>
+<span class="key">last_updated</span><span class="dl">:</span> <span class="val">2025-10-15</span>
+<span class="key">changed_by</span><span class="dl">:</span> <span class="val">claude-code</span>
+<span class="key">changes</span><span class="dl">:</span>
+<span class="dl">-</span> <span class="li">FR-007: 태그 최대 30개 제한</span>
+<span class="dl">-</span> <span class="li">FR-004: 버전 10개로 변경</span>
+<span class="dl">---</span></pre>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">변경 워크플로</span>
+          <span class="badge teal">WORKFLOW</span>
+        </div>
+        <div class="promptbox">
+          <div class="ph">PROMPT</div>
+          <div class="pt">FR-007 태그를 변경:<br>- 문서당 최대 태그 10개<br>- 변경 이유: DB 인덱스 성능<br><span class="mut">이후:</span></div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <span class="num">1</span>
+            <span class="sb">
+              <span class="st">영향 항목 함께 업데이트</span>
+              <span class="sd"><span class="mono">API_SPEC.md</span>, <span class="mono">DATA_MODEL.md</span></span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <span class="sb">
+              <span class="st">변경 이력 기록</span>
+              <span class="sd"><span class="mono">REQUIREMENTS.md</span> 변경 이력 기록</span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <span class="sb">
+              <span class="st">기존 코드 수정 보고</span>
+              <span class="sd">기존 코드의 수정 필요 부분 보고</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- agent cross-check -->
+    <div class="agent">
+      <span class="lbl">Agent 크로스 체크</span>
+      <span class="txt">AI 편향성을 제거하고 누락된 부분을 점검한 뒤 구현. 문서의 버전은 바뀔 때마다 <span class="em">증가시켜 추적</span>한다.</span>
+    </div>
+
+    <!-- source -->
+    <div class="callout">
+      <span class="clbl">출처</span>
+      <span class="ctext"><span class="em">4.2.4 명세 변경 관리와 버전 추적</span></span>
+    </div>
+
+  </div>
+</body>
+</html>

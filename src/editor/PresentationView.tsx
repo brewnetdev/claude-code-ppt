@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
+import { linkifyHtml } from '../exporter/linkify';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
+import { PresentationAnnotator } from './PresentationAnnotator';
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',
@@ -107,6 +109,14 @@ export function PresentationView({ onExit }: Props) {
   }, [onExit]);
 
   const slide = slides[currentIndex];
+  // Reuse the export pipeline's linkifier so bare `https://…` text becomes
+  // real anchors here too (the editor DOM is intentionally left un-linkified).
+  // Existing <a> tags also get target/rel stamped. The capture-phase click
+  // handler above then opens every resulting anchor in a new tab.
+  const slideHtml = useMemo(
+    () => (slide ? linkifyHtml(slide.html, document) : ''),
+    [slide],
+  );
   if (!slide) return null;
   const overlays = overlaysBySlide[slide.id] ?? [];
 
@@ -132,19 +142,22 @@ export function PresentationView({ onExit }: Props) {
         <div
           className="slide-canvas-host"
           style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT, position: 'relative' }}
-          dangerouslySetInnerHTML={{ __html: slide.html }}
+          dangerouslySetInnerHTML={{ __html: slideHtml }}
         />
         <PresentationOverlays overlays={overlays} />
       </div>
 
-      <div className="fixed bottom-4 right-6 select-none rounded bg-black/60 px-3 py-1 font-mono text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:opacity-100">
+      <div className="fixed bottom-4 right-6 z-[2200] select-none rounded bg-black/60 px-3 py-1 font-mono text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:opacity-100">
         {currentIndex + 1} / {slides.length} · ← → 이동 · Esc 종료
       </div>
 
+      {/* Moved to top-left so it never collides with the annotation toolbar
+          (which owns the top-right corner). z-[2200] keeps it clickable above
+          the annotator's full-screen drawing surface (z 2100). */}
       <button
         type="button"
         onClick={onExit}
-        className="fixed top-4 right-4 rounded border border-white/30 bg-black/60 px-3 py-1 text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:bg-white/10 hover:opacity-100"
+        className="fixed top-4 left-4 z-[2200] rounded border border-white/30 bg-black/60 px-3 py-1 text-xs text-white/80 opacity-0 transition-opacity duration-200 hover:bg-white/10 hover:opacity-100"
         title="Exit presentation (Esc)"
       >
         ✕ 종료
@@ -154,7 +167,7 @@ export function PresentationView({ onExit }: Props) {
         <button
           type="button"
           onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-          className="fixed left-4 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-white/70 transition hover:bg-white/10"
+          className="fixed left-4 top-1/2 z-[2200] -translate-y-1/2 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-white/70 transition hover:bg-white/10"
           aria-label="Previous slide"
         >
           ‹
@@ -164,12 +177,14 @@ export function PresentationView({ onExit }: Props) {
         <button
           type="button"
           onClick={() => setCurrentIndex(Math.min(slides.length - 1, currentIndex + 1))}
-          className="fixed right-4 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-white/70 transition hover:bg-white/10"
+          className="fixed right-4 top-1/2 z-[2200] -translate-y-1/2 rounded-full border border-white/20 bg-black/60 px-3 py-2 text-white/70 transition hover:bg-white/10"
           aria-label="Next slide"
         >
           ›
         </button>
       ) : null}
+
+      <PresentationAnnotator />
     </div>
   );
 }

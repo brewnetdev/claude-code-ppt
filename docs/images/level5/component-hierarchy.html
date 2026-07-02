@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
+  }
+  .block { display: flex; flex-direction: column; min-height: 0; }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+    min-height: 40px;
+  }
+  .block-title { font-size: 30px; font-weight: 800; color: #1A1A18; line-height: 1.1; }
+  .badge {
+    flex: none;
+    padding: 6px 13px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge.teal { color: #0F766E; border-color: #115E59; }
+  .badge.info { color: #1E3A8A; border-color: #1E3A8A; }
+
+  /* ── component tree panel (left) ── */
+  .tree-panel {
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FAFAF8;
+    padding: 20px 22px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+  }
+  pre.tree {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.62;
+    color: #1A1A18;
+    white-space: pre;
+    overflow: hidden;
+  }
+  pre.tree .root { font-weight: 700; color: #1E3A8A; }
+  pre.tree .comp { font-weight: 700; color: #0F766E; }
+  pre.tree .note { color: #6B6560; }
+  pre.tree .gl { color: #6B6560; }
+
+  /* ── table (settings_json_key_reference style) ── */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.tbl col.c-name { width: 250px; }
+  thead th {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    padding: 0 10px 10px 10px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: bottom;
+  }
+  tbody td {
+    font-size: 22px;
+    line-height: 1.28;
+    color: #1A1A18;
+    padding: 14px 10px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.tname {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 21px;
+    color: #0F766E;
+    line-height: 1.25;
+  }
+  td.tdesc { color: #1A1A18; font-weight: 400; }
+  td.tdesc .props {
+    display: block;
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #1E3A8A;
+  }
+
+  /* ── bottom full-width callout (source) ── */
+  .callout {
+    margin-top: 18px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 13px 18px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.36;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: component tree -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">컴포넌트 트리</span>
+          <span class="badge info">layout.tsx</span>
+        </div>
+        <div class="tree-panel">
+<pre class="tree"><span class="root">App</span> <span class="note">(layout.tsx)</span>
+└─ <span class="comp">WorkspaceLayout</span>
+   ├─ <span class="comp">Sidebar</span>
+   │  ├─ <span class="comp">WorkspaceSelector</span>
+   │  ├─ <span class="comp">CategoryTree</span> <span class="note">(재귀 트리)</span>
+   │  └─ <span class="comp">DocumentList</span>
+   └─ <span class="comp">MainContent</span>
+      ├─ <span class="comp">DocumentEditor</span>
+      │  ├─ <span class="comp">@markflow/editor</span> <span class="note">(CM6)</span>
+      │  └─ <span class="comp">MarkdownPreview</span>
+      ├─ <span class="comp">DocumentViewer</span>
+      │  ├─ <span class="comp">DocumentMeta</span>
+      │  └─ <span class="comp">RelatedDocuments</span>
+      └─ <span class="comp">VersionHistory</span> <span class="note">(모달)</span></pre>
+        </div>
+      </section>
+
+      <!-- RIGHT: core component spec table -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-title">핵심 컴포넌트 명세</span>
+          <span class="badge teal">COMPONENT</span>
+        </div>
+        <table class="tbl">
+          <colgroup><col class="c-name"><col></colgroup>
+          <thead>
+            <tr><th>컴포넌트</th><th>책임 / 핵심 Props</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tname">CategoryTree</td>
+              <td class="tdesc">Closure Table 기반 계층 트리<span class="props">categories, onSelect</span></td>
+            </tr>
+            <tr>
+              <td class="tname">DocumentEditor</td>
+              <td class="tdesc">제목·본문·자동 저장<span class="props">document, onSave</span></td>
+            </tr>
+            <tr>
+              <td class="tname">VersionHistory</td>
+              <td class="tdesc">버전 목록·복원 모달<span class="props">documentId, onRestore</span></td>
+            </tr>
+            <tr>
+              <td class="tname">RelatedDocuments</td>
+              <td class="tdesc">연관 문서 링크<span class="props">relations</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM full-width callout (source) -->
+    <div class="callout">
+      <span class="clbl">출처</span>
+      <span class="ctext">4.3.3 COMPONENT DESIGN — 컴포넌트 및 UseCase 설계 · 컴포넌트 계층과 핵심 명세</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="Noto Sans KR, system-ui, sans-serif">
+  <!-- Background: dark slate (matches deck --bg #0F172A) -->
+  <rect x="0" y="0" width="1280" height="720" fill="#0F172A"/>
+
+  <!-- Top accent bar (anti-slop: solid amber, no gradient in wireframe) -->
+  <rect x="0" y="0" width="1280" height="4" fill="#F59E0B"/>
+
+  <!-- Slide-inner padding box (56/72/48/72) -->
+  <g transform="translate(72,56)">
+    <!-- t-chapter label -->
+    <line x1="0" y1="10" x2="20" y2="10" stroke="#F59E0B" stroke-width="2"/>
+    <text x="28" y="14" fill="#F59E0B" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">LEVEL 3 · TOOLING</text>
+
+    <!-- t-title -->
+    <text x="0" y="58" fill="#F1F5F9" font-size="36" font-weight="700" letter-spacing="-0.5">미리 설치해야 할 플러그인 3종</text>
+
+    <!-- t-caption -->
+    <text x="0" y="92" fill="#94A3B8" font-size="14">실습 시작 전, 토큰을 아끼고 상태를 한눈에 보고 코드를 정확히 탐색하기 위한 사전 도구</text>
+
+    <!-- 3 cards grid (3 columns × 1 row), gap 18, total width 1280-144=1136 -->
+    <!-- Card width: (1136 - 2*18) / 3 ≈ 366.7. Use 366. -->
+    <g transform="translate(0,118)">
+
+      <!-- Card 1: caveman -->
+      <g transform="translate(0,0)">
+        <rect x="0" y="0" width="366" height="466" fill="#0F172A" stroke="#1E293B" stroke-width="1" rx="8"/>
+        <!-- top label row -->
+        <text x="20" y="36" fill="#F59E0B" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">01 · TOKEN SAVER</text>
+        <!-- name -->
+        <text x="20" y="74" fill="#F1F5F9" font-size="26" font-weight="700">caveman</text>
+        <!-- role one-liner -->
+        <text x="20" y="106" fill="#F1F5F9" font-size="13" font-weight="500">출력 토큰을 ~75% 줄이는</text>
+        <text x="20" y="124" fill="#F1F5F9" font-size="13" font-weight="500">초압축 응답 스킬</text>
+        <!-- divider -->
+        <line x1="20" y1="142" x2="346" y2="142" stroke="#1E293B" stroke-width="1"/>
+
+        <!-- WHAT subhead -->
+        <text x="20" y="166" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">WHAT</text>
+        <!-- bullets -->
+        <text x="20" y="190" fill="#F1F5F9" font-size="13">· 필러 단어 제거, 기술 정확도 유지</text>
+        <text x="20" y="210" fill="#F1F5F9" font-size="13">· lite / full / ultra / wenyan 단계 선택</text>
+        <text x="20" y="230" fill="#F1F5F9" font-size="13">· /caveman-commit, /caveman-review 보조</text>
+
+        <!-- INSTALL subhead -->
+        <text x="20" y="266" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">INSTALL · macOS / Linux</text>
+        <!-- code box -->
+        <rect x="20" y="276" width="326" height="58" fill="#1E293B" stroke="#334155" stroke-width="1" rx="4"/>
+        <text x="32" y="296" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">curl -fsSL https://raw.</text>
+        <text x="32" y="312" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">githubusercontent.com/Julius</text>
+        <text x="32" y="328" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">Brussee/caveman/main/install.sh | bash</text>
+
+        <!-- trigger -->
+        <text x="20" y="368" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">TRIGGER</text>
+        <text x="20" y="392" fill="#F1F5F9" font-size="13" font-family="JetBrains Mono, monospace">/caveman  ·  /caveman-stats</text>
+
+        <!-- footer URL -->
+        <text x="20" y="442" fill="#60A5FA" font-size="11" font-family="JetBrains Mono, monospace">github.com/JuliusBrussee/caveman</text>
+      </g>
+
+      <!-- Card 2: claude-hud -->
+      <g transform="translate(384,0)">
+        <rect x="0" y="0" width="366" height="466" fill="#0F172A" stroke="#1E293B" stroke-width="1" rx="8"/>
+        <text x="20" y="36" fill="#F59E0B" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">02 · STATUS MONITOR</text>
+        <text x="20" y="74" fill="#F1F5F9" font-size="26" font-weight="700">claude-hud</text>
+        <text x="20" y="106" fill="#F1F5F9" font-size="13" font-weight="500">컨텍스트·도구·에이전트·할일을</text>
+        <text x="20" y="124" fill="#F1F5F9" font-size="13" font-weight="500">상태표시줄에 항상 노출</text>
+        <line x1="20" y1="142" x2="346" y2="142" stroke="#1E293B" stroke-width="1"/>
+
+        <text x="20" y="166" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">WHAT</text>
+        <text x="20" y="190" fill="#F1F5F9" font-size="13">· 컨텍스트 사용량 시각 게이지</text>
+        <text x="20" y="210" fill="#F1F5F9" font-size="13">· 실행 중인 도구·서브에이전트 추적</text>
+        <text x="20" y="230" fill="#F1F5F9" font-size="13">· 토큰 데이터는 네이티브(추정 X)</text>
+
+        <text x="20" y="266" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">INSTALL · in Claude Code</text>
+        <rect x="20" y="276" width="326" height="58" fill="#1E293B" stroke="#334155" stroke-width="1" rx="4"/>
+        <text x="32" y="296" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">/plugin marketplace add</text>
+        <text x="32" y="312" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">  jarrodwatts/claude-hud</text>
+        <text x="32" y="328" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">/plugin install claude-hud</text>
+
+        <text x="20" y="368" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">SETUP</text>
+        <text x="20" y="392" fill="#F1F5F9" font-size="13" font-family="JetBrains Mono, monospace">/claude-hud:setup  →  재시작</text>
+
+        <text x="20" y="442" fill="#60A5FA" font-size="11" font-family="JetBrains Mono, monospace">github.com/jarrodwatts/claude-hud</text>
+      </g>
+
+      <!-- Card 3: LSP -->
+      <g transform="translate(768,0)">
+        <rect x="0" y="0" width="366" height="466" fill="#0F172A" stroke="#1E293B" stroke-width="1" rx="8"/>
+        <text x="20" y="36" fill="#F59E0B" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">03 · CODE INTELLIGENCE</text>
+        <text x="20" y="74" fill="#F1F5F9" font-size="26" font-weight="700">LSP (cclsp / vtsls)</text>
+        <text x="20" y="106" fill="#F1F5F9" font-size="13" font-weight="500">정확한 참조·정의·타입 진단으로</text>
+        <text x="20" y="124" fill="#F1F5F9" font-size="13" font-weight="500">grep 대비 토큰 ~75% 절감</text>
+        <line x1="20" y1="142" x2="346" y2="142" stroke="#1E293B" stroke-width="1"/>
+
+        <text x="20" y="166" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">WHAT</text>
+        <text x="20" y="190" fill="#F1F5F9" font-size="13">· findReferences · goToDefinition</text>
+        <text x="20" y="210" fill="#F1F5F9" font-size="13">· documentSymbol · hover</text>
+        <text x="20" y="230" fill="#F1F5F9" font-size="13">· getDiagnostics — 빌드 없이 타입 검증</text>
+
+        <text x="20" y="266" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">INSTALL · MCP (default)</text>
+        <rect x="20" y="276" width="326" height="58" fill="#1E293B" stroke="#334155" stroke-width="1" rx="4"/>
+        <text x="32" y="296" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">cclsp 등록 (.claude/settings.json)</text>
+        <text x="32" y="312" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">  command: npx  args: cclsp@latest</text>
+        <text x="32" y="328" fill="#E5E7EB" font-size="11" font-family="JetBrains Mono, monospace">언어서버는 carve가 자동 탐지</text>
+
+        <text x="20" y="368" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="2" font-family="JetBrains Mono, monospace">UPGRADE (선택)</text>
+        <text x="20" y="392" fill="#F1F5F9" font-size="13" font-family="JetBrains Mono, monospace">/plugin install vtsls@claude-code-lsps</text>
+
+        <text x="20" y="442" fill="#60A5FA" font-size="11" font-family="JetBrains Mono, monospace">.claude/skills/lsp/SKILL.md</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Footer placeholders -->
+  <text x="72" y="700" fill="#94A3B8" font-size="11" font-family="JetBrains Mono, monospace">실습 시작 전 사전 설치 — caveman · claude-hud · LSP</text>
+  <text x="1208" y="700" fill="#94A3B8" font-size="11" font-family="JetBrains Mono, monospace" text-anchor="end">04</text>
+</svg>

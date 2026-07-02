@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Moveable, { type OnDrag, type OnResize } from 'moveable';
 import { useDeckStore } from '../scene/store';
+import { usePendingFlush } from '../scene/pendingCommit';
 import { linkifyHtml } from '../exporter/linkify';
 import { tryAutoLinkOnSpace } from './autoLinkUrl';
 
@@ -276,21 +277,7 @@ function TextOverlayBox({
     }, COMMIT_DEBOUNCE_MS);
   };
 
-  // Drain any pending debounce on unmount (selection change, undo remount,
-  // overlay deletion) so the latest text reaches the store before the DOM
-  // disappears.
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-        timerRef.current = null;
-        flush();
-      }
-    };
-    // flush closes over editableRef + onUpdate which are stable enough; we
-    // intentionally only run cleanup on unmount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  usePendingFlush(timerRef, flush);
 
   return (
     <div

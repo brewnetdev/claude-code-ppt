@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.tbl col.c-tech { width: 244px; }
+  table.tbl col.c-def  { width: 552px; }
+  table.tbl col.c-app  { width: 396px; }
+
+  thead th {
+    text-align: left;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 16px 14px 16px;
+    border-bottom: 2px solid #D4D0C8;
+    vertical-align: bottom;
+  }
+  tbody td {
+    padding: 8px 16px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 22px;
+    line-height: 1.4;
+    color: #1A1A18;
+  }
+  tbody tr:last-child td { border-bottom: 1px solid #D4D0C8; }
+
+  .tech {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #0F766E;
+    letter-spacing: -0.01em;
+  }
+  .def { color: #1A1A18; }
+  .app { color: #1A1A18; }
+
+  /* situational guidance pill: plain box, uniform 1px border, no side rail */
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 18px;
+    color: #115E59;
+    background: #FFFFFF;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 12px;
+    margin-bottom: 4px;
+  }
+  .cond {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #4A453F;
+  }
+
+  .callout {
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    background: #FAF3E6;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.5;
+    font-weight: 500;
+    padding: 18px 26px;
+  }
+  .callout b { font-weight: 700; color: #7C4A02; }
+  .callout .k { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="tbl">
+      <colgroup>
+        <col class="c-tech">
+        <col class="c-def">
+        <col class="c-app">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>기법</th>
+          <th>정의</th>
+          <th>상황별 적용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tech">Zero-shot</span></td>
+          <td class="def">예시 없이 지시만 전달 — 단순·표준 작업</td>
+          <td class="app">
+            <span class="pill">Zero-shot</span>
+            <div class="cond">단순 변환 · 표준 질의</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="tech">Few-shot</span></td>
+          <td class="def">입출력 예시 1~5개 동봉 — 도메인 포맷·톤 학습</td>
+          <td class="app">
+            <span class="pill">Few-shot</span>
+            <div class="cond">결과 형식이 까다로움 (도메인 포맷)</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="tech">Chain-of-Thought</span></td>
+          <td class="def">"단계별로 생각해" — 추론 과정을 명시적으로 유도, 다단계 추론, 디버깅</td>
+          <td class="app">
+            <span class="pill">CoT + Role</span>
+            <div class="cond">"왜 그렇게 결정했는지"가 필요</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="tech">Role Prompting</span></td>
+          <td class="def">역할 부여 ("시니어 보안 리뷰어로서 …")</td>
+          <td class="app">
+            <span class="pill">CoT + Role</span>
+            <div class="cond">"왜 그렇게 결정했는지"가 필요</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="tech">Constraint</span></td>
+          <td class="def">제약 조건 명시 (길이·언어·라이브러리)</td>
+          <td class="app">
+            <span class="pill">Constraint</span>
+            <div class="cond">출력에 강한 제약 (길이·언어·라이브러리)</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="tech">Step-by-Step</span></td>
+          <td class="def">큰 작업을 명시적 단계로 쪼개기 — 복잡한 기능 구현</td>
+          <td class="app">
+            <span class="pill">Step-by-Step Decomposition</span>
+            <div class="cond">한 번에 다 못 풀 만큼 큰 작업</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>실무 권장</b> &nbsp;작업 난이도에 맞춰 <b>2~3개를 조합</b> — 무겁게 다 쓰지 말 것. 단순 작업에 6개를 모두 적용하면 오히려 노이즈가 된다.
+    </div>
+  </div>
+</body>
+</html>

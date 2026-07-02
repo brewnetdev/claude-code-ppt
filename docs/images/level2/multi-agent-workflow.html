@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --code-bg: #F5F3F0;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: transparent; }
+  body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 22px 34px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── Top: 4-step cross-validation flow ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .step {
+    flex: 1;
+    border: 1px solid var(--line);
+    background: #FFFFFF;
+    padding: 12px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 27px;
+    line-height: 1;
+    color: #FFFFFF;
+    background: var(--teal);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--teal-deep);
+    flex-shrink: 0;
+  }
+  .step-stage {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+    word-break: keep-all;
+  }
+  .step-tool {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    align-self: flex-start;
+    padding: 5px 10px;
+    border: 1px solid;
+  }
+  .tool-free { color: var(--blue); border-color: var(--blue); }
+  .tool-min  { color: var(--teal-deep); border-color: var(--teal-deep); }
+  .tool-cost { color: var(--red); border-color: var(--red); }
+  .step-prompt {
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink);
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    padding: 8px 11px;
+    margin-top: auto;
+    word-break: keep-all;
+  }
+
+  .arrow {
+    width: 46px;
+    flex-shrink: 0;
+    position: relative;
+    align-self: center;
+  }
+  .arrow-line { height: 1px; background: #C5C2BC; width: 100%; }
+  .arrow-head {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 15px solid var(--teal);
+  }
+
+  /* ── Bottom: rationale (left) + 6 methods grid (right) ── */
+  .lower {
+    display: grid;
+    grid-template-columns: 442px 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+  }
+  .panel {
+    border: 1px solid var(--line);
+    background: #FFFFFF;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+    color: var(--teal-deep);
+    border: 1px solid var(--teal-deep);
+    padding: 6px 12px;
+    align-self: flex-start;
+    margin-bottom: 12px;
+  }
+  .why-text {
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--ink);
+    font-weight: 500;
+    word-break: keep-all;
+  }
+  .why-text b { color: var(--red); font-weight: 700; }
+  .quote {
+    margin-top: auto;
+    border: 1px solid var(--line);
+    background: var(--code-bg);
+    padding: 12px 16px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink);
+    font-weight: 500;
+    word-break: keep-all;
+  }
+  .quote b { color: var(--green); font-weight: 700; }
+
+  /* methods grid */
+  .methods {
+    border: 1px solid var(--line);
+    background: #FFFFFF;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .methods-head {
+    font-family: var(--sans);
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+  }
+  .method {
+    border: 1px solid var(--line);
+    background: transparent;
+    padding: 6px 13px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .m-num {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--teal-deep);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .m-text {
+    font-size: 18px;
+    line-height: 1.25;
+    color: var(--ink);
+    font-weight: 600;
+    word-break: keep-all;
+  }
+  .m-text code {
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--teal-deep);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <!-- TOP: cross-validation 4-step flow -->
+  <div class="flow">
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">1</div>
+        <div class="step-stage">아이디어 정리</div>
+      </div>
+      <div class="step-tool tool-free">Gemini · 무료</div>
+      <div class="step-prompt">"온프레미스 TODO 앱을 만들려고 해. 어떤 요소들을 고려해야 할까?"</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">2</div>
+        <div class="step-stage">설계 문서 초안</div>
+      </div>
+      <div class="step-tool tool-free">Gemini · 무료</div>
+      <div class="step-prompt">"위 요구사항으로 REQUIREMENTS.md 초안 만들어줘"</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">3</div>
+        <div class="step-stage">설계 검토 및 확정</div>
+      </div>
+      <div class="step-tool tool-min">Claude · 최소 토큰</div>
+      <div class="step-prompt">"이 설계 문서 검토해서 누락된 부분 알려줘"</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">4</div>
+        <div class="step-stage">구현</div>
+      </div>
+      <div class="step-tool tool-cost">Claude Code · 주 비용</div>
+      <div class="step-prompt">"REQUIREMENTS.md에 따라 백엔드 구현해줘"</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: rationale + 6 methods -->
+  <div class="lower">
+
+    <div class="panel">
+      <div class="panel-label">왜 교차 검증인가</div>
+      <div class="why-text">하나의 에이전트에만 의존하면 <b>학습 데이터 편향</b>이나 <b>맥락 고착(Context Lock-in)</b>에 갇힌다.</div>
+      <div class="quote">AI 편향은 제거할 수 없다. <b>인식하고 설계에 반영</b>하는 것이 현실적인 대응이고, 다중 에이전트 활용을 통한 검증을 통해 위험을 줄여야 한다.</div>
+    </div>
+
+    <div class="methods">
+      <div class="methods-head">편향을 방지하는 방법</div>
+      <div class="grid">
+        <div class="method">
+          <div class="m-num">1</div>
+          <div class="m-text">교차 검증 — 여러 AI에게 같은 질문</div>
+        </div>
+        <div class="method">
+          <div class="m-num">2</div>
+          <div class="m-text">악마의 변호인 요청 (Devil's Advocate)</div>
+        </div>
+        <div class="method">
+          <div class="m-num">3</div>
+          <div class="m-text">컨텍스트 리셋 — <code>/clear</code> 전략</div>
+        </div>
+        <div class="method">
+          <div class="m-num">4</div>
+          <div class="m-text">구체적인 제약 조건 명시</div>
+        </div>
+        <div class="method">
+          <div class="m-num">5</div>
+          <div class="m-text">출처와 반론 요구</div>
+        </div>
+        <div class="method">
+          <div class="m-num">6</div>
+          <div class="m-text">할루시네이션 재검증 요구</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

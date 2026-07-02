@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A2-IMG-2 · push 되돌리기 의사결정</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title center">push한 커밋 되돌리기 — revert vs reset+force</h1>
+  <svg class="svgwrap" viewBox="0 0 1152 580" style="height:560px" xmlns="http://www.w3.org/2000/svg"
+       font-family="'Pretendard','Noto Sans KR',sans-serif">
+    <defs>
+      <marker id="at" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#1A7F7A"/>
+      </marker>
+    </defs>
+
+    <!-- Start -->
+    <rect x="376" y="12" width="400" height="54" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="576" y="45" text-anchor="middle" font-size="17" fill="#2B2B2B">이미 push한 커밋을 되돌리고 싶다</text>
+
+    <!-- Start -> Q1 -->
+    <line x1="576" y1="66" x2="576" y2="100" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+
+    <!-- Q1 diamond -->
+    <polygon points="576,104 778,158 576,212 374,158" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="576" y="152" text-anchor="middle" font-size="16" fill="#2B2B2B">혼자 쓰는 브랜치인가?</text>
+    <text x="576" y="174" text-anchor="middle" font-size="13" fill="#6E6A62" font-family="'JetBrains Mono',monospace">feature/my-*</text>
+
+    <!-- Q1 split stem -->
+    <line x1="576" y1="212" x2="576" y2="232" stroke="#1A7F7A" stroke-width="1.5"/>
+    <!-- to A (left) -->
+    <polyline points="576,232 250,232 250,250" fill="none" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+    <text x="395" y="224" text-anchor="middle" font-size="13" fill="#6E6A62">예 · 개인 브랜치</text>
+    <!-- to Q2 (right) -->
+    <polyline points="576,232 840,232 840,250" fill="none" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+    <text x="712" y="224" text-anchor="middle" font-size="13" fill="#6E6A62">아니오 · 팀 브랜치</text>
+
+    <!-- A box (reset+force) -->
+    <rect x="70" y="250" width="360" height="120" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="250" y="284" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">git reset --hard</text>
+    <text x="250" y="308" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">+ git push --force-with-lease</text>
+    <text x="250" y="344" text-anchor="middle" font-size="16" fill="#2B2B2B" font-weight="700">개인 브랜치만</text>
+
+    <!-- Q2 diamond -->
+    <polygon points="840,250 1018,300 840,350 662,300" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="840" y="296" text-anchor="middle" font-size="15" fill="#2B2B2B">팀이 이미</text>
+    <text x="840" y="316" text-anchor="middle" font-size="15" fill="#2B2B2B">pull 했는가?</text>
+
+    <!-- Q2 split stem -->
+    <line x1="840" y1="350" x2="840" y2="372" stroke="#1A7F7A" stroke-width="1.5"/>
+    <!-- to B (revert, safe) -->
+    <polyline points="840,372 700,372 700,410" fill="none" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+    <text x="770" y="364" text-anchor="middle" font-size="13" fill="#6E6A62">예 / 팀 브랜치</text>
+    <!-- to C (협의) -->
+    <polyline points="840,372 1010,372 1010,410" fill="none" stroke="#1A7F7A" stroke-width="1.5" marker-end="url(#at)"/>
+    <text x="930" y="364" text-anchor="middle" font-size="13" fill="#6E6A62">아니오 / 불확실</text>
+
+    <!-- B box (revert) accent teal -->
+    <rect x="540" y="410" width="320" height="120" rx="6" fill="#F4F1EC" stroke="#1A7F7A" stroke-width="1.5"/>
+    <text x="700" y="444" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">git revert &lt;커밋&gt;</text>
+    <text x="700" y="468" text-anchor="middle" font-size="15" fill="#2B2B2B" font-family="'JetBrains Mono',monospace">&amp;&amp; git push</text>
+    <text x="700" y="504" text-anchor="middle" font-size="16" fill="#1A7F7A" font-weight="700">협업 권장 (안전)</text>
+
+    <!-- C box (협의) -->
+    <rect x="880" y="410" width="240" height="120" rx="6" fill="#F4F1EC" stroke="#D8D2C8" stroke-width="1.5"/>
+    <text x="1000" y="462" text-anchor="middle" font-size="15" fill="#2B2B2B">팀에 먼저 알리고</text>
+    <text x="1000" y="486" text-anchor="middle" font-size="15" fill="#2B2B2B">협의 후 진행</text>
+
+    <!-- caption -->
+    <text x="290" y="470" text-anchor="middle" font-size="15" fill="#6E6A62">애매하면</text>
+    <text x="290" y="494" text-anchor="middle" font-size="18" fill="#1A7F7A" font-weight="700">revert가 항상 안전</text>
+    <text x="290" y="520" text-anchor="middle" font-size="13" fill="#6E6A62">공유 브랜치 force-push 금지</text>
+  </svg>
+</div>
+</body>
+</html>

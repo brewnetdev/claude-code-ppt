@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: transparent; }
+  body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .frame {
+    width: 1280px;
+    height: 624px;
+    position: relative;
+    padding: 30px 40px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .table-wrap {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.ref col.c-el  { width: 24%; }
+  table.ref col.c-q   { width: 38%; }
+  table.ref col.c-r   { width: 38%; }
+
+  thead th {
+    text-align: left;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--warm);
+    letter-spacing: 0.02em;
+    padding: 0 24px 12px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  thead th:first-child { padding-left: 18px; }
+
+  tbody td {
+    padding: 11px 24px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--line);
+    font-size: 18px;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td:first-child { padding-left: 18px; }
+
+  /* element cell */
+  .el-name {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--ink);
+    display: block;
+    line-height: 1.25;
+  }
+  .el-en {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--teal-deep);
+    display: block;
+    margin-top: 4px;
+  }
+  .num {
+    display: inline-block;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--warm);
+    margin-right: 14px;
+    width: 30px;
+    text-align: right;
+  }
+
+  .q-text { font-size: 18px; color: var(--ink); }
+  .r-text { font-size: 18px; color: var(--ink); }
+
+  .callout {
+    flex: 0 0 auto;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 14px 24px;
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    color: #7C4A02;
+    line-height: 1.45;
+  }
+  .callout b { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="table-wrap">
+      <table class="ref">
+        <colgroup>
+          <col class="c-el">
+          <col class="c-q">
+          <col class="c-r">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>요소</th>
+            <th>질문</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="el-name"><span class="num">1</span>목표</span>
+              <span class="el-en">What</span>
+            </td>
+            <td class="q-text">무엇을 달성해야 하는가?</td>
+            <td class="r-text">작업의 방향 설정</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="el-name"><span class="num">2</span>맥락</span>
+              <span class="el-en">Context</span>
+            </td>
+            <td class="q-text">현재 상황과 배경은?</td>
+            <td class="r-text">AI가 올바른 가정을 하도록 유도</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="el-name"><span class="num">3</span>제약 조건</span>
+              <span class="el-en">Constraints</span>
+            </td>
+            <td class="q-text">지켜야 할 규칙은?</td>
+            <td class="r-text">범위를 제한하여 일탈 방지</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="el-name"><span class="num">4</span>완료 조건</span>
+              <span class="el-en">Done Criteria</span>
+            </td>
+            <td class="q-text">성공을 어떻게 판단하는가?</td>
+            <td class="r-text">명확한 종료 지점 제시</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="el-name"><span class="num">5</span>예시</span>
+              <span class="el-en">Examples</span>
+            </td>
+            <td class="q-text">기대하는 결과의 구체적 모습은?</td>
+            <td class="r-text">모호함을 제거</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      필요한 정보만 정확하게 — <b>너무 많아도 너무 적어도 안 된다.</b> 5요소로 컨텍스트 범위를 좁힌다.
+    </div>
+  </div>
+</body>
+</html>

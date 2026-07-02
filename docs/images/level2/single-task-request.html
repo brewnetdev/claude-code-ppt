@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857; --blue:#1E3A8A; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6; --code-bg:#F5F3F0;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{
+    width:1280px; height:600px; position:relative; padding:30px 36px;
+    background:transparent;
+    display:grid; grid-template-columns:1fr 1fr; gap:30px;
+  }
+  .col-label{
+    font-family:var(--mono); font-weight:700; font-size:18px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--warm); margin-bottom:14px;
+  }
+
+  /* ── LEFT: split signal ── */
+  .left{ display:flex; flex-direction:column; }
+  .lead{
+    font-size:25px; font-weight:900; line-height:1.32; color:var(--ink);
+    word-break:keep-all; margin-bottom:18px;
+  }
+  .lead .hi{ color:var(--red); }
+  .term{
+    border:1px solid var(--line); background:var(--code-bg); border-radius:8px; overflow:hidden;
+  }
+  .term .bar{
+    font-family:var(--mono); font-weight:600; font-size:16px; letter-spacing:.03em;
+    color:var(--red); padding:9px 18px; border-bottom:1px solid var(--line);
+  }
+  .term .body{
+    font-family:var(--mono); font-size:18px; line-height:1.6; color:var(--ink); padding:14px 18px;
+    word-break:keep-all;
+  }
+  .term .body .sig{ color:var(--red); font-weight:700; }
+  .note{
+    margin-top:auto; border:1px solid var(--line); background:var(--cream);
+    padding:14px 20px; font-size:18px; line-height:1.5; color:var(--ink); word-break:keep-all;
+  }
+  .note b{ color:var(--teal-deep); font-weight:700; }
+
+  /* ── RIGHT: problems ── */
+  .right{ display:flex; flex-direction:column; }
+  .steps{ display:flex; flex-direction:column; gap:13px; flex:1; }
+  .step{
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:16px 20px; display:flex; gap:18px; align-items:center; flex:1;
+  }
+  .step .n{
+    flex:0 0 auto; width:44px; height:44px; border:1px solid var(--red);
+    color:var(--red); font-family:var(--mono); font-weight:700; font-size:24px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step .b{ display:flex; flex-direction:column; justify-content:center; }
+  .step .t{ font-size:22px; font-weight:700; color:var(--ink); line-height:1.3; word-break:keep-all; }
+  .step .t .em{ color:var(--red); }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: 분해 신호 -->
+    <section class="left">
+      <div class="col-label">분해 신호 · SPLIT SIGNAL</div>
+      <div class="lead">가장 흔한 실수 —<br>여러 작업을 <span class="hi">한꺼번에</span> 요청</div>
+
+      <div class="term">
+        <div class="bar">나쁜 예 — 한 번에 너무 많이</div>
+        <div class="body">"사용자 인증 만들어줘. 회원가입<span class="sig">,</span> 로그인<span class="sig">,</span> 비밀번호 변경<span class="sig">,</span> 이메일 인증까지 전부."</div>
+      </div>
+
+      <div class="note">프롬프트에 <b>'그리고 · 또한 · 추가로'</b> 가 보이면 → 작업을 <b>쪼개라</b>. 한 번에 하나의 작업만 요청한다.</div>
+    </section>
+
+    <!-- RIGHT: 한 번에 너무 많이 → 생기는 문제 -->
+    <section class="right">
+      <div class="col-label">한 번에 너무 많이 → 생기는 문제</div>
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <div class="b"><div class="t">기능 · 코드 <span class="em">품질 저하</span></div></div>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <div class="b"><div class="t">복합적 에러 발생 → <span class="em">디버깅 어려움</span></div></div>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <div class="b"><div class="t">기능 간 침범 → <span class="em">컨텍스트 혼란</span></div></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

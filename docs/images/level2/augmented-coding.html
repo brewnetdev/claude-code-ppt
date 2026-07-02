@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* 16:9 — 슬라이드 본문 영역을 꽉 채우는 큰 폰트 */
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 34px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 472px 1fr;
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
+  }
+  .box { border: 1px solid #D4D0C8; background: transparent; padding: 22px 26px; }
+  .label {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.05em;
+    color: #6B6560; text-transform: uppercase;
+  }
+  .badge {
+    display: inline-block; font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 6px 13px; border: 1px solid;
+  }
+  .badge-teal { color: #115E59; border-color: #0F766E; }
+  .badge-red  { color: #B91C1C; border-color: #B91C1C; }
+
+  .concept { display: flex; flex-direction: column; height: 100%; }
+  .concept-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .concept-title { font-size: 27px; font-weight: 700; color: #1A1A18; }
+  .concept-lead { font-size: 19px; line-height: 1.55; color: #1A1A18; margin-bottom: 18px; }
+  .principle { border: 1px solid #D4D0C8; background: #F5F3F0; padding: 16px 20px; }
+  .principle-label { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; color: #115E59; margin-bottom: 9px; }
+  .principle-text { font-size: 19px; line-height: 1.55; color: #1A1A18; font-weight: 500; }
+  .principle-text b { color: #115E59; font-weight: 700; }
+  .pillars { display: flex; gap: 11px; margin-top: 16px; flex-wrap: wrap; }
+  .pillar { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: #1A1A18; border: 1px solid #D4D0C8; padding: 8px 15px; }
+
+  .warn { display: flex; flex-direction: column; height: 100%; }
+  .warn-head { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+  .warn-title { font-size: 22px; font-weight: 700; color: #1A1A18; white-space: nowrap; }
+  .signs { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .sign { border: 1px solid #D4D0C8; padding: 16px 22px; display: grid; grid-template-columns: 48px 1fr; gap: 18px; align-items: start; flex: 1; }
+  .sign-num { font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 700; color: #B91C1C; line-height: 1; padding-top: 2px; }
+  .sign-body { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .sign-name-row { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; margin-bottom: 6px; }
+  .sign-name { font-size: 21px; font-weight: 700; color: #1A1A18; }
+  .sign-en { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; color: #6B6560; }
+  .tag-danger { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.03em; color: #B91C1C; border: 1px solid #B91C1C; padding: 3px 11px; }
+  .sign-desc { font-size: 18px; line-height: 1.5; color: #1A1A18; font-weight: 500; }
+  .sign-desc .danger { color: #B91C1C; font-weight: 700; }
+
+  /* full-width source/link callout — independent bottom section */
+  .linkbar { border: 1px solid #B45309; background: #FAF3E6; border-radius: 8px; padding: 13px 20px; display: flex; align-items: center; gap: 14px; }
+  .linkbar .lb-badge { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; color: #7C4A02; border: 1px solid #B45309; border-radius: 6px; padding: 5px 12px; flex: 0 0 auto; }
+  .linkbar .lb-text { font-size: 18px; color: #1A1A18; font-weight: 500; }
+  .linkbar .lb-text b { font-weight: 700; }
+  .linkbar .lb-url { font-family: 'JetBrains Mono', monospace; font-size: 17px; color: #7C4A02; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="grid">
+
+      <div class="concept box">
+        <div class="concept-head">
+          <span class="badge badge-teal">AUGMENTED CODING</span>
+        </div>
+        <div class="concept-title">증강코딩의 핵심</div>
+        <div class="concept-lead">TDD 창시자 Kent Beck이 2025년 제시한 AI 시대의 코딩 방법론. BPlusTree3 프로젝트(B+ Tree 라이브러리를 Rust·Python으로 구현)를 통해 탐구·문서화했다.</div>
+
+        <div class="principle">
+          <div class="principle-label">핵심 원칙</div>
+          <div class="principle-text">손으로 직접 코드를 작성할 때와 <b>동일한 가치 체계</b>를 유지하면서, 타이핑을 AI가 대신해줄 뿐이다.</div>
+        </div>
+
+        <div class="pillars">
+          <span class="pillar">품질</span>
+          <span class="pillar">복잡도</span>
+          <span class="pillar">테스트</span>
+          <span class="pillar">커버리지</span>
+        </div>
+      </div>
+
+      <div class="warn">
+        <div class="warn-head">
+          <span class="badge badge-red">WARNING SIGNS</span>
+          <span class="warn-title">AI가 궤도를 이탈하는 3가지 경고 신호</span>
+        </div>
+
+        <div class="signs">
+          <div class="sign">
+            <div class="sign-num">1</div>
+            <div class="sign-body">
+              <div class="sign-name-row">
+                <span class="sign-name">루프</span>
+                <span class="sign-en">Loops</span>
+              </div>
+              <div class="sign-desc">비슷한 작업을 반복하면서 실질적 진전이 없는 현상. "지니가 몇 시간 동안 빙빙 돌면서 다음 기능을 올바르게 구현하지 못하는" 상태.</div>
+            </div>
+          </div>
+
+          <div class="sign">
+            <div class="sign-num">2</div>
+            <div class="sign-body">
+              <div class="sign-name-row">
+                <span class="sign-name">요청하지 않은 기능 추가</span>
+              </div>
+              <div class="sign-desc">지시하지 않은 영역까지 과도한 코드 추가 <span class="danger">→ 복잡성 폭발</span>.</div>
+            </div>
+          </div>
+
+          <div class="sign">
+            <div class="sign-num">3</div>
+            <div class="sign-body">
+              <div class="sign-name-row">
+                <span class="sign-name">치팅 징후</span>
+                <span class="tag-danger">가장 위험</span>
+              </div>
+              <div class="sign-desc">가장 위험한 신호. AI가 테스트를 통과시키기 위해 <span class="danger">테스트 자체를 비활성화하거나 삭제</span>한다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

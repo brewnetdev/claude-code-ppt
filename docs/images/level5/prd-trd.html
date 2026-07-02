@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* two-column comparison grid */
+  .cols {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    min-height: 0;
+  }
+  .col {
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* card header */
+  .col-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #D4D0C8;
+    margin-bottom: 13px;
+  }
+  .col-head .badge {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #0F766E;
+    border: 1px solid #0F766E;
+    border-radius: 6px;
+    padding: 6px 12px;
+  }
+  .col-head .title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+  .col-head .title .full {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    margin-top: 5px;
+    letter-spacing: 0;
+  }
+
+  /* labelled rows */
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .row + .row { margin-top: 13px; }
+  .row .label {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #6B6560;
+    text-transform: uppercase;
+  }
+  .row .body {
+    font-size: 22px;
+    line-height: 1.42;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .row .body .em { font-weight: 800; color: #115E59; }
+
+  /* constituent list (PRD structure / TRD items) */
+  .list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    font-size: 22px;
+    line-height: 1.34;
+    color: #1A1A18;
+    font-weight: 500;
+  }
+  .list li .n {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0F766E;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    min-width: 32px;
+    text-align: center;
+    padding: 1px 4px;
+    line-height: 1.35;
+  }
+  .list li .txt { padding-top: 1px; }
+  .list li .txt .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #115E59;
+    font-size: 20px;
+  }
+  .list.tight { gap: 7px; }
+  .list.tight li { font-size: 22px; line-height: 1.25; align-items: flex-start; }
+  .list.tight .term { font-weight: 700; color: #1A1A18; }
+  .list.tight .det { font-weight: 500; color: #1A1A18; }
+  .list.tight .det .mono { font-size: 20px; }
+  /* neutral dot marker for TRD items */
+  .list.tight li .dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border: 1px solid #0F766E;
+    border-radius: 2px;
+    background: #0F766E;
+    margin-top: 9px;
+  }
+
+  /* rows flow naturally between 정의 and 역할 — no flex grow (which would
+     clip/overlap). Columns are sized so content fills the cell exactly. */
+  .col { justify-content: flex-start; gap: 0; }
+
+  /* bottom full-width source callout */
+  .callout {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    background: #FAF3E6;
+    padding: 12px 20px;
+  }
+  .callout .clbl {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 6px 13px;
+    white-space: nowrap;
+  }
+  .callout .ctext {
+    font-size: 20px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .ctext .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #7C4A02;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="cols">
+
+      <!-- PRD column -->
+      <div class="col">
+        <div class="col-head">
+          <span class="badge">4.2.1</span>
+          <span class="title">PRD<span class="full">Product Requirements Document</span></span>
+        </div>
+
+        <div class="row">
+          <span class="label">정의</span>
+          <span class="body">제품이 <span class="em">"무엇을"</span> 해야 하는지를 정의 — 기능 목록, 사용자 시나리오, MVP 범위, 제외 범위.</span>
+        </div>
+
+        <div class="row grow">
+          <span class="label">핵심 구조 &nbsp;<span class="mono" style="text-transform:none;letter-spacing:0;color:#115E59;font-weight:600;">docs/PRD.md</span></span>
+          <ul class="list">
+            <li><span class="n">1</span><span class="txt">제품 개요</span></li>
+            <li><span class="n">2</span><span class="txt">MVP 범위 및 제외 범위</span></li>
+            <li><span class="n">3</span><span class="txt">핵심 기능 목록 <span class="mono">(FR 매핑)</span></span></li>
+            <li><span class="n">4</span><span class="txt">사용자 시나리오</span></li>
+            <li><span class="n">5</span><span class="txt">기술 스택 요약</span></li>
+          </ul>
+        </div>
+
+        <div class="row">
+          <span class="label">역할</span>
+          <span class="body">제품 요구사항의 단일 소스 — Claude Code와 함께 작성해 <span class="mono" style="font-weight:600;color:#115E59;">/docs/PRD.md</span>에 저장.</span>
+        </div>
+      </div>
+
+      <!-- TRD column -->
+      <div class="col">
+        <div class="col-head">
+          <span class="badge">4.2.2</span>
+          <span class="title">TRD<span class="full">Technical Requirements Document</span></span>
+        </div>
+
+        <div class="row">
+          <span class="label">정의</span>
+          <span class="body"><span class="em">"어떻게"</span> 구현할지 기술 명세 — 시스템 아키텍처, 데이터 흐름, 성능 기준, 보안.</span>
+        </div>
+
+        <div class="row grow">
+          <span class="label">핵심 항목 &nbsp;<span style="text-transform:none;letter-spacing:0;color:#6B6560;font-weight:600;font-size:20px;">markflow</span></span>
+          <ul class="list tight">
+            <li><span class="dot"></span><span class="txt"><b class="term">시스템 아키텍처</b> — 모노레포(<span class="mono">pnpm</span>) · Browser → Route Handler → Drizzle → PostgreSQL</span></li>
+            <li><span class="dot"></span><span class="txt"><b class="term">기술 스택 상세</b> — <span class="mono">Next.js 16 · Drizzle · PostgreSQL 16</span> · JWT Access + Refresh</span></li>
+            <li><span class="dot"></span><span class="txt"><b class="term">데이터 흐름</b> — 읽기/쓰기 경로 · <span class="mono">Zod</span> 검증 · 버전 기록</span></li>
+            <li><span class="dot"></span><span class="txt"><b class="term">계층 경계 규칙</b> — <span class="mono">fetch</span>만 · 서버 직접 import 금지</span></li>
+            <li><span class="dot"></span><span class="txt"><b class="term">배포 전략</b> — <span class="mono">Vercel</span> / DB → <span class="mono">Supabase·Neon</span></span></li>
+          </ul>
+        </div>
+
+        <div class="row">
+          <span class="label">역할</span>
+          <span class="body">PRD를 구현 명세로 변환 — 아키텍처·성능·보안 기준 확정.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <span class="clbl">출처</span>
+      <span class="ctext">
+        Level 4 — 4.2.1 PRD 작성 · 4.2.2 TRD 작성 (<span class="url">docs/PRD.md</span> · <span class="url">docs/TRD.md</span>)
+      </span>
+    </div>
+
+  </div>
+</body>
+</html>

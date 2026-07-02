@@ -23,7 +23,6 @@
 //     .code-block — the shiki upgrade path depends on this surviving any
 //     future markup change.
 
-import { JSDOM } from 'jsdom';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   BUILTIN_DECKS,
@@ -31,13 +30,11 @@ import {
   type DeckRegistryEntry,
 } from '../../src/library/deckRegistry';
 import { parsePresentationHTML } from '../../src/importer/parsePresentation';
+import { installDomParser } from '../_utils/jsdom';
 
-beforeAll(() => {
-  // parsePresentationHTML uses the global DOMParser — vitest runs in Node so
-  // wire JSDOM's in. (Same trick as tests/scene/applySlideBackground.test.ts.)
-  const dom = new JSDOM('<!doctype html><html><body></body></html>');
-  (globalThis as { DOMParser?: typeof DOMParser }).DOMParser = dom.window.DOMParser;
-});
+const VALID_TEMPLATES = new Set(['presentation', 'portfolio', 'report']);
+
+beforeAll(() => installDomParser());
 
 const CODE_HEAVY_DECK_IDS = new Set<string>([
   'brewnet-presentation',
@@ -71,13 +68,27 @@ describe('built-in deck registry — parse round-trip', () => {
         expect(slide.html).toContain('<div class="slide');
       }
 
-      // When data-template is present on a slide div, it must match the
-      // registry's template. Hand-authored decks omit the attribute — that's
-      // fine, the conditional skip keeps the test honest.
+      // data-template invariant. Every slide-level data-template must be a
+      // known template. Decks are usually uniform (all slides == deck.template)
+      // — assert that for the common case, which still guards against a deck
+      // shipping with the wrong/garbage theme attribute. Some decks
+      // intentionally mix per-slide templates (e.g. the appendix deck uses dark
+      // `presentation` cover/divider slides inside a `report` deck for visual
+      // rhythm); for those we only require that every value is valid AND the
+      // registry template is present among them.
       const observed = dataTemplateValues(deck.html);
       if (observed.length > 0) {
-        for (const v of observed) {
-          expect(v, `${deck.id} slide data-template`).toBe(deck.template);
+        const distinct = new Set(observed);
+        for (const v of distinct) {
+          expect(VALID_TEMPLATES.has(v), `${deck.id} slide data-template "${v}" is a known template`).toBe(true);
+        }
+        if (distinct.size === 1) {
+          expect([...distinct][0], `${deck.id} uniform slide data-template`).toBe(deck.template);
+        } else {
+          expect(
+            distinct.has(deck.template),
+            `${deck.id} mixed-template deck must include its registry template "${deck.template}" (got ${[...distinct].join(', ')})`,
+          ).toBe(true);
         }
       }
     },

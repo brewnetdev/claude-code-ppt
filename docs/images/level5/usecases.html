@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── header band ── */
+  .block-title {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex: none;
+  }
+  .block-title .h {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .block-title .sub {
+    font-size: 20px;
+    color: #6B6560;
+    font-weight: 500;
+  }
+  .block-title .file {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 5px 12px;
+  }
+
+  /* ── table ── */
+  .table-wrap {
+    flex: 1;
+    min-height: 0;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 2px 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.c-id   { width: 11%; }
+  col.c-item { width: 23%; }
+  col.c-crit { width: 66%; }
+
+  thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 14px 10px 14px;
+    vertical-align: bottom;
+  }
+  thead tr { border-bottom: 2px solid #0F766E; }
+
+  tbody td {
+    font-size: 22px;
+    line-height: 1.24;
+    padding: 3px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  td.id {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #115E59;
+    white-space: nowrap;
+  }
+  td.item { font-weight: 700; color: #1A1A18; }
+  td.crit { color: #1A1A18; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .accent { color: #1E3A8A; font-weight: 700; }
+
+  /* ── bottom callout ── */
+  .callout {
+    flex: none;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 11px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 12px;
+    letter-spacing: 0.02em;
+  }
+  .callout .txt {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .url {
+    margin-left: auto;
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #7C4A02;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="block-title">
+      <span class="h">4.3.3 UseCase</span>
+      <span class="sub">유스케이스 — 컴포넌트 및 UseCase 설계</span>
+      <span class="file mono">USE_CASES.md</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col class="c-id"><col class="c-item"><col class="c-crit">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>항목</th>
+            <th>핵심 기준</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="id">UC-001</td>
+            <td class="item">인증-회원가입</td>
+            <td class="crit">비로그인 방문자가 이메일・비밀번호로 가입한 뒤, 인증 메일을 통해 <span class="mono">verify</span> 한다. (토큰 만료/중복 검사)</td>
+          </tr>
+          <tr>
+            <td class="id">UC-002</td>
+            <td class="item">인증-로그인</td>
+            <td class="crit">인증된 사용자가 <span class="mono">Access Token</span> + Http Refresh 쿠키를 발급받아 보호된 자원에 접근, 비밀번호 5회 실패시 계정 잠금</td>
+          </tr>
+          <tr>
+            <td class="id">UC-003</td>
+            <td class="item">워크스페이스 생성</td>
+            <td class="crit">새 워크스페이스 생성시 Owner 부여, 이메일 초대, 공개 워크스페이스 검색 및 가입 요청/승인</td>
+          </tr>
+          <tr>
+            <td class="id">UC-004</td>
+            <td class="item">문서 작성 및 버전</td>
+            <td class="crit">에디터에서 마크다운 생성/수정시 저장시마다 버전 생성 ・버전 비교 체크 및 롤백</td>
+          </tr>
+          <tr>
+            <td class="id">UC-005</td>
+            <td class="item">카테고리 - 폴더 트리</td>
+            <td class="crit">폴더 생성 / 이동 / 자손 순환 참조</td>
+          </tr>
+          <tr>
+            <td class="id">UC-006</td>
+            <td class="item">문서 삭제 - 휴지통</td>
+            <td class="crit">삭제시 논리 삭제 후 휴지통으로 이동, 복원 및 영구 삭제, 30일 이상 자동 삭제</td>
+          </tr>
+          <tr>
+            <td class="id">UC-007</td>
+            <td class="item">임베드 - 게스트 토큰</td>
+            <td class="crit">Admin이 외부 사이트용 임베드 토큰(<span class="mono">mf_gt_…</span>)을 발급(평문 1회만 노출, DB엔 bcrypt 해시), 외부 사이트는 iframe URL 또는 Bearer 헤더로 소비</td>
+          </tr>
+          <tr>
+            <td class="id">UC-008</td>
+            <td class="item">협업 - 댓글</td>
+            <td class="crit">뷰어/에디터는 댓글 작성 가능</td>
+          </tr>
+          <tr>
+            <td class="id">UC-009</td>
+            <td class="item">권한 관리</td>
+            <td class="crit">Owner / Editor / Viewer 관리</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <span class="tag">4.3.3 UC</span>
+      <span class="txt">유스케이스 <b>9건</b> — 인증부터 권한까지 식별자(<b>UC-NNN</b>)로 추적.</span>
+      <span class="url">github.com/claude-code-expert/markflow</span>
+    </div>
+
+  </div>
+</body>
+</html>

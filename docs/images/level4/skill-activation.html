@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.ref {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.ref col.c-state { width: 23%; }
+  table.ref col.c-how   { width: 41%; }
+  table.ref col.c-note  { width: 36%; }
+
+  table.ref thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 24px 16px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A1A18;
+    letter-spacing: 0.01em;
+  }
+
+  table.ref tbody td {
+    padding: 17px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: middle;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  table.ref tbody tr:last-child td { border-bottom: none; }
+
+  td.state {
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  td.state .tag {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #6B6560;
+  }
+  td.state .tag.good { color: #047857; }
+
+  td.how {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #115E59;
+    line-height: 1.55;
+  }
+  td.how .plain {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #1A1A18;
+  }
+  td.how .info { color: #1E3A8A; }
+
+  td.note { color: #1A1A18; }
+  td.note .good { font-weight: 700; color: #047857; }
+  td.note .bad  { font-weight: 700; color: #B91C1C; }
+  td.note .dim  { color: #6B6560; }
+  td.note .seq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E3A8A;
+  }
+
+  .callout {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 20px 26px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.5;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 20px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="ref">
+      <colgroup>
+        <col class="c-state">
+        <col class="c-how">
+        <col class="c-note">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>상태</th>
+          <th>방법</th>
+          <th>비고 · 토큰 영향</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="state">자동 활성화</td>
+          <td class="how"><span class="plain">대화 맥락 + description 매칭</span></td>
+          <td class="note">기본 — description <span class="dim">명확히 작성</span></td>
+        </tr>
+        <tr>
+          <td class="state">수동 호출</td>
+          <td class="how">/skill-name</td>
+          <td class="note">강제 적용 — <span class="dim">자동 매칭 무시</span></td>
+        </tr>
+        <tr>
+          <td class="state">비활성화 <span class="tag">FRONTMATTER</span></td>
+          <td class="how">user-invocable: false<br>disable-model-invocation: true</td>
+          <td class="note"><span class="bad">주의</span> description은 여전히 로드 — <span class="bad">토큰 소비</span></td>
+        </tr>
+        <tr>
+          <td class="state">완전 비활성화 <span class="tag good">권장</span></td>
+          <td class="how">mv SKILL.md SKILL.md.disabled</td>
+          <td class="note"><span class="good">0 토큰 소비</span></td>
+        </tr>
+        <tr>
+          <td class="state">아카이브</td>
+          <td class="how"><span class="plain">폴더 외부로 이동</span><br><span class="info">.claude/skills-archive/</span></td>
+          <td class="note"><span class="good">0 토큰 소비</span> <span class="dim">— 복구 가능</span></td>
+        </tr>
+        <tr>
+          <td class="state">삭제</td>
+          <td class="how">rm -rf .claude/skills/&lt;name&gt;</td>
+          <td class="note"><span class="bad">복구 불필요한 경우만</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">핵심</span>
+      <span class="body">Frontmatter 비활성화는 description 토큰을 계속 먹는다 — 진짜 끄려면 파일명 변경(<code>.disabled</code>) 또는 폴더 이동 권장</span>
+    </div>
+  </div>
+</body>
+</html>

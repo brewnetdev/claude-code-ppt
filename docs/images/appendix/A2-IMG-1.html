@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A2-IMG-1 · git reset 3종 비교</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+<style>
+  .reset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin: 0 -16px; }
+  .reset-card { border: 1px solid var(--line); border-radius: 8px; background: var(--cream-bright); padding: 24px 24px 22px; display: flex; flex-direction: column; }
+  .reset-card .mode { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 600; color: var(--teal); margin-bottom: 12px; }
+  .reset-card .blurb { font-size: 15.5px; line-height: 1.55; color: var(--ink); min-height: 72px; }
+  .reset-card .blurb .danger { font-weight: 700; }
+
+  .statebar { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 20px 0 10px; }
+  .statebar .cell { padding: 11px 6px; text-align: center; font-size: 14px; border-right: 1px solid var(--line); background: var(--cream); }
+  .statebar .cell:last-child { border-right: none; }
+  .statebar .cell.on { background: var(--teal); color: var(--cream); font-weight: 600; }
+
+  .remains { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .remains .here { color: var(--teal); font-weight: 600; }
+
+  .usewhen { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--ink); }
+  .usewhen .k { color: var(--muted); font-size: 13px; display: block; margin-bottom: 4px; }
+
+  .footnote { margin-top: 22px; font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="frame" style="padding:48px 48px">
+  <h1 class="title center">git reset 3종 — 어디까지 되돌리나</h1>
+  <p class="subtitle center">로컬 커밋 · 스테이징 · 작업트리 중 어디까지 비우는가</p>
+
+  <div class="reset-grid">
+    <!-- soft -->
+    <div class="reset-card">
+      <div class="mode">--soft</div>
+      <div class="blurb">커밋만 취소, 변경은 <span class="bold">스테이징에 유지</span>. 메시지 수정 · 커밋 분할.</div>
+      <div class="statebar">
+        <div class="cell on">로컬 커밋</div>
+        <div class="cell">스테이징</div>
+        <div class="cell">작업트리</div>
+      </div>
+      <div class="remains">변경이 남는 위치 → <span class="here">스테이징</span></div>
+      <div class="usewhen"><span class="k">언제 쓰나</span>메시지 수정 · 커밋 분할</div>
+    </div>
+
+    <!-- mixed -->
+    <div class="reset-card">
+      <div class="mode">--mixed <span style="font-family:'Pretendard',sans-serif;font-size:14px;color:var(--muted);font-weight:500">(기본값)</span></div>
+      <div class="blurb">커밋 + 스테이징 취소, 변경은 <span class="bold">작업트리로</span>. <span class="mono">add</span>부터 다시.</div>
+      <div class="statebar">
+        <div class="cell on">로컬 커밋</div>
+        <div class="cell on">스테이징</div>
+        <div class="cell">작업트리</div>
+      </div>
+      <div class="remains">변경이 남는 위치 → <span class="here">작업트리</span></div>
+      <div class="usewhen"><span class="k">언제 쓰나</span>add부터 다시 하고 싶을 때</div>
+    </div>
+
+    <!-- hard -->
+    <div class="reset-card">
+      <div class="mode">--hard</div>
+      <div class="blurb">커밋 + 변경 <span class="bold">전부 폐기</span>, 작업트리 clean. <span class="danger">되돌릴 수 없음(주의)</span>.</div>
+      <div class="statebar">
+        <div class="cell on">로컬 커밋</div>
+        <div class="cell on">스테이징</div>
+        <div class="cell on">작업트리</div>
+      </div>
+      <div class="remains">변경이 남는 위치 → <span class="here">없음</span></div>
+      <div class="usewhen"><span class="k">언제 쓰나</span>변경을 완전히 버릴 때만</div>
+    </div>
+  </div>
+
+  <p class="footnote">teal 채움 = 되돌려지는(비워지는) 영역 · 크림 칸 = 그대로 유지</p>
+</div>
+</body>
+</html>

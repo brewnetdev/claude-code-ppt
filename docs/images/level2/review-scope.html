@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8; --hair:#ECE9E3;
+    --teal:#0F766E; --teal-deep:#115E59; --green:#047857; --blue:#1E3A8A; --red:#B91C1C;
+    --panel-bg:#FFFFFF; --cream:#FAF3E6;
+    --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:transparent; }
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .frame{ width:1280px; height:686px; position:relative; padding:24px 32px;
+    background:transparent; display:flex; flex-direction:column; gap:13px; }
+
+  .lead{ font-size:18px; font-weight:700; color:var(--ink); line-height:1.3; word-break:keep-all; }
+  .lead .hi{ color:var(--red); }
+
+  /* review checklist — compact */
+  .cards{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .card{ border:1px solid var(--line); background:var(--panel-bg); padding:12px 16px; }
+  .card-head{ display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .card-n{ flex:0 0 auto; width:30px; height:30px; border:1px solid var(--teal-deep); color:var(--teal-deep);
+    font-family:var(--mono); font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; }
+  .card-t{ font-size:19px; font-weight:700; color:var(--ink); line-height:1.15; word-break:keep-all; }
+  .card ul{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .card li{ font-size:15.5px; line-height:1.35; color:var(--ink); word-break:keep-all; padding-left:15px; position:relative; }
+  .card li::before{ content:'▸'; position:absolute; left:0; color:var(--teal); font-size:11px; top:2px; }
+  .card li .warn{ color:var(--red); font-weight:700; }
+
+  /* regression section */
+  .reg{ border:1px solid var(--line); background:var(--panel-bg); display:flex; flex-direction:column; flex:1; min-height:0; }
+  .reg-head{ display:flex; align-items:center; gap:11px; padding:9px 18px; border-bottom:1px solid var(--line); background:var(--cream); }
+  .reg-head .rtag{ font-family:var(--mono); font-size:14px; font-weight:700; color:var(--red); border:1px solid var(--red); padding:3px 10px; white-space:nowrap; }
+  .reg-head .rtt{ font-size:21px; font-weight:800; color:var(--ink); }
+  .reg-body{ flex:1; min-height:0; display:grid; grid-template-columns:0.92fr 1.08fr; }
+  .col{ padding:11px 18px; display:flex; flex-direction:column; gap:9px; }
+  .col.left{ border-right:1px solid var(--hair); }
+  .blk-label{ font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.03em; color:var(--warm); text-transform:uppercase; }
+  .def{ font-size:18px; line-height:1.5; color:var(--ink); word-break:keep-all; }
+  .def b{ color:var(--red); font-weight:700; }
+  .pat{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pat span{ font-size:16.5px; color:var(--ink); border:1px solid var(--line); padding:5px 11px; white-space:nowrap; }
+  .statline{ font-size:16.5px; line-height:1.45; color:var(--warm); word-break:keep-all; }
+  .statline b{ font-family:var(--mono); color:var(--red); font-weight:700; }
+  .strat{ display:flex; flex-direction:column; gap:7px; }
+  .srow{ display:flex; gap:10px; align-items:baseline; }
+  .srow .sn{ flex:0 0 auto; font-family:var(--mono); font-weight:700; font-size:17px; color:var(--teal-deep); width:20px; }
+  .srow .sb{ font-size:17px; line-height:1.45; color:var(--ink); word-break:keep-all; }
+  .srow .sb b{ font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="lead">표면적으로는 완벽해 보이는 AI 코드 — <span class="hi">미묘한 버그가 쌓인다</span>. 매 단계 아래 3가지를 리뷰한다.</div>
+
+    <div class="cards">
+      <section class="card">
+        <div class="card-head"><span class="card-n">1</span><span class="card-t">요구사항 충족 여부</span></div>
+        <ul>
+          <li>요청한 기능이 모두 포함됐는가</li>
+          <li>요청하지 않은 기능이 추가되진 않았는가</li>
+          <li>엣지케이스 처리 여부</li>
+        </ul>
+      </section>
+      <section class="card">
+        <div class="card-head"><span class="card-n">2</span><span class="card-t">코드 품질</span></div>
+        <ul>
+          <li>가독성 · 일관성 · 효율성</li>
+          <li><span class="warn">보안</span> — AI 코드는 취약점이 특히 많다</li>
+        </ul>
+      </section>
+      <section class="card">
+        <div class="card-head"><span class="card-n">3</span><span class="card-t">의도치 않은 변경</span></div>
+        <ul>
+          <li>기존 테스트의 삭제 · 비활성화</li>
+          <li>설정 파일 · 의존성 변경</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="reg">
+      <div class="reg-head">
+        <span class="rtag">회귀 방지</span>
+        <span class="rtt">회귀 방지를 통한 반복되는 버그 해결</span>
+      </div>
+      <div class="reg-body">
+        <div class="col left">
+          <div>
+            <div class="blk-label">회귀(Regression)란?</div>
+            <div class="def">변경 후 <b>이전에 정상 동작하던 기능이 더 이상 동작하지 않는</b> 현상. 새 기능 추가·버그 수정 중 의도치 않게 다른 부분이 망가진다.</div>
+          </div>
+          <div>
+            <div class="blk-label">AI가 회귀를 만드는 패턴</div>
+            <div class="pat"><span>기존 코드 무시·재작성</span><span>관련 없는 파일 수정</span><span>테스트 삭제·비활성화</span></div>
+          </div>
+          <div class="statline"><b>CodeRabbit 2025</b> — AI 코드 포함 PR은 인간 코드보다 심각 이슈 <b>1.4~1.7×</b> (비즈니스 로직·의존성·제어 흐름·설정 오류).</div>
+        </div>
+        <div class="col">
+          <div class="blk-label">회귀 방지 테스트 전략</div>
+          <div class="strat">
+            <div class="srow"><span class="sn">1</span><span class="sb"><b>변경 전후 테스트 실행</b> — 수정 전 전체 통과 확인 → 수정 후 재실행으로 회귀 검증</span></div>
+            <div class="srow"><span class="sn">2</span><span class="sb"><b>CI/CD 자동 테스트</b> — 모든 PR에서 자동 실행, AI 코드도 예외 없이 통과</span></div>
+            <div class="srow"><span class="sn">3</span><span class="sb"><b>커버리지 모니터링</b> — 새 코드엔 새 테스트, 커버리지 하락 방지</span></div>
+            <div class="srow"><span class="sn">4</span><span class="sb"><b>회귀 테스트 스위트</b> — 핵심 기능 안전망, 어떤 변경에도 반드시 통과</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

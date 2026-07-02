@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 34px 42px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .cols {
+    display: flex;
+    gap: 22px;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+  }
+  .col-left {
+    flex: 0.84;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .col-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #D4D0C8;
+    border-radius: 10px;
+    padding: 14px 18px 15px;
+    min-height: 0;
+  }
+  .col-left .panel { flex: 1; }
+  .col-right .panel.slack { flex: 1; }
+  .col-right .panel.reg { flex: none; padding-bottom: 12px; }
+
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex: none;
+  }
+  .col-right .col-head { margin-bottom: 5px; }
+  .col-right .panel.reg .col-head { margin-bottom: 4px; }
+  .col-right .panel { padding: 12px 18px 13px; }
+  .col-right .panel.slack .codebox { padding: 10px 16px 12px; }
+  .col-right .panel.reg .codebox { flex: none; padding: 11px 16px; }
+  .badge {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 5px 12px;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    color: #0F766E;
+    white-space: nowrap;
+  }
+  .col-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.08;
+  }
+
+  .codebox {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 13px 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    min-height: 0;
+  }
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1.32;
+    color: #1A1A18;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+    width: 100%;
+  }
+  pre.code.slack { line-height: 1.24; }
+  pre.code.reg {
+    line-height: 1.22;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  pre.code .cm { color: #6B6560; }
+  pre.code .kw { color: #1E3A8A; font-weight: 600; }
+  pre.code .str { color: #047857; }
+  pre.code .fn { color: #115E59; font-weight: 600; }
+  pre.code .num { color: #B91C1C; font-weight: 600; }
+  pre.code .key { color: #0F766E; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: macOS script (densest) — full-height column -->
+      <div class="col-left">
+        <div class="panel">
+          <div class="col-head">
+            <span class="badge">mac 알림</span>
+            <span class="col-title">macOS 데스크톱 알림</span>
+          </div>
+          <div class="codebox">
+<pre class="code mac"><span class="cm"># .claude/hooks/notify-mac.sh</span>
+payload=$(<span class="fn">cat</span>)
+msg=$(<span class="fn">echo</span> <span class="str">"$payload"</span> | <span class="fn">jq</span> -r <span class="str">'.message // "Claude needs input"'</span> | <span class="fn">sed</span> <span class="str">'s/"/\\"/g'</span>)
+title=$(<span class="fn">echo</span> <span class="str">"$payload"</span> | <span class="fn">jq</span> -r <span class="str">'.title // "Claude Code"'</span> | <span class="fn">sed</span> <span class="str">'s/"/\\"/g'</span>)
+type=$(<span class="fn">echo</span> <span class="str">"$payload"</span> | <span class="fn">jq</span> -r <span class="str">'.notification_type // "info"'</span>)
+<span class="cm"># notification_type별 사운드 분기 (선택)</span>
+<span class="kw">case</span> <span class="str">"$type"</span> <span class="kw">in</span>
+<span class="str">"permission_prompt"</span>) sound=<span class="str">"Glass"</span> ;;
+<span class="str">"idle_prompt"</span>) sound=<span class="str">"Submarine"</span> ;;
+<span class="str">"auth_success"</span>) sound=<span class="str">"Hero"</span> ;;
+*) sound=<span class="str">"Tink"</span> ;;
+<span class="kw">esac</span>
+<span class="fn">osascript</span> -e <span class="str">"display notification \"$msg\" with title \"$title\" sound name \"$sound\""</span>
+<span class="kw">exit</span> <span class="num">0</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Slack script (top) + settings.json registration (bottom) -->
+      <div class="col-right">
+        <div class="panel slack">
+          <div class="col-head">
+            <span class="badge">slack 알림</span>
+            <span class="col-title">Slack Webhook 알림</span>
+          </div>
+          <div class="codebox">
+<pre class="code slack"><span class="cm"># .claude/hooks/notify-slack.sh</span>
+payload=$(<span class="fn">cat</span>)
+<span class="cm"># Webhook URL 미설정 시 silent exit</span>
+[ -z <span class="str">"$SLACK_WEBHOOK_URL"</span> ] &amp;&amp; <span class="kw">exit</span> <span class="num">0</span>
+msg=$(<span class="fn">echo</span> <span class="str">"$payload"</span> | <span class="fn">jq</span> -r <span class="str">'.message // "Done"'</span>)
+<span class="cm"># jq로 JSON 페이로드 안전 빌드 (escape 자동)</span>
+json=$(<span class="fn">jq</span> -n --arg text <span class="str">"[Claude] $msg"</span> <span class="str">'{text: $text}'</span>)
+<span class="fn">curl</span> -s -X POST <span class="str">"$SLACK_WEBHOOK_URL"</span> -d <span class="str">"$json"</span> -H <span class="str">"Content-Type: application/json"</span> &gt; /dev/null || <span class="kw">true</span>
+<span class="kw">exit</span> <span class="num">0</span></pre>
+          </div>
+        </div>
+
+        <div class="panel reg">
+          <div class="col-head">
+            <span class="badge">등록</span>
+            <span class="col-title">settings.json</span>
+          </div>
+          <div class="codebox">
+<pre class="code reg">{ <span class="key">"hooks"</span>: { <span class="key">"Notification"</span>: [ { <span class="key">"hooks"</span>: [
+  { <span class="key">"type"</span>: <span class="str">"command"</span>, <span class="key">"command"</span>: <span class="str">"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-mac.sh"</span> },
+  { <span class="key">"type"</span>: <span class="str">"command"</span>, <span class="key">"command"</span>: <span class="str">"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-slack.sh"</span> }
+] } ] } }</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

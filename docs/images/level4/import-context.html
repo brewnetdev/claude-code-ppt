@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:transparent; }
+  body {
+    font-family:'Inter','Noto Sans KR',sans-serif;
+    color:#1A1A18;
+    -webkit-font-smoothing:antialiased;
+  }
+  .frame {
+    width:1280px; height:720px; position:relative; padding:44px;
+    background:transparent;
+    display:flex; flex-direction:column;
+  }
+  code, .mono { font-family:'JetBrains Mono',monospace; }
+
+  .cols {
+    display:grid;
+    grid-template-columns:1.18fr 1fr;
+    gap:32px;
+    flex:1;
+    min-height:0;
+  }
+
+  .card {
+    border:1px solid #D4D0C8;
+    border-radius:12px;
+    background:#FFFFFF;
+    padding:26px 28px;
+    display:flex; flex-direction:column;
+    min-height:0;
+  }
+
+  /* ── card header ── */
+  .card-head {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:16px;
+    padding-bottom:18px;
+    border-bottom:1px solid #D4D0C8;
+  }
+  .card-title { font-size:30px; font-weight:800; color:#1A1A18; line-height:1.18; white-space:nowrap; }
+  .card-sub { display:block; margin-top:8px; font-size:21px; font-weight:500; color:#6B6560; line-height:1.4; }
+  .badge {
+    flex:none;
+    padding:7px 15px;
+    font-size:18px; font-weight:700;
+    font-family:'JetBrains Mono',monospace;
+    border:1px solid #D4D0C8; border-radius:8px;
+    white-space:nowrap;
+  }
+  .badge.concept { color:#0F766E; border-color:#115E59; }
+  .badge.example { color:#1E3A8A; border-color:#1E3A8A; }
+
+  .def {
+    margin-top:22px;
+    font-size:23px; line-height:1.5; color:#1A1A18;
+  }
+  .def .em { font-weight:700; }
+  .def code {
+    font-family:'JetBrains Mono',monospace;
+    font-size:21px; font-weight:600; color:#1A1A18;
+    background:#F4F2EC; border:1px solid #E2DED5; border-radius:5px;
+    padding:2px 8px;
+  }
+  .def .neg { color:#B91C1C; font-weight:700; }
+
+  /* ── flow (vertical) ── */
+  .flow {
+    margin-top:22px;
+    display:flex; flex-direction:column; gap:12px;
+    flex:1;
+    min-height:0;
+  }
+  .step {
+    border:1px solid #D4D0C8; border-radius:10px;
+    background:#FAFAF8;
+    padding:16px 20px;
+    display:flex; align-items:center; gap:20px;
+    flex:1;
+    min-height:0;
+  }
+  .step .n {
+    flex:none;
+    width:54px; text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:44px; font-weight:700; color:#0F766E; line-height:1;
+  }
+  .step .txt { display:flex; flex-direction:column; min-width:0; }
+  .step .t { font-size:24px; font-weight:700; color:#1A1A18; line-height:1.25; }
+  .step .d { margin-top:6px; font-size:20px; font-weight:500; color:#6B6560; line-height:1.4; }
+  .step .d code {
+    font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; color:#1A1A18;
+  }
+
+  /* ── example code block ── */
+  .ex {
+    margin-top:22px;
+    border:1px solid #D4D0C8; border-radius:10px;
+    background:#FAFAF8;
+    overflow:hidden;
+    flex:1;
+    display:flex; flex-direction:column;
+    min-height:0;
+  }
+  .ex-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px;
+    border-bottom:1px solid #D4D0C8;
+    background:#F4F2EC;
+  }
+  .ex-head .label { font-size:20px; font-weight:700; color:#6B6560; letter-spacing:0.02em; }
+  .ex-head .path { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; color:#1A1A18; }
+  .ex-body {
+    padding:18px 22px;
+    flex:1;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .ex-line {
+    font-family:'JetBrains Mono',monospace;
+    font-size:21px; line-height:1.9; color:#1A1A18;
+    white-space:nowrap;
+  }
+  .ex-line .h { color:#1A1A18; font-weight:700; }
+  .ex-line .cm { color:#6B6560; }
+  .ex-line .li { color:#6B6560; }
+  .ex-line .key { color:#1A1A18; }
+  .ex-line .path-tok { color:#0F766E; font-weight:700; }
+
+  /* ── advantage callout (full-width bottom) ── */
+  .callout {
+    margin-top:32px;
+    display:flex; align-items:baseline; gap:16px;
+    border:1px solid #B45309; border-radius:10px;
+    background:#FAF3E6;
+    padding:20px 26px;
+    color:#7C4A02;
+    font-size:22px; line-height:1.5;
+  }
+  .callout .lbl {
+    flex:none;
+    font-family:'JetBrains Mono',monospace;
+    font-size:18px; font-weight:800; color:#7C4A02;
+    border:1px solid #B45309; border-radius:7px;
+    padding:4px 12px;
+    white-space:nowrap;
+  }
+  .callout .body { font-weight:500; }
+  .callout .body .em { font-weight:800; }
+  .callout .body code {
+    font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; color:#7C4A02;
+    background:#F3E7CE; border:1px solid #D8B981; border-radius:5px; padding:1px 7px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="cols">
+
+      <!-- LEFT: Concept + flow -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <span class="card-title">@path/to/file 임포트</span>
+            <span class="card-sub">필요할 때만 끌어오는 컨텍스트</span>
+          </div>
+          <span class="badge concept">CONCEPT</span>
+        </div>
+
+        <div class="def">
+          CLAUDE.md에 적힌 <code>@docs/api.md</code> 경로는 <span class="neg">자동 펼침이 아니다.</span>
+          모델이 그 정보가 필요하다고 판단할 때만 <code>Read</code> 도구로 읽어들인다.
+        </div>
+
+        <div class="flow">
+          <div class="step">
+            <span class="n">1</span>
+            <span class="txt">
+              <span class="t">경로만 등록</span>
+              <span class="d">CLAUDE.md에 <code>@docs/...</code> 참조만 적어둔다</span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="n">2</span>
+            <span class="txt">
+              <span class="t">평소엔 미로드</span>
+              <span class="d">본문 토큰을 차지하지 않는다 (lazy)</span>
+            </span>
+          </div>
+          <div class="step">
+            <span class="n">3</span>
+            <span class="txt">
+              <span class="t">필요 시 Read</span>
+              <span class="d">해당 주제를 만나면 그때 읽어들인다</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Example -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <span class="card-title">예시</span>
+            <span class="card-sub">Detailed References (lazy-loaded)</span>
+          </div>
+          <span class="badge example">CLAUDE.md</span>
+        </div>
+
+        <div class="ex">
+          <div class="ex-head">
+            <span class="label">예시</span>
+            <span class="path">CLAUDE.md</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-line"><span class="cm"># CLAUDE.md</span></div>
+            <div class="ex-line"><span class="h">## Detailed References (lazy-loaded)</span></div>
+            <div class="ex-line"><span class="li">- </span><span class="key">API 응답 포맷&middot;에러코드: </span><span class="path-tok">@docs/api-conventions.md</span></div>
+            <div class="ex-line"><span class="li">- </span><span class="key">DB 스키마 명명: </span><span class="path-tok">@docs/schema-conventions.md</span></div>
+            <div class="ex-line"><span class="li">- </span><span class="key">인증 흐름: </span><span class="path-tok">@docs/auth-flow.md</span></div>
+            <div class="ex-line"><span class="li">- </span><span class="key">배포 절차: </span><span class="path-tok">@docs/deploy.md</span></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="callout">
+      <span class="lbl">장점</span>
+      <span class="body"><span class="em">CLAUDE.md 자체는 작게 유지(50&ndash;80줄)</span>, 디테일은 별도 문서로 &mdash; 평소엔 토큰을 차지하지 않다가 모델이 해당 주제를 만나면 그때 읽는다.</span>
+    </div>
+  </div>
+</body>
+</html>

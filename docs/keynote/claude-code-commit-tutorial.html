@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code로 커밋 메시지 작성하기 — 튜토리얼</title>
+  <meta name="description" content="Claude Code가 git diff와 git log를 읽고 커밋 메시지를 자동 작성하는 동작 원리 + CLAUDE.md·슬래시 커맨드·husky·commitlint까지 강제 규칙을 박는 풀 튜토리얼.">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    :root {
+      --ink:        #0F172A;
+      --ink-mute:   #475569;
+      --ink-faint:  #94A3B8;
+      --bg:         #FFFFFF;
+      --surface:    #F8FAFC;
+      --surface-2:  #F1F5F9;
+      --border:     #E2E8F0;
+      --border-2:   #CBD5E1;
+      --accent:     #0F766E;
+      --accent-bg:  #F0FDFA;
+      --warn:       #B45309;
+      --warn-bg:    #FFFBEB;
+      --good:       #15803D;
+      --good-bg:    #F0FDF4;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+              "Noto Sans KR", "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.72;
+      color: var(--ink);
+      background: var(--bg);
+      font-feature-settings: "kern" 1, "liga" 1;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 64px 32px 96px;
+    }
+
+    /* --- Header --- */
+    header.doc-head {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 28px;
+      margin-bottom: 40px;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin: 0 0 12px;
+    }
+    h1.doc-title {
+      font-size: 32px;
+      line-height: 1.25;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 14px;
+      letter-spacing: -0.01em;
+    }
+    .doc-sub {
+      font-size: 16px;
+      color: var(--ink-mute);
+      margin: 0;
+      max-width: 720px;
+    }
+    .doc-meta {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+    }
+    .doc-meta > div { padding: 12px 14px; border-right: 1px solid var(--border); }
+    .doc-meta > div:last-child { border-right: 0; }
+    .doc-meta dt {
+      font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+      letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 4px;
+    }
+    .doc-meta dd { margin: 0; font-size: 14px; color: var(--ink); }
+
+    /* --- Section headings --- */
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 56px 0 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.005em;
+    }
+    h2 .part {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-right: 10px;
+      letter-spacing: 0.06em;
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 32px 0 12px;
+      color: var(--ink);
+    }
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-mute);
+      margin: 24px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--mono);
+    }
+
+    p { margin: 0 0 14px; }
+    p + p { margin-top: -2px; }
+
+    strong { color: var(--ink); font-weight: 600; }
+    em { font-style: italic; color: var(--ink); }
+
+    /* --- Inline code & code blocks --- */
+    code {
+      font-family: var(--mono);
+      font-size: 0.92em;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      color: var(--ink);
+    }
+    pre {
+      font-family: var(--mono);
+      font-size: 13.5px;
+      line-height: 1.65;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 14px 0 18px;
+    }
+    pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+    pre .ok   { color: var(--good); font-weight: 600; }
+    pre .err  { color: var(--warn); font-weight: 600; }
+    pre .cmt  { color: var(--ink-faint); }
+
+    /* --- Tables --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 22px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: var(--surface);
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+    td code { font-size: 0.88em; }
+
+    /* --- Lists --- */
+    ul, ol { padding-left: 22px; margin: 8px 0 18px; }
+    li { margin: 6px 0; }
+    li > ul, li > ol { margin: 4px 0; }
+
+    /* --- Callouts --- */
+    .callout {
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      padding: 14px 18px;
+      margin: 18px 0;
+    }
+    .callout .label {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 6px;
+    }
+    .callout.good { background: var(--good-bg); border-color: #BBF7D0; }
+    .callout.good .label { color: var(--good); }
+    .callout.warn { background: var(--warn-bg); border-color: #FDE68A; }
+    .callout.warn .label { color: var(--warn); }
+    .callout.accent { background: var(--accent-bg); border-color: #99F6E4; }
+    .callout.accent .label { color: var(--accent); }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* --- Method cards (PART 2 — CLAUDE.md / slash / 즉석) --- */
+    .method {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      margin: 20px 0;
+    }
+    .method .m-head {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: var(--ink);
+    }
+    .method .m-when {
+      font-size: 13px;
+      color: var(--ink-mute);
+      font-style: italic;
+      margin: 0 0 12px;
+    }
+
+    /* --- TL;DR block --- */
+    .tldr {
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      padding: 18px 22px;
+      margin: 28px 0 0;
+    }
+    .tldr h3 { margin: 0 0 10px; font-size: 13px;
+               font-family: var(--mono); text-transform: uppercase;
+               letter-spacing: 0.08em; color: var(--ink-mute); font-weight: 600; }
+    .tldr ol { margin: 0; padding-left: 22px; }
+    .tldr ol li { margin: 6px 0; }
+
+    /* --- Pull quote / closing --- */
+    .pull {
+      margin: 36px 0 0;
+      padding: 22px 24px;
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .pull p { margin: 0; }
+
+    footer.doc-foot {
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    a:hover { border-bottom-color: var(--accent); }
+
+    @media print {
+      body { font-size: 11pt; }
+      .wrap { padding: 0; max-width: none; }
+      pre, table, .callout, .method, .tldr { break-inside: avoid; }
+      h2 { break-after: avoid; }
+      a { color: var(--ink); border-bottom: 0; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 32px 18px 64px; }
+      h1.doc-title { font-size: 24px; }
+      .doc-meta { grid-template-columns: 1fr; }
+      .doc-meta > div { border-right: 0; border-bottom: 1px solid var(--border); }
+      .doc-meta > div:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-head">
+    <p class="eyebrow">claude-code-ppt · tutorial</p>
+    <h1 class="doc-title">Claude Code로 커밋 메시지 작성하기</h1>
+    <p class="doc-sub">
+      Claude Code는 <em>별도 기능이 아니라</em> "커밋해줘"라고 시키면 그 시점에 <code>git diff</code>와 <code>git log</code>를 읽고
+      메시지를 직접 작성·커밋합니다. 이 가이드는 기본 동작부터 <strong>CLAUDE.md·슬래시 커맨드</strong>로 규칙을 박고
+      <strong>husky + commitlint</strong>로 형식을 강제하는 풀 워크플로까지 다룹니다.
+    </p>
+    <dl class="doc-meta">
+      <div>
+        <dt>원본 문서</dt>
+        <dd><code>docs/guide/claude-code-commit-message.md</code></dd>
+      </div>
+      <div>
+        <dt>대상</dt>
+        <dd>Claude Code 입문 ~ 팀 도입 단계</dd>
+      </div>
+      <div>
+        <dt>분량 · 갱신</dt>
+        <dd>약 25분 읽기 · 2026-06</dd>
+      </div>
+    </dl>
+
+    <div class="tldr">
+      <h3>한눈에 (결론)</h3>
+      <ol>
+        <li>Claude Code는 "커밋해줘" 요청 시 <code>git status</code>·<code>git diff --staged</code>·<code>git log</code>를 읽어 메시지를 <em>스스로 작성하고 실행</em>한다.</li>
+        <li>기본값으로 <strong>Co-Authored-By 트레일러</strong>가 붙는다 → <code>includeCoAuthoredBy: false</code> + <code>CLAUDE.md</code>에 명시로 끈다.</li>
+        <li>저장소 규칙(Conventional Commits·prefix·scope)을 따르게 하려면 ① <code>CLAUDE.md</code> + <code>@import</code>, ② <code>.claude/commands/commit.md</code>, 둘 중 하나(또는 둘 다).</li>
+        <li><strong>작성은 Claude가, 검증·거부는 commitlint(husky)가</strong> — 생성과 검증은 보완 관계. 둘 다 두면 사람이 쓰든 Claude가 쓰든 형식이 보장된다.</li>
+      </ol>
+    </div>
+  </header>
+
+  <!-- PART 1 -->
+  <section>
+    <h2><span class="part">PART 1</span>Claude Code의 자동 커밋 동작</h2>
+
+    <p>먼저 <em>아무 설정 없이</em> "커밋해줘"라고 했을 때 Claude Code 내부에서 무엇이 일어나는지를 안다.</p>
+
+    <h3>3단계 내부 동작</h3>
+    <ol>
+      <li><strong>변경 파악</strong> — <code>git status</code> · <code>git diff --staged</code>로 무엇이 바뀌었는지 읽는다.</li>
+      <li><strong>스타일 참고</strong> — <code>git log</code>로 저장소의 기존 메시지 스타일·prefix 분포를 추론한다.</li>
+      <li><strong>작성·실행</strong> — 변경 성격에 맞춰 메시지를 작성하고 <code>git commit</code>을 실행한다.</li>
+    </ol>
+
+    <h3>기본 출력 형태 (끄지 않으면 자동 부착)</h3>
+    <pre><code>fix: resolve logout on session timeout
+
+Generated with Claude Code
+Co-Authored-By: Claude &lt;noreply@anthropic.com&gt;</code></pre>
+
+    <div class="callout warn">
+      <span class="label">함정 — 규칙을 안 알려주면 추론으로 결정됨</span>
+      <p>저장소 이력에서 본 <em>임의의 스타일</em>로 작성됩니다. 팀이 정한 prefix·scope 규칙을
+      따르게 하려면 <strong>PART 2</strong>의 방법 중 하나로 명시해야 합니다.</p>
+    </div>
+  </section>
+
+  <!-- PART 2 -->
+  <section>
+    <h2><span class="part">PART 2</span>규칙을 가르치는 3가지 방법</h2>
+
+    <p>전제 — 프리픽스 규칙 문서를 저장소 안 고정 경로에 둔다 (예: <code>docs/commit-prefix-guide.md</code>).</p>
+
+    <article class="method">
+      <p class="m-head">방법 A · <code>CLAUDE.md</code>에 규칙 명시 (상시 적용, 권장)</p>
+      <p class="m-when">매번 시키지 않아도 자동 적용되어야 할 때 — 팀 표준 강제용.</p>
+      <p><code>CLAUDE.md</code>는 세션 시작 시 자동 주입됩니다. 한 번 박으면 모든 세션이 규칙을 들고 시작합니다.</p>
+      <pre><code><span class="cmt">&lt;!-- CLAUDE.md --&gt;</span>
+## 커밋 규칙
+커밋 메시지는 반드시 @docs/commit-prefix-guide.md 의 프리픽스 표와 형식을 따른다.
+- 형식: &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt; (subject는 영문 명령형, 72자 이내, 마침표 없음)
+- 허용 type: feat, fix, refactor, perf, docs, test, chore, ci, style
+- Co-Authored-By 라인은 추가하지 않는다.</code></pre>
+      <p><code>@docs/commit-prefix-guide.md</code>는 해당 파일을 컨텍스트로 불러오는 <strong>import 문법</strong>입니다.
+      규칙이 길면 본문에 다 넣지 말고 이렇게 참조만 거는 게 토큰 효율적입니다.</p>
+    </article>
+
+    <article class="method">
+      <p class="m-head">방법 B · 커스텀 <code>/commit</code> 슬래시 커맨드 (필요할 때 호출)</p>
+      <p class="m-when">규칙을 상시 주입하기엔 토큰이 아깝거나, 특정 상황에서만 적용하고 싶을 때.</p>
+      <p><code>.claude/commands/commit.md</code> 파일을 만들면 채팅에서 <code>/commit</code>으로 실행됩니다.</p>
+      <pre><code><span class="cmt">&lt;!-- .claude/commands/commit.md --&gt;</span>
+@docs/commit-prefix-guide.md 의 규칙에 따라 커밋한다.
+
+1. `git status`와 `git diff --staged`로 변경 내용을 파악한다.
+2. 변경 성격에 맞는 type을 위 문서의 표에서 고른다.
+3. `&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;` 형식으로 메시지를 작성한다.
+   - subject: 영문 명령형·현재형, 72자 이내, 마침표 없음
+   - 필요 시 본문(왜 바꿨는지)과 푸터(`Closes #번호`)를 추가
+4. Co-Authored-By 라인 없이 `git commit`한다.</code></pre>
+      <p>사용:</p>
+      <pre><code>/commit</code></pre>
+      <p>팀과 공유하려면 <code>.claude/commands/</code>(프로젝트), 나만 쓰려면 <code>~/.claude/commands/</code>(개인)에 둡니다.</p>
+    </article>
+
+    <article class="method">
+      <p class="m-head">방법 C · 즉석 프롬프트 (1회용)</p>
+      <p class="m-when">규칙을 영구화할 필요 없이 한 번만 적용하고 싶을 때.</p>
+      <pre><code>@docs/commit-prefix-guide.md 규칙대로 스테이징된 변경을 커밋해줘</code></pre>
+    </article>
+
+    <div class="callout accent">
+      <span class="label">언제 무엇을 쓰는가</span>
+      <p>팀 표준이면 <strong>A</strong>, 본인만의 워크플로면 <strong>B</strong>, 일회성이면 <strong>C</strong>.
+      A + B를 함께 쓰는 것도 권장됩니다 — A로 항상 박혀 있고, B로 *명시적으로 부르고 싶을 때* 깔끔하게 호출.</p>
+    </div>
+  </section>
+
+  <!-- PART 3 -->
+  <section>
+    <h2><span class="part">PART 3</span>Conventional Commits — type 9종 풀 표</h2>
+
+    <p>type은 <strong>SemVer</strong>(Semantic Versioning) 영향과 직결됩니다 — 배포 자동화 도구가
+    <code>feat</code>는 Minor, <code>fix</code>는 Patch로 버전을 자동 상향합니다.</p>
+
+    <table>
+      <thead>
+        <tr><th style="width:90px;">type</th><th>의미</th><th>예시</th><th style="width:80px;">SemVer</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>feat</code></td><td>새 기능 추가</td><td><code>feat(auth): add password reset flow</code></td><td>Minor</td></tr>
+        <tr><td><code>fix</code></td><td>버그 수정</td><td><code>fix(editor): resolve text undo state loss</code></td><td>Patch</td></tr>
+        <tr><td><code>refactor</code></td><td>기능 변화 없이 코드 정리</td><td><code>refactor(export): extract theme CSS inliner</code></td><td>Patch</td></tr>
+        <tr><td><code>perf</code></td><td>성능 개선</td><td><code>perf(canvas): optimize overlay re-render</code></td><td>Patch</td></tr>
+        <tr><td><code>docs</code></td><td>문서 추가/수정 (코드 변화 없음)</td><td><code>docs(readme): add setup guide</code></td><td>없음</td></tr>
+        <tr><td><code>test</code></td><td>테스트 추가/수정</td><td><code>test(generator): assert theme inlining</code></td><td>없음</td></tr>
+        <tr><td><code>chore</code></td><td>빌드·의존성·설정 변경</td><td><code>chore(deps): update vite to 5.0</code></td><td>없음</td></tr>
+        <tr><td><code>ci</code></td><td>CI/CD 파이프라인 수정</td><td><code>ci(workflow): add pre-push test</code></td><td>없음</td></tr>
+        <tr><td><code>style</code></td><td>포맷·세미콜론 등 코드 스타일만</td><td><code>style: remove trailing whitespace</code></td><td>없음</td></tr>
+      </tbody>
+    </table>
+
+    <h3>BREAKING CHANGE — Major 버전 상향</h3>
+    <p>type과 무관하게 <em>하위 호환을 깬다면</em> 본문 끝에 <code>BREAKING CHANGE:</code> 푸터를 박습니다 →
+    배포 도구가 Major 버전을 올립니다. <strong>PART 5</strong>에서 자세히.</p>
+
+    <h3>좋은 커밋 / 나쁜 커밋 — 5쌍 비교</h3>
+    <table>
+      <thead>
+        <tr><th style="width:35%;">나쁜 예</th><th style="width:45%;">좋은 예</th><th>고친 이유</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>fix bug</code></td>
+          <td><code>fix(editor): resolve caret position on mobile</code></td>
+          <td>type·scope 명시, 구체적인 문제</td>
+        </tr>
+        <tr>
+          <td><code>feat: done</code></td>
+          <td><code>feat(export): add PNG per-slide export (1920×1080)</code></td>
+          <td>"done"은 의미 없음 → <em>무엇을</em> 한 건지</td>
+        </tr>
+        <tr>
+          <td><code>Update stuff</code></td>
+          <td><code>refactor(store): extract slide overlay state to atom</code></td>
+          <td>영문 명령형 ("Update" → "extract")</td>
+        </tr>
+        <tr>
+          <td><code>fix(all): lots of fixes</code></td>
+          <td><code>fix(canvas): prevent overlay drag outside viewport</code></td>
+          <td>무분별한 <code>all</code> scope 회피 → 정확한 scope</td>
+        </tr>
+        <tr>
+          <td><code>docs: korean update</code></td>
+          <td><code>docs(guide): translate CLI reference to Korean</code></td>
+          <td>객체·목적어 명시 (<em>무엇을</em> 번역했는가)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>핵심은 <strong>명령형 현재형(imperative mood)</strong>. "Add X", "Fix Y", "Update Z" 스타일.
+    Git 자체도 <em>"Merge branch 'foo'"</em>처럼 명령형으로 메시지를 만듭니다.</p>
+  </section>
+
+  <!-- PART 4 -->
+  <section>
+    <h2><span class="part">PART 4</span>본문(Body)·푸터(Footer) 작성 가이드</h2>
+
+    <p>대부분의 커밋은 <em>subject 한 줄</em>로 충분합니다. 다음 3가지 경우엔 <strong>본문</strong>이 사실상 필수입니다.</p>
+
+    <ul>
+      <li><strong>버그 수정</strong> — <em>왜</em> 이 버그가 생겼고 <em>어떻게</em> 고쳤는지</li>
+      <li><strong>리팩터링</strong> — 기존 방식의 문제점 + 새 방식의 이점</li>
+      <li><strong>성능 개선</strong> — 병목점 분석 + 개선 전후 메트릭</li>
+    </ul>
+
+    <h3>본문 작성 규칙</h3>
+    <ul>
+      <li>subject 다음 <strong>한 줄 띄우고</strong> 시작</li>
+      <li><strong>72자 이내</strong>로 줄바꿈 (git 기본 뷰 80자 컬럼 기준)</li>
+      <li><em>무엇을</em>이 아니라 <em>왜</em>에 집중 (무엇은 diff가 말해줌)</li>
+    </ul>
+
+    <h3>실전 예시 — body 있는 버그 수정</h3>
+    <pre><code>fix(editor): handle null overlay data in undo stack
+
+When undoing overlay drag operations without an initial drop,
+the overlay data could be null, causing TypeError on subsequent
+redo. Now we default to empty position array.
+
+Closes #142</code></pre>
+
+    <h3>푸터(Footer) — 이슈 추적·BREAKING CHANGE</h3>
+    <table>
+      <thead>
+        <tr><th style="width:200px;">키워드</th><th>용법</th><th>예시</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Closes</code> / <code>Fixes</code> / <code>Resolves</code></td>
+            <td>이 커밋이 이슈를 해결 (PR 머지 시 자동 close)</td>
+            <td><code>Closes #142</code></td></tr>
+        <tr><td><code>Refs</code> / <code>See</code></td>
+            <td>관련 이슈 참조 (자동 close 안 함)</td>
+            <td><code>Refs #99, #103</code></td></tr>
+        <tr><td><code>BREAKING CHANGE:</code></td>
+            <td>하위 호환 깨짐 — SemVer Major 상향 트리거</td>
+            <td><code>BREAKING CHANGE: removed legacy slideFormat API</code></td></tr>
+        <tr><td><code>Co-Authored-By:</code></td>
+            <td>공동 작성자 표시 (Claude Code 기본 부착 — 끄는 법은 PART 7)</td>
+            <td><code>Co-Authored-By: Name &lt;email&gt;</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>풀 예시 — 모든 요소 포함</h3>
+    <pre><code>refactor(store): redesign slide navigation state
+
+Previous approach used nested reducers causing race conditions
+on rapid navigation. Now using atomic Zustand atoms.
+
+Closes #87
+Refs #45, #92
+BREAKING CHANGE: removed legacyNavigationMode flag from store config</code></pre>
+  </section>
+
+  <!-- PART 5 -->
+  <section>
+    <h2><span class="part">PART 5</span>husky + commitlint — 형식 강제</h2>
+
+    <p>Claude가 규칙을 어겨도 <strong>commitlint</strong>가 커밋을 막아주면 형식이 구조적으로 보장됩니다.
+    <em>작성은 Claude · 검증은 commitlint</em> — 보완 관계.</p>
+
+    <table>
+      <thead>
+        <tr><th>역할</th><th>담당</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>커밋 메시지 <strong>작성</strong></td><td>Claude Code (문서 규칙 참조)</td></tr>
+        <tr><td>형식 <strong>검증·거부</strong></td><td><code>commitlint</code> + husky <code>commit-msg</code> 훅</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1단계 — 설치</h3>
+    <pre><code>npm install -D @commitlint/config-conventional @commitlint/cli husky
+
+<span class="cmt"># husky 초기화 (.git이 있다고 가정)</span>
+npx husky install
+
+<span class="cmt"># commit-msg 훅 추가</span>
+npx husky add .husky/commit-msg 'npx commitlint --edit "$1"'</code></pre>
+
+    <h3>2단계 — 설정 파일 <code>commitlint.config.cjs</code> (프로젝트 루트)</h3>
+    <pre><code>module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'type-enum': [2, 'always', [
+      'feat', 'fix', 'refactor', 'perf', 'docs',
+      'test', 'chore', 'ci', 'style'
+    ]],
+    'scope-case':       [2, 'always', 'lower-case'],
+    'subject-case':     [2, 'never', ['start-case', 'pascal-case']],
+    'subject-full-stop':[2, 'never', '.'],
+    'subject-empty':    [2, 'never'],
+    'type-case':        [2, 'always', 'lower-case']
+  }
+};</code></pre>
+
+    <h3>3단계 — 동작 확인</h3>
+
+    <p><strong>실패 케이스</strong> — 규칙 위반 시 훅이 막음:</p>
+    <pre><code>$ git commit -m "add new feature"
+husky &gt; commit-msg (node v22.18.0)
+<span class="err">✖   input: add new feature</span>
+<span class="err">✖   [type-enum] type must be one of [feat, fix, refactor, ...]</span>
+<span class="err">✖   1 problems (1 error)</span></code></pre>
+
+    <p><strong>성공 케이스</strong> — 규칙 준수 시 통과:</p>
+    <pre><code>$ git commit -m "feat(editor): add new overlay snap"
+husky &gt; commit-msg (node v22.18.0)
+<span class="ok">✓   commitlint check passed</span>
+[develop abc1234] feat(editor): add new overlay snap</code></pre>
+
+    <div class="callout good">
+      <span class="label">왜 둘 다 두는가</span>
+      <p>Claude가 규칙을 *대부분* 잘 따르지만 100%는 아닙니다. commitlint는 <em>구조적 안전망</em>으로,
+      Claude가 어겨도·사람이 직접 쓰다 어겨도·외부 기여자가 어겨도 동일하게 막아줍니다.
+      <strong>작성기와 검증기는 분리할 때 가장 강합니다.</strong></p>
+    </div>
+  </section>
+
+  <!-- PART 6 -->
+  <section>
+    <h2><span class="part">PART 6</span>이 저장소의 실 컨벤션 (<code>git log</code> 실측)</h2>
+
+    <p>이 가이드를 짜는 시점에 <code>git log -100</code>으로 측정한 prefix 분포입니다.</p>
+
+    <table>
+      <thead>
+        <tr><th style="width:120px;">type</th><th style="width:80px;">빈도</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>feat</code></td><td>49</td><td>가장 많음 — 기능·콘텐츠 추가 위주</td></tr>
+        <tr><td><code>fix</code></td><td>16</td><td>버그·렌더 수정</td></tr>
+        <tr><td><code>docs</code></td><td>14</td><td>발표 스크립트·가이드·README</td></tr>
+        <tr><td><code>chore</code></td><td>9</td><td>의존성·하네스·설정</td></tr>
+        <tr><td><code>test</code></td><td>4</td><td>테스트 추가</td></tr>
+        <tr><td><code>refactor</code></td><td>3</td><td>코드 정리</td></tr>
+        <tr><td><code>level</code></td><td>1</td><td>⚠️ 비표준 — <em>오타/오용</em></td></tr>
+        <tr><td><code>doc</code></td><td>1</td><td>⚠️ 비표준 — <em>오타</em> (정답: <code>docs</code>)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="label">반면교사 — 실제로 새어 들어간 오타 2건</span>
+      <p>이 저장소에 <code>level: ...</code>와 <code>doc: ...</code> 같은 비표준 prefix가 *한 번씩* 새어 들어가 있습니다.
+      훅(husky + commitlint)이 없거나 <code>--no-verify</code>로 우회됐을 가능성이 큽니다.
+      <strong>이게 정확히 PART 5의 commitlint 셋업이 필요한 이유</strong>입니다 — 사람도 Claude도 오타를 냅니다.</p>
+    </div>
+
+    <h3>이 저장소의 실 패턴 — 권고</h3>
+    <ol>
+      <li><strong>subject는 영문 명령형</strong> 유지 (Conventional Commits 표준)</li>
+      <li><strong>scope는 가능한 한 명시</strong> — 특히 <code>feat</code>·<code>fix</code>·<code>refactor</code>에서</li>
+      <li><strong>한국어 설명이 필요하면 본문에</strong> — 영문 subject 다음 한 줄 띄우고</li>
+      <li><strong>이슈 번호는 footer에</strong> — <code>Closes #N</code> 형식</li>
+    </ol>
+
+    <h3>이 저장소 톤에 맞는 풀 예시</h3>
+    <pre><code>feat(canvas): implement overlay drag-to-reposition
+
+슬라이드 오버레이 이미지를 자유롭게 드래그할 수 있게 구현.
+Moveable.js를 활용해 x/y 좌표를 실시간 업데이트.
+
+Closes #156</code></pre>
+  </section>
+
+  <!-- PART 7 -->
+  <section>
+    <h2><span class="part">PART 7</span>Co-Authored-By 끄기 + 트러블슈팅 5선</h2>
+
+    <h3>Co-Authored-By 트레일러 끄기</h3>
+    <p><code>settings.json</code>에 추가 — 전역(<code>~/.claude/settings.json</code>) 또는 프로젝트(<code>.claude/settings.json</code>):</p>
+    <pre><code>{
+  "includeCoAuthoredBy": false
+}</code></pre>
+
+    <div class="callout warn">
+      <span class="label">⚠ 함정</span>
+      <p>이 설정이 <em>간헐적으로 안 먹는</em> 사례가 보고됐습니다 (Bash 도구로 직접 커밋할 때 등).
+      확실히 막으려면 <code>CLAUDE.md</code>에도
+      <em>"Co-Authored-By 라인 추가 금지"</em>를 함께 적어두는 것이 안전합니다 (이중 방어).</p>
+    </div>
+
+    <h3>트러블슈팅 5선</h3>
+
+    <h4>① <code>includeCoAuthoredBy: false</code>가 먹지 않는다</h4>
+    <ul>
+      <li>설정이 잘못된 경로에 있음 (글로벌 vs 프로젝트 위치 확인)</li>
+      <li>업그레이드 후 캐시 미리로드 — 세션 재시작</li>
+      <li><code>/commit</code> 슬래시 커맨드가 override 지시를 가짐 → 커맨드 본문 확인</li>
+      <li><strong>이중 방어</strong>: <code>CLAUDE.md</code>에도 명시 ("Co-Authored-By 라인 추가 금지")</li>
+    </ul>
+
+    <h4>② <code>commit-msg</code> 훅이 실행되지 않는다</h4>
+    <ul>
+      <li><code>.husky/</code> 디렉터리가 <code>.gitignore</code>로 제외 — clone 후 <code>npx husky install</code> 재실행</li>
+      <li>훅 파일 실행 권한 없음 — <code>chmod +x .husky/commit-msg</code></li>
+      <li>설치 확인: <code>ls -l .husky/commit-msg</code> → <code>-rwxr-xr-x</code> 여야 함</li>
+    </ul>
+
+    <h4>③ <code>git commit --no-verify</code>의 위험</h4>
+    <p><strong>사용 금지</strong>가 원칙입니다. 훅을 우회하면 규칙 위반 메시지가 그대로 히스토리에 박힙니다
+    (PART 6의 <code>level</code>·<code>doc</code> 오타 2건이 정확히 그 결과).</p>
+    <ul>
+      <li>규칙 위반이면 <code>--no-verify</code>가 아니라 <strong>메시지를 고쳐서 다시 커밋</strong></li>
+      <li>정당한 예외가 있으면 <code>.commitlintrc</code> 규칙 자체를 PR로 수정·리뷰</li>
+    </ul>
+
+    <h4>④ 멀티라인 메시지의 따옴표 이스케이프</h4>
+    <p>Bash에서 <code>git commit -m "..."</code>로 본문에 줄바꿈을 넣으면 따옴표 오류가 발생합니다. <strong>HEREDOC</strong>을 씁니다 (Claude Code 내부도 이 방식):</p>
+    <pre><code>git commit -m "$(cat &lt;&lt;'EOF'
+feat(editor): add new overlay feature
+
+This commit adds support for free-position overlays.
+Resolves issue #156.
+EOF
+)"</code></pre>
+    <p>또는 <code>git commit</code> 단독 실행으로 에디터가 열리게 두기.</p>
+
+    <h4>⑤ Claude Code가 <code>git add -A</code>를 무의식으로 쓰는 위험</h4>
+    <p><code>.env</code>·로컬 설정·큰 바이너리가 실수로 staged돼 커밋되는 사고가 생길 수 있습니다.</p>
+    <ul>
+      <li>커밋 전 <strong>항상 <code>git status</code>로 시각 확인</strong></li>
+      <li><code>.gitignore</code> 철저히 (<code>.env</code>, <code>*.local.json</code>, <code>node_modules</code>)</li>
+      <li><code>git diff --staged</code>로 시크릿·바이너리 누수 점검</li>
+      <li><code>CLAUDE.md</code>에 명시: <em>"Use <code>git add &lt;file&gt;</code> for specific files, never <code>git add -A</code>"</em></li>
+    </ul>
+
+    <div class="callout accent">
+      <span class="label">CLAUDE.md 보완 스니펫 — Commit Safety</span>
+      <p>위 함정들을 <em>한 박스</em>로 묶어 <code>CLAUDE.md</code>에 넣어두면 모든 세션이 보호됩니다:</p>
+<pre><code>## Commit Safety
+- Always run `git status` before commit; verify `git diff --staged`.
+- Use `git add &lt;file&gt;` for specific files; never `git add -A` or `git add .`.
+- Do not add `Co-Authored-By:` trailer.
+- Never use `--no-verify` to bypass commitlint.
+- Use HEREDOC for multi-line messages.</code></pre>
+    </div>
+  </section>
+
+  <!-- Closing -->
+  <section>
+    <h2><span class="part">마무리</span>워크플로 한 장 정리</h2>
+
+    <ol>
+      <li><strong>한 번 박는다</strong> — <code>CLAUDE.md</code>에 커밋 규칙 + Commit Safety 스니펫.</li>
+      <li><strong>도구를 깐다</strong> — <code>npm i -D husky @commitlint/...</code> + <code>commitlint.config.cjs</code>.</li>
+      <li><strong>이후엔 자연어로</strong> — "커밋해줘" 한마디면 Claude가 diff를 읽고 규칙에 맞춰 작성, commitlint가 검증·통과.</li>
+      <li><strong>예외는 명시적으로</strong> — 일회성 규칙은 즉석 프롬프트(방법 C), 특수 워크플로는 <code>/commit</code> 슬래시(방법 B).</li>
+    </ol>
+
+    <div class="pull">
+      <p>
+        <strong>"작성은 Claude가, 강제는 훅이 한다."</strong><br>
+        <em>둘을 함께 두면 사람이 쓰든 Claude가 쓰든 외부 기여자가 쓰든 형식이 보장됩니다.</em>
+      </p>
+    </div>
+  </section>
+
+  <footer class="doc-foot">
+    docs/keynote/claude-code-commit-tutorial.html · 원본: <code>docs/guide/claude-code-commit-message.md</code><br>
+    참고 (2026-06 기준): Claude Code Settings (<a href="https://code.claude.com/docs/en/settings">code.claude.com/docs/en/settings</a>) ·
+    Slash Commands (<a href="https://code.claude.com/docs/en/commands">code.claude.com/docs/en/commands</a>)
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --cream: #FAF3E6;
+    --panel-bg: #FFFFFF;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .frame {
+    width:1280px; height:620px; position:relative; padding:28px 34px;
+    background:transparent;
+    display:flex; flex-direction:column; gap:12px;
+  }
+
+  /* ── top comparison row ── */
+  .compare {
+    flex:1 1 auto; min-height:0;
+    display:grid; grid-template-columns:1fr 40px 1fr; gap:0; align-items:stretch;
+  }
+
+  /* ── shared panel ── */
+  .panel {
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:14px 24px; display:flex; flex-direction:column; min-height:0;
+  }
+  .panel-head { display:flex; align-items:center; gap:14px; margin-bottom:4px; }
+  .badge {
+    font-family: var(--mono); font-size:16px; font-weight:700;
+    letter-spacing:.3px; padding:5px 13px; border:1px solid; white-space:nowrap;
+  }
+  .badge-bad  { color:var(--red);   border-color:var(--red); }
+  .badge-good { color:var(--green); border-color:var(--green); }
+  .panel-title { font-size:25px; font-weight:900; color:var(--ink); line-height:1.12; white-space:nowrap; }
+  .panel-sub { font-size:18px; color:var(--warm); margin-bottom:8px; line-height:1.3; word-break:keep-all; }
+
+  /* ── left: cycle steps ── */
+  .step {
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:5px 16px; display:flex; gap:16px; align-items:baseline;
+  }
+  .day {
+    font-family: var(--mono); font-size:19px; font-weight:700;
+    color:var(--red); flex:0 0 78px; white-space:nowrap;
+  }
+  .step-body { font-size:19px; color:var(--ink); line-height:1.25; word-break:keep-all; }
+  .step-body .req { font-weight:700; color:var(--ink); }
+  .step-body .res { color:var(--warm); }
+  .varrow {
+    text-align:center; color:var(--red); font-size:18px; line-height:1;
+    margin:2px 0; font-weight:700;
+  }
+  .loopback {
+    border:1px solid var(--red);
+    padding:7px 16px; font-size:18px; color:var(--red); font-weight:700;
+    text-align:center; margin-top:4px; letter-spacing:.2px;
+  }
+
+  /* ── center connector ── */
+  .center {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .vs {
+    font-family: var(--mono); font-size:22px; font-weight:700;
+    color:var(--warm); border:1px solid var(--line); background:var(--panel-bg);
+    width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ── right: design-first ── */
+  .pre {
+    border:1px solid var(--line); background:var(--panel-bg);
+    padding:11px 16px; display:flex; gap:16px; align-items:baseline;
+  }
+  .pre + .pre { margin-top:11px; }
+  .pre-n {
+    font-family: var(--mono); font-size:19px; font-weight:700;
+    color:#FFFFFF; background:var(--teal); flex:0 0 34px; height:34px;
+    display:flex; align-items:center; justify-content:center; align-self:center;
+  }
+  .pre-body { font-size:19px; color:var(--ink); line-height:1.35; word-break:keep-all; }
+  .pre-body .pre-t { font-weight:700; color:var(--ink); }
+  .pre-body .pre-d { color:var(--warm); }
+  .pass {
+    border:1px solid var(--green);
+    padding:10px 18px; font-size:18px; color:var(--green); font-weight:700;
+    text-align:center; margin-top:10px; letter-spacing:.2px;
+    display:flex; align-items:baseline; justify-content:center; gap:10px;
+  }
+  .pass .big { font-size:42px; font-weight:900; color:var(--green); }
+
+  .grow { flex:1 1 auto; min-height:0; }
+
+  /* ── full-width bottom callout ── */
+  .callout {
+    flex:0 0 auto;
+    border:1px solid var(--line); background:var(--cream);
+    padding:11px 26px;
+    display:flex; align-items:baseline; gap:16px;
+  }
+  .callout .key {
+    font-family: var(--mono); font-size:19px; font-weight:700;
+    color:var(--blue); flex:0 0 auto; white-space:nowrap;
+  }
+  .callout .txt {
+    font-size:19px; color:var(--ink); line-height:1.45; word-break:keep-all;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="compare">
+
+      <!-- ── LEFT: 설계 없는 개발 — 재작업 악순환 ── -->
+      <section class="panel">
+        <div class="panel-head">
+          <span class="badge badge-bad">ANTI-PATTERN</span>
+          <span class="panel-title">설계 없는 개발 — 재작업 사이클</span>
+        </div>
+        <div class="panel-sub">1주 만에 전면 재작성으로 이어지는 전형적 흐름</div>
+
+        <div class="step">
+          <span class="day">1일차</span>
+          <span class="step-body"><span class="req">"TODO 웹 애플리케이션 만들어줘"</span><br><span class="res">→ 개인용 CRUD 생성</span></span>
+        </div>
+        <div class="varrow">↓</div>
+        <div class="step">
+          <span class="day">3일차</span>
+          <span class="step-body"><span class="req">"팀 공유 기능 추가해줘"</span><br><span class="res">→ 인증/권한 시스템 급조</span></span>
+        </div>
+        <div class="varrow">↓</div>
+        <div class="step">
+          <span class="day">7일차</span>
+          <span class="step-body"><span class="req">"SaaS로 서비스하고 싶어"</span><br><span class="res">→ 멀티테넌시 구조 전면 재작성</span></span>
+        </div>
+        <div class="varrow">↓</div>
+        <div class="step">
+          <span class="day">14일차</span>
+          <span class="step-body"><span class="req">"온프레미스 설치 옵션도 필요해"</span><br><span class="res">→ 환경 설정 시스템 재설계</span></span>
+        </div>
+
+        <div class="grow"></div>
+        <div class="loopback">↻ 요청 → 코드 → 불일치 → 재작업 반복</div>
+      </section>
+
+      <!-- ── CENTER ── -->
+      <div class="center">
+        <span class="vs">VS</span>
+      </div>
+
+      <!-- ── RIGHT: 설계 후 1회 통과 ── -->
+      <section class="panel">
+        <div class="panel-head">
+          <span class="badge badge-good">DESIGN-FIRST</span>
+          <span class="panel-title">설계 후 1회 통과</span>
+        </div>
+        <div class="panel-sub">구현 전 선행되어야 할 3가지를 먼저 정의한다</div>
+
+        <div class="pre">
+          <span class="pre-n">1</span>
+          <span class="pre-body"><span class="pre-t">요구사항 분석</span><br><span class="pre-d">무엇을 만들 것인가 — 핵심·비기능 요구사항 수립</span></span>
+        </div>
+        <div class="pre">
+          <span class="pre-n">2</span>
+          <span class="pre-body"><span class="pre-t">아키텍처 결정</span><br><span class="pre-d">어떤 기술·구조로 만들 것인가 — 빌드/배포까지 영향</span></span>
+        </div>
+        <div class="pre">
+          <span class="pre-n">3</span>
+          <span class="pre-body"><span class="pre-t">인터페이스 정의</span><br><span class="pre-d">기능 정의, API 규격, 데이터 흐름 사전 정의</span></span>
+        </div>
+
+        <div class="varrow" style="color:var(--green);">↓</div>
+        <div class="pass"><span class="big">1회</span> 통과 — 요청과 결과 일치</div>
+
+        <div class="grow"></div>
+      </section>
+
+    </div>
+
+    <!-- ── full-width bottom callout ── -->
+    <div class="callout">
+      <span class="key">Garbage In, Garbage Out</span>
+      <span class="txt">입력의 품질 = 출력의 품질. 명세 없는 요청은 AI가 임의로 결정하게 만든다.</span>
+    </div>
+
+  </div>
+</body>
+</html>

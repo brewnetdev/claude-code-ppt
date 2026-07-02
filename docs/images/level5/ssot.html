@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── top SSOT band ── */
+  .ssot-band {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .ssot-box {
+    flex: 1;
+    border: 1px solid #0F766E;
+    border-radius: 8px;
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+  }
+  .ssot-box .head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .ssot-box .file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    color: #115E59;
+  }
+  .ssot-box .label {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .ssot-box .desc {
+    font-size: 22px;
+    line-height: 1.4;
+    color: #1A1A18;
+  }
+  .ssot-box .desc b { font-weight: 700; color: #047857; }
+
+  .arrow-x {
+    flex: none;
+    width: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .arrow-x .glyph {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1;
+  }
+  .arrow-x .cap {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B6560;
+    text-align: center;
+  }
+  .claude-box {
+    flex: none;
+    width: 264px;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .claude-box .file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .claude-box .desc {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #6B6560;
+  }
+
+  /* ── two-col body ── */
+  .two-col {
+    display: flex;
+    gap: 28px;
+    flex: 1;
+    min-height: 0;
+  }
+  .pane {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    border-radius: 8px;
+    padding: 11px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .pane .ttl {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .pane .ttl .t {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  .pane .ttl .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  /* docs tree */
+  .tree {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    line-height: 1.5;
+    color: #1A1A18;
+    white-space: pre;
+  }
+  .tree .self { color: #115E59; font-weight: 700; }
+  .tree .cmt { color: #6B6560; }
+
+  /* sections list */
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    flex: 1;
+    min-height: 0;
+  }
+  .sec {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 10px 16px;
+    flex: 1;
+  }
+  .sec .num {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: #0F766E;
+    line-height: 1;
+    width: 42px;
+    text-align: center;
+  }
+  .sec .body { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+  .sec .nm { font-size: 24px; font-weight: 700; color: #1A1A18; }
+  .sec .ab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #115E59;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 3px 10px;
+  }
+
+  /* ── bottom callout ── */
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 5px 12px;
+    letter-spacing: 0.02em;
+  }
+  .callout .txt {
+    flex: 1;
+    min-width: 0;
+    font-size: 20px;
+    line-height: 1.45;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .url {
+    margin-left: auto;
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #7C4A02;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- TOP: SSOT source ← referenced by CLAUDE.md -->
+    <div class="ssot-band">
+      <div class="ssot-box">
+        <div class="head">
+          <span class="file">REQUIREMENTS.md</span>
+          <span class="label">단일 진실 공급원 (Single Source of Truth)</span>
+        </div>
+        <div class="desc">FR · NFR · 사용자 스토리를 통합한 명세. 모든 작업이 <b>한 명세를 기준으로 정렬</b>된다.</div>
+      </div>
+      <div class="arrow-x">
+        <span class="glyph">&larr;</span>
+        <span class="cap">참조</span>
+      </div>
+      <div class="claude-box">
+        <span class="file">CLAUDE.md</span>
+        <span class="desc">이 문서를 참조하면 작업이 한 명세로 정렬</span>
+      </div>
+    </div>
+
+    <!-- BODY: docs tree + core sections -->
+    <div class="two-col">
+      <div class="pane">
+        <div class="ttl">
+          <span class="t">docs/ 구조</span>
+        </div>
+        <div class="tree"><span class="self">docs/</span>
+├── PRD.md            <span class="cmt"># 제품: 무엇을</span>
+├── TRD.md            <span class="cmt"># 기술: 어떻게</span>
+├── <span class="self">REQUIREMENTS.md</span>    <span class="cmt"># FR + NFR + US</span>
+├── API_SPEC.md       <span class="cmt"># API 명세</span>
+├── DATA_MODEL.md     <span class="cmt"># 스키마/ERD</span>
+├── COMPONENT_SPEC.md
+└── TEST_CASES.md     <span class="cmt"># TDD</span></div>
+      </div>
+
+      <div class="pane">
+        <div class="ttl">
+          <span class="t">REQUIREMENTS.md 핵심 섹션</span>
+        </div>
+        <div class="sections">
+          <div class="sec">
+            <span class="num">1</span>
+            <span class="body">
+              <span class="nm">기능 요구사항</span>
+              <span class="ab">FR</span>
+            </span>
+          </div>
+          <div class="sec">
+            <span class="num">2</span>
+            <span class="body">
+              <span class="nm">비기능 요구사항</span>
+              <span class="ab">NFR</span>
+            </span>
+          </div>
+          <div class="sec">
+            <span class="num">3</span>
+            <span class="body">
+              <span class="nm">사용자 스토리</span>
+              <span class="ab">US</span>
+            </span>
+          </div>
+          <div class="sec">
+            <span class="num">4</span>
+            <span class="body">
+              <span class="nm">추적 매트릭스</span>
+              <span class="ab">US &harr; FR &harr; TC</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: callout -->
+    <div class="callout">
+      <span class="tag">4.2.3 REQUIREMENTS.md</span>
+      <span class="txt">처음부터 100% 지향할 필요 없음 — <b>에이전트 교차 검증 → 보정 후 개발 진입</b>으로 토큰 낭비와 디버깅 시간이 줄어든다.</span>
+      <span class="url">github.com/claude-code-expert/markflow</span>
+    </div>
+
+  </div>
+</body>
+</html>

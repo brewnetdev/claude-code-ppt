@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 36px 44px;
+    background: transparent;
+    display: flex;
+    gap: 32px;
+  }
+
+  /* ── Left column: branch graph ── */
+  .graph-col {
+    width: 620px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .panel-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6B6560;
+  }
+  .graph {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 22px 28px;
+    position: relative;
+  }
+  .graph svg { display: block; width: 100%; height: 100%; }
+
+  .lane-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .commit-msg {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    fill: #1A1A18;
+  }
+  .commit-msg.muted { fill: #6B6560; }
+
+  /* ── Right column: command flow ── */
+  .flow-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+  .steps {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .step {
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1;
+    color: #FFFFFF;
+    background: #0F766E;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #115E59;
+    flex-shrink: 0;
+  }
+  .step-body { min-width: 0; flex: 1; }
+  .step-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.4;
+    color: #1A1A18;
+    word-break: break-word;
+  }
+  .step-cmd .kw { color: #115E59; font-weight: 700; }
+  .step-cmd .cmt { color: #6B6560; }
+  .step-cmd .br { color: #1E3A8A; font-weight: 700; }
+
+  .step-arrow {
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-arrow svg { display: block; }
+
+  .gate {
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .gate-badge {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    color: #B91C1C;
+    background: rgba(220, 38, 38, 0.10);
+    border: 1px solid #B91C1C;
+    padding: 8px 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .gate-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #115E59;
+  }
+  .gate-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1A1A18;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ── Branch graph ── -->
+    <div class="graph-col">
+      <div class="panel-label">브랜치 구조</div>
+      <div class="graph">
+        <svg viewBox="0 0 630 380" preserveAspectRatio="xMidYMid meet">
+          <!-- lane labels -->
+          <text x="0" y="52" class="lane-label" fill="#1E3A8A">develop</text>
+          <text x="0" y="148" class="lane-label" fill="#115E59">feature/*</text>
+          <text x="0" y="300" class="lane-label" fill="#B91C1C">fix/*</text>
+
+          <!-- develop main line -->
+          <line x1="130" y1="58" x2="612" y2="58" stroke="#1E3A8A" stroke-width="2.5"/>
+
+          <!-- feature branch: out of develop, back to develop (PR merge) -->
+          <path d="M 220 58 C 260 58 260 140 300 140 L 432 140 C 472 140 472 58 512 58"
+                fill="none" stroke="#115E59" stroke-width="2.5"/>
+          <!-- fix branch -->
+          <path d="M 170 58 C 210 58 210 292 250 292 L 366 292 C 406 292 406 58 446 58"
+                fill="none" stroke="#B91C1C" stroke-width="2.5"/>
+
+          <!-- develop commits -->
+          <circle cx="130" cy="58" r="9" fill="#FFFFFF" stroke="#1E3A8A" stroke-width="2.5"/>
+          <circle cx="340" cy="58" r="9" fill="#FFFFFF" stroke="#1E3A8A" stroke-width="2.5"/>
+          <circle cx="612" cy="58" r="9" fill="#1E3A8A"/>
+
+          <!-- feature commits -->
+          <circle cx="300" cy="140" r="9" fill="#FFFFFF" stroke="#115E59" stroke-width="2.5"/>
+          <circle cx="432" cy="140" r="9" fill="#115E59"/>
+          <text x="286" y="186" class="commit-msg">feat: 기능 구현</text>
+
+          <!-- merge point feature -> develop -->
+          <circle cx="512" cy="58" r="9" fill="#115E59"/>
+          <text x="470" y="36" class="commit-msg muted">PR merge</text>
+
+          <!-- fix commits -->
+          <circle cx="250" cy="292" r="9" fill="#FFFFFF" stroke="#B91C1C" stroke-width="2.5"/>
+          <circle cx="366" cy="292" r="9" fill="#B91C1C"/>
+          <text x="236" y="332" class="commit-msg">fix: 버그 수정</text>
+
+          <!-- merge point fix -> develop -->
+          <circle cx="446" cy="58" r="9" fill="#B91C1C"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ── Command flow ── -->
+    <div class="flow-col">
+      <div class="panel-label">전체 명령어 흐름</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-cmd"><span class="kw">git checkout -b</span> <span class="br">feature/my-feature</span> develop</div>
+          </div>
+        </div>
+        <div class="step-arrow"><svg width="17" height="18" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="3,10 17,10 10,21" fill="#0F766E"/></svg></div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-cmd"><span class="kw">git add</span> . &amp;&amp; <span class="kw">git commit</span> -m <span class="cmt">"feat: 기능 구현"</span></div>
+          </div>
+        </div>
+        <div class="step-arrow"><svg width="17" height="18" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="3,10 17,10 10,21" fill="#0F766E"/></svg></div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-cmd"><span class="kw">git fetch</span> origin develop &amp;&amp; <span class="kw">git merge</span> origin/develop</div>
+          </div>
+        </div>
+        <div class="step-arrow"><svg width="17" height="18" viewBox="0 0 20 22"><line x1="10" y1="0" x2="10" y2="10" stroke="#C5C2BC" stroke-width="1.5"/><polygon points="3,10 17,10 10,21" fill="#0F766E"/></svg></div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-cmd"><span class="kw">git push</span> origin <span class="br">feature/my-feature</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="gate">
+        <div class="gate-badge">PR 전 필수 통과</div>
+        <div>
+          <span class="gate-cmd">npm run lint &amp;&amp; npm run test</span>
+          <div class="gate-text">lint + test 미통과 시 PR 거부</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A18;
+    --warm: #6B6560;
+    --line: #D4D0C8;
+    --teal: #0F766E;
+    --teal-deep: #115E59;
+    --green: #047857;
+    --blue: #1E3A8A;
+    --red: #B91C1C;
+    --panel-bg: #FFFFFF;
+    --callout: #FAF3E6;
+    --sans: 'Noto Sans KR', 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 36px 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    overflow: hidden;
+  }
+
+  /* ── Pipeline grid: 6 stages in 2 rows × 3 cols ── */
+  .pipe {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+  }
+  .stage {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--line);
+    background: var(--panel-bg);
+    padding: 10px 14px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stage-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stage-num {
+    flex: 0 0 auto;
+    width: 37px;
+    height: 37px;
+    background: var(--teal);
+    border: 1px solid var(--teal-deep);
+    color: #FFFFFF;
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage-title {
+    font-family: var(--sans);
+    font-size: 25px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.08;
+    word-break: keep-all;
+    flex: 1;
+    min-width: 0;
+  }
+  .stage-ref {
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--teal-deep);
+    background: rgba(15, 118, 110, 0.10);
+    border: 1px solid rgba(15, 118, 110, 0.40);
+    padding: 3px 8px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .stage-body {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.24;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .stage-body .k { color: var(--warm); font-weight: 600; }
+  .stage-body .mono { font-family: var(--mono); font-weight: 600; font-size: 17px; color: var(--teal-deep); }
+  .stage-body .em { color: var(--teal-deep); font-weight: 700; }
+  .stage-body ul { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .stage-body li { position: relative; padding-left: 14px; }
+  .stage-body li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 5px;
+    height: 5px;
+    background: var(--warm);
+  }
+
+  /* ── Footer summary callout (full width) ── */
+  .summary {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: var(--callout);
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .summary-label {
+    flex: 0 0 auto;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--blue);
+    background: rgba(30, 64, 175, 0.10);
+    border: 1px solid rgba(30, 64, 175, 0.35);
+    padding: 6px 13px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .summary-text {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.28;
+    color: var(--ink);
+  }
+  .summary-text .step {
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--teal-deep);
+  }
+  .summary-text .sep { color: var(--warm); margin: 0 9px; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="pipe">
+
+      <!-- ① 요구사항 정의 -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">1</div>
+          <div class="stage-title">요구사항 정의</div>
+          <div class="stage-ref">2.1 · 2.3</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li>"32가지 컴포넌트 학습 사이트"</li>
+            <li>명확한 지시 <span class="em">5요소</span> 작성 <span class="k">목표·맥락·제약·완료·예시</span></li>
+            <li>완료 조건 = 32개가 <span class="em">데모·코드·접근성 노트</span>와 함께 표시</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ② 컴포넌트 분해 -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">2</div>
+          <div class="stage-title">컴포넌트 분해</div>
+          <div class="stage-ref">2.2</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li><span class="em">한 번에 한 컴포넌트</span></li>
+            <li>컴포넌트별 데모 페이지 · HTML 스니펫 · CSS 변수</li>
+            <li>상태 변형 <span class="em">4가지</span> <span class="mono">default·hover·focus·disabled</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ③ CLAUDE.md 작성 -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">3</div>
+          <div class="stage-title">CLAUDE.md 작성</div>
+          <div class="stage-ref">2.5.1</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li><span class="mono">/init</span> 자동 생성</li>
+            <li>디자인 토큰 <span class="k">색·간격·라운드·shadow</span></li>
+            <li>컴포넌트 규칙 · <span class="mono">BEM</span> 또는 utility-first 명시</li>
+            <li><span class="mono">.claude/rules/components.md</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ④ 증강코딩 + TDD -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">4</div>
+          <div class="stage-title">증강코딩 + TDD</div>
+          <div class="stage-ref">2.5.2 · 2.5.3</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li><span class="em">Red</span>(렌더 테스트 실패) → <span class="em">Green</span>(최소 구현) → <span class="em">Refactor</span>(접근성·variants)</li>
+            <li><span class="mono">/tdd-red</span> · <span class="mono">/tdd-green</span> 슬래시 커맨드</li>
+            <li>Make it work → right → fast</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ⑤ SDD 통합 -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">5</div>
+          <div class="stage-title">SDD 통합</div>
+          <div class="stage-ref">2.5.4</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li><span class="em">SpecKit</span>으로 컴포넌트 명세 작성 → 명세 기반 자동 구현</li>
+            <li>명세-구현 일치 검증</li>
+            <li>좋은 요청 vs 나쁜 요청 비교 학습</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ⑥ 매 단계 리뷰 + Git 표준화 -->
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-num">6</div>
+          <div class="stage-title">리뷰 + Git 표준화</div>
+          <div class="stage-ref">2.4 · 2.5.6</div>
+        </div>
+        <div class="stage-body">
+          <ul>
+            <li>컴포넌트 단위 PR → <span class="mono">/diff</span> · <span class="mono">/rewind</span> 리뷰</li>
+            <li><span class="mono">prettier</span> · <span class="mono">eslint</span> Hook 자동화</li>
+            <li><span class="mono">feat(component):</span> 컨벤셔널 커밋 prefix</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="summary">
+      <div class="summary-label">1개 프로젝트 통합 적용</div>
+      <div class="summary-text">2.1~2.5에서 익힌 원칙·증강코딩·TDD·SDD를 통합 — <span class="step">요구사항</span><span class="sep">→</span><span class="step">분해</span><span class="sep">→</span><span class="step">CLAUDE.md</span><span class="sep">→</span><span class="step">TDD</span><span class="sep">→</span><span class="step">SDD</span><span class="sep">→</span><span class="step">리뷰</span></div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,9 +1,21 @@
-import themeCss from '../canvas/themes/brewnet-dark.css?raw';
+import brewnetCss from '../canvas/themes/brewnet-dark.css?raw';
+import codeBlocksCss from '../canvas/themes/code-blocks.css?raw';
+import portfolioCss from '../canvas/themes/portfolio.css?raw';
+import reportCss from '../canvas/themes/report.css?raw';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { applyBackgroundToHtml } from '../scene/applySlideBackground';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { linkifyHtml } from './linkify';
+
+// The standalone bundle must ship the SAME theme CSS the live editor loads
+// (SlideRenderer.tsx imports all four) so per-template overrides win the
+// cascade — e.g. the report deck's light `[data-template="report"]` token
+// block in report.css. Shipping only brewnet-dark made every non-brewnet deck
+// (report / portfolio) fall back to the dark base, rendering light decks dark
+// and hiding dark-on-light overlay text. Order mirrors SlideRenderer +
+// generator/inlineThemeCss: brewnet-dark base first, then per-template overrides.
+const themeCss = [brewnetCss, codeBlocksCss, portfolioCss, reportCss].join('\n\n');
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',
@@ -48,6 +60,28 @@ function escapeAttr(s: string): string {
   return s.replace(/"/g, '&quot;');
 }
 
+// The editor stamps `data-template="<template>"` on each `.slide`; report.css /
+// portfolio.css scope their token overrides to that attribute. Pick the deck's
+// dominant template so the standalone `<html>` can carry it too — without it,
+// the page surround (letterbox + print background) resolves var(--bg) from the
+// brewnet-dark `:root` (dark) instead of the deck's actual palette.
+function detectDeckTemplate(slides: ParsedSlide[]): string | null {
+  const counts = new Map<string, number>();
+  for (const s of slides) {
+    const m = s.html.match(/\bdata-template="([^"]+)"/);
+    if (m) counts.set(m[1], (counts.get(m[1]) ?? 0) + 1);
+  }
+  let best: string | null = null;
+  let bestN = 0;
+  for (const [name, n] of counts) {
+    if (n > bestN) {
+      best = name;
+      bestN = n;
+    }
+  }
+  return best;
+}
+
 async function renderOverlays(overlays: Overlay[]): Promise<string> {
   if (overlays.length === 0) return '';
   const parts = await Promise.all(
@@ -73,6 +107,12 @@ async function renderOverlays(overlays: Overlay[]): Promise<string> {
 export async function buildHtmlBundle(input: BundleInput): Promise<string> {
   const { slides, overlaysBySlide, title = 'Presentation' } = input;
 
+  // Carry the deck's template onto <html> so the theme tokens (--bg/--text)
+  // resolve to the right palette for the page surround, mirroring how the
+  // editor stamps it on each .slide.
+  const template = detectDeckTemplate(slides);
+  const htmlAttrs = template ? ` data-template="${escapeAttr(template)}"` : '';
+
   const sections = await Promise.all(
     slides.map(async (s, i) => {
       const overlayHtml = await renderOverlays(overlaysBySlide[s.id] ?? []);
@@ -90,8 +130,15 @@ export async function buildHtmlBundle(input: BundleInput): Promise<string> {
       const slideHtml = overlayHtml
         ? slideHtmlRaw.replace(/<\/div>\s*$/, `${overlayHtml}\n</div>`)
         : slideHtmlRaw;
+      // Mirror the editor's host element (SlideCanvas.tsx — `.slide-canvas-host`)
+      // so theme rules code-blocks.css scopes under `.slide-canvas-host` (all
+      // terminal chrome + code-block pre padding / line-height / mono font /
+      // shiki legibility tweaks) match in the standalone bundle. Without this
+      // ancestor those 18 rules silently miss and terminals lose their padding
+      // and line spacing. `data-canvas-role` is intentionally omitted — it only
+      // gates spike.css edit affordances, which the export does not ship.
       return `<section class="export-slide" data-index="${i}">
-<div class="export-stage">
+<div class="export-stage slide-canvas-host">
 ${slideHtml}
 </div>
 </section>`;
@@ -102,7 +149,7 @@ ${slideHtml}
   // so scrolling reveals the full deck, mirroring the PDF page model. Keyboard
   // nav scrolls slide-by-slide. Print CSS keeps one slide per page.
   return `<!DOCTYPE html>
-<html lang="ko">
+<html lang="ko"${htmlAttrs}>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -112,8 +159,13 @@ ${slideHtml}
 <style>
 ${themeCss}
 
-html, body { width: 100%; margin: 0; background: #020617; color: #f1f5f9; }
-body { font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
+/* Page surround follows the deck theme. Set the surface on \`html\` (not
+   \`body\`) because brewnet-dark's editor-iframe block force-styles \`body\`
+   with !important; \`html\` carries data-template so var(--bg)/var(--text)
+   resolve to the deck's palette — cream for report, dark for brewnet. */
+html { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { width: 100%; margin: 0; }
+body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
 .export-slide { height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; border-bottom: 1px solid rgba(30,41,59,0.6); }
 .export-slide:last-child { border-bottom: 0; }
 .export-stage { position: relative; width: ${SLIDE_WIDTH}px; height: ${SLIDE_HEIGHT}px; transform-origin: center center; }

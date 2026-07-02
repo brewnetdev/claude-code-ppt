@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  table.fr {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.fr col.c-id   { width: 13%; }
+  table.fr col.c-area { width: 24%; }
+  table.fr col.c-desc { width: 63%; }
+
+  table.fr thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    color: #1A1A18;
+    padding: 0 18px 11px 18px;
+    vertical-align: bottom;
+  }
+  table.fr thead tr { border-bottom: 2px solid #0F766E; }
+
+  table.fr tbody td {
+    font-size: 22px;
+    line-height: 1.35;
+    padding: 8px 18px;
+    vertical-align: middle;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  table.fr tbody tr:last-child td { border-bottom: none; }
+
+  td.id {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 22px;
+    color: #0F766E;
+    letter-spacing: 0.01em;
+  }
+  td.area {
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  td.desc {
+    color: #1A1A18;
+    font-weight: 400;
+  }
+  td.desc .opt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #6B6560;
+  }
+
+  .callout {
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 8px;
+    padding: 15px 26px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 21px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 6px;
+    padding: 6px 14px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+  .callout .txt code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="fr">
+      <colgroup>
+        <col class="c-id"><col class="c-area"><col class="c-desc">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>기능 영역</th>
+          <th>설명</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="id">FR-001</td>
+          <td class="area">인증</td>
+          <td class="desc">이메일/비밀번호 회원가입, JWT 로그인/로그아웃, 이메일 인증</td>
+        </tr>
+        <tr>
+          <td class="id">FR-002</td>
+          <td class="area">워크스페이스</td>
+          <td class="desc">워크스페이스 CRUD, 멤버 초대 및 역할 관리, 팀별, 회사별 DB 분리 (멀티 테넌스)</td>
+        </tr>
+        <tr>
+          <td class="id">FR-003</td>
+          <td class="area">문서 CRUD</td>
+          <td class="desc">마크다운 문서 CRUD, 제목 및 본문 편집</td>
+        </tr>
+        <tr>
+          <td class="id">FR-004</td>
+          <td class="area">문서 버전 관리</td>
+          <td class="desc">수정 이력 저장, 특정 버전으로 복원</td>
+        </tr>
+        <tr>
+          <td class="id">FR-005</td>
+          <td class="area">카테고리</td>
+          <td class="desc">폴더 계층 구조 (Closure Table 패턴)</td>
+        </tr>
+        <tr>
+          <td class="id">FR-006</td>
+          <td class="area">문서 간 연관 관계</td>
+          <td class="desc">문서 간 링크 생성/삭제/조회 (이전문서, 다음문서, 속한 문서)</td>
+        </tr>
+        <tr>
+          <td class="id">FR-007</td>
+          <td class="area">태그</td>
+          <td class="desc">태그 추가/삭제, 태그 기반 필터링</td>
+        </tr>
+        <tr>
+          <td class="id">FR-008</td>
+          <td class="area">댓글</td>
+          <td class="desc">문서에 댓글 작성/수정/삭제</td>
+        </tr>
+        <tr>
+          <td class="id">FR-009</td>
+          <td class="area">에디터</td>
+          <td class="desc">CodeMirror 6 기반, 실시간 미리보기</td>
+        </tr>
+        <tr>
+          <td class="id">FR-010</td>
+          <td class="area">이미지 업로드</td>
+          <td class="desc">Cloudflare R2 첨부 <span class="opt">(선택)</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="tag">4.1.4 FR</span>
+      <span class="txt"><b>markflow MVP 기능 요구사항 정의</b> — <code>FR-001</code> ~ <code>FR-010</code>, 총 10개 기능 영역. <code>FR-010</code> 이미지 업로드는 선택 항목.</span>
+    </div>
+  </div>
+</body>
+</html>

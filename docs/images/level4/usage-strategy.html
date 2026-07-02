@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 22px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.cmp col.c-range  { width: 16%; }
+  table.cmp col.c-state  { width: 16%; }
+  table.cmp col.c-action { width: 38%; }
+  table.cmp col.c-window { width: 30%; }
+
+  table.cmp thead th {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 26px 18px 26px;
+    border-bottom: 1.5px solid #D4D0C8;
+  }
+  table.cmp thead th .hd-title {
+    font-size: 25px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+
+  table.cmp tbody td {
+    padding: 20px 26px;
+    border-bottom: 1px solid #D4D0C8;
+    vertical-align: top;
+    font-size: 23px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: none; }
+
+  td.range {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+
+  .state {
+    display: inline-block;
+    font-size: 21px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border: 1px solid #D4D0C8;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .state.ok     { color: #047857; }
+  .state.info   { color: #1E3A8A; }
+  .state.warn   { color: #B45309; }
+  .state.danger { color: #B91C1C; }
+
+  .action-strong { font-weight: 600; color: #1A1A18; }
+  .action-danger { font-weight: 700; color: #B91C1C; }
+  .sub-note { display: block; margin-top: 6px; font-size: 21px; color: #6B6560; }
+  .code-snip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #1A1A18;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 3px 11px;
+    background: #FFFFFF;
+    white-space: nowrap;
+  }
+  .win-line {
+    display: flex;
+    align-items: baseline;
+    gap: 13px;
+    font-size: 22px;
+    color: #1A1A18;
+    line-height: 1.4;
+  }
+  .win-line + .win-line { margin-top: 10px; }
+  .win-tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #6B6560;
+    border: 1px solid #D4D0C8;
+    border-radius: 6px;
+    padding: 3px 11px;
+    min-width: 78px;
+    text-align: center;
+  }
+  .win-text { font-weight: 500; }
+
+  .callout {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 22px 28px;
+    color: #7C4A02;
+    font-size: 22px;
+    line-height: 1.45;
+  }
+  .callout .src {
+    flex: none;
+    font-weight: 800;
+    font-size: 22px;
+    color: #7C4A02;
+    white-space: nowrap;
+  }
+  .callout .body { font-weight: 500; }
+  .callout .body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 21px;
+    font-weight: 600;
+    color: #7C4A02;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <table class="cmp">
+      <colgroup>
+        <col class="c-range">
+        <col class="c-state">
+        <col class="c-action">
+        <col class="c-window">
+      </colgroup>
+      <thead>
+        <tr>
+          <th><span class="hd-title">사용률</span></th>
+          <th><span class="hd-title">상태</span></th>
+          <th><span class="hd-title">권장 액션</span></th>
+          <th><span class="hd-title">윈도우 맥락 · 200K vs 1M</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="range">~50%</td>
+          <td><span class="state ok">여유</span></td>
+          <td><span class="action-strong">현재 작업 그대로 진행</span></td>
+          <td>
+            <div class="win-line"><span class="win-tag">200K</span><span class="win-text">전 모델 기본 컨텍스트</span></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="range">50&ndash;70%</td>
+          <td><span class="state info">주의</span></td>
+          <td>
+            <span class="action-strong">큰 파일 첨부 자제</span>, 검색은 <span class="code-snip">Grep</span>로 좁히기
+          </td>
+          <td>
+            <div class="win-line"><span class="win-tag">1M</span><span class="win-text">Opus 4.7&thinsp;/&thinsp;4.6 &mdash; Max&middot;Team&middot;Enterprise 자동, Pro는 Extra Usage</span></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="range">70&ndash;90%</td>
+          <td><span class="state warn">경계/위험</span></td>
+          <td>
+            <span class="code-snip">/compact</span>로 정리 또는 의도적 새 세션
+          </td>
+          <td>
+            <div class="win-line"><span class="win-tag">1M</span><span class="win-text">Sonnet 4.6 &mdash; 모든 플랜에서 Extra Usage 필요 (Pro 포함)</span></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="range">90%+</td>
+          <td><span class="state danger">위험</span></td>
+          <td>
+            <span class="action-danger">즉시 핸드오프 문서 작성</span> &rarr; 새 세션에서 재개
+          </td>
+          <td>
+            <div class="win-line"><span class="win-tag">200K</span><span class="win-text">Haiku 4.5 &mdash; 1M 미지원, 200K 고정</span></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="src">1M = 무한이 아니다</span>
+      <span class="body">컨텍스트가 커질수록 Context Rot 위험도 같이 커진다. 1M은 "필요할 때" 쓰는 도구이지 기본값으로 두는 설정이 아니다.</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 590px;
+    position: relative;
+    padding: 32px 44px;
+    background: transparent;
+    display: flex;
+    align-items: stretch;
+    gap: 36px;
+  }
+
+  /* ── Left: concept ── */
+  .concept {
+    width: 488px;
+    flex: 0 0 488px;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .c-head {
+    padding: 14px 24px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .c-head .kbadge {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0F766E;
+    border: 1px solid #0F766E;
+    background: rgba(15,118,110,0.06);
+    padding: 4px 11px;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+  }
+  .c-head .ktitle {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1A1A18;
+    white-space: nowrap;
+  }
+  .c-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* equation: TEST = SPEC */
+  .equation {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #D4D0C8;
+  }
+  .eq-cell {
+    flex: 1;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .eq-cell .term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .eq-cell.test .term { color: #0F766E; }
+  .eq-cell.spec .term { color: #1E3A8A; }
+  .eq-cell .gloss {
+    font-size: 17px;
+    color: #6B6560;
+    line-height: 1.4;
+  }
+  .eq-op {
+    flex: 0 0 60px;
+    border-left: 1px solid #D4D0C8;
+    border-right: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+
+  .lead {
+    padding: 16px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    font-size: 19px;
+    line-height: 1.5;
+    color: #1A1A18;
+  }
+  .lead strong { color: #0F766E; font-weight: 700; }
+
+  /* roles list */
+  .roles {
+    flex: 1;
+    padding: 18px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+  }
+  .role {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .role .rk {
+    flex: 0 0 auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: #047857;
+    border: 1px solid #047857;
+    background: rgba(4,120,87,0.06);
+    padding: 3px 11px;
+    line-height: 1.45;
+  }
+  .role .rt {
+    font-size: 19px;
+    line-height: 1.45;
+    color: #1A1A18;
+  }
+  .role .rt b { font-weight: 700; }
+  .role .rt .muted { color: #6B6560; }
+
+  /* ── Right: example code ── */
+  .example {
+    flex: 1;
+    border: 1px solid #D4D0C8;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .ex-head {
+    padding: 14px 28px;
+    border-bottom: 1px solid #D4D0C8;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ex-head .ebadge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: #047857;
+    border: 1px solid #047857;
+    background: rgba(4,120,87,0.06);
+    padding: 4px 13px;
+    line-height: 1.4;
+  }
+  .ex-head .etitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  /* light code box */
+  .code {
+    flex: 1;
+    margin: 16px 20px;
+    border: 1px solid #D4D0C8;
+    background: #FFFFFF;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    line-height: 1.6;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .code .ln { white-space: pre; }
+  .code .cmt { color: #047857; }
+  .code .kw  { color: #1E3A8A; font-weight: 700; }
+  .code .fn  { color: #0F766E; font-weight: 600; }
+  .code .str { color: #B91C1C; }
+  .code .pl  { color: #1A1A18; }
+  .code .dim { color: #6B6560; }
+  .code .ind1 { padding-left: 22px; }
+  .code .ind2 { padding-left: 44px; }
+  .code .ind3 { padding-left: 66px; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- LEFT: concept -->
+    <div class="concept">
+      <div class="c-head">
+        <span class="kbadge">TEST AS SPEC</span>
+        <span class="ktitle">명세 역할을 하는 테스트</span>
+      </div>
+      <div class="c-body">
+
+        <div class="equation">
+          <div class="eq-cell test">
+            <span class="term">TEST</span>
+            <span class="gloss">테스트</span>
+          </div>
+          <div class="eq-op">=</div>
+          <div class="eq-cell spec">
+            <span class="term">SPEC</span>
+            <span class="gloss">명세 · 완료조건</span>
+          </div>
+        </div>
+
+        <div class="lead">
+          테스트는 단순 <strong>검증 도구</strong>가 아닌 <strong>명세(Specification)</strong>
+        </div>
+
+        <div class="roles">
+          <div class="role">
+            <span class="rk">완료</span>
+            <span class="rt"><b>테스트 통과 = 완료조건.</b> <span class="muted">통과 여부가 곧 작업 완료의 객관적 기준이 된다.</span></span>
+          </div>
+          <div class="role">
+            <span class="rk">요청</span>
+            <span class="rt"><b>테스트가 곧 구현 지시.</b> <span class="muted">"이 테스트를 통과하는 코드를 구현해줘"로 요청한다.</span></span>
+          </div>
+          <div class="role">
+            <span class="rk">계약</span>
+            <span class="rt"><b>동작을 코드로 고정.</b> <span class="muted">기대 동작을 자연어 대신 실행 가능한 명세로 남긴다.</span></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: example code -->
+    <div class="example">
+      <div class="ex-head">
+        <span class="ebadge">예시</span>
+        <span class="etitle">테스트가 명세 역할을 하는 좋은 요청</span>
+      </div>
+      <div class="code">
+<div class="ln cmt">// 좋은 요청 (테스트가 명세 역할)</div>
+<div class="ln cmt">// "다음 테스트를 통과하는 TodoList 클래스를 구현해줘"</div>
+<div class="ln"><span class="fn">describe</span><span class="pl">(</span><span class="str">'TodoList'</span><span class="pl">, () =&gt; {</span></div>
+<div class="ln ind1"><span class="fn">it</span><span class="pl">(</span><span class="str">'새로운 할 일을 추가하면 목록에 나타난다'</span><span class="pl">, () =&gt; {</span></div>
+<div class="ln ind2"><span class="kw">const</span> <span class="pl">todoList = </span><span class="kw">new</span> <span class="fn">TodoList</span><span class="pl">();</span></div>
+<div class="ln ind2"><span class="pl">todoList.</span><span class="fn">addTodo</span><span class="pl">({</span></div>
+<div class="ln ind3"><span class="pl">title: </span><span class="str">'우유 사기'</span><span class="pl">, priority: </span><span class="str">'high'</span></div>
+<div class="ln ind2"><span class="pl">});</span></div>
+<div class="ln ind2"><span class="fn">expect</span><span class="pl">(todoList.items).</span><span class="fn">toHaveLength</span><span class="pl">(</span><span class="dim">1</span><span class="pl">);</span></div>
+<div class="ln ind2"><span class="fn">expect</span><span class="pl">(todoList.items[</span><span class="dim">0</span><span class="pl">].title).</span><span class="fn">toBe</span><span class="pl">(</span><span class="str">'우유 사기'</span><span class="pl">);</span></div>
+<div class="ln ind2"><span class="fn">expect</span><span class="pl">(todoList.items[</span><span class="dim">0</span><span class="pl">].completed).</span><span class="fn">toBe</span><span class="pl">(</span><span class="kw">false</span><span class="pl">);</span></div>
+<div class="ln ind1"><span class="pl">});</span></div>
+<div class="ln"><span class="pl">});</span></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

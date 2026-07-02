@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    padding: 44px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .grid {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sec-lbl {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .sec-lbl .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #0F766E;
+    border: 1px solid #0F766E;
+    border-radius: 7px;
+    padding: 6px 14px;
+    flex: none;
+  }
+  .sec-lbl .t {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1A1A18;
+    line-height: 1.2;
+  }
+
+  table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.tbl thead th {
+    text-align: left;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1A1A18;
+    padding: 0 16px 14px 16px;
+    vertical-align: bottom;
+  }
+  table.tbl thead tr { border-bottom: 3px solid #0F766E; }
+  table.tbl tbody td {
+    font-size: 22px;
+    line-height: 1.36;
+    padding: 9px 16px;
+    vertical-align: top;
+    border-bottom: 1px solid #D4D0C8;
+    color: #1A1A18;
+  }
+  table.tbl tbody tr:last-child td { border-bottom: none; }
+
+  /* WHY table */
+  table.why col.c-key { width: 42%; }
+  table.why col.c-val { width: 58%; }
+  table.why td.k {
+    color: #B91C1C;
+    font-weight: 600;
+  }
+  table.why td.v {
+    color: #047857;
+    font-weight: 600;
+  }
+  table.why td.v .mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+  /* BEFORE / AFTER table */
+  table.ba col.c-cat { width: 22%; }
+  table.ba col.c-bef { width: 39%; }
+  table.ba col.c-aft { width: 39%; }
+  table.ba thead th.h-bef { color: #B91C1C; }
+  table.ba thead th.h-aft { color: #047857; }
+  table.ba td.cat {
+    font-weight: 700;
+    color: #1A1A18;
+  }
+  table.ba td.bef {
+    color: #B91C1C;
+    font-weight: 500;
+  }
+  table.ba td.bef .q { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  table.ba td.aft {
+    color: #047857;
+    font-weight: 500;
+  }
+  table.ba td.aft .mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+  .callout {
+    flex: none;
+    background: #FAF3E6;
+    border: 1px solid #B45309;
+    border-radius: 10px;
+    padding: 18px 26px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .callout .tag {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #7C4A02;
+    border: 1px solid #B45309;
+    border-radius: 7px;
+    padding: 6px 14px;
+    letter-spacing: 0.03em;
+  }
+  .callout .txt {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #7C4A02;
+    font-weight: 500;
+  }
+  .callout .txt b { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="grid">
+
+      <!-- WHY AI + SDD -->
+      <div class="block">
+        <div class="sec-lbl">
+          <span class="badge">WHY SDD</span>
+          <span class="t">왜 AI와 SDD가 잘 맞는가</span>
+        </div>
+        <table class="tbl why">
+          <colgroup><col class="c-key"><col class="c-val"></colgroup>
+          <thead>
+            <tr>
+              <th>문제</th>
+              <th>SDD 해결책</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">AI가 합리적이지만 틀린 가정을 함</td>
+              <td class="v">명세가 모든 결정의 기준이 됨</td>
+            </tr>
+            <tr>
+              <td class="k">세션 간 컨텍스트 손실</td>
+              <td class="v"><span class="mono">REQUIREMENTS.md</span> + <span class="mono">CLAUDE.md</span>가 세션 너머로 전달</td>
+            </tr>
+            <tr>
+              <td class="k">바이브 코딩의 일관성 부재</td>
+              <td class="v">구현이 명세를 따르는지 테스트로 검증</td>
+            </tr>
+            <tr>
+              <td class="k">리팩토링 시 회귀</td>
+              <td class="v">명세 기반 테스트가 회귀 방지</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- BEFORE / AFTER -->
+      <div class="block">
+        <div class="sec-lbl">
+          <span class="badge">BEFORE / AFTER</span>
+          <span class="t">SDD 적용 전후 비교 (markflow 기준)</span>
+        </div>
+        <table class="tbl ba">
+          <colgroup><col class="c-cat"><col class="c-bef"><col class="c-aft"></colgroup>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th class="h-bef">명세 없는 바이브 코딩</th>
+              <th class="h-aft">SDD 적용</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cat">문서 API 구현</td>
+              <td class="bef">AI가 필드명을 임의로 결정</td>
+              <td class="aft"><span class="mono">DATA_MODEL.md</span> 기준으로 100% 일치</td>
+            </tr>
+            <tr>
+              <td class="cat">버전 관리 로직</td>
+              <td class="bef"><span class="q">"completedAt을 기록할까요?"</span> 반복 질문</td>
+              <td class="aft">비즈니스 규칙이 명세에 정의 → 즉시 구현</td>
+            </tr>
+            <tr>
+              <td class="cat">회귀 발생 시</td>
+              <td class="bef">원인 추적 어려움</td>
+              <td class="aft"><span class="mono">TEST_CASES.md</span> 기반 테스트로 즉시 감지</td>
+            </tr>
+            <tr>
+              <td class="cat">Spec Drift</td>
+              <td class="bef">명세와 코드 불일치 누적</td>
+              <td class="aft">검증 단계에서 즉시 발견</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <span class="tag">핵심</span>
+      <span class="txt">SDD는 AI에게 <b>"더 똑똑해져라"가 아니라 "더 정확한 입력을 줘라"</b>를 강제한다. 입력 품질 = 출력 품질.</span>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>A6-IMG-4 · 스케줄링 3종 비교</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="_theme.css">
+</head>
+<body>
+<div class="frame">
+  <h1 class="title">스케줄링 3종 비교 — 무엇을 언제 쓰나</h1>
+  <p class="subtitle">수명 · 실행 위치 · 트리거 · 신뢰도 · 비용으로 가른다</p>
+
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th style="width:170px"></th>
+        <th class="mono" style="color:#2B2B2B">/loop</th>
+        <th style="color:#2B2B2B">Desktop tasks</th>
+        <th style="color:#2B2B2B">Cloud Routines</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="k">수명</td>
+        <td>5~7일 만료</td>
+        <td>머신 켜진 동안</td>
+        <td>24 · 7 상시</td>
+      </tr>
+      <tr>
+        <td class="k">실행 위치</td>
+        <td>현재 세션</td>
+        <td>로컬 머신</td>
+        <td>Anthropic 인프라 (격리 VM)</td>
+      </tr>
+      <tr>
+        <td class="k">트리거</td>
+        <td>세션 폴링</td>
+        <td>로컬 스케줄</td>
+        <td><span class="mono">cron</span> · <span class="mono">webhook</span></td>
+      </tr>
+      <tr>
+        <td class="k">신뢰도</td>
+        <td>낮음</td>
+        <td>중간</td>
+        <td class="teal bold">높음</td>
+      </tr>
+      <tr>
+        <td class="k">비용</td>
+        <td>세션 비용</td>
+        <td>로컬</td>
+        <td>credit (유료)</td>
+      </tr>
+      <tr>
+        <td class="k">권장 상황</td>
+        <td>개발 중 빠른 피드백</td>
+        <td>로컬 파일 필요</td>
+        <td>무인 상시 운영</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

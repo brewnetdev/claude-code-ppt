@@ -2,6 +2,7 @@
 
 ## Environment Variables
 
+- `BUMP` **required** — docs/images/level5/_batch-bump.mjs
 - `CI` **required** — playwright.config.ts
 - `DEV` **required** — src/main.tsx
 

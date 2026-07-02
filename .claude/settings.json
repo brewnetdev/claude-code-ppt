@@ -1,4 +1,15 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(sed -n '47,62p' src/exporter/htmlBundle.ts)",
+      "Bash(sed -n '1,40p' src/persistence/slideMigrations.ts)",
+      "Bash(npm run *)",
+      "Bash(npx vitest *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,2\\)\\)\")",
+      "Bash(npx eslint *)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -6,7 +17,97 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-block-destructive.sh",
+            "command": "bash .claude/hooks/carve-block-destructive.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-protect-secrets.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-pre-push-test.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-codesight-refresh.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-pre-commit-lint.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-block-destructive.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-protect-secrets.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-pre-commit-lint.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-pre-push-test.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-codesight-refresh.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-block-destructive.sh",
             "_carve": true
           }
         ]
@@ -16,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-protect-secrets.sh",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-protect-secrets.sh",
             "_carve": true
           }
         ]
@@ -26,7 +127,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-pre-push-test.sh",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-pre-commit-lint.sh",
             "_carve": true
           }
         ]
@@ -36,7 +137,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-codesight-refresh.sh",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-pre-push-test.sh",
+            "_carve": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-codesight-refresh.sh",
             "_carve": true
           }
         ]
@@ -48,7 +159,53 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-anti-slop.sh",
+            "command": "bash .claude/hooks/carve-anti-slop.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-auto-format.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-auto-format.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-anti-slop.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-auto-format.sh",
+            "_carve": true
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-anti-slop.sh",
             "_carve": true
           }
         ]
@@ -60,7 +217,25 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/carve-precompact-handoff.sh",
+            "command": "bash .claude/hooks/carve-precompact-handoff.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-precompact-handoff.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-precompact-handoff.sh",
             "_carve": true
           }
         ]
@@ -72,7 +247,25 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/subagent-chain.sh",
+            "command": "bash .claude/hooks/subagent-chain.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent-chain.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent-chain.sh",
             "_carve": true
           }
         ]
@@ -84,7 +277,85 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/subagent-chain.sh",
+            "command": "bash .claude/hooks/subagent-chain.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent-chain.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent-chain.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/carve-slack-notify.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-slack-notify.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/carve-slack-notify.sh",
+            "_carve": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/squad-router.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/squad-router.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/squad-router.sh",
             "_carve": true
           }
         ]
