@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" font-family="Pretendard, IBM Plex Sans KR, sans-serif" data-sae-id="e0001">
+  <rect x="0" y="0" width="960" height="410" fill="#F4F4F6" data-sae-id="e0002"/>
+  <rect id="frame" x="3" y="3" width="954" height="404" rx="10" fill="#F4F4F6" stroke="#c4c9d4" stroke-width="1.5" data-sae-id="e0003"/>
+
+  <text x="56" y="48" text-anchor="start" font-size="13" font-weight="700" letter-spacing="1.5" fill="#3B5BDB" data-sae-id="e0004">CURRICULUM ROADMAP</text>
+  <text x="56" y="86" text-anchor="start" font-size="28" font-weight="800" fill="#1a1a1a" data-sae-id="e0005">설치부터 실서비스 배포·자동화까지, 6단계 학습 여정</text>
+  <text x="56" y="118" text-anchor="start" font-size="15" font-weight="500" fill="#4b5563" data-sae-id="e0006">하나의 실전 SaaS 프로젝트(markflow)를 기획 → 개발 → 배포 → 자동화까지 끊김 없이 완주합니다.</text>
+
+  <!-- 6 level boxes -->
+  <g id="lv-1" data-sae-id="e0056">
+    <rect x="56" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0057"/>
+    <rect x="89" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0058"/>
+    <text x="121" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0059">Lv.1</text>
+    <text x="121" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0060">환경 구축</text>
+    <text x="121" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0061">터미널·Git</text>
+    <text x="121" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0062">설치·모델·설정</text>
+  </g>
+  <g id="lv-2" data-sae-id="e0063">
+    <rect x="200" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0064"/>
+    <rect x="233" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0065"/>
+    <text x="265" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0066">Lv.2</text>
+    <text x="265" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0067">개발 방법론</text>
+    <text x="265" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0068">AI 협업 원칙</text>
+    <text x="265" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0069">설계·분해·리뷰</text>
+  </g>
+  <g id="lv-3" data-sae-id="e0070">
+    <rect x="344" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0071"/>
+    <rect x="377" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0072"/>
+    <text x="409" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0073">Lv.3</text>
+    <text x="409" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0074">컨텍스트·TDD</text>
+    <text x="409" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0075">프롬프트·컨텍스트</text>
+    <text x="409" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0076">TDD·SDD·SpecKit</text>
+  </g>
+  <g id="lv-4" data-sae-id="e0077">
+    <rect x="488" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0078"/>
+    <rect x="521" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0079"/>
+    <text x="553" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0080">Lv.4</text>
+    <text x="553" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0081">도구 확장</text>
+    <text x="553" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0082">스킬·커맨드·훅</text>
+    <text x="553" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0083">MCP·플러그인</text>
+  </g>
+  <g id="lv-5" data-sae-id="e0084">
+    <rect x="632" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0085"/>
+    <rect x="665" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0086"/>
+    <text x="697" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0087">Lv.5</text>
+    <text x="697" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0088">실전 풀스택</text>
+    <text x="697" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0089">markflow 프로젝트</text>
+    <text x="697" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0090">기획→구현→고도화</text>
+  </g>
+  <g id="lv-6" data-sae-id="e0091">
+    <rect x="776" y="152" width="130" height="148" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0092"/>
+    <rect x="809" y="168" width="64" height="22" rx="6" fill="#ffffff" stroke="#3B5BDB" stroke-width="1" data-sae-id="e0093"/>
+    <text x="841" y="183" text-anchor="middle" font-size="12" font-weight="600" fill="#3B5BDB" data-sae-id="e0094">Lv.6</text>
+    <text x="841" y="224" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1a1a1a" data-sae-id="e0095">배포·운영</text>
+    <text x="841" y="256" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0096">CI/CD·클라우드</text>
+    <text x="841" y="275" text-anchor="middle" font-size="12.5" fill="#6b7280" data-sae-id="e0097">인증·보안·SEO</text>
+  </g>
+
+  <!-- chevrons between all boxes (L1→L6 continuous) -->
+  <g id="arrows" fill="none" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" data-sae-id="e0098">
+    <path d="M189 219 L196 226 L189 233" data-sae-id="e0099"/>
+    <path d="M333 219 L340 226 L333 233" data-sae-id="e0100"/>
+    <path d="M477 219 L484 226 L477 233" data-sae-id="e0101"/>
+    <path d="M621 219 L628 226 L621 233" data-sae-id="e0102"/>
+    <path d="M765 219 L772 226 L765 233" data-sae-id="e0103"/>
+  </g>
+
+  <line x1="56" y1="344" x2="904" y2="344" stroke="#e0e0e0" stroke-width="1" data-sae-id="e0054"/>
+  <text x="56" y="370" text-anchor="start" font-size="15" fill="#6b7280" data-sae-id="e0055">총 10~12시간 · 레벨별 프로젝트 실습 · 강의자료 <tspan fill="#3B5BDB" text-decoration="underline">run-ai.kr</tspan> / <tspan fill="#3B5BDB" text-decoration="underline">github.com/claude-code-expert/inflearn-docs</tspan></text>
+</svg>

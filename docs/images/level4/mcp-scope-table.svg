@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 608 489" font-family="'IBM Plex Sans KR','Pretendard','Noto Sans KR',sans-serif">
+  <text x="16" y="30" font-size="19" font-weight="700" fill="#1E293B">Scope별 저장 위치 — 정확히 어디?</text>
+
+  <!-- header -->
+  <line x1="16" y1="52" x2="592" y2="52" stroke="#0F766E" stroke-width="1.5"/>
+  <text x="24" y="76" font-size="14" font-weight="700" fill="#475569">Scope</text>
+  <text x="140" y="76" font-size="14" font-weight="700" fill="#475569">저장 위치</text>
+  <text x="508" y="76" font-size="14" font-weight="700" fill="#475569">팀 공유</text>
+  <line x1="16" y1="90" x2="592" y2="90" stroke="#C5C2BC" stroke-width="1"/>
+
+  <!-- row: local -->
+  <text x="24" y="122" font-size="16" font-weight="700" fill="#1E293B">local</text>
+  <text x="24" y="142" font-size="12" fill="#94A3B8">기본값</text>
+  <text x="140" y="118" font-size="14" font-family="'JetBrains Mono',monospace" fill="#1E293B">~/.claude.json</text>
+  <text x="140" y="140" font-size="13" font-family="'JetBrains Mono',monospace" fill="#64748B">.projects.&lt;프로젝트경로&gt;.mcpServers</text>
+  <text x="140" y="162" font-size="13" fill="#94A3B8">현재 사용자 + 현재 프로젝트만</text>
+  <text x="508" y="130" font-size="14" fill="#64748B">✕ 개인</text>
+  <line x1="16" y1="180" x2="592" y2="180" stroke="#C5C2BC" stroke-width="1"/>
+
+  <!-- row: project (accent) -->
+  <rect x="16" y="180" width="576" height="92" fill="#F5F3F0"/>
+  <text x="24" y="214" font-size="16" font-weight="700" fill="#0F766E">project</text>
+  <text x="140" y="210" font-size="14" font-family="'JetBrains Mono',monospace" fill="#1E293B">&lt;프로젝트루트&gt;/.mcp.json</text>
+  <text x="140" y="232" font-size="13" fill="#64748B">.claude/ 안이 아니라 루트 직속</text>
+  <text x="140" y="254" font-size="13" fill="#94A3B8">모든 사용자 + 현재 프로젝트</text>
+  <text x="508" y="222" font-size="14" font-weight="600" fill="#0F766E">○ git 커밋</text>
+  <line x1="16" y1="272" x2="592" y2="272" stroke="#C5C2BC" stroke-width="1"/>
+
+  <!-- row: user -->
+  <text x="24" y="306" font-size="16" font-weight="700" fill="#1E293B">user</text>
+  <text x="140" y="302" font-size="14" font-family="'JetBrains Mono',monospace" fill="#1E293B">~/.claude.json</text>
+  <text x="140" y="324" font-size="13" font-family="'JetBrains Mono',monospace" fill="#64748B">.mcpServers (최상위 키)</text>
+  <text x="140" y="346" font-size="13" fill="#94A3B8">현재 사용자 + 모든 프로젝트</text>
+  <text x="508" y="314" font-size="14" fill="#64748B">✕ 개인</text>
+  <line x1="16" y1="364" x2="592" y2="364" stroke="#C5C2BC" stroke-width="1"/>
+
+  <!-- trap note -->
+  <rect x="16" y="392" width="576" height="80" fill="none" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="32" y="420" font-size="14" font-weight="700" fill="#1E293B">함정: ~/.claude.json 은 user와 local을 둘 다 담는 이중 인격 파일</text>
+  <text x="32" y="442" font-size="13" fill="#64748B">최상위 mcpServers → user 스코프</text>
+  <text x="32" y="462" font-size="13" fill="#64748B">projects.&lt;경로&gt;.mcpServers → local 스코프</text>
+</svg>

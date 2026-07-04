@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# Python virtualenv (svg skill deps: lxml, cairosvg)
+.venv/
+venv/
+
 # docs/resource
 # Logs
 logs

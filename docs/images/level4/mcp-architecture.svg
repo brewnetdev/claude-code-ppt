@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1018 554" font-family="'IBM Plex Sans KR','Pretendard','Noto Sans KR',sans-serif">
+  <!-- title -->
+  <text x="40" y="44" font-size="26" font-weight="700" fill="#1E293B">MCP — AI를 위한 표준 연결 포트</text>
+  <text x="40" y="74" font-size="16" fill="#64748B">USB-C처럼, 프로토콜 하나로 모든 외부 도구와 데이터를 같은 방식으로 연결한다</text>
+
+  <!-- host box -->
+  <rect x="40" y="130" width="300" height="330" fill="#FFFFFF" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="66" y="172" font-size="19" font-weight="700" fill="#1E293B">MCP Host</text>
+  <text x="66" y="198" font-size="15" fill="#64748B">Claude Code · Claude 앱 · 기타 AI 도구</text>
+  <rect x="66" y="230" width="248" height="86" fill="none" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="90" y="266" font-size="17" font-weight="600" fill="#0F766E">MCP Client</text>
+  <text x="90" y="292" font-size="14" fill="#64748B">서버마다 1:1 연결을 유지</text>
+  <text x="66" y="424" font-size="14" fill="#94A3B8">호스트는 서버가 무엇이든</text>
+  <text x="66" y="444" font-size="14" fill="#94A3B8">같은 프로토콜로 대화한다</text>
+
+  <!-- protocol hub bar -->
+  <rect x="424" y="130" width="52" height="330" fill="#F5F3F0" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="456" y="295" font-size="16" font-weight="700" fill="#0F766E" transform="rotate(-90 456 295)" text-anchor="middle">MCP 프로토콜</text>
+
+  <!-- client to hub -->
+  <line x1="314" y1="273" x2="424" y2="273" stroke="#0F766E" stroke-width="1.5"/>
+
+  <!-- hub to servers -->
+  <line x1="476" y1="175" x2="560" y2="175" stroke="#C5C2BC" stroke-width="1.5"/>
+  <line x1="476" y1="295" x2="560" y2="295" stroke="#C5C2BC" stroke-width="1.5"/>
+  <line x1="476" y1="415" x2="560" y2="415" stroke="#C5C2BC" stroke-width="1.5"/>
+
+  <!-- server boxes -->
+  <rect x="560" y="130" width="240" height="90" fill="#FFFFFF" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="584" y="166" font-size="17" font-weight="600" fill="#1E293B">MCP Server — GitHub</text>
+  <text x="584" y="192" font-size="14" fill="#64748B">PR · 이슈 · 코드 리뷰</text>
+
+  <rect x="560" y="250" width="240" height="90" fill="#FFFFFF" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="584" y="286" font-size="17" font-weight="600" fill="#1E293B">MCP Server — Slack</text>
+  <text x="584" y="312" font-size="14" fill="#64748B">메시지 · 채널 알림</text>
+
+  <rect x="560" y="370" width="240" height="90" fill="#FFFFFF" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="584" y="406" font-size="17" font-weight="600" fill="#1E293B">MCP Server — Filesystem</text>
+  <text x="584" y="432" font-size="14" fill="#64748B">로컬 파일 읽기 · 쓰기</text>
+
+  <!-- server to resource tags -->
+  <line x1="800" y1="175" x2="856" y2="175" stroke="#C5C2BC" stroke-width="1.5"/>
+  <line x1="800" y1="295" x2="856" y2="295" stroke="#C5C2BC" stroke-width="1.5"/>
+  <line x1="800" y1="415" x2="856" y2="415" stroke="#C5C2BC" stroke-width="1.5"/>
+
+  <rect x="856" y="145" width="122" height="60" fill="#F5F3F0" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="917" y="181" font-size="14" fill="#475569" text-anchor="middle">원격 서비스</text>
+  <rect x="856" y="265" width="122" height="60" fill="#F5F3F0" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="917" y="301" font-size="14" fill="#475569" text-anchor="middle">원격 서비스</text>
+  <rect x="856" y="385" width="122" height="60" fill="#F5F3F0" stroke="#C5C2BC" stroke-width="1" rx="6"/>
+  <text x="917" y="421" font-size="14" fill="#475569" text-anchor="middle">로컬 데이터</text>
+
+  <!-- bottom caption -->
+  <text x="40" y="520" font-size="15" fill="#475569">서버 하나를 더 꽂으면 능력이 하나 늘어난다 — 호스트 코드는 그대로.</text>
+</svg>
