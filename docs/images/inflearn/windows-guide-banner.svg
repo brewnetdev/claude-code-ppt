@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" width="160" height="100" data-sae-id="e0001">
+  <!-- 폰트: IBM Plex Sans KR(본문)·IBM Plex Mono(코드) — 가이드 패밀리 코드 병기 일관성 -->
+  <g id="bg" data-sae-id="e0002">
+    <rect x="0.5" y="0.5" width="159" height="99" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" data-sae-id="e0003"/>
+  </g>
+  <g id="win-glyph" data-sae-id="e0004">
+    <!-- Windows 4분면 글리프 = 대상 OS 식별 -->
+    <rect x="120" y="14" width="10" height="10" fill="#B45309" data-sae-id="e0005"/>
+    <rect x="132" y="14" width="10" height="10" fill="#B45309" data-sae-id="e0006"/>
+    <rect x="120" y="26" width="10" height="10" fill="#B45309" data-sae-id="e0007"/>
+    <rect x="132" y="26" width="10" height="10" fill="#B45309" data-sae-id="e0008"/>
+  </g>
+  <g id="text-block" data-sae-id="e0009">
+    <text x="12" y="24" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="2" font-weight="600" fill="#B45309" data-sae-id="e0010">WINDOWS</text>
+    <text x="12" y="46" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif" font-size="18" font-weight="700" fill="#1A1A1A" data-sae-id="e0011">Claude Code</text>
+    <text x="12" y="65" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif" font-size="13" font-weight="500" fill="#374151" data-sae-id="e0012">설치 가이드</text>
+  </g>
+  <g id="terminal-chip" data-sae-id="e0013">
+    <!-- 터미널 프롬프트 칩 = CLI 도구임을 전달 -->
+    <rect x="12" y="76" width="98" height="15" rx="2" fill="#1A1A1A" data-sae-id="e0014"/>
+    <text x="18" y="86.5" font-family="IBM Plex Mono, monospace" font-size="8" fill="#FFFFFF" data-sae-id="e0015"><tspan fill="#B45309" data-sae-id="e0016">&gt;</tspan> claude --version</text>
+  </g>
+</svg>

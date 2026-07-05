@@ -168,6 +168,17 @@ export type CourseStage = {
 
 export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
   {
+    name: '강의 소개',
+    levels: [
+      {
+        level: 0,
+        label: '강의 소개 · 단계별 학습 가이드',
+        topic: 'LEVEL 1–7 전체 지도 · 레벨별 PART 구성 · 저자 직강 소개',
+        deckId: 'claude-code-course-intro',
+      },
+    ],
+  },
+  {
     name: '설치 · 개발 환경',
     levels: [
       {
@@ -195,8 +206,8 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       },
       {
         level: 4,
-        label: '스킬·커맨드·Hook·MCP·컨텍스트',
-        topic: '프롬프트·컨텍스트, CLAUDE.md, 슬래시 커맨드, Skill·Hook·MCP',
+        label: '스킬 · 커맨드 · Hook · MCP',
+        topic: '슬래시 커맨드, Skill, Hook, MCP — Claude Code 확장과 자동화',
         deckId: 'claude-code-level4-chapter4',
       },
     ],
@@ -207,7 +218,7 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       {
         level: 5,
         label: '실전 워크플로우',
-        topic: '기획·명세·SDD 풀스택, 디버깅·리팩토링·플러그인',
+        topic: '기획·명세·SDD 풀스택, 디버깅·리팩토링·프론트엔드',
         deckId: 'claude-code-level5-chapter5',
       },
     ],

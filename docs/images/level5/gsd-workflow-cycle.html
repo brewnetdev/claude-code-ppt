@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+  --teal:#0F766E; --teal-deep:#115E59; --blue:#1E3A8A;
+  --panel-bg:#FFFFFF; --cream:#FAF3E6;
+  --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ background:transparent; }
+body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+.frame{ width:1280px; height:590px; padding:24px 30px; display:flex; align-items:stretch; }
+
+.col-head{ font-family:var(--mono); font-size:16px; font-weight:700; letter-spacing:0.06em; color:var(--warm); margin-bottom:10px; white-space:nowrap; }
+.col-head b{ color:var(--teal-deep); margin-right:8px; }
+
+.panel{ border:1px solid var(--line); background:var(--panel-bg); border-radius:6px; }
+.cmd{ font-family:var(--mono); font-size:17px; font-weight:700; color:var(--teal-deep); white-space:nowrap; }
+
+/* col 1 — new project */
+.c1{ width:252px; display:flex; flex-direction:column; }
+.c1 .panel{ flex:1; padding:18px 18px; display:flex; flex-direction:column; justify-content:space-between; }
+.c1 .cmd{ font-size:19px; }
+.mini-step{ border:1px solid var(--line); border-radius:4px; padding:10px 10px; font-size:17px; font-weight:500; text-align:center; }
+.mini-arrow{ text-align:center; color:var(--warm); font-size:15px; line-height:1.5; }
+.c1 .note{ font-size:14.5px; color:var(--warm); line-height:1.45; }
+
+/* arrows between columns */
+.gap-arrow{ width:52px; display:flex; align-items:center; justify-content:center; font-size:26px; color:var(--warm); padding-top:26px; }
+
+/* col 2 — phase loop */
+.c2{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.c2 .panel{ flex:1; padding:10px 20px 14px; display:flex; flex-direction:column; }
+.step-row{ flex:1; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--line); }
+.step-row:last-of-type{ border-bottom:none; }
+.step-row .cmd{ flex:0 0 262px; font-size:19px; }
+.step-row .desc{ font-size:18px; line-height:1.35; white-space:nowrap; }
+.tag{ display:inline-block; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--blue); border:1px solid var(--blue); border-radius:4px; padding:1px 6px; margin-left:8px; vertical-align:1px; white-space:nowrap; }
+.loop-note{ margin-top:12px; flex:0 0 auto; background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:11px 16px; font-size:17px; line-height:1.4; }
+.loop-note b{ color:var(--teal-deep); }
+
+/* col 3 — milestone */
+.c3{ width:308px; display:flex; flex-direction:column; }
+.c3 .stack{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:0; }
+.ms-box{ flex:1; border:1px solid var(--line); background:var(--panel-bg); border-radius:6px; padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+.ms-box .cmd{ font-size:17.5px; }
+.ms-box .desc{ font-size:16px; color:var(--warm); margin-top:5px; line-height:1.35; }
+.ms-arrow{ flex:0 0 auto; text-align:center; color:var(--warm); font-size:17px; line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="c1">
+    <div class="col-head"><b>1</b>NEW PROJECT</div>
+    <div class="panel">
+      <div class="cmd">/gsd-new-project</div>
+      <div class="mini-step">질문</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">리서치</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">요구사항</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">로드맵</div>
+      <div class="note">PROJECT.md · REQUIREMENTS.md · ROADMAP.md 생성, Phase 분할</div>
+    </div>
+  </div>
+
+  <div class="gap-arrow">→</div>
+
+  <div class="c2">
+    <div class="col-head"><b>2</b>FOR EACH PHASE — Phase N 반복</div>
+    <div class="panel">
+      <div class="step-row"><span class="cmd">/gsd-discuss-phase N</span><span class="desc">구현 결정 토론</span></div>
+      <div class="step-row"><span class="cmd">/gsd-ui-phase N</span><span class="desc">UI 디자인 계약<span class="tag">프론트 Phase만</span></span></div>
+      <div class="step-row"><span class="cmd">/gsd-plan-phase N</span><span class="desc">리서치 + 계획 + 검증 → PLAN.md</span></div>
+      <div class="step-row"><span class="cmd">/gsd-execute-phase N</span><span class="desc">Wave 병렬 실행</span></div>
+      <div class="step-row"><span class="cmd">/gsd-verify-work N</span><span class="desc">사용자 수동 검증 (대화형 UAT)</span></div>
+      <div class="step-row"><span class="cmd">/gsd-ship N</span><span class="desc">PR 생성</span></div>
+      <div class="loop-note">다음 Phase 있으면 <b>↺ 1단계부터 반복</b> · 마지막 Phase 완료 시 <b>MILESTONE →</b></div>
+    </div>
+  </div>
+
+  <div class="gap-arrow">→</div>
+
+  <div class="c3">
+    <div class="col-head"><b>3</b>MILESTONE</div>
+    <div class="stack">
+    <div class="ms-box">
+      <div class="cmd">/gsd-audit-milestone</div>
+      <div class="desc">마일스톤 달성 확인 (의도 대비 감사)</div>
+    </div>
+    <div class="ms-arrow">↓</div>
+    <div class="ms-box">
+      <div class="cmd">/gsd-complete-milestone</div>
+      <div class="desc">아카이브 + 태그</div>
+    </div>
+    <div class="ms-arrow">↓</div>
+    <div class="ms-box">
+      <div class="cmd">/gsd-new-milestone</div>
+      <div class="desc">다음 버전 시작 — 새 사이클 진입</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

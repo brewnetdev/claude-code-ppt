@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+  --teal:#0F766E; --teal-deep:#115E59; --blue:#1E3A8A;
+  --panel-bg:#FFFFFF; --cream:#FAF3E6;
+  --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ background:transparent; }
+body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+.frame{ width:1280px; height:590px; padding:24px 30px; display:flex; flex-direction:column; }
+
+.repo-band{ display:flex; align-items:center; gap:14px; border:1px solid var(--line); background:var(--cream); border-radius:6px; padding:12px 18px; margin-bottom:16px; }
+.repo-band .repo{ font-family:var(--mono); font-size:19px; font-weight:700; color:var(--teal-deep); white-space:nowrap; }
+.repo-band .desc{ font-size:17px; color:var(--ink); }
+
+.grid{ flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:14px; }
+.card{ border:1px solid var(--line); background:var(--panel-bg); border-radius:6px; padding:18px 24px; display:flex; flex-direction:column; justify-content:center; gap:9px; }
+.card .name{ font-family:var(--mono); font-size:24px; font-weight:700; color:var(--teal-deep); white-space:nowrap; }
+.card .use{ font-size:20px; color:var(--ink); line-height:1.45; }
+.card .note{ font-size:17px; color:var(--warm); line-height:1.4; }
+.badge{ display:inline-block; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--blue); border:1px solid var(--blue); border-radius:4px; padding:1px 8px; margin-left:10px; vertical-align:3px; white-space:nowrap; }
+
+.usage{ margin-top:14px; border:1px solid var(--line); background:var(--cream); border-radius:6px; padding:12px 18px; display:flex; flex-direction:column; gap:4px; }
+.usage .row{ display:flex; align-items:baseline; gap:12px; font-size:17px; line-height:1.45; }
+.usage .k{ flex:0 0 64px; font-family:var(--mono); font-size:15px; font-weight:700; color:var(--teal-deep); }
+.usage code{ font-family:var(--mono); font-size:15.5px; color:var(--teal-deep); }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="repo-band">
+    <span class="repo">github.com/anthropics/skills</span>
+    <span class="desc">검증된 Skill 모음 — 그대로 복사해 바로 사용 가능</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="name">document-skills/*</div>
+      <div class="use">PDF · DOCX · XLSX · PPTX 변환</div>
+      <div class="note">Office 문서 처리 자동화</div>
+    </div>
+    <div class="card">
+      <div class="name">artifacts-builder/*</div>
+      <div class="use">멀티 컴포넌트 HTML 아티팩트 생성</div>
+      <div class="note">React / TypeScript / Tailwind / shadcn 기반</div>
+    </div>
+    <div class="card">
+      <div class="name">frontend-design/*<span class="badge">인기 최상위</span></div>
+      <div class="use">AI slop 회피 — 차별화된 UI 디자인</div>
+      <div class="note">템플릿 냄새 없는 시각 방향·타이포 가이드</div>
+    </div>
+    <div class="card">
+      <div class="name">skill-creator/*<span class="badge">meta-skill</span></div>
+      <div class="use">새 Skill 작성 · 평가 · 최적화</div>
+      <div class="note">Skill을 만들기 위한 Skill</div>
+    </div>
+  </div>
+
+  <div class="usage">
+    <div class="row"><span class="k">설치</span><span>원하는 스킬 폴더를 <code>.claude/skills/</code>에 복사 — 또는 <code>/plugin marketplace add anthropics/skills</code> 후 install (다음 장)</span></div>
+    <div class="row"><span class="k">사용</span><span>"이 PDF를 표로 정리해서 XLSX로 만들어줘"처럼 요청하면 해당 스킬이 자동 발동 — 별도 명령어 불필요</span></div>
+  </div>
+
+</div>
+</body>
+</html>

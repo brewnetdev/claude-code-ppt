@@ -3,7 +3,7 @@
 > 출처: `docs/html/report/claude-code-levelN-*.html` 슬라이드 덱 전량 분석.
 > 레벨 순서·제목의 정본은 대시보드 레지스트리(`src/library/deckRegistry.ts`)를 따른다.
 > **파일명 주의**: 재편성 이력으로 파일명과 표시 레벨이 어긋나 있다 — Level 6 = `level7-chapter7.html`, Level 7 = `level7-subagent.html`.
-> "프론트엔드 고도화" 덱(`level6-chapter6.html`)은 레지스트리 밖 레거시이며, 내용은 **Level 5 §5.8에 통합**되어 있다.
+> "프론트엔드 고도화" 덱(`level6-chapter6.html`)은 레지스트리 밖 레거시이며, 내용은 **Level 5 §5.7에 통합**되어 있다. (구 §5.7 Plugin Marketplace 챕터는 2026-07-05 삭제 — 프론트엔드 고도화가 5.8→5.7로 승계)
 
 ---
 
@@ -169,7 +169,7 @@
 - 알림 훅(mac·Slack·settings.json) / 가드레일(보호 파일·lint·타입체크·자동 포맷) / 주의·디버깅
 
 **PART 04 — 4.4 MCP (Model Context Protocol)**
-- Transport 2종(http·stdio) / Scope / 개발 필수 MCP 서버
+- Transport 2종(http·stdio) / Scope / 개발 필수 MCP 서버 / 설치(`claude mcp add` 한 줄·`.mcp.json` 팀 공유 구문)
 
 **PART 05 — 4.5 실습** — 나만의 커맨드·스킬·훅 만들어 쓰기
 
@@ -198,10 +198,7 @@
 **PART 06 — 5.6 디버깅 & 리팩토링**
 - 에러 메시지 첨부→근본 원인 분석 / File Checkpointing·회귀 방지 / 안전한 리팩토링(단위·순차) / 테스트 안전망(Vitest) / E2E 자동화(Playwright+CI)
 
-**PART 07 — 5.7 Plugin Marketplace**
-- Plugin 4구성 요소·디렉토리 / 공식 마켓플레이스(anthropics/claude-code) / 설치 / 커뮤니티 마켓 등록·직접 제작
-
-**PART 08 — 5.8 프론트엔드 고도화** *(구 "Level 7 프론트엔드 고도화" 덱이 여기 통합)*
+**PART 07 — 5.7 프론트엔드 고도화** *(구 "Level 7 프론트엔드 고도화" 덱이 여기 통합 · 구 5.7 Plugin Marketplace 챕터는 삭제됨)*
 - 컴포넌트 단위 구축(Vitest+Testing Library·TDD·3분할 레이아웃) / TDD Red-Green(Button)
 - 마크다운 에디터(CodeMirror 6·remark/rehype·**XSS 방어**·신택스 하이라이팅)
 - 지식관리 UI 5패턴(트리·검색·자동저장·단축키·명령 팔레트 — 키보드 우선·흐름 보존)

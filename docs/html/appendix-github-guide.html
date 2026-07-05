@@ -849,4 +849,30 @@ $ git pull
 $ git checkout -b feature/ticket-[번호]-[feature 명]</code></pre><ul id="6c40da5f-0193-4cda-8e47-30563908d0d6" class="bulleted-list"><li style="list-style-type:disc">작업이 완료되면 develop 브랜치에서 fetch &amp; pull 한 후 merge 한다. (daily merge)</li></ul><ul id="1870f97c-a3bd-46ec-b6e6-9ef54ef8b5b4" class="bulleted-list"><li style="list-style-type:disc">변경 사항 반영 후 원격 브랜치로 push 한다.</li></ul><ul id="1502184a-f5d1-42a0-b412-8fa98e7dbaf1" class="bulleted-list"><li style="list-style-type:disc">작업이 완료되면 github에 접근하여 pr 을 생성 한다. (작업 브랜치 → develop)</li></ul><ul id="d767893e-790b-4375-bb1a-81ba4c69ccd1" class="bulleted-list"><li style="list-style-type:disc">develop을 기준으로 테스트 Phase  배포 후 테스트 진행</li></ul><ul id="6095d4fb-e1a3-441c-a704-d505df795a38" class="bulleted-list"><li style="list-style-type:disc">테스트가 완료되면 master 에 pr을 생성 한 후 merge 되면 Stage (Stand by 장비) Phase 에 배포 하여 테스트 한다.</li></ul><ul id="c733f437-af4a-4f28-8344-514f45285f04" class="bulleted-list"><li style="list-style-type:disc">Stage 서버에 배포 후  테스트를 진행하고 실제 Production에 하기 위해 배포본을 만든다.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="865f3559-b069-44dd-b930-a8002211cc38" class="code"><code class="language-Shell">$ git checkout master
 $ git tag release/REL-2023-06-01-1330  // prefix + 날짜 시간 형태의 태그 생성 </code></pre><ul id="81a537b8-9932-42de-8dfa-835af925b883" class="bulleted-list"><li style="list-style-type:disc">배포 브랜치 - master 기준으로 release 태그를 생성한 후 배포, 원격 저장소에 생성된 태그를 push 한다.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="cfc2811a-22ee-4600-9754-10933963f594" class="code"><code class="language-Shell">$ git push origin release/REL-2023-06-01-1330 </code></pre><ul id="b5bffb13-230e-41f2-ba25-35362147cc46" class="bulleted-list"><li style="list-style-type:disc">hotfix - master 에서 파생되어 바로 작업 후 pr 을 생성한다. (hotfix branch → master)</li></ul><ul id="111ec6cd-1259-4a49-8751-3faec74199ce" class="bulleted-list"><li style="list-style-type:disc">태그는 항상 master 브랜치에서 생성한다.</li></ul><p id="d2f745f9-ff26-46e9-9e5c-81fc7003828f" class="">
 </p><p id="666e53b5-57cf-4da6-951f-f2d5ca59fd76" class="">깃 플로우는 개발자들이 지키는 하나의 룰로써 작동해야 한다. 이 때 개발버전이 develop 버전과 날짜가 지남에 따라 버전 차이가 벌어지는 것이 문제가 될 수 있기 때문에, Daily merge 를 해줌으로서 지속적인 소스 병합의 버전을 유지하는것을 권장한다. </p><p id="7b34d661-e44d-4a19-b3de-5686b5d6dbdb" class="">또한 깃 플로우는 rebase를 권장하지 않는다. </p><p id="9c9baf1e-97bf-4e54-8615-a6c4c928586b" class="">
-</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span><script>
+/* 임베드 안전 패치 — run-ai.kr 등이 이 문서를 sandbox iframe(origin null)으로 임베드할 때:
+   1) 네이티브 #hash 앵커 클릭이 상위 SPA URL을 바꿔 라우터 재렌더 크래시를 유발 → scrollIntoView로 대체
+   2) sandbox에서 navigator.clipboard 부재 시 복사 버튼이 죽음 → execCommand 폴백 주입 */
+document.addEventListener('click', function(e){
+  var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if (!a) return;
+  var href = a.getAttribute('href');
+  if (!href || href.length < 2) return;
+  var el = document.getElementById(href.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+if (!navigator.clipboard || !navigator.clipboard.writeText) {
+  try {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(t){
+      var ta = document.createElement('textarea'); ta.value = t;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove(); return Promise.resolve();
+    } } });
+  } catch (err) {}
+}
+</script>
+</body></html>

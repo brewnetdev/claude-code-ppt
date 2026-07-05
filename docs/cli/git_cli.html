@@ -725,5 +725,31 @@ navLinks.forEach(l => l.addEventListener('click', () => {
   if (window.innerWidth <= 900) document.querySelector('.sidebar').classList.remove('open');
 }));
 </script>
+<script>
+/* 임베드 안전 패치 — run-ai.kr 등이 이 문서를 sandbox iframe(origin null)으로 임베드할 때:
+   1) 네이티브 #hash 앵커 클릭이 상위 SPA URL을 바꿔 라우터 재렌더 크래시를 유발 → scrollIntoView로 대체
+   2) sandbox에서 navigator.clipboard 부재 시 복사 버튼이 죽음 → execCommand 폴백 주입 */
+document.addEventListener('click', function(e){
+  var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if (!a) return;
+  var href = a.getAttribute('href');
+  if (!href || href.length < 2) return;
+  var el = document.getElementById(href.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+if (!navigator.clipboard || !navigator.clipboard.writeText) {
+  try {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(t){
+      var ta = document.createElement('textarea'); ta.value = t;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove(); return Promise.resolve();
+    } } });
+  } catch (err) {}
+}
+</script>
 </body>
 </html>
