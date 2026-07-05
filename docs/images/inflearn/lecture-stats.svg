@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 130" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif" data-sae-id="e0001">
+  <!-- outer frame: amber accent border to stand out -->
+  <rect id="frame" x="3" y="3" width="954" height="124" rx="8" fill="#ffffff" stroke="#F5A623" stroke-width="3" data-sae-id="e0002"/>
+
+  <!-- column dividers (frame interior 3..957 split into 4 equal columns) -->
+  <g id="dividers" stroke="#e2e2e2" stroke-width="1" data-sae-id="e0003">
+    <line x1="241.5" y1="25" x2="241.5" y2="105" data-sae-id="e0004"/>
+    <line x1="480" y1="25" x2="480" y2="105" data-sae-id="e0005"/>
+    <line x1="718.5" y1="25" x2="718.5" y2="105" data-sae-id="e0006"/>
+  </g>
+
+  <!-- cell 1: 강의 수 (center 122.25) -->
+  <g id="cell-courses" data-sae-id="e0007">
+    <text x="110.25" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b" data-sae-id="e0008">강의 수</text>
+    <text x="110.25" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a" data-sae-id="e0009">5개</text>
+  </g>
+
+  <!-- cell 2: 강의 평점 (center 360.75) -->
+  <g id="cell-rating" data-sae-id="e0010">
+    <text x="348.75" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b" data-sae-id="e0011">강의 평점</text>
+    <g id="star" transform="translate(291,63) scale(1.24)" fill="#F5A623" data-sae-id="e0012">
+      <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.783 1.401 8.169L12 18.896l-7.335 3.866 1.401-8.169L.132 9.21l8.2-1.192z" data-sae-id="e0013"/>
+    </g>
+    <text x="329" y="93" text-anchor="start" font-size="40" font-weight="700" fill="#1a1a1a" data-sae-id="e0014">4.89</text>
+  </g>
+
+  <!-- cell 3: 수강평 (center 599.25) -->
+  <g id="cell-reviews" data-sae-id="e0015">
+    <text x="587.25" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b" data-sae-id="e0016">수강평</text>
+    <text x="587.25" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a" data-sae-id="e0017">158</text>
+  </g>
+
+  <!-- cell 4: 수강생 수 (center 837.75) -->
+  <g id="cell-students" data-sae-id="e0018">
+    <text x="825.75" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b" data-sae-id="e0019">수강생 수</text>
+    <text x="825.75" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a" data-sae-id="e0020">3,448명</text>
+  </g>
+</svg>

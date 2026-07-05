@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136 510" font-family="'IBM Plex Sans KR','Pretendard','Noto Sans KR',sans-serif" width="1136" height="510">
+  <!-- row 1: simplify -->
+  <text x="16" y="38" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/simplify</text>
+  <text x="230" y="34" font-size="15" fill="#1E293B">변경 코드를 3-에이전트 병렬 리뷰로 검토하고 단순화까지 적용</text>
+  <text x="230" y="62" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B" data-sae-selected="">예) 기능 구현을 마친 뒤 → /simplify  (변경 diff만 대상으로 정리)</text>
+  <line x1="8" y1="81" x2="1128" y2="81" stroke="#E7E3DA" stroke-width="1"/>
+
+  <!-- row 2: security-review -->
+  <text x="16" y="123" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/security-review</text>
+  <text x="230" y="119" font-size="15" fill="#1E293B">현재 브랜치의 커밋 전 변경을 보안 관점으로 리뷰</text>
+  <text x="230" y="147" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B">예) PR 올리기 전 → <tspan fill="#0F766E">/security-review</tspan>  (시크릿 노출·인젝션·권한 취약점 스캔)</text>
+  <line x1="8" y1="166" x2="1128" y2="166" stroke="#E7E3DA" stroke-width="1"/>
+
+  <!-- row 3: batch -->
+  <text x="16" y="208" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/batch</text>
+  <text x="230" y="204" font-size="15" fill="#1E293B">대규모 변경을 git worktree 기반으로 나눠 병렬 처리</text>
+  <text x="230" y="232" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B">예) <tspan fill="#0F766E">/batch 모든 페이지 컴포넌트에 새 로깅 API 적용</tspan></text>
+  <line x1="8" y1="251" x2="1128" y2="251" stroke="#E7E3DA" stroke-width="1"/>
+
+  <!-- row 4: debug -->
+  <text x="16" y="293" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/debug</text>
+  <text x="230" y="289" font-size="15" fill="#1E293B">디버그 로그를 분석해 오류의 근본 원인 진단</text>
+  <text x="230" y="317" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B">예) 에러 로그를 붙여넣고 → <tspan fill="#0F766E">/debug</tspan>  (스택트레이스에서 원인 추적)</text>
+  <line x1="8" y1="336" x2="1128" y2="336" stroke="#E7E3DA" stroke-width="1"/>
+
+  <!-- row 5: loop -->
+  <text x="16" y="378" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/loop</text>
+  <text x="230" y="374" font-size="15" fill="#1E293B">프롬프트나 커맨드를 정해진 간격으로 반복 실행</text>
+  <text x="230" y="402" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B">예) <tspan fill="#0F766E">/loop 5m /squad-qa</tspan>  (5분마다 QA 반복, 간격 생략 시 10분)</text>
+  <line x1="8" y1="421" x2="1128" y2="421" stroke="#E7E3DA" stroke-width="1"/>
+
+  <!-- row 6: claude-api -->
+  <text x="16" y="463" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#0F766E">/claude-api</text>
+  <text x="230" y="459" font-size="15" fill="#1E293B">Claude API 공식 레퍼런스를 로드해 최신 스펙 기준으로 답변</text>
+  <text x="230" y="487" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#64748B">예) <tspan fill="#0F766E">/claude-api 스트리밍 응답에서 토큰 카운트 방법</tspan></text>
+</svg>

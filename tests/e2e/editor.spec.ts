@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BOOK_PNG = path.resolve(__dirname, '../../docs/images/book.png');
+const BOOK_PNG = path.resolve(__dirname, '../../docs/images/common/book.png');
 
 // Each test starts on a clean state — wipe both localStorage and the
 // IndexedDB deck store so the brewnet sample loads fresh. Reload after

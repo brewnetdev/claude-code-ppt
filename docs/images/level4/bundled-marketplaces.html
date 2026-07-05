@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A18; --warm:#6B6560; --line:#D4D0C8;
+  --teal:#0F766E; --teal-deep:#115E59; --blue:#1E3A8A;
+  --panel-bg:#FFFFFF; --cream:#FAF3E6;
+  --sans:'Noto Sans KR','Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ background:transparent; }
+body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
+.frame{ width:1280px; height:590px; padding:24px 30px; display:flex; gap:22px; }
+
+.col-head{ font-family:var(--mono); font-size:16px; font-weight:700; letter-spacing:0.06em; color:var(--warm); margin-bottom:10px; white-space:nowrap; }
+
+/* left: marketplace list */
+.left{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.mkt-list{ flex:1; border:1px solid var(--line); background:var(--panel-bg); border-radius:6px; padding:6px 20px; display:flex; flex-direction:column; }
+.mkt{ flex:1; display:flex; flex-direction:column; justify-content:center; border-bottom:1px solid var(--line); padding:8px 0; }
+.mkt:last-child{ border-bottom:none; }
+.mkt .head{ display:flex; align-items:baseline; gap:10px; }
+.mkt .name{ font-family:var(--mono); font-size:20px; font-weight:700; color:var(--teal-deep); white-space:nowrap; }
+.mkt .org{ font-size:15px; color:var(--warm); white-space:nowrap; }
+.tag{ font-family:var(--mono); font-size:13px; font-weight:600; color:var(--blue); border:1px solid var(--blue); border-radius:4px; padding:0 7px; white-space:nowrap; }
+.mkt .desc{ font-size:17px; color:var(--ink); line-height:1.4; margin-top:4px; }
+.mkt .desc code{ font-family:var(--mono); font-size:15.5px; color:var(--teal-deep); }
+
+/* right: install commands */
+.right{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.term{ flex:1; border:1px solid var(--line); background:var(--panel-bg); border-radius:6px; padding:20px 22px; display:flex; flex-direction:column; justify-content:center; gap:16px; }
+.cmd-group .c{ font-family:var(--mono); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.5; white-space:nowrap; }
+.cmd-group .g{ font-family:var(--mono); font-size:15px; color:var(--warm); line-height:1.5; }
+.flow-note{ margin-top:14px; background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:11px 16px; font-size:16.5px; line-height:1.45; }
+.flow-note b{ color:var(--teal-deep); font-family:var(--mono); }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="left">
+    <div class="col-head">MARKETPLACES — 어디서 가져오나</div>
+    <div class="mkt-list">
+      <div class="mkt">
+        <div class="head"><span class="name">anthropics/skills</span><span class="tag">공식</span><span class="org">100k+ ★</span></div>
+        <div class="desc">문서 스킬(docx·pdf·pptx·xlsx) + 명세 + 템플릿 제공</div>
+      </div>
+      <div class="mkt">
+        <div class="head"><span class="name">skill.sh</span><span class="org">Vercel</span></div>
+        <div class="desc">100k+ Skill · <code>npx skills add &lt;owner/repo&gt;</code> 원커맨드 · 17개 에이전트 지원</div>
+      </div>
+      <div class="mkt">
+        <div class="head"><span class="name">awesome-claude-skills</span><span class="org">Composio</span></div>
+        <div class="desc">9개 카테고리 큐레이션 · 외부 앱 500+ 연동 가능</div>
+      </div>
+      <div class="mkt">
+        <div class="head"><span class="name">skillsmp.com</span></div>
+        <div class="desc">marketplace.json 통합 검색 · 플러그인 명령어로 원커맨드 설치</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="col-head">INSTALL — 공통 패턴</div>
+    <div class="term">
+      <div class="cmd-group">
+        <div class="g"># 1. 마켓플레이스 등록</div>
+        <div class="c">/plugin marketplace add anthropics/skills</div>
+      </div>
+      <div class="cmd-group">
+        <div class="g"># 2. 스킬 설치</div>
+        <div class="c">/plugin install document-skills@anthropic-agent-skills</div>
+        <div class="c">/plugin install pr-review-toolkit@claude-plugins-official</div>
+      </div>
+    </div>
+    <div class="flow-note"><b>marketplace add</b> → <b>plugin install</b> 두 단계면 끝 — 설치 후 스킬은 자동 발동 대상이 된다.</div>
+  </div>
+
+</div>
+</body>
+</html>

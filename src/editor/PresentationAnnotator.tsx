@@ -46,6 +46,56 @@ export function PresentationAnnotator() {
   const timersRef = useRef<Set<number>>(new Set());
   const surfaceRef = useRef<HTMLDivElement | null>(null);
 
+  // Toolbar/chip position. null = docked top-right (default). Once dragged,
+  // becomes explicit left/top viewport pixels. Ephemeral like everything else
+  // here — resets when presentation mode exits.
+  const [barPos, setBarPos] = useState<Point | null>(null);
+  const barRef = useRef<HTMLDivElement | null>(null);
+  const barDragRef = useRef<{ dx: number; dy: number; startX: number; startY: number; moved: boolean } | null>(null);
+
+  // Drag the toolbar (via grip) or the collapsed chip anywhere on screen.
+  // Clamping leaves an 8-16px sliver visible at every edge so the bar can be
+  // shoved almost fully off-screen (to hide it) yet always dragged back.
+  const startBarDrag = useCallback((e: React.MouseEvent) => {
+    const el = barRef.current;
+    if (!el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = el.getBoundingClientRect();
+    barDragRef.current = {
+      dx: e.clientX - rect.left,
+      dy: e.clientY - rect.top,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+    };
+
+    const onMove = (ev: MouseEvent) => {
+      const info = barDragRef.current;
+      const bar = barRef.current;
+      if (!info || !bar) return;
+      if (
+        !info.moved &&
+        Math.abs(ev.clientX - info.startX) < CLICK_THRESHOLD_PX &&
+        Math.abs(ev.clientY - info.startY) < CLICK_THRESHOLD_PX
+      ) {
+        return; // jitter — still a click (chip expand relies on this)
+      }
+      info.moved = true;
+      const w = bar.offsetWidth;
+      const h = bar.offsetHeight;
+      const x = Math.min(Math.max(ev.clientX - info.dx, -(w - 16)), window.innerWidth - 16);
+      const y = Math.min(Math.max(ev.clientY - info.dy, -(h - 8)), window.innerHeight - 8);
+      setBarPos({ x, y });
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, []);
+
   const track = useCallback((id: number) => {
     timersRef.current.add(id);
   }, []);
@@ -251,14 +301,28 @@ export function PresentationAnnotator() {
         />
       ) : null}
 
-      {/* Toolbar (expanded) / chip (collapsed) — top-right. */}
+      {/* Toolbar (expanded) / chip (collapsed) — docked top-right until the
+          user drags it elsewhere (barPos). Both share one wrapper so the
+          position survives collapse/expand. */}
+      <div
+        ref={barRef}
+        style={{
+          position: 'fixed',
+          zIndex: 2400,
+          ...(barPos ? { left: barPos.x, top: barPos.y } : { top: 16, right: 16 }),
+        }}
+      >
       {collapsed ? (
         <button
           type="button"
           data-testid="annotator-chip"
-          onClick={() => setCollapsed(false)}
-          title="주석 도구 열기"
-          style={{ position: 'fixed', top: 16, right: 16, zIndex: 2400 }}
+          onMouseDown={startBarDrag}
+          onClick={() => {
+            const wasDrag = barDragRef.current?.moved;
+            barDragRef.current = null;
+            if (!wasDrag) setCollapsed(false);
+          }}
+          title="주석 도구 열기 (드래그로 이동)"
           className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/60 hover:bg-white/10"
         >
           <span style={{ display: 'block', width: 12, height: 12, borderRadius: '50%', background: RED }} />
@@ -266,9 +330,17 @@ export function PresentationAnnotator() {
       ) : (
         <div
           data-testid="annotator-toolbar"
-          style={{ position: 'fixed', top: 16, right: 16, zIndex: 2400 }}
           className="flex items-center gap-1 rounded border border-white/20 bg-black/60 px-2 py-1"
         >
+          <span
+            data-testid="annotator-grip"
+            onMouseDown={startBarDrag}
+            title="드래그해서 이동 (화면 가장자리로 밀면 숨김)"
+            className="flex h-7 w-4 cursor-grab items-center justify-center text-xs text-white/50 hover:text-white/90 active:cursor-grabbing"
+            aria-hidden
+          >
+            ⠿
+          </span>
           {POINTER_SIZES.map((d, i) => (
             <button
               key={d}
@@ -313,6 +385,7 @@ export function PresentationAnnotator() {
           </button>
         </div>
       )}
+      </div>
     </>
   );
 }

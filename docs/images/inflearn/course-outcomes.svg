@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" font-family="Pretendard, IBM Plex Sans KR, sans-serif" data-sae-id="e0001">
+  <rect x="0" y="0" width="960" height="410" fill="#F4F4F6" data-sae-id="e0002"/>
+  <rect id="frame" x="3" y="3" width="954" height="404" rx="10" fill="#F4F4F6" stroke="#c4c9d4" stroke-width="1.5" data-sae-id="e0003"/>
+
+  <text x="56" y="46" text-anchor="start" font-size="13" font-weight="700" letter-spacing="1.5" fill="#3B5BDB" data-sae-id="e0004">WHAT YOU BUILD</text>
+  <text x="56" y="84" text-anchor="start" font-size="27" font-weight="800" fill="#1a1a1a" data-sae-id="e0005">강의를 완주하면, 이 결과물이 내 손에 남습니다</text>
+
+  <!-- 2x2 outcome cards -->
+  <g id="card-01" data-sae-id="e0006">
+    <rect x="56" y="112" width="412" height="118" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0007"/>
+    <text x="84" y="150" text-anchor="start" font-size="20" font-weight="800" fill="#3B5BDB" data-sae-id="e0008">01</text>
+    <text x="126" y="150" text-anchor="start" font-size="18" font-weight="700" fill="#1a1a1a" data-sae-id="e0009">32가지 UI 컴포넌트 학습 사이트</text>
+    <text x="126" y="180" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0010">AI 협업 5원칙을 적용해 HTML·CSS 컴포넌트</text>
+    <text x="126" y="200" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0011">포트폴리오를 직접 완성 (Lv.2)</text>
+  </g>
+  <g id="card-02" data-sae-id="e0012">
+    <rect x="492" y="112" width="412" height="118" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0013"/>
+    <text x="520" y="150" text-anchor="start" font-size="20" font-weight="800" fill="#3B5BDB" data-sae-id="e0014">02</text>
+    <text x="562" y="150" text-anchor="start" font-size="18" font-weight="700" fill="#1a1a1a" data-sae-id="e0015">나만의 Skill·커맨드·가드레일 훅</text>
+    <text x="562" y="180" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0016">반복 작업은 커맨드·스킬로, 위험한 작업은</text>
+    <text x="562" y="200" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0017">훅으로 차단하는 자동화 키트 (Lv.4)</text>
+  </g>
+  <g id="card-03" data-sae-id="e0018">
+    <rect x="56" y="248" width="412" height="118" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0019"/>
+    <text x="84" y="286" text-anchor="start" font-size="20" font-weight="800" fill="#3B5BDB" data-sae-id="e0020">03</text>
+    <text x="126" y="286" text-anchor="start" font-size="18" font-weight="700" fill="#1a1a1a" data-sae-id="e0021">Markdown SaaS ‘markflow’ 풀스택</text>
+    <text x="126" y="316" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0022">기획서(PRD·TRD)부터 TDD·SDD로 백엔드와</text>
+    <text x="126" y="336" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0023">프론트엔드까지 구현 (Lv.5)</text>
+  </g>
+  <g id="card-04" data-sae-id="e0024">
+    <rect x="492" y="248" width="412" height="118" rx="8" fill="#ffffff" stroke="#e2e4e8" stroke-width="1" data-sae-id="e0025"/>
+    <text x="520" y="286" text-anchor="start" font-size="20" font-weight="800" fill="#3B5BDB" data-sae-id="e0026">04</text>
+    <text x="562" y="286" text-anchor="start" font-size="18" font-weight="700" fill="#1a1a1a" data-sae-id="e0027">인터넷에 살아있는 실서비스</text>
+    <text x="562" y="316" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0028">Vercel·Railway·Cloudflare 배포, OAuth 로그인,</text>
+    <text x="562" y="336" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0029">메일 발송, 검색엔진 등록까지 (Lv.6)</text>
+  </g>
+
+  <line x1="56" y1="380" x2="904" y2="380" stroke="#e0e0e0" stroke-width="1" data-sae-id="e0030"/>
+  <text x="56" y="400" text-anchor="start" font-size="13" fill="#6b7280" data-sae-id="e0031">모든 결과물은 GitHub 저장소에 남아 포트폴리오로 활용할 수 있습니다</text>
+</svg>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zsh 설치 &amp; 설정 가이드 — 처음부터 끝까지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문은 Noto Sans KR, 명령어·키 입력·경로는 고정폭 JetBrains Mono로 분리해
+     "읽는 글"과 "입력하는 명령"을 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1060px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:248px minmax(0,760px); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:720px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  h4 { font-size:16px; font-weight:700; margin:22px 0 8px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; word-break:break-all; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+  th.center, td.center { text-align:center; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  /* 스크린샷 자리표시 — 강의자가 실제 캡처를 삽입할 위치 */
+  .shot { border:1px solid var(--border); background:var(--soft-bg); border-radius:8px;
+          padding:22px 18px; margin:18px 0; text-align:center; }
+  .shot .tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px;
+               letter-spacing:.06em; color:var(--muted); border:1px solid var(--border);
+               background:var(--bg); border-radius:4px; padding:2px 8px; margin-bottom:8px; }
+  .shot .d { font-size:13.5px; color:var(--muted); }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">zsh Setup Guide</div>
+    <h1>zsh 설치 &amp; 설정 가이드</h1>
+    <p class="lead">맨바닥에서 시작해 zsh 설치 → 기본 셸 변경 → oh-my-zsh → Nerd Font → 테마 → 필수 플러그인 →
+       완성된 <code class="inline">~/.zshrc</code>까지. 각 단계마다 OS별 명령을 모두 제공하므로
+       <strong>복사–붙여넣기만으로</strong> 보기 좋고 빠른 셸 환경을 완성할 수 있습니다.</p>
+    <p class="meta">기준: macOS · Ubuntu · WSL2 / 대상: 개발자 · 최종 확인: 2026-06-01</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>설치 순서 목차</h2>
+      <ol>
+        <li><a href="#s0">이 문서가 다루는 것 · 전체 흐름</a></li>
+        <li><a href="#s1">zsh란 무엇인가</a></li>
+        <li><a href="#s2">사전 확인</a></li>
+        <li><a href="#s3">zsh 설치 (OS별)</a></li>
+        <li><a href="#s4">기본 셸을 zsh로 변경</a></li>
+        <li><a href="#s5">oh-my-zsh 설치</a></li>
+        <li><a href="#s6">Nerd Font 설치</a></li>
+        <li><a href="#s7">테마 설치 &amp; 설정</a></li>
+        <li><a href="#s8">필수 플러그인</a></li>
+        <li><a href="#s9">완성된 .zshrc 예시</a></li>
+        <li><a href="#s10">문제 해결 (FAQ)</a></li>
+        <li><a href="#s11">2026 동향 메모</a></li>
+        <li><a href="#appendix">출처 · 검증 노트</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">막히면 일단 이것부터</div>
+        <p>테마나 플러그인을 바꿨는데 반영이 안 되면 <code class="inline">source ~/.zshrc</code>를 실행하거나 터미널을 새로 여세요.
+           프롬프트 아이콘이 <code class="inline">□</code>·물음표로 깨지면 <strong>Nerd Font 미설정</strong>이 원인입니다(6장).</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>이 문서가 다루는 것 · 전체 흐름</h2>
+        <p>터미널을 처음 꾸미는 개발자가 <strong>복사–붙여넣기만으로</strong> 보기 좋고 빠른 zsh 환경을 완성하도록 만든 단계별 가이드입니다.
+           각 단계는 OS별 명령을 모두 제공합니다.</p>
+
+        <h3>전체 설치 흐름</h3>
+        <figure>
+          <svg viewBox="0 0 720 730" xmlns="http://www.w3.org/2000/svg" font-family="'Noto Sans KR', sans-serif" role="img" aria-label="zsh 전체 설치 흐름도">
+            <defs>
+              <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#6B7280"/></marker>
+              <marker id="aa" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#B45309"/></marker>
+            </defs>
+
+            <!-- S0 OS 확인 -->
+            <rect x="210" y="24" width="300" height="46" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#111">OS 확인</text>
+
+            <!-- 분기 라우팅 -->
+            <line x1="360" y1="70" x2="360" y2="90" stroke="#6B7280" stroke-width="1.5"/>
+            <line x1="190" y1="90" x2="530" y2="90" stroke="#6B7280" stroke-width="1.5"/>
+            <line x1="190" y1="90" x2="190" y2="112" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+            <line x1="530" y1="90" x2="530" y2="112" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- 분기 박스 -->
+            <rect x="40" y="114" width="300" height="58" rx="8" fill="#F8F7F4" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="190" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="#111">macOS</text>
+            <text x="190" y="158" text-anchor="middle" font-size="11" fill="#6B7280">zsh 기본 내장 · 설치 불필요</text>
+
+            <rect x="380" y="114" width="300" height="58" rx="8" fill="#F8F7F4" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="530" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="#111">Ubuntu / WSL2</text>
+            <text x="530" y="158" text-anchor="middle" font-size="11" fill="#6B7280" font-family="'JetBrains Mono', monospace">sudo apt install zsh</text>
+
+            <!-- 병합 라우팅 -->
+            <line x1="190" y1="172" x2="190" y2="194" stroke="#6B7280" stroke-width="1.5"/>
+            <line x1="530" y1="172" x2="530" y2="194" stroke="#6B7280" stroke-width="1.5"/>
+            <line x1="190" y1="194" x2="530" y2="194" stroke="#6B7280" stroke-width="1.5"/>
+            <line x1="360" y1="194" x2="360" y2="216" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- S1 chsh -->
+            <rect x="210" y="218" width="300" height="50" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="240" text-anchor="middle" font-size="13" font-weight="700" fill="#111">기본 셸을 zsh로 변경</text>
+            <text x="360" y="258" text-anchor="middle" font-size="11" fill="#6B7280" font-family="'JetBrains Mono', monospace">chsh -s $(which zsh)</text>
+            <line x1="360" y1="268" x2="360" y2="298" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- S2 oh-my-zsh -->
+            <rect x="210" y="300" width="300" height="46" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="328" text-anchor="middle" font-size="14" font-weight="700" fill="#111">oh-my-zsh 설치</text>
+            <line x1="360" y1="346" x2="360" y2="376" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- S3 Nerd Font -->
+            <rect x="210" y="378" width="300" height="46" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="406" text-anchor="middle" font-size="14" font-weight="700" fill="#111">Nerd Font 설치</text>
+            <line x1="360" y1="424" x2="360" y2="454" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- S4 테마 -->
+            <rect x="210" y="456" width="300" height="46" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="484" text-anchor="middle" font-size="14" font-weight="700" fill="#111">테마 선택 &amp; 설치</text>
+            <line x1="360" y1="502" x2="360" y2="532" stroke="#6B7280" stroke-width="1.5" marker-end="url(#ag)"/>
+
+            <!-- S5 플러그인 -->
+            <rect x="180" y="534" width="360" height="52" rx="8" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+            <text x="360" y="557" text-anchor="middle" font-size="13" font-weight="700" fill="#111">필수 플러그인 추가</text>
+            <text x="360" y="576" text-anchor="middle" font-size="11" fill="#6B7280">autosuggestions · syntax-highlighting</text>
+            <line x1="360" y1="586" x2="360" y2="616" stroke="#B45309" stroke-width="1.5" marker-end="url(#aa)"/>
+
+            <!-- S6 완성 -->
+            <rect x="180" y="618" width="360" height="52" rx="8" fill="#FFFFFF" stroke="#B45309" stroke-width="1.5"/>
+            <text x="360" y="641" text-anchor="middle" font-size="13" font-weight="700" fill="#B45309">~/.zshrc 정리 → 완성</text>
+            <text x="360" y="660" text-anchor="middle" font-size="11" fill="#6B7280" font-family="'JetBrains Mono', monospace">source ~/.zshrc</text>
+          </svg>
+          <figcaption>테마 선택 기준 — 신규 셋업: <strong>Starship</strong> 권장 · 인기/기능형: <strong>Powerlevel10k</strong> · 가벼움: robbyrussell / agnoster</figcaption>
+        </figure>
+      </section>
+
+      <!-- 1 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>zsh란 무엇인가</h2>
+        <p>zsh(Z shell)는 bash와 호환되면서 자동완성·테마·플러그인 확장성이 훨씬 강력한 셸입니다.
+           macOS는 Catalina(10.15)부터 <strong>기본 셸이 zsh</strong>이며, 대부분의 개발 도구·튜토리얼이 zsh를 전제로 합니다.</p>
+        <table>
+          <thead><tr><th>구분</th><th>bash</th><th>zsh</th></tr></thead>
+          <tbody>
+            <tr><td>자동완성</td><td>기본적</td><td>강력(퍼지·대소문자 무시·메뉴 선택)</td></tr>
+            <tr><td>테마/플러그인</td><td>제한적</td><td>oh-my-zsh 등 풍부한 생태계</td></tr>
+            <tr><td>macOS 기본</td><td>과거 기본</td><td><strong>현재 기본</strong></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>사전 확인</h2>
+        <pre><code><span class="c"># 현재 셸 확인</span>
+echo $SHELL
+
+<span class="c"># zsh 설치 여부 / 버전 확인</span>
+zsh --version          <span class="c"># zsh 5.x 이상이면 OK</span></code></pre>
+        <div class="note">
+          <div class="t">Git이 먼저 필요합니다</div>
+          <p>Git이 없으면 테마·플러그인 설치(<code class="inline">git clone</code>)가 안 됩니다. <code class="inline">git --version</code>으로 확인하고,
+             없으면 macOS는 <code class="inline">xcode-select --install</code>, Ubuntu는 <code class="inline">sudo apt install -y git</code>로 설치하세요.</p>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>zsh 설치 (OS별)</h2>
+
+        <h3>3.1 macOS</h3>
+        <p>macOS는 zsh가 기본 내장이라 <strong>설치 불필요</strong>입니다. 버전만 확인합니다.</p>
+        <pre><code>zsh --version</code></pre>
+        <p>최신 버전을 원하면 Homebrew로 업그레이드합니다(선택).</p>
+        <pre><code>brew install zsh</code></pre>
+        <div class="note">
+          <div class="t">Homebrew가 없다면 먼저 설치</div>
+          <p><code class="inline">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></p>
+        </div>
+
+        <h3>3.2 Ubuntu / WSL2</h3>
+        <pre><code>sudo apt update &amp;&amp; sudo apt install -y zsh
+zsh --version</code></pre>
+
+        <h3>3.3 Windows</h3>
+        <p>Windows의 PowerShell·CMD에는 zsh가 없습니다. zsh는 <strong>WSL2(Ubuntu)</strong> 위에서 사용하는 것을 권장합니다.</p>
+        <pre><code><span class="c"># PowerShell(관리자)에서 WSL2 + Ubuntu 설치</span>
+wsl --install</code></pre>
+        <p>설치 후 Ubuntu 터미널에서 <strong>3.2 Ubuntu / WSL2</strong> 절차를 그대로 따릅니다.</p>
+        <div class="shot">
+          <div class="tag">[ 스크린샷 영역 ]</div>
+          <div class="d">WSL2 Ubuntu 첫 실행 화면</div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>기본 셸을 zsh로 변경</h2>
+        <pre><code><span class="c"># 현재 시스템의 zsh 경로 확인</span>
+which zsh              <span class="c"># 예: /bin/zsh 또는 /usr/bin/zsh</span>
+
+<span class="c"># 기본 셸 변경</span>
+chsh -s $(which zsh)</code></pre>
+        <p>변경 후 <strong>터미널을 완전히 종료하고 다시 열거나</strong> 로그아웃/로그인합니다.
+           다시 <code class="inline">echo $SHELL</code>이 zsh 경로를 가리키면 성공입니다.</p>
+        <div class="note">
+          <div class="t">macOS 참고</div>
+          <p>macOS는 이미 zsh가 기본이라 이 단계가 생략될 수 있습니다. 결과가 <code class="inline">/bin/zsh</code>면 그대로 진행하세요.</p>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>oh-my-zsh 설치<span class="lvl">선택 · 권장</span></h2>
+        <p>oh-my-zsh는 테마·플러그인을 손쉽게 관리하는 프레임워크입니다.</p>
+        <pre><code>sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</code></pre>
+        <p>설치가 끝나면 홈 디렉터리에 <code class="inline">~/.oh-my-zsh/</code>가 생성되고 <code class="inline">~/.zshrc</code>가 oh-my-zsh용으로 교체됩니다.</p>
+        <div class="shot">
+          <div class="tag">[ 스크린샷 영역 ]</div>
+          <div class="d">oh-my-zsh 설치 완료 직후 터미널 화면</div>
+        </div>
+        <div class="note">
+          <div class="t">성능 참고</div>
+          <p>oh-my-zsh는 편리하지만 플러그인이 많아질수록 셸 시작이 느려집니다(수백 ms). 속도가 중요하면 7.4의 <strong>Starship</strong>을 고려하세요.</p>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>Nerd Font 설치<span class="lvl">아이콘 테마 시 필수</span></h2>
+        <p>agnoster·Powerlevel10k 등 powerline/아이콘 글리프를 쓰는 테마는 <strong>Nerd Font</strong>가 있어야 깨지지 않습니다.
+           미니멀 테마나 Starship 기본 사용 시에는 없어도 됩니다.</p>
+        <pre><code><span class="c"># macOS (Homebrew)</span>
+brew install --cask font-meslo-lg-nerd-font</code></pre>
+        <pre><code><span class="c"># Ubuntu / WSL2 — 수동 설치 예시 (Meslo)</span>
+mkdir -p ~/.local/share/fonts &amp;&amp; cd ~/.local/share/fonts
+<span class="c"># nerdfonts.com 의 Releases에서 원하는 폰트(zip)를 받아 압축 해제 후:</span>
+fc-cache -fv</code></pre>
+        <p>설치 후 <strong>터미널 앱의 폰트 설정</strong>을 Nerd Font(예: <code class="inline">MesloLGS NF</code>)로 바꿔야 적용됩니다.</p>
+        <table>
+          <thead><tr><th>터미널</th><th>폰트 설정 위치</th></tr></thead>
+          <tbody>
+            <tr><td>iTerm2</td><td>Settings → Profiles → Text → Font</td></tr>
+            <tr><td>macOS Terminal</td><td>Settings → Profiles → Text → Change Font</td></tr>
+            <tr><td>Windows Terminal(WSL)</td><td>Settings → 프로필 → 모양 → 글꼴</td></tr>
+            <tr><td>VS Code 내장 터미널</td><td><code>terminal.integrated.fontFamily</code> 설정</td></tr>
+          </tbody>
+        </table>
+        <div class="shot">
+          <div class="tag">[ 스크린샷 영역 ]</div>
+          <div class="d">iTerm2 폰트를 MesloLGS NF로 지정하는 화면</div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>테마 설치 &amp; 설정</h2>
+        <p><code class="inline">~/.zshrc</code>의 <code class="inline">ZSH_THEME="..."</code> 한 줄로 테마를 바꿉니다.
+           변경 후 항상 <code class="inline">source ~/.zshrc</code>(또는 터미널 재시작).</p>
+
+        <h3>테마 한눈 비교</h3>
+        <table>
+          <thead><tr><th>테마</th><th>형태</th><th>특징</th><th class="center">Nerd Font</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td><strong>robbyrussell</strong></td><td>omz 내장</td><td>omz 기본값, 초경량</td><td class="center">불필요</td><td>입문 무난</td></tr>
+            <tr><td><strong>agnoster</strong></td><td>omz 내장</td><td>클래식 powerline 세그먼트</td><td class="center"><strong>필요</strong></td><td>깔끔한 git 표시</td></tr>
+            <tr><td><strong>Powerlevel10k</strong></td><td>omz 외부</td><td>가장 인기, instant prompt, 설정 마법사</td><td class="center">권장</td><td>2026 유지보수 모드(정상 동작)</td></tr>
+            <tr><td><strong>Spaceship</strong></td><td>omz 외부</td><td>미니멀 + 풍부한 컨텍스트</td><td class="center">권장</td><td>활발</td></tr>
+            <tr><td><strong>Starship</strong></td><td>독립(크로스셸)</td><td>Rust·초고속·toml 설정</td><td class="center">선택</td><td>2026 신규 권장</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7.1 robbyrussell / agnoster (내장 — 설치 불필요)</h3>
+        <pre><code><span class="c"># ~/.zshrc 편집</span>
+ZSH_THEME="robbyrussell"   <span class="c"># 또는 "agnoster"</span></code></pre>
+        <pre><code>source ~/.zshrc</code></pre>
+
+        <h3>7.2 Powerlevel10k (가장 인기)</h3>
+        <pre><code>git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k</code></pre>
+        <pre><code><span class="c"># ~/.zshrc</span>
+ZSH_THEME="powerlevel10k/powerlevel10k"</code></pre>
+        <pre><code>source ~/.zshrc
+p10k configure        <span class="c"># 대화형 설정 마법사 (아이콘/색/레이아웃 선택)</span></code></pre>
+        <div class="shot">
+          <div class="tag">[ 스크린샷 영역 ]</div>
+          <div class="d">p10k configure 마법사 첫 화면 (다이아몬드/아이콘 인식 질문)</div>
+        </div>
+        <div class="note">
+          <div class="t">마법사 재실행</div>
+          <p>설정을 다시 잡고 싶으면 언제든 <code class="inline">p10k configure</code>를 재실행합니다. 설정은 <code class="inline">~/.p10k.zsh</code>에 저장됩니다.</p>
+        </div>
+
+        <h3>7.3 Spaceship</h3>
+        <pre><code>git clone https://github.com/spaceship-prompt/spaceship-prompt.git \
+  "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt" --depth=1
+ln -s "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme" \
+  "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme"</code></pre>
+        <pre><code><span class="c"># ~/.zshrc</span>
+ZSH_THEME="spaceship"</code></pre>
+
+        <h3>7.4 Starship (크로스셸 · 2026 신규 권장)</h3>
+        <p>Starship은 oh-my-zsh의 <strong>프롬프트만</strong> 대체합니다. 플러그인은 oh-my-zsh를 그대로 쓰면서 프롬프트만 Starship으로 둘 수 있습니다.</p>
+        <pre><code>curl -sS https://starship.rs/install.sh | sh</code></pre>
+        <pre><code><span class="c"># ~/.zshrc — oh-my-zsh 테마와 충돌 방지를 위해 ZSH_THEME는 비워둔다</span>
+ZSH_THEME=""
+
+<span class="c"># 파일 맨 아래에 추가</span>
+eval "$(starship init zsh)"</code></pre>
+        <pre><code>source ~/.zshrc</code></pre>
+        <p>설정 파일은 <code class="inline">~/.config/starship.toml</code>이며, <code class="inline">starship preset</code> 명령으로 프리셋을 적용할 수 있습니다.</p>
+        <pre><code>mkdir -p ~/.config
+starship preset gruvbox-rainbow -o ~/.config/starship.toml   <span class="c"># 예시 프리셋</span></code></pre>
+        <div class="note">
+          <div class="t">폰트 참고</div>
+          <p>Starship은 특별한 폰트 없이도 동작하지만, 아이콘을 쓰려면 Nerd Font를 권장합니다.</p>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section id="s8">
+        <h2 class="sec"><span class="n">08</span>필수 플러그인 (강력 추천)</h2>
+        <p>자동완성 제안과 명령어 색상 강조는 생산성을 크게 올립니다. oh-my-zsh의 <strong>custom 플러그인</strong>으로 설치합니다.</p>
+        <pre><code><span class="c"># 1) 입력 중 회색으로 명령 제안</span>
+git clone https://github.com/zsh-users/zsh-autosuggestions \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+<span class="c"># 2) 유효/무효 명령을 색으로 구분</span>
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+<span class="c"># 3) 추가 자동완성 정의</span>
+git clone https://github.com/zsh-users/zsh-completions.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-completions
+
+<span class="c"># 4) 위/아래 화살표로 히스토리 부분검색</span>
+git clone https://github.com/zsh-users/zsh-history-substring-search.git \
+  ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search</code></pre>
+        <p><code class="inline">~/.zshrc</code>의 <code class="inline">plugins=(...)</code>에 추가합니다.
+           <strong>순서 중요</strong> — <code class="inline">zsh-syntax-highlighting</code>은 항상 마지막에 둡니다.</p>
+        <pre><code>plugins=(
+  git
+  zsh-autosuggestions
+  zsh-completions
+  zsh-history-substring-search
+  zsh-syntax-highlighting   <span class="c"># 반드시 마지막</span>
+)</code></pre>
+        <pre><code>source ~/.zshrc</code></pre>
+      </section>
+
+      <!-- 9 -->
+      <section id="s9">
+        <h2 class="sec"><span class="n">09</span>완성된 <code>~/.zshrc</code> 예시 (Powerlevel10k 기준)</h2>
+        <pre><code><span class="c"># ===== oh-my-zsh =====</span>
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-completions
+  zsh-history-substring-search
+  zsh-syntax-highlighting   <span class="c"># 반드시 마지막</span>
+)
+
+source $ZSH/oh-my-zsh.sh
+
+<span class="c"># ===== Powerlevel10k 설정 로드 =====</span>
+[[ -f ~/.p10k.zsh ]] &amp;&amp; source ~/.p10k.zsh
+
+<span class="c"># ===== 개인 alias =====</span>
+alias ll="ls -alh"
+alias gs="git status"
+alias gd="git diff"
+alias ..="cd .."
+
+<span class="c"># ===== 히스토리 =====</span>
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS        <span class="c"># 중복 명령 저장 안 함</span>
+setopt SHARE_HISTORY           <span class="c"># 여러 탭 간 히스토리 공유</span>
+
+<span class="c"># history-substring-search 키 바인딩 (↑ ↓)</span>
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down</code></pre>
+        <div class="note">
+          <div class="t">Starship을 쓸 경우</div>
+          <p><code class="inline">ZSH_THEME=""</code>로 바꾸고, <code class="inline">~/.p10k.zsh</code> 줄 대신 파일 끝에
+             <code class="inline">eval "$(starship init zsh)"</code>를 둡니다.</p>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section id="s10">
+        <h2 class="sec"><span class="n">10</span>문제 해결 (FAQ)</h2>
+        <table>
+          <thead><tr><th>증상</th><th>원인 / 해결</th></tr></thead>
+          <tbody>
+            <tr><td>프롬프트 아이콘이 <code>□</code>·물음표로 깨짐</td><td>Nerd Font 미설정 → 6장대로 폰트 설치 후 <strong>터미널 앱 폰트</strong> 변경</td></tr>
+            <tr><td>테마를 바꿨는데 그대로</td><td><code>source ~/.zshrc</code> 누락 또는 터미널 재시작 필요</td></tr>
+            <tr><td>p10k 마법사를 다시 열고 싶음</td><td><code>p10k configure</code> 재실행</td></tr>
+            <tr><td><code>git clone</code>이 안 됨</td><td>Git 미설치 → 2장 참고</td></tr>
+            <tr><td>시작 시 <code>insecure directories</code> 경고</td><td><code>compaudit | xargs chmod g-w</code> 실행 후 새 터미널</td></tr>
+            <tr><td>oh-my-zsh가 너무 느림</td><td>미사용 플러그인 제거, 또는 Starship으로 프롬프트만 교체</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 11 -->
+      <section id="s11">
+        <h2 class="sec"><span class="n">11</span>2026 동향 메모 (강의 보충용)</h2>
+        <ul>
+          <li><strong>Powerlevel10k는 유지보수 모드</strong>입니다. 신규 기능 개발이 멈췄고 일부 버그는 미수정 상태지만,
+              <strong>아카이브가 아니며 기존 사용자에게는 완전히 정상 동작</strong>합니다(최신 푸시 2026-03-14). 기존 환경은 그대로 써도 무방합니다.</li>
+          <li><strong>신규 셋업이라면 Starship</strong>이 현재 표준에 가깝습니다. Rust 컴파일 바이너리라 렌더가 빠르고,
+              bash·zsh·fish·PowerShell 등에서 <strong>동일한 설정 파일 하나로</strong> 동작합니다. 셸을 바꿔도 프롬프트 설정이 그대로 따라옵니다.</li>
+          <li>정리: <strong>빠르고 미래지향 → Starship</strong>, <strong>풍부한 기능·익숙함 → Powerlevel10k</strong>, <strong>가볍게 시작 → robbyrussell / agnoster</strong>.</li>
+        </ul>
+      </section>
+
+      <!-- 부록 -->
+      <section id="appendix">
+        <h2 class="sec"><span class="n">+</span>출처 · 검증 노트</h2>
+
+        <h3>공식 출처 (링크 유효성 확인 완료)</h3>
+        <table>
+          <thead><tr><th>자료</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>oh-my-zsh 공식</td><td><a class="link" href="https://github.com/ohmyzsh/ohmyzsh">github.com/ohmyzsh/ohmyzsh</a></td></tr>
+            <tr><td>Powerlevel10k 공식</td><td><a class="link" href="https://github.com/romkatv/powerlevel10k">github.com/romkatv/powerlevel10k</a></td></tr>
+            <tr><td>Starship 공식</td><td><a class="link" href="https://starship.rs">starship.rs</a></td></tr>
+            <tr><td>Spaceship 공식</td><td><a class="link" href="https://github.com/spaceship-prompt/spaceship-prompt">github.com/spaceship-prompt/spaceship-prompt</a></td></tr>
+            <tr><td>zsh-autosuggestions</td><td><a class="link" href="https://github.com/zsh-users/zsh-autosuggestions">github.com/zsh-users/zsh-autosuggestions</a></td></tr>
+            <tr><td>zsh-syntax-highlighting</td><td><a class="link" href="https://github.com/zsh-users/zsh-syntax-highlighting">github.com/zsh-users/zsh-syntax-highlighting</a></td></tr>
+            <tr><td>zsh-completions</td><td><a class="link" href="https://github.com/zsh-users/zsh-completions">github.com/zsh-users/zsh-completions</a></td></tr>
+            <tr><td>zsh-history-substring-search</td><td><a class="link" href="https://github.com/zsh-users/zsh-history-substring-search">github.com/zsh-users/zsh-history-substring-search</a></td></tr>
+            <tr><td>Nerd Fonts</td><td><a class="link" href="https://www.nerdfonts.com">nerdfonts.com</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3>할루시네이션 검증 노트 (2026-06-01)</h3>
+        <ul>
+          <li>✅ <strong>oh-my-zsh 설치 명령</strong>: 공식 저장소 <code class="inline">tools/install.sh</code> 경로로 확인.</li>
+          <li>✅ <strong>플러그인 4종 저장소</strong>(zsh-users/*): 공식 README 및 다수 최신 가이드로 교차 확인. <code class="inline">syntax-highlighting</code>은 plugins 배열 <strong>마지막</strong>에 둔다는 규칙도 확인.</li>
+          <li>✅ <strong>Powerlevel10k 유지보수 모드</strong>: GitHub 이슈 #2932(2026-02) 및 maintainer 발언으로 확인 — 아카이브 아님, 최신 푸시 2026-03-14.</li>
+          <li>✅ <strong>Starship 크로스셸·고속·toml</strong>: 공식 사이트 및 2026-02/03 다수 기술 블로그로 확인.</li>
+          <li>⚠️ <strong>Nerd Font 수동 설치(Ubuntu)</strong>: 폰트 zip은 nerdfonts.com Releases에서 직접 받아야 하며 버전별 파일명이 달라 본문은 일반 절차만 제시.</li>
+          <li>⚠️ 본 문서의 명령은 표준 형식이나, 실제 강의 환경(특히 WSL/Ubuntu)에서 1회 실행 검증을 권장.</li>
+          <li>📷 이미지: 실제 스크린샷은 강의자가 직접 촬영해 <code class="inline">[ 스크린샷 영역 ]</code> 표기 위치에 삽입(현재 미포함).</li>
+        </ul>
+      </section>
+
+      <footer>
+        예제는 macOS · Ubuntu · WSL2 기준입니다. Windows는 WSL2(Ubuntu) 위에서 동일하게 동작합니다. ·
+        공식 출처: <a href="https://github.com/ohmyzsh/ohmyzsh">oh-my-zsh</a>, <a href="https://starship.rs">Starship</a>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 코드 블록 복사 버튼
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+    btn.addEventListener('click', function () {
+      var codeEl = pre.querySelector('code');
+      var text = codeEl ? codeEl.innerText : pre.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = '복사됨';
+        setTimeout(function () { btn.textContent = '복사'; }, 1200);
+      }).catch(function () {
+        btn.textContent = '복사 실패';
+        setTimeout(function () { btn.textContent = '복사'; }, 1200);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  // 목차 현재 위치 표시
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var linkMap = {};
+  tocLinks.forEach(function (a) { linkMap[a.getAttribute('href').slice(1)] = a; });
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        tocLinks.forEach(function (l) { l.classList.remove('active'); });
+        if (linkMap[e.target.id]) { linkMap[e.target.id].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '0px 0px -78% 0px' });
+  document.querySelectorAll('section[id]').forEach(function (s) { observer.observe(s); });
+</script>
+<script>
+/* 임베드 안전 패치 — run-ai.kr 등이 이 문서를 sandbox iframe(origin null)으로 임베드할 때:
+   1) 네이티브 #hash 앵커 클릭이 상위 SPA URL을 바꿔 라우터 재렌더 크래시를 유발 → scrollIntoView로 대체
+   2) sandbox에서 navigator.clipboard 부재 시 복사 버튼이 죽음 → execCommand 폴백 주입 */
+document.addEventListener('click', function(e){
+  var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if (!a) return;
+  var href = a.getAttribute('href');
+  if (!href || href.length < 2) return;
+  var el = document.getElementById(href.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+if (!navigator.clipboard || !navigator.clipboard.writeText) {
+  try {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(t){
+      var ta = document.createElement('textarea'); ta.value = t;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove(); return Promise.resolve();
+    } } });
+  } catch (err) {}
+}
+</script>
+</body>
+</html>

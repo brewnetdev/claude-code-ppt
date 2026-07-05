@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 190" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif" data-sae-id="e0001">
+  <rect x="0" y="0" width="1280" height="190" fill="#ffffff" data-sae-id="e0002"/>
+  <!-- outer frame (single accent #B45309) -->
+  <rect id="frame" x="3" y="3" width="1274" height="184" rx="8" fill="#ffffff" stroke="#B45309" stroke-width="2" data-sae-id="e0003"/>
+
+  <!-- caption (start-anchored + measured x to dodge cairosvg middle-anchor CJK bug) -->
+  <text id="caption" x="290" y="40" text-anchor="start" font-size="20" data-sae-id="e0004"><tspan font-weight="700" fill="#B45309" data-sae-id="e0005">Level 1 ~ Level 6</tspan><tspan font-weight="500" fill="#4b5563" data-sae-id="e0006">까지 프로젝트를 점진적으로 완성해서 나만의 서비스를 만들어보세요</tspan></text>
+
+  <!-- step 1 -->
+  <g id="step-1" data-sae-id="e0007">
+    <rect x="60" y="72" width="208" height="82" rx="8" fill="#ffffff" stroke="#d0d0d0" stroke-width="1" data-sae-id="e0008"/>
+    <text x="164" y="94" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#B45309" data-sae-id="e0009">STEP 1</text>
+    <text x="164" y="118" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a" data-sae-id="e0010">용어 설명 및</text>
+    <text x="164" y="139" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a" data-sae-id="e0011">기초 개념</text>
+  </g>
+
+  <!-- step 2 -->
+  <g id="step-2" data-sae-id="e0012">
+    <rect x="298" y="72" width="208" height="82" rx="8" fill="#ffffff" stroke="#d0d0d0" stroke-width="1" data-sae-id="e0013"/>
+    <text x="402" y="94" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#B45309" data-sae-id="e0014">STEP 2</text>
+    <text x="402" y="130" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a" data-sae-id="e0015">설정</text>
+  </g>
+
+  <!-- step 3 -->
+  <g id="step-3" data-sae-id="e0016">
+    <rect x="536" y="72" width="208" height="82" rx="8" fill="#ffffff" stroke="#d0d0d0" stroke-width="1" data-sae-id="e0017"/>
+    <text x="640" y="94" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#B45309" data-sae-id="e0018">STEP 3</text>
+    <text x="640" y="130" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a" data-sae-id="e0019">실습</text>
+  </g>
+
+  <!-- step 4 -->
+  <g id="step-4" data-sae-id="e0020">
+    <rect x="774" y="72" width="208" height="82" rx="8" fill="#ffffff" stroke="#d0d0d0" stroke-width="1" data-sae-id="e0021"/>
+    <text x="878" y="94" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#B45309" data-sae-id="e0022">STEP 4</text>
+    <text x="878" y="130" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a" data-sae-id="e0023">프로젝트 따라하기</text>
+  </g>
+
+  <!-- step 5 (endpoint: accent border + accent label) -->
+  <g id="step-5" data-sae-id="e0024">
+    <rect x="1012" y="72" width="208" height="82" rx="8" fill="#ffffff" stroke="#B45309" stroke-width="2" data-sae-id="e0025"/>
+    <text x="1116" y="94" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#B45309" data-sae-id="e0026">STEP 5</text>
+    <text x="1116" y="130" text-anchor="middle" font-size="17" font-weight="700" fill="#B45309" data-sae-id="e0027">완성</text>
+  </g>
+
+  <!-- chevrons between boxes -->
+  <g id="arrows" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-sae-id="e0028">
+    <path d="M279 106 L287 113 L279 120" data-sae-id="e0029"/>
+    <path d="M517 106 L525 113 L517 120" data-sae-id="e0030"/>
+    <path d="M755 106 L763 113 L755 120" data-sae-id="e0031"/>
+    <path d="M993 106 L1001 113 L993 120" data-sae-id="e0032"/>
+  </g>
+</svg>
