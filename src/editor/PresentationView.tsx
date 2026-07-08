@@ -3,7 +3,6 @@ import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer'
 import { linkifyHtml } from '../exporter/linkify';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { useDeckStore } from '../scene/store';
-import { PresentationAnnotator } from './PresentationAnnotator';
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',
@@ -151,9 +150,6 @@ export function PresentationView({ onExit }: Props) {
         {currentIndex + 1} / {slides.length} · ← → 이동 · Esc 종료
       </div>
 
-      {/* Moved to top-left so it never collides with the annotation toolbar
-          (which owns the top-right corner). z-[2200] keeps it clickable above
-          the annotator's full-screen drawing surface (z 2100). */}
       <button
         type="button"
         onClick={onExit}
@@ -183,8 +179,6 @@ export function PresentationView({ onExit }: Props) {
           ›
         </button>
       ) : null}
-
-      <PresentationAnnotator />
     </div>
   );
 }
