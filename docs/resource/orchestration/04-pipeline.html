@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="card">
+  <div class="head">
+    <span class="kicker">03 · Pipeline &amp; Gates</span>
+    <span class="index">04 / 05</span>
+  </div>
+
+  <h1 class="title">분해 → 병렬 → 통합,<br>그리고 3개의 게이트</h1>
+  <div class="mark"></div>
+
+  <div class="body">
+    <div class="steps">
+      <div class="step">
+        <span class="n">Phase 1</span>
+        <div><div class="t">스펙 · 계약 확정</div><div class="d">오케스트레이터 단독 — architecture.md · api-spec · tasks.json</div></div>
+      </div>
+      <div class="step">
+        <span class="n">Phase 2</span>
+        <div><div class="t">모듈별 구현 (병렬)</div><div class="d">워커 3~5개 — 담당 디렉토리 코드 + 테스트 + 완료 보고</div></div>
+      </div>
+      <div class="step">
+        <span class="n">Phase 3</span>
+        <div><div class="t">통합 · 검증</div><div class="d">오케스트레이터 + 리뷰어 — 통합 테스트 · 리포트 · 문서 갱신</div></div>
+      </div>
+    </div>
+
+    <div class="chips">
+      <span class="chip">파일 하나에 오너 하나</span>
+      <span class="chip">통신은 파일 기반</span>
+      <span class="chip">동시 워커 3~5개</span>
+      <span class="chip">피처 브랜치</span>
+    </div>
+
+    <div class="gates">
+      <div class="gate"><div class="g">Gate ①</div><div class="gt">플랜 승인</div><div class="gd">코딩 전 플랜 승인. 나쁜 플랜 수정이 더 싸다.</div></div>
+      <div class="gate"><div class="g">Gate ②</div><div class="gt">훅(Hooks)</div><div class="gd">lint·테스트 자동 실행, 실패 시 exit 2로 차단.</div></div>
+      <div class="gate"><div class="g">Gate ③</div><div class="gt">리뷰어</div><div class="gd">read-only. 통과분만 전달.</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="repo">carve-harness</span>
+    <span>orchestration.md · §3–4</span>
+  </div>
+</div>
+</body>
+</html>

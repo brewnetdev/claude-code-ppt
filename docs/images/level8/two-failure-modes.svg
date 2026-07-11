@@ -1,0 +1,54 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Intro -->
+  <text x="20" y="32" font-size="16" fill="#1A1A18">최상위 레벨의 원칙 — 큰 조사는 격리된 컨텍스트에(위생), 채점은 일하지 않은 눈에(검증).</text>
+
+  <!-- Two cards side by side. w=610, gap 20, from x=20. y 48..420 -->
+  <!-- Failure mode 1 -->
+  <rect x="20" y="48" width="610" height="372" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="82" font-size="20" font-weight="700" fill="#B91C1C">실패 모드 1 — 컨텍스트 오염</text>
+  <line x1="44" y1="96" x2="606" y2="96" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="132" font-size="16" fill="#1A1A18">"레이트 리밋이 어디서 강제되나" 한 문장을</text>
+  <text x="44" y="156" font-size="16" fill="#1A1A18">답하려 15개 파일을 읽으면, 그 파일들은 답이</text>
+  <text x="44" y="180" font-size="16" fill="#1A1A18">나온 뒤에도 남아 이후 모든 추론의 예산을</text>
+  <text x="44" y="204" font-size="16" fill="#1A1A18">잠식한다.</text>
+
+  <!-- solution box -->
+  <rect x="44" y="232" width="562" height="24" fill="none" stroke="none"/>
+  <line x1="44" y1="244" x2="82" y2="244" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="92" y="250" font-size="16" font-weight="700" fill="#0F766E">해법 — 서브에이전트가 파고든다</text>
+  <rect x="44" y="272" width="562" height="128" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="64" y="304" font-size="16" fill="#1A1A18">서브에이전트가 파고들어 <tspan font-weight="700" fill="#0F766E">한 문단만</tspan> 건네면</text>
+  <text x="64" y="330" font-size="16" fill="#1A1A18">메인은 침수되지 않는다.</text>
+  <text x="64" y="366" font-size="16" font-weight="700" fill="#0F766E">= 컨텍스트 위생</text>
+  <text x="64" y="390" font-size="14" fill="#6B6560">비유: 조사 나갔다가 요약 한 장만 들고 돌아오는 인턴</text>
+
+  <!-- Failure mode 2 -->
+  <rect x="650" y="48" width="610" height="372" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="674" y="82" font-size="20" font-weight="700" fill="#B91C1C">실패 모드 2 — 자기 채점 편향</text>
+  <line x1="674" y1="96" x2="1236" y2="96" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="674" y="132" font-size="16" fill="#1A1A18">구현한 에이전트의 컨텍스트엔 "이 코드가 왜</text>
+  <text x="674" y="156" font-size="16" fill="#1A1A18">옳은지"의 서사가 이미 쌓여 있다 —</text>
+  <text x="674" y="180" font-size="16" fill="#1A1A18">사람의 "내가 짠 코드는 내 눈에 맞아 보인다"와</text>
+  <text x="674" y="204" font-size="16" fill="#1A1A18">같은 구조.</text>
+
+  <line x1="674" y1="244" x2="712" y2="244" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="722" y="250" font-size="16" font-weight="700" fill="#0F766E">해법 — 신선한 눈이 반박한다</text>
+  <rect x="674" y="272" width="562" height="128" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="694" y="304" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">신선한(fresh) 컨텍스트의 모델</tspan>이 결과를</text>
+  <text x="694" y="330" font-size="16" fill="#1A1A18">반박하게 한다.</text>
+  <text x="694" y="366" font-size="16" font-weight="700" fill="#0F766E">= 검증 서브에이전트</text>
+  <text x="694" y="390" font-size="14" fill="#6B6560">일한 에이전트가 채점자가 되지 않게 한다</text>
+
+  <!-- Prescription band -->
+  <rect x="20" y="436" width="1240" height="134" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="44" y="470" font-size="19" font-weight="700" fill="#0F766E">공식 처방 — "일한 에이전트가 채점자가 되지 않게 하라."</text>
+  <text x="44" y="502" font-size="16" fill="#1A1A18">별도 컨텍스트는 실제로 결과를 개선한다.</text>
+  <text x="44" y="536" font-size="18" font-weight="700" fill="#1A1A18">같은 모델이라도 컨텍스트가 다르면 서로의 버그를 찾아낸다.</text>
+  <text x="44" y="560" font-size="14" fill="#6B6560">test-time compute — 조사는 격리에, 채점은 신선한 눈에.</text>
+</svg>

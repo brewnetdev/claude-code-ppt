@@ -1,0 +1,53 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Column headers -->
+  <text x="40" y="52" font-size="20" font-weight="700" fill="#1A1A18">하네스 부품 <tspan font-size="15" font-weight="400" fill="#6B6560">(이미 만든 것)</tspan></text>
+  <text x="720" y="52" font-size="20" font-weight="700" fill="#0F766E">EDD 부품 <tspan font-size="15" font-weight="400" fill="#6B6560">(승격 후)</tspan></text>
+  <line x1="40" y1="66" x2="1240" y2="66" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- pair 1 -->
+  <rect x="40" y="82" width="520" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="114" font-size="18" font-weight="700" fill="#1A1A18">검증 서브에이전트 <tspan font-size="14" font-weight="400" fill="#6B6560">(LV5)</tspan></text>
+  <text x="60" y="146" font-size="15" fill="#6B6560">갭 있음/없음 판정</text>
+  <line x1="562" y1="125" x2="716" y2="125" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="720" y="82" width="520" height="86" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="740" y="114" font-size="18" font-weight="700" fill="#0F766E">LLM-as-Judge</text>
+  <text x="740" y="146" font-size="15" fill="#6B6560">루브릭 · 점수 · 임계값 · 인간 일치율 검증</text>
+
+  <!-- pair 2 -->
+  <rect x="40" y="182" width="520" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="214" font-size="18" font-weight="700" fill="#1A1A18">PLAN.md 요구사항 목록 <tspan font-size="14" font-weight="400" fill="#6B6560">(8.3)</tspan></text>
+  <text x="60" y="246" font-size="15" fill="#6B6560">1회용 대조표</text>
+  <line x1="562" y1="225" x2="716" y2="225" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="720" y="182" width="520" height="86" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="740" y="214" font-size="18" font-weight="700" fill="#0F766E">골든 데이터셋</text>
+  <text x="740" y="246" font-size="15" fill="#6B6560">영구 재사용되는 입력 · 정답 · 기준 집합</text>
+
+  <!-- pair 3 -->
+  <rect x="40" y="282" width="520" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="314" font-size="18" font-weight="700" fill="#1A1A18">훅 · 차단기 <tspan font-size="14" font-weight="400" fill="#6B6560">(LV4)</tspan></text>
+  <text x="60" y="346" font-size="15" fill="#6B6560">이번 호출의 결정적 차단</text>
+  <line x1="562" y1="325" x2="716" y2="325" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="720" y="282" width="520" height="86" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="740" y="314" font-size="18" font-weight="700" fill="#0F766E">Blocking eval / 가드레일</text>
+  <text x="740" y="346" font-size="15" fill="#6B6560">점수 기반 차단 · 재시도 · 승격</text>
+
+  <!-- pair 4 -->
+  <rect x="40" y="382" width="520" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="414" font-size="18" font-weight="700" fill="#1A1A18">커맨드 <tspan font-family="JetBrains Mono, monospace">/pre-ship</tspan> <tspan font-size="14" font-weight="400" fill="#6B6560">(LV3)</tspan></text>
+  <text x="60" y="446" font-size="15" fill="#6B6560">사람이 부르는 점검</text>
+  <line x1="562" y1="425" x2="716" y2="425" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="720" y="382" width="520" height="86" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="740" y="414" font-size="18" font-weight="700" fill="#0F766E">CI 평가 게이트</text>
+  <text x="740" y="446" font-size="15" fill="#6B6560">PR마다 자동 실행, 회귀 시 머지 차단</text>
+
+  <!-- Band -->
+  <rect x="40" y="500" width="1200" height="70" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="64" y="530" font-size="18" fill="#1A1A18">승격의 공통 원리 — 정성적 · 1회성 · 수동이던 것에 <tspan font-weight="700" fill="#0F766E">점수 · 영속성 · 자동 트리거</tspan>를 부여한다.</text>
+  <text x="64" y="556" font-size="18" font-weight="700" fill="#0F766E">EDD 도입은 제로에서의 구축이 아니라 업그레이드다.</text>
+</svg>

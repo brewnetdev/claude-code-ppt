@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Intro -->
+  <text x="20" y="34" font-size="16" fill="#1A1A18">"단위 테스트를 잘 짜면 되는 것 아닌가?"에 대한 답 — 고정 심사위원단(같은 심사표로 매번 채점)과 손님 리뷰(기분 따라 바뀜)의 차이.</text>
+
+  <!-- 3 cards. w=406, gap 11, from x=20. y 54..470 -->
+  <!-- Card 1 -->
+  <rect x="20" y="54" width="406" height="416" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="98" font-size="24" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">①</text>
+  <text x="82" y="98" font-size="20" font-weight="700" fill="#1A1A18">판정이 통계적</text>
+  <line x1="44" y1="116" x2="402" y2="116" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="152" font-size="16" fill="#1A1A18">LLM은 같은 입력에도 다른 출력을</text>
+  <text x="44" y="176" font-size="16" fill="#1A1A18">내는 확률적 시스템 —</text>
+  <text x="44" y="212" font-size="16" fill="#1A1A18">개별 통과/실패가 아니라</text>
+  <rect x="44" y="230" width="358" height="72" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="64" y="262" font-size="17" font-weight="700" fill="#0F766E">케이스 집합의</text>
+  <text x="64" y="288" font-size="17" font-weight="700" fill="#0F766E">통과율 · 점수 분포</text>
+  <text x="44" y="332" font-size="16" fill="#1A1A18">가 판정 단위가 된다.</text>
+  <text x="44" y="384" font-size="16" font-weight="700" fill="#1A1A18">eval은 노이즈 속의</text>
+  <text x="44" y="408" font-size="16" font-weight="700" fill="#1A1A18">측정 과학이다.</text>
+
+  <!-- Card 2 -->
+  <rect x="437" y="54" width="406" height="416" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="461" y="98" font-size="24" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">②</text>
+  <text x="499" y="98" font-size="20" font-weight="700" fill="#1A1A18">기준이 "성공 정의"</text>
+  <text x="461" y="122" font-size="20" font-weight="700" fill="#1A1A18">에서 출발</text>
+  <line x1="461" y1="140" x2="819" y2="140" stroke="#D4D0C8" stroke-width="1"/>
+  <rect x="461" y="158" width="358" height="52" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1" rx="6"/>
+  <text x="481" y="190" font-size="17" fill="#B91C1C"><tspan font-weight="700">✗</tspan> "좋은 성능"</text>
+  <rect x="461" y="224" width="358" height="52" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="481" y="256" font-size="17" fill="#0F766E"><tspan font-weight="700">✓</tspan> "정확한 감성 분류"</text>
+  <text x="461" y="312" font-size="16" fill="#1A1A18">성공 기준을 구체적 · 측정</text>
+  <text x="461" y="336" font-size="16" fill="#1A1A18">가능하게 정의하고, 그것을</text>
+  <text x="461" y="360" font-size="16" fill="#1A1A18">재는 평가를 설계한다.</text>
+  <text x="461" y="404" font-size="15" fill="#6B6560">윤리 · 안전 같은 정성 주제조차</text>
+  <text x="461" y="426" font-size="15" fill="#6B6560">척도화한다.</text>
+
+  <!-- Card 3 -->
+  <rect x="854" y="54" width="406" height="416" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="878" y="98" font-size="24" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">③</text>
+  <text x="916" y="98" font-size="20" font-weight="700" fill="#1A1A18">대상이 시스템 전체</text>
+  <line x1="878" y1="116" x2="1236" y2="116" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="878" y="152" font-size="16" fill="#1A1A18">에이전트는</text>
+  <rect x="878" y="170" width="358" height="96" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="898" y="200" font-size="16" font-weight="700" fill="#0F766E">컨텍스트 엔진 · 메모리 ·</text>
+  <text x="898" y="226" font-size="16" font-weight="700" fill="#0F766E">도구 · 가드레일의</text>
+  <text x="898" y="252" font-size="16" font-weight="700" fill="#0F766E">컴파운드 시스템</text>
+  <text x="878" y="298" font-size="16" fill="#1A1A18">모델만 재면 잘못된 도구</text>
+  <text x="878" y="322" font-size="16" fill="#1A1A18">호출 · 메모리 오염 같은</text>
+  <text x="878" y="346" font-size="16" fill="#1A1A18">실패가</text>
+  <text x="878" y="388" font-size="16" font-weight="700" fill="#B91C1C">미탐지로 남는다.</text>
+
+  <!-- Bottom band -->
+  <rect x="20" y="484" width="1240" height="90" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="44" y="516" font-size="17" font-weight="700" fill="#0F766E">한 줄 요약 — Eval = 확률적 시스템을 ① 통계적으로 ② 명시적 성공 정의에 따라 ③ 시스템 수준에서 측정하는 것.</text>
+  <text x="44" y="550" font-size="16" fill="#1A1A18">셋 중 하나라도 빠지면 전통 QA의 연장선일 뿐 eval이 아니다.</text>
+</svg>

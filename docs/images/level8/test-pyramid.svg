@@ -1,0 +1,70 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- LEFT: true triangle pyramid, enlarged + shifted 50px left. apex=(270,24), base y=438 from (60,438) to (480,438), half-width=210.
+       every tier vertex sits exactly on the apex->base slant (halfWidth = 210*(y-24)/414) so the sides are straight lines, not a stack of trapezoids.
+       tier boundaries y: 24(apex),140,270,380,438.  half-widths: 140->58.8 ; 270->124.8 ; 380->180.6 ; 438->210 -->
+
+  <!-- e2e (apex) -->
+  <polygon points="270,24 211.2,140 328.8,140" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5"/>
+  <!-- contract -->
+  <polygon points="211.2,140 328.8,140 394.8,270 145.2,270" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1"/>
+  <!-- component / integration (thickest tier, teal emphasis) -->
+  <polygon points="145.2,270 394.8,270 450.6,380 89.4,380" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5"/>
+  <!-- unit (base) -->
+  <polygon points="89.4,380 450.6,380 480,438 60,438" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- tier labels centered on x=270 -->
+  <text x="270" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#0F766E">e2e</text>
+  <text x="270" y="214" text-anchor="middle" font-size="19" font-weight="700" fill="#1A1A18">contract</text>
+  <text x="270" y="332" text-anchor="middle" font-size="19" font-weight="700" fill="#0F766E">component · integration</text>
+  <text x="270" y="416" text-anchor="middle" font-size="19" font-weight="700" fill="#1A1A18">unit</text>
+
+  <!-- leader lines start on the right slant (x = 270 + halfWidth at that y) -->
+  <line x1="308" y1="100" x2="500" y2="100" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="508" y="95" font-size="15" fill="#6B6560">walking skeleton 1~2개</text>
+
+  <line x1="365" y1="212" x2="500" y2="212" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="508" y="207" font-size="15" fill="#6B6560">스텁 ≈ 현실 보증</text>
+
+  <line x1="425" y1="330" x2="500" y2="330" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="508" y="325" font-size="15" font-weight="700" fill="#0F766E">가장 두껍게</text>
+
+  <line x1="468" y1="415" x2="500" y2="415" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="508" y="410" font-size="15" fill="#6B6560">필터 · 토큰 파서</text>
+
+  <!-- RIGHT: feature -> tool mapping -->
+  <text x="672" y="42" font-size="15" font-weight="700" fill="#6B6560">기능</text>
+  <text x="978" y="42" font-size="15" font-weight="700" fill="#6B6560">검증 도구</text>
+  <line x1="672" y1="52" x2="1260" y2="52" stroke="#D4D0C8" stroke-width="1"/>
+
+  <rect x="672" y="62" width="588" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="692" y="94" font-size="17" font-weight="700" fill="#1A1A18">라우팅</text>
+  <text x="692" y="122" font-size="14" fill="#6B6560">경로 · 헤더별 올바른 백엔드로</text>
+  <text x="978" y="98" font-size="15" fill="#0F766E">WireMock 스텁</text>
+  <text x="978" y="122" font-size="15" fill="#0F766E">+ WebTestClient</text>
+
+  <rect x="672" y="150" width="588" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="692" y="182" font-size="17" font-weight="700" fill="#1A1A18">인증 / 인가</text>
+  <text x="692" y="210" font-size="14" fill="#6B6560">유효 · 만료 · 위조 토큰, 역할</text>
+  <text x="978" y="186" font-size="15" fill="#0F766E">Stub 토큰 /</text>
+  <text x="978" y="210" font-size="15" fill="#0F766E">Testcontainers Keycloak</text>
+
+  <rect x="672" y="238" width="588" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="692" y="270" font-size="17" font-weight="700" fill="#1A1A18">레이트 리미트</text>
+  <text x="692" y="298" font-size="14" fill="#6B6560">N회 초과 시 차단</text>
+  <text x="978" y="274" font-size="15" fill="#0F766E">Testcontainers Redis</text>
+  <text x="978" y="298" font-size="15" fill="#0F766E">+ 반복 호출</text>
+
+  <rect x="672" y="326" width="588" height="80" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="692" y="358" font-size="17" font-weight="700" fill="#0F766E">Walking Skeleton</text>
+  <text x="692" y="386" font-size="14" fill="#6B6560">전 구간 관통 — 위 전부 얇게 1시나리오</text>
+  <text x="978" y="362" font-size="15" fill="#1A1A18">토큰 → 라우팅 →</text>
+  <text x="978" y="386" font-size="15" fill="#1A1A18">백엔드 200 한 번 통과</text>
+
+  <!-- bottom band -->
+  <rect x="20" y="446" width="1240" height="126" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="476" font-size="16" fill="#1A1A18">교차 관심사는 단위 테스트만으로 "실제 구동"을 검증할 수 없다 — 백엔드를 스텁으로 세우고 게이트웨이를 통째로 띄워 요청을 흘려보낸다.</text>
+  <line x1="44" y1="492" x2="1236" y2="492" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="520" font-size="16" font-weight="700" fill="#0F766E">하네스 연결 (LV4의 도메인 적용)</text>
+  <text x="44" y="546" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">PostToolUse</tspan> 훅 — 게이트웨이/인증 파일 수정 시 관련 통합 테스트만 자동 실행</text>
+  <text x="44" y="566" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">Stop</tspan> 훅 — 테스트 깨진 채 종료를 차단 (exit 2)</text>
+</svg>

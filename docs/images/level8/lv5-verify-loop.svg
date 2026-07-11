@@ -1,0 +1,60 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Cyclic loop: implementer (left) <-> verifier (right), rotating without human. -->
+
+  <!-- Implementer box -->
+  <rect x="60" y="120" width="420" height="200" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="84" y="158" font-size="22" font-weight="700" fill="#0F766E">구현자</text>
+  <text x="180" y="158" font-size="16" fill="#6B6560">(메인 세션 · 작업 서사 누적)</text>
+  <line x1="84" y1="172" x2="456" y2="172" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="84" y="204" font-size="17" fill="#1A1A18">· PLAN.md에 따라 구현, diff 생성</text>
+  <text x="84" y="232" font-size="17" fill="#1A1A18">· 통과하는 테스트 작성</text>
+  <text x="84" y="260" font-size="17" fill="#1A1A18">· 검증자에게 받은 갭을 수정</text>
+  <text x="84" y="288" font-size="16" fill="#6B6560">산출물: diff + 통과하는 테스트</text>
+
+  <!-- Verifier box -->
+  <rect x="800" y="120" width="420" height="200" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="824" y="158" font-size="22" font-weight="700" fill="#0F766E">검증자</text>
+  <text x="920" y="158" font-size="16" fill="#6B6560">(신선한 격리 컨텍스트)</text>
+  <line x1="824" y1="172" x2="1196" y2="172" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="824" y="204" font-size="17" fill="#1A1A18">diff를 PLAN.md와 대조 —</text>
+  <text x="824" y="232" font-size="17" fill="#1A1A18">· 요구사항 전부 충족?</text>
+  <text x="824" y="260" font-size="17" fill="#1A1A18">· 엣지 케이스 테스트? 범위 밖 변경?</text>
+  <text x="824" y="288" font-size="16" fill="#6B6560">산출물: 갭 목록만 (요약 반환)</text>
+
+  <!-- top arrow: implementer -> verifier (diff + PLAN.md) -->
+  <line x1="480" y1="180" x2="800" y2="180" stroke="#0F766E" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="530" y="146" width="220" height="26" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="640" y="164" text-anchor="middle" font-size="15" fill="#1A1A18" font-family="JetBrains Mono, monospace">diff + PLAN.md</text>
+
+  <!-- bottom arrow: verifier -> implementer (gap list) -->
+  <line x1="800" y1="260" x2="480" y2="260" stroke="#0F766E" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="540" y="268" width="200" height="26" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="640" y="286" text-anchor="middle" font-size="15" fill="#1A1A18">갭 목록만 반환</text>
+
+  <!-- loop label -->
+  <text x="640" y="352" text-anchor="middle" font-size="16" fill="#0F766E" font-weight="700">사람 개입 없이 회전 (수정 → 재검증)</text>
+
+  <!-- Completion criterion -->
+  <rect x="60" y="380" width="700" height="130" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="84" y="414" font-size="19" font-weight="700" fill="#0F766E">완료 판정</text>
+  <text x="84" y="448" font-size="17" fill="#B91C1C">단언("됐습니다") ✗</text>
+  <text x="320" y="448" font-size="17" fill="#0F766E" font-weight="700">증거 ✓</text>
+  <text x="84" y="482" font-size="16" fill="#1A1A18">증거 = 테스트 출력 · 실행 명령과 반환값 · 스크린샷</text>
+
+  <!-- Human role -->
+  <rect x="784" y="380" width="436" height="130" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="808" y="414" font-size="19" font-weight="700" fill="#0F766E">사람 = 스팟 체크</text>
+  <text x="808" y="446" font-size="16" fill="#1A1A18">"상시 재검증"에서 기록된 발견의 스팟</text>
+  <text x="808" y="468" font-size="16" fill="#1A1A18">체크로 축소. 증거 검토가 검증 재실행보다</text>
+  <text x="808" y="490" font-size="16" fill="#1A1A18">빠르고, 지켜보지 않은 세션에도 통한다.</text>
+
+  <!-- Band -->
+  <rect x="60" y="540" width="1160" height="38" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="84" y="564" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">implementer ≠ grader</tspan>  무인 실행의 완성 = 이 루프 + Stop 훅(LV4) + 증거 원칙의 합.</text>
+</svg>

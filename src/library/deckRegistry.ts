@@ -246,7 +246,7 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       {
         level: 8,
         label: '하네스 엔지니어링 · 베스트 프렉티스',
-        topic: '하네스 이론·오픈소스 케이스·10단계 적용 가이드·자율 운용',
+        topic: '하네스 정의·5레벨 구축·완성형 파이프라인·실증 사례·EDD',
         deckId: 'claude-code-level9-chapter9',
       },
       {

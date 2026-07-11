@@ -1,0 +1,60 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Two stacked layers: request layer (top, leaky) over guarantee layer (bottom, deterministic). -->
+
+  <!-- REQUEST layer (top) -->
+  <rect x="40" y="40" width="1200" height="180" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="64" y="82" font-size="24" font-weight="700" fill="#1A1A18">요청 층</text>
+  <text x="180" y="82" font-size="18" fill="#B91C1C" font-weight="700">확률적 준수 — 컨텍스트가 차면 누락</text>
+
+  <rect x="64" y="104" width="360" height="96" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="84" y="136" font-size="18" font-weight="700" fill="#1A1A18">CLAUDE.md 규칙</text>
+  <text x="84" y="164" font-size="15" fill="#6B6560">세션마다 로드되는 컨벤션.</text>
+  <text x="84" y="186" font-size="15" fill="#6B6560">대체로 지켜지지만 강제는 아님.</text>
+
+  <rect x="450" y="104" width="360" height="96" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="470" y="136" font-size="18" font-weight="700" fill="#1A1A18">스킬 지시 · 세션 프롬프트</text>
+  <text x="470" y="164" font-size="15" fill="#6B6560">상황이 맞을 때 로드되는 절차·요청.</text>
+  <text x="470" y="186" font-size="15" fill="#6B6560">모델의 협조에 의존한다.</text>
+
+  <rect x="836" y="104" width="380" height="96" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="856" y="136" font-size="18" font-weight="700" fill="#B91C1C">규칙 준수율 = 세션 길이의 감소 함수</text>
+  <text x="856" y="164" font-size="15" fill="#6B6560">위반은 "가끔, 긴 세션에서, 하필 중요한</text>
+  <text x="856" y="186" font-size="15" fill="#6B6560">순간에" — 버그가 아니라 구조적 성질.</text>
+
+  <!-- downward relationship: request sits on guarantee -->
+  <text x="640" y="252" text-anchor="middle" font-size="16" fill="#6B6560">가드레일은 아래 층에서만 결정적으로 강제된다</text>
+
+  <!-- GUARANTEE layer (bottom) -->
+  <rect x="40" y="272" width="1200" height="196" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="64" y="314" font-size="24" font-weight="700" fill="#0F766E">보증 층</text>
+  <text x="180" y="314" font-size="18" fill="#0F766E" font-weight="700">결정적 강제 — 모델의 의지와 무관하게 실행</text>
+
+  <rect x="64" y="336" width="270" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="84" y="368" font-size="17" font-weight="700" fill="#1A1A18">PreToolUse 훅</text>
+  <text x="84" y="394" font-size="15" fill="#6B6560">도구 실행 직전 차단.</text>
+  <text x="84" y="418" font-size="15" fill="#6B6560">위험 명령·비밀 파일을</text>
+  <text x="84" y="438" font-size="15" fill="#6B6560">exit 2로 막는다.</text>
+
+  <rect x="352" y="336" width="270" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="372" y="368" font-size="17" font-weight="700" fill="#1A1A18">PostToolUse · Stop 훅</text>
+  <text x="372" y="394" font-size="15" fill="#6B6560">실행 후 검사·정리,</text>
+  <text x="372" y="418" font-size="15" fill="#6B6560">종료 조건 검증.</text>
+  <text x="372" y="438" font-size="15" fill="#6B6560">무인 실행을 완성한다.</text>
+
+  <rect x="640" y="336" width="270" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="660" y="368" font-size="17" font-weight="700" fill="#1A1A18">settings.json deny</text>
+  <text x="660" y="394" font-size="15" fill="#6B6560">권한 규칙으로 도구 호출</text>
+  <text x="660" y="418" font-size="15" fill="#6B6560">경계를 선언적으로 차단.</text>
+  <text x="660" y="438" font-size="15" fill="#6B6560">모델이 우회할 수 없다.</text>
+
+  <rect x="928" y="336" width="288" height="112" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="948" y="368" font-size="17" font-weight="700" fill="#0F766E">비유 — 요청 vs CI</text>
+  <text x="948" y="394" font-size="15" fill="#6B6560">"테스트 돌려주세요"(요청) vs</text>
+  <text x="948" y="418" font-size="15" fill="#6B6560">깨지면 커밋이 안 되는 CI(보증).</text>
+  <text x="948" y="438" font-size="15" fill="#6B6560">훅이 후자다.</text>
+
+  <!-- Core statement band -->
+  <rect x="40" y="500" width="1200" height="70" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="64" y="530" font-size="20" font-weight="700" fill="#0F766E">"가드레일은 훅에 넣고, 그 외 전부는 정중한 제안이다."</text>
+  <text x="64" y="556" font-size="16" fill="#1A1A18">도입 후 보증 층 위반은 0건 — 남는 사고는 전부 요청 층 설계 문제로 좁혀지고, 디버깅 표면이 절반으로 줄어든다.</text>
+</svg>

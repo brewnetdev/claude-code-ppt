@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1강 · CLAUDE.md — 하네스 최고의 레버리지 포인트</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">LV1</span> · 1강</div>
+<header class="page">
+  <div class="kicker">Level 1 · Persistent Context</div>
+  <h1>CLAUDE.md — 하네스 최고의 레버리지 포인트</h1>
+  <p class="subtitle">단 하나의 마크다운 파일이 왜 하네스 전체에서 투자 대비 효과가 가장 큰가, 왜 대부분의 팀이 이 파일을 망치는가, 그리고 그것을 어떻게 측정 가능한 사실로 확인하는가.</p>
+</header>
+
+<h2>1-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>CLAUDE.md</dt>
+  <dd>프로젝트 루트(또는 홈 디렉토리)에 두는 마크다운 파일로, <strong>매 세션 시작 시 자동 로드되는 영속 메모리</strong>. 프로젝트 컨벤션·명령어·영속 컨텍스트를 담는다.
+  <span class="easy">쉬운 비유: 기억이 매일 리셋되는 신입의 책상에 붙여둔 "1페이지 온보딩 문서". 출근(세션 시작)할 때마다 반드시 읽고 시작한다.</span></dd>
+  <dt>컨텍스트 윈도우 (Context Window)</dt>
+  <dd>모델이 한 번에 "볼 수 있는" 텍스트 총량. 시스템 지시, CLAUDE.md, 대화, 읽은 파일, 도구 출력이 전부 이 예산을 나눠 쓴다.
+  <span class="easy">쉬운 비유: 책상의 넓이. 자료를 올릴수록 정작 작업할 공간이 줄어든다.</span></dd>
+  <dt>메모리 계층 (Memory Hierarchy)</dt>
+  <dd>전역(사용자 홈) CLAUDE.md → 프로젝트 루트 CLAUDE.md → 하위 디렉토리 CLAUDE.md가 위치에 따라 자동 병합되는 구조. "전역 원칙 + 로컬 제약"을 만든다.</dd>
+  <dt>.claude/rules/*.md</dt>
+  <dd><code>paths:</code> glob이 달린 규칙 파일. 해당 경로의 파일을 만질 때만 lazy 로드되어, "항상 로드"인 CLAUDE.md의 예산 문제를 우회한다.</dd>
+</dl>
+<p class="src">용어 근거: <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a>(CLAUDE.md 역할), <a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a>(디렉토리 병합), <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a>(rules + paths glob)</p>
+
+<h2>1-2. 이론 — 왜 이 파일이 "최고 레버리지"이면서 동시에 "최다 오남용"인가</h2>
+<p>공식 베스트 프랙티스의 대전제는 단 하나다: <strong>"대부분의 모범 사례는 '컨텍스트 윈도우는 빨리 차고, 차면 성능이 저하된다'는 단일 제약에 기반한다."</strong> CLAUDE.md는 이 제약의 양날이다. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>)</span></p>
+<ul>
+  <li><strong>레버리지인 이유</strong>: 이 파일의 모든 줄은 앞으로의 <em>모든</em> 세션, <em>모든</em> 프롬프트에 곱해진다. 컨벤션 한 줄을 잘 쓰면 수천 번의 반복 설명이 사라진다. 실무 정리들이 "레포에서 가장 레버리지가 높은 파일"이라 부르는 이유다.</li>
+  <li><strong>오남용되는 이유</strong>: 같은 곱셈이 비용에도 적용된다. 이 파일은 매 세션 컨텍스트 예산을 <em>선점</em>하며, 실제 프롬프트가 받을 주의(attention)와 <em>경쟁</em>한다. 스타일 가이드 전문을 밀어 넣은 400줄짜리 CLAUDE.md는 부분적으로 무시된다 — <strong>길수록 오히려 덜 지켜지는 역설</strong>이 발생한다.</li>
+</ul>
+<p class="src">근거: <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a> ("highest-leverage file... and the most commonly abused", 400줄 파일의 부분 무시 관찰, ~60줄 경험칙)</p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 190" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">한 세션의 컨텍스트 윈도우 (예산은 유한하다)</text>
+  <text x="20" y="56" fill="#555555">간결한 CLAUDE.md (~60줄)</text>
+  <rect x="230" y="42" width="60"  height="20" fill="#0f4bd8"/>
+  <rect x="290" y="42" width="440" height="20" fill="#f6f6f6" stroke="#d9d9d9"/>
+  <text x="300" y="56" fill="#555555">실제 작업(코드 읽기·계획·수정)에 쓸 수 있는 예산</text>
+  <text x="20" y="106" fill="#555555">비대한 CLAUDE.md (400줄+)</text>
+  <rect x="230" y="92" width="300" height="20" fill="#0f4bd8"/>
+  <rect x="530" y="92" width="200" height="20" fill="#f6f6f6" stroke="#d9d9d9"/>
+  <text x="540" y="106" fill="#555555">남은 작업 예산</text>
+  <text x="20" y="150" fill="#1a1a1a" font-weight="600">규칙: CLAUDE.md의 모든 줄은 "실제 프롬프트가 받을 주의"와 경쟁한다.</text>
+  <text x="20" y="170" fill="#555555">참고: 커뮤니티 관찰로는 컨텍스트 사용량 ~40% 부근부터 성능 저하 밴드가 시작된다는 보고가 있다 (공식 수치 아님).</text>
+</svg>
+<figcaption>파란 블록이 CLAUDE.md가 선점하는 예산. 근거: <a href="https://code.claude.com/docs/en/best-practices">공식</a>(성능 저하 대전제), <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(부분 무시), <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory 용어집</a>(~40% 저하 밴드·1M 모델 ~300–400k 토큰 이후 품질 하락 — 커뮤니티 관찰로 명시)</figcaption>
+</figure>
+
+<h2>1-3. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">좋은 CLAUDE.md 없이 (또는 비대한 채로)</th><th>간결한 CLAUDE.md 정착 후</th></tr></thead>
+  <tbody>
+    <tr><td>세션마다 "우리는 pnpm 씁니다", "테스트는 이렇게 돌려요"를 반복 설명. 새 세션 = 신입 재온보딩.</td><td>세션 시작 즉시 프로젝트 문법으로 대화 시작. 빌드·테스트 명령을 틀리는 일이 사라짐.</td></tr>
+    <tr><td>같은 유형의 실수(마이그레이션 파일 수정, CJS import)가 세션을 바꿔가며 재발.</td><td>실수 → 규칙 1줄 추가 → 이후 전 세션에서 예방. <strong>실패가 자산으로 전환</strong>되는 첫 경험.</td></tr>
+    <tr><td>400줄 규칙 파일인데도 규칙이 안 지켜져 "모델이 멍청하다"는 결론으로 빠짐.</td><td>규칙 수가 줄었는데 준수율이 올라감 — 문제가 모델이 아니라 예산 배분이었음을 확인.</td></tr>
+    <tr><td>"완료"의 기준이 세션·사람마다 달라 결과물 품질이 널뜀.</td><td>"완료의 정의"가 파일에 있어 에이전트의 자기 판정 기준이 고정됨 — 5강 검증, 7강 평가의 씨앗.</td></tr>
+  </tbody>
+</table>
+<p class="note">이 표의 전/후 대조는 1-2절에 인용된 출처들의 관찰(반복 설명 제거, 부분 무시, 안정 규칙 원칙)을 현상 단위로 재구성한 것이다.</p>
+
+<h2>1-4. 실증 — 왜 이 파일의 품질이 결과를 좌우하는가: 40만 세션 데이터</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px">Anthropic이 2025-10~2026-04의 <strong>약 40만 Claude Code 세션(약 23.5만 명)</strong>을 프라이버시 보존 방식으로 분석한 연구의 핵심 발견: 전형적 세션에서 <strong>사람이 계획 결정(what)의 대부분을, Claude가 실행 결정(how)의 대부분을</strong> 내린다. 그리고 <strong>사람이 도메인 전문성을 많이 가져올수록 지시 1건당 Claude가 해내는 작업량이 커지고</strong>, 성공은 코딩 훈련 여부가 아니라 <strong>풀려는 문제를 얼마나 이해하는가</strong>로 결정된다.</p>
+  <p style="margin-bottom:8px"><strong>CLAUDE.md와의 연결</strong>: 이 파일은 바로 그 "도메인 전문성·문제 이해"를 세션에 주입하는 공식 통로다. 컨벤션·완료의 정의·건드리면 안 되는 것을 담은 CLAUDE.md는 모든 세션의 시작점에서 사람의 이해를 대리 전달하며, 연구가 보여준 "이해가 많을수록 에이전트 산출이 커진다"의 곱셈기를 상시화한다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic, How Claude Code is used in practice</a> (40만 세션·what/how 분업·전문성 증폭·성공 결정 요인)</p>
+</div>
+
+<h2>1-5. 무엇을 넣고, 무엇을 빼는가 — 계층 배치의 원칙</h2>
+<table>
+  <thead><tr><th>넣는다 (안정적 규칙)</th><th>뺀다 (다른 계층으로)</th></tr></thead>
+  <tbody>
+    <tr><td>빌드·테스트·실행 명령어 (<code>pnpm test</code>, <code>make dev</code>)</td><td>스타일 가이드 전문 → 린터/포매터 + 훅(4강)이 강제</td></tr>
+    <tr><td>코드 컨벤션의 핵심 몇 줄 (예: "ESM 사용, CJS 금지")</td><td>조건부로만 필요한 긴 지식 → 스킬의 점진적 공개(3강)</td></tr>
+    <tr><td>"완료의 정의(definition of done)"</td><td>반드시 강제돼야 하는 것 → settings.json·훅(2·4강). 예: 커밋 어트리뷰션은 "NEVER 추가"라는 문장보다 <code>attribution.commit: ""</code> 설정 한 줄이 결정적</td></tr>
+    <tr><td>절대 건드리면 안 되는 것 (마이그레이션, 시크릿 경로)</td><td>자주 바뀌는 임시 컨텍스트 → 세션 프롬프트로</td></tr>
+    <tr><td>특정 경로에서만 유효한 규칙 → 하위 CLAUDE.md 또는 rules/*.md의 paths glob</td><td>—</td></tr>
+  </tbody>
+</table>
+<p class="src">근거: <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(안정 규칙만), <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>(결정적 처리 가능한 것을 문장으로 적지 말라, ≤200줄 규칙)</p>
+<p class="note">줄 수 기준은 공식 제한이 아니라 경험칙이다 — 한 정리는 ~60줄, 다른 정리는 ≤200줄. 공통 원칙: <strong>"짧게, 안정적인 것만."</strong></p>
+
+<h2>1-6. 예제 — 좋은 CLAUDE.md 전문</h2>
+<pre><code># CLAUDE.md
+
+## 명령어
+- 개발 서버: `pnpm dev`
+- 테스트: `pnpm test` (커밋 전 반드시 통과)
+- 린트+포맷: `pnpm check`
+
+## 컨벤션
+- TypeScript strict. `any` 금지, 불가피하면 `// why-any:` 주석.
+- 모듈은 ESM. CommonJS `require` 금지.
+- API 핸들러는 src/api/ 에만. 비즈니스 로직은 src/core/ 로 분리.
+
+## 완료의 정의
+- 새 코드에는 테스트가 있다. `pnpm test` 녹색.
+- 스키마 변경 시 prisma/migrations 에 마이그레이션 포함.
+
+## 건드리지 말 것
+- prisma/migrations/ 의 기존 파일 (새 파일 추가만 허용)
+- .env* — 읽지도, 출력하지도 말 것
+</code></pre>
+<pre><code># .claude/rules/api-layer.md — 경로 조건부 규칙 (해당 경로 작업 시에만 로드)
+---
+paths: ["src/api/**"]
+---
+- 모든 핸들러는 zod 스키마로 입력 검증 후 core 호출만 한다.
+- 응답 포맷은 { data, error } 봉투를 벗어나지 않는다.
+</code></pre>
+<p><strong>사용 방법</strong>: 루트 CLAUDE.md는 git에 커밋해 팀 전체가 공유하고, 경로 종속 규칙은 rules로 분리해 예산을 아낀다. 디렉토리별 CLAUDE.md 자동 병합으로 "전역 원칙 + 로컬 제약" 계층을 만들 수 있다 — 시니어 엔지니어의 사고 구조와 같다. <span class="src">(<a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a>)</span></p>
+
+<h2>1-7. 운영 — 이 파일은 살아있는 문서다</h2>
+<ul>
+  <li><strong>모델에게 개선을 시켜라</strong>: 커뮤니티 모범 사례 저장소는 "자기 프로젝트에서 Claude에게 팁 목록을 보여주고 CLAUDE.md 재구성을 제안하게 하라"를 명시적 워크플로로 권한다. <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></li>
+  <li><strong>자동 생성으로 시작할 수도 있다</strong>: 프로젝트 구조·기술 스택·개발 패턴을 분석해 CLAUDE.md를 생성하는 커스텀 커맨드(<code>/custom-init</code>)를 두는 팀도 있다 — 단, 생성물은 1-5절 기준으로 반드시 다이어트한다. <span class="src">(<a href="https://github.com/awattar/claude-code-best-practices">awattar</a>)</span></li>
+  <li><strong>실수 2회 = 규칙 후보</strong>: 같은 실수가 두 번 나오면 교정 1줄이 이 파일 후보다. 반드시 일어나야 하는 수준이면 4강의 훅으로 승격한다.</li>
+</ul>
+
+<h2>1-8. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">스타일 가이드 덤핑</td><td>400줄 파일은 실제 프롬프트와 주의를 경쟁하다 부분 무시됨 — 규칙이 많을수록 덜 지켜짐</td><td>린터가 잡을 수 있는 건 전부 린터+훅으로, 파일엔 핵심만</td></tr>
+    <tr><td class="key">"NEVER ..." 문장 의존</td><td>문장은 요청이지 보증이 아님(4강). 결정적으로 처리 가능한 것을 확률에 맡기는 셈</td><td>settings.json / 훅으로 이관</td></tr>
+    <tr><td class="key">임시 컨텍스트 축적</td><td>"이번 스프린트는 X 중"류가 쌓여 파일이 낡고 비대해짐</td><td>임시 사항은 세션 프롬프트로, 파일엔 안정 규칙만</td></tr>
+  </tbody>
+</table>
+
+<h2>1-9. 체크리스트</h2>
+<ul class="check">
+  <li>CLAUDE.md가 프로젝트 루트에 있고 git에 커밋되어 있는가</li>
+  <li>200줄 미만이며 안정적 규칙만 담고 있는가</li>
+  <li>빌드·테스트 명령어와 "완료의 정의"가 명시되어 있는가</li>
+  <li>경로 종속 규칙이 rules/*.md의 paths glob으로 분리되어 있는가</li>
+  <li>"NEVER/반드시" 문장이 남아있지 않은가 (→ 2·4강 이관 후보)</li>
+  <li>최근 1개월 내 실수→규칙 반영이 일어난 적 있는가 (살아있는 문서인가)</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 컨텍스트 제약 대전제, CLAUDE.md 역할</li>
+    <li>[공식·연구] <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic, How Claude Code is used in practice</a> — 40만 세션: what/how 분업, 전문성 증폭</li>
+    <li>[커뮤니티] <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a> — 최고 레버리지·최다 오남용, ~60줄, 부분 무시</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> — ≤200줄, settings.json 이관, 모델에게 재구성 시키기</li>
+    <li>[커뮤니티] <a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a> — 디렉토리 병합 / <a href="https://github.com/awattar/claude-code-best-practices">awattar</a> — /custom-init / <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a> — 저하 밴드 관찰</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="index.html"><span class="dir">이전</span>← 목차</a>
+  <a class="next" href="02-safety.html"><span class="dir">다음 · 2강</span>권한 모델과 settings.json →</a>
+</nav>
+
+</div></body></html>

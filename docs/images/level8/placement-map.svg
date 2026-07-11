@@ -1,0 +1,54 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Column headers -->
+  <text x="40" y="42" font-size="16" font-weight="700" fill="#6B6560">계층</text>
+  <text x="380" y="42" font-size="16" font-weight="700" fill="#6B6560">성격</text>
+  <text x="640" y="42" font-size="16" font-weight="700" fill="#6B6560">넣을 것</text>
+  <line x1="20" y1="54" x2="1260" y2="54" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- Legend for request/guarantee coloring -->
+  <rect x="900" y="26" width="16" height="16" fill="#FAF3E6" stroke="#0F766E" stroke-width="1"/>
+  <text x="924" y="40" font-size="14" fill="#6B6560">요청 층 (확률적)</text>
+  <rect x="1080" y="26" width="16" height="16" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+  <text x="1104" y="40" font-size="14" fill="#6B6560">보증 층 (결정적)</text>
+
+  <!-- Layer 1: CLAUDE.md — request -->
+  <rect x="20" y="66" width="1240" height="98" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="112" font-size="21" font-weight="700" fill="#0F766E">CLAUDE.md</text>
+  <text x="40" y="140" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">LV1</text>
+  <text x="380" y="106" font-size="17" font-weight="700" fill="#0F766E">항상 로드되는 요청</text>
+  <text x="380" y="134" font-size="15" fill="#6B6560">모델이 대체로 따르지만 강제는 아님</text>
+  <text x="640" y="106" font-size="17" fill="#1A1A18">짧고 안정적인 컨벤션</text>
+  <text x="640" y="134" font-size="17" fill="#1A1A18">완료의 정의</text>
+
+  <!-- Layer 2: 스킬 — request -->
+  <rect x="20" y="174" width="1240" height="98" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="220" font-size="21" font-weight="700" fill="#0F766E">스킬</text>
+  <text x="40" y="248" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">LV3</text>
+  <text x="380" y="214" font-size="17" font-weight="700" fill="#0F766E">조건부 로드되는 요청</text>
+  <text x="380" y="242" font-size="15" fill="#6B6560">상황이 맞을 때만 컨텍스트에 들어옴</text>
+  <text x="640" y="214" font-size="17" fill="#1A1A18">작업 유형별 긴 노하우</text>
+  <text x="640" y="242" font-size="17" fill="#1A1A18">Gotchas</text>
+
+  <!-- Layer 3: settings.json — guarantee -->
+  <rect x="20" y="282" width="1240" height="98" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="40" y="328" font-size="21" font-weight="700" fill="#0F766E">settings.json</text>
+  <text x="40" y="356" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">LV2</text>
+  <text x="380" y="322" font-size="17" font-weight="700" fill="#1A1A18">결정적 경계</text>
+  <text x="380" y="350" font-size="15" fill="#6B6560">선언적 규칙 — 모델이 우회 불가</text>
+  <text x="640" y="322" font-size="17" fill="#1A1A18">권한 allow/ask/deny</text>
+  <text x="640" y="350" font-size="17" fill="#1A1A18">하네스 강제 설정</text>
+
+  <!-- Layer 4: 훅 — guarantee -->
+  <rect x="20" y="390" width="1240" height="98" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="40" y="436" font-size="21" font-weight="700" fill="#0F766E">훅</text>
+  <text x="40" y="464" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">LV4</text>
+  <text x="380" y="430" font-size="17" font-weight="700" fill="#1A1A18">결정적 행동</text>
+  <text x="380" y="458" font-size="15" fill="#6B6560">임의 로직 실행 — 반드시 실행/차단</text>
+  <text x="640" y="430" font-size="17" fill="#1A1A18">반드시 실행/차단돼야 하는 것 전부</text>
+  <text x="640" y="458" font-size="17" fill="#1A1A18">무인 실행 종료 조건</text>
+
+  <!-- Bottom band -->
+  <rect x="20" y="504" width="1240" height="70" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="44" y="533" font-size="16" fill="#1A1A18">새 규칙이 생기면 위에서부터 묻는다 — <tspan font-weight="700" fill="#0F766E">어겨지면 곤란한가? → 설정으로 표현되나? → 임의 로직이 필요하면 훅.</tspan></text>
+  <text x="44" y="560" font-size="16" font-weight="700" fill="#B91C1C">결정적으로 처리 가능한 것을 문장으로 적지 말라.</text>
+</svg>

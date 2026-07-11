@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Intro -->
+  <text x="20" y="32" font-size="17" fill="#1A1A18">기억이 리셋되는 유능한 신입을 조직에 정착시키는 다섯 장치 — 그대로 하네스의 다섯 레벨이 된다.</text>
+
+  <!-- Column headers -->
+  <text x="40" y="72" font-size="15" font-weight="700" fill="#6B6560">레벨</text>
+  <text x="150" y="72" font-size="15" font-weight="700" fill="#6B6560">하네스 부품</text>
+  <text x="470" y="72" font-size="15" font-weight="700" fill="#6B6560">온보딩 비유</text>
+  <text x="760" y="72" font-size="15" font-weight="700" fill="#6B6560">하는 일</text>
+  <line x1="20" y1="82" x2="1260" y2="82" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- Row template: h=80, first row y=92 -->
+  <!-- LV1 -->
+  <rect x="20" y="92" width="1240" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="140" font-size="20" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">LV1</text>
+  <text x="150" y="132" font-size="18" font-weight="700" fill="#1A1A18">CLAUDE.md</text>
+  <text x="470" y="132" font-size="17" fill="#1A1A18">1페이지 온보딩 문서</text>
+  <text x="760" y="132" font-size="17" fill="#1A1A18">매 세션 자동으로 알게 한다</text>
+  <text x="760" y="154" font-size="14" fill="#6B6560">영속 컨텍스트</text>
+
+  <!-- LV2 -->
+  <rect x="20" y="180" width="1240" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="228" font-size="20" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">LV2</text>
+  <text x="150" y="220" font-size="18" font-weight="700" fill="#1A1A18">권한 · settings.json</text>
+  <text x="470" y="220" font-size="17" fill="#1A1A18">사원증 접근 권한</text>
+  <text x="760" y="220" font-size="17" fill="#1A1A18">해도 되는 일의 경계를 강제한다</text>
+  <text x="760" y="242" font-size="14" fill="#6B6560">경계 강제</text>
+
+  <!-- LV3 -->
+  <rect x="20" y="268" width="1240" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="316" font-size="20" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">LV3</text>
+  <text x="150" y="308" font-size="18" font-weight="700" fill="#1A1A18">커맨드 · 스킬</text>
+  <text x="470" y="308" font-size="17" fill="#1A1A18">사내 위키의 절차서</text>
+  <text x="760" y="308" font-size="17" fill="#1A1A18">반복 워크플로를 자산화한다</text>
+  <text x="760" y="330" font-size="14" fill="#6B6560">워크플로 자산화</text>
+
+  <!-- LV4 -->
+  <rect x="20" y="356" width="1240" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="404" font-size="20" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">LV4</text>
+  <text x="150" y="396" font-size="18" font-weight="700" fill="#1A1A18">훅</text>
+  <text x="470" y="396" font-size="17" fill="#1A1A18">CI가 강제하는 규칙</text>
+  <text x="760" y="396" font-size="17" fill="#1A1A18">"반드시 일어나야 하는 일"을 보증한다</text>
+  <text x="760" y="418" font-size="14" fill="#6B6560">보증</text>
+
+  <!-- LV5 -->
+  <rect x="20" y="444" width="1240" height="80" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="40" y="492" font-size="20" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">LV5</text>
+  <text x="150" y="484" font-size="18" font-weight="700" fill="#1A1A18">서브에이전트 · 검증 루프</text>
+  <text x="470" y="484" font-size="17" fill="#1A1A18">코드 리뷰어 배정</text>
+  <text x="760" y="484" font-size="17" fill="#1A1A18">격리 · 검증한다 (제2의 눈)</text>
+  <text x="760" y="506" font-size="14" fill="#6B6560">격리 · 검증</text>
+
+  <!-- Bottom band -->
+  <rect x="20" y="534" width="1240" height="44" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="44" y="561" font-size="15" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">기억이 매일 리셋되는 신입(모델)에게</tspan> — 문서를 주고, 권한을 긋고, 절차서를 만들고, CI를 걸고, 리뷰어를 붙인다. 이 레벨 구조는 모든 에이전트 하네스에 일반화된다.</text>
+</svg>

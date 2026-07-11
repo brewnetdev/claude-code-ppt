@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하네스에서 EDD까지 — 강의용 튜토리얼 (전체 목차)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body><div class="wrap">
+
+<header class="page">
+  <div class="kicker">Tutorial Series · Harness → EDD</div>
+  <h1>하네스에서 EDD까지:<br>CLAUDE.md 한 파일에서 정량 평가 루프까지 7강</h1>
+  <p class="subtitle">에이전트 하네스의 최고 레버리지 포인트인 CLAUDE.md(1강)에서 출발해, 레벨을 올려가며 하네스를 완성(6강)하고, 그 위에 EDD를 얹는 방향성(7강)까지. 각 강의는 쉬운 설명 → 다이어그램 → 실행 예제 → 체크리스트 → 출처 순으로 구성했다.</p>
+</header>
+
+<h2>이 강의가 답하는 질문</h2>
+<p>Claude Code 같은 에이전트는 "설치하면 끝"이 아니다. 공식 베스트 프랙티스의 대전제는 하나다 — <strong>대부분의 모범 사례는 "컨텍스트 윈도우는 빨리 차고, 차면 성능이 떨어진다"는 단일 제약에서 나온다.</strong> 하네스 구축이란 결국 이 제약 아래에서 (1) 매 세션 무엇을 자동으로 알게 하고, (2) 무엇을 결정적으로 강제하고, (3) 무엇을 격리·검증할지를 계층적으로 설계하는 일이다. <span class="src">근거: <a href="https://code.claude.com/docs/en/best-practices">Claude Code 공식 Best Practices</a></span></p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif">
+  <!-- 성숙도 사다리: 아래에서 위로 -->
+  <g font-size="12">
+    <rect x="20"  y="240" width="180" height="44" fill="#f6f6f6" stroke="#1a1a1a"/>
+    <text x="30" y="258" font-weight="700" fill="#0f4bd8" font-family="IBM Plex Mono, monospace">LV1</text>
+    <text x="30" y="274" fill="#1a1a1a">CLAUDE.md — 영속 컨텍스트</text>
+
+    <rect x="120" y="186" width="180" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <text x="130" y="204" font-weight="700" fill="#0f4bd8" font-family="IBM Plex Mono, monospace">LV2</text>
+    <text x="130" y="220" fill="#1a1a1a">권한 · settings.json · 플랜 모드</text>
+
+    <rect x="220" y="132" width="180" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <text x="230" y="150" font-weight="700" fill="#0f4bd8" font-family="IBM Plex Mono, monospace">LV3</text>
+    <text x="230" y="166" fill="#1a1a1a">커맨드 · 스킬 — 워크플로 자산화</text>
+
+    <rect x="320" y="78" width="180" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <text x="330" y="96" font-weight="700" fill="#0f4bd8" font-family="IBM Plex Mono, monospace">LV4</text>
+    <text x="330" y="112" fill="#1a1a1a">훅 — 요청을 보증으로</text>
+
+    <rect x="420" y="24" width="180" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <text x="430" y="42" font-weight="700" fill="#0f4bd8" font-family="IBM Plex Mono, monospace">LV5</text>
+    <text x="430" y="58" fill="#1a1a1a">서브에이전트 · 검증 루프</text>
+
+    <!-- 완성형 + EDD -->
+    <rect x="620" y="24" width="120" height="152" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="632" y="46" font-weight="700" fill="#0f4bd8">완성형 하네스</text>
+    <text x="632" y="66" fill="#555555" font-size="11">research→plan→</text>
+    <text x="632" y="82" fill="#555555" font-size="11">execute→review→ship</text>
+    <text x="632" y="110" font-weight="700" fill="#1a1a1a">↓</text>
+    <text x="632" y="134" font-weight="700" fill="#0f4bd8">EDD</text>
+    <text x="632" y="152" fill="#555555" font-size="11">정량 평가가</text>
+    <text x="632" y="168" fill="#555555" font-size="11">의사결정을 주도</text>
+
+    <!-- 연결선 -->
+    <line x1="200" y1="262" x2="220" y2="230" stroke="#555555"/>
+    <line x1="300" y1="208" x2="320" y2="176" stroke="#555555"/>
+    <line x1="400" y1="154" x2="420" y2="122" stroke="#555555"/>
+    <line x1="500" y1="100" x2="520" y2="68"  stroke="#555555"/>
+    <line x1="600" y1="46"  x2="620" y2="46"  stroke="#0f4bd8"/>
+  </g>
+</svg>
+<figcaption>강의 로드맵: 각 레벨은 아래 레벨을 전제로 한다. LV1~5가 하네스의 성숙도, 완성형 하네스는 이를 하나의 파이프라인으로 묶은 상태, EDD는 그 파이프라인의 판정을 정량 평가로 바꾸는 다음 단계다. (이 레벨 구분은 공식 문서·커뮤니티 모범 사례를 종합해 본 강의가 구성한 프레임)</figcaption>
+</figure>
+
+<h2>전체 목차</h2>
+<ol class="toc-list">
+  <li><a href="01-claude-md.html"><span class="lv">LV1 · 1강</span><span class="t">CLAUDE.md — 하네스 최고의 레버리지 포인트</span><span class="d">매 세션 자동 로드되는 영속 메모리. 왜 "레포에서 가장 레버리지 높은 파일"인지, 그리고 가장 흔한 오남용</span></a></li>
+  <li><a href="02-safety.html"><span class="lv">LV2 · 2강</span><span class="t">권한 모델과 settings.json — 프로그래머블 안전</span><span class="d">"부탁"이 아니라 "강제"가 필요한 것들. allow/ask/deny와 플랜 모드로 만드는 결정적 경계</span></a></li>
+  <li><a href="03-skills-commands.html"><span class="lv">LV3 · 3강</span><span class="t">커맨드와 스킬 — 반복 워크플로의 자산화</span><span class="d">하루 두 번 이상 하는 일은 커맨드로, 조건부 지식은 스킬로. 커맨드 vs 스킬 vs 에이전트 선택 기준</span></a></li>
+  <li><a href="04-hooks.html"><span class="lv">LV4 · 4강</span><span class="t">훅 — 요청(request)을 보증(guarantee)으로</span><span class="d">CLAUDE.md의 지시는 정중한 부탁일 뿐이다. 반드시 일어나야 하는 일은 훅에 넣는다</span></a></li>
+  <li><a href="05-subagents.html"><span class="lv">LV5 · 5강</span><span class="t">서브에이전트와 검증 루프 — 컨텍스트 위생과 제2의 눈</span><span class="d">일한 에이전트가 스스로 채점하게 두지 않기. 격리 컨텍스트, 검증 서브에이전트, 증거 기반 완료</span></a></li>
+  <li><a href="06-complete-harness.html"><span class="lv">완성형 · 6강</span><span class="t">완성형 하네스 — research → plan → execute → review → ship</span><span class="d">레벨 1~5의 부품을 하나의 게이트 파이프라인으로. 커뮤니티 방법론들이 독립적으로 수렴한 패턴</span></a></li>
+  <li><a href="07-to-edd.html"><span class="lv">그 이후 · 7강</span><span class="t">하네스 이후 — EDD로 가는 방향성</span><span class="d">하네스가 만든 실행·검증 능력을 정량 평가 루프로 승격시키기. 골든셋·게이트·가드레일·성숙도 LV0~5</span></a></li>
+</ol>
+
+<h2>수강 전 알아둘 것</h2>
+<ul>
+  <li><strong>대상 도구</strong>: 예제는 Claude Code 기준이지만, "영속 컨텍스트 → 결정적 강제 → 워크플로 자산 → 자동 보증 → 격리 검증"의 레벨 구조는 모든 에이전트 하네스에 일반화된다.</li>
+  <li><strong>비유 하나로 전체 잡기</strong>: 하네스 구축은 신입 엔지니어 온보딩과 같다. LV1은 온보딩 문서, LV2는 접근 권한 정책, LV3은 사내 위키의 절차서, LV4는 CI가 강제하는 규칙, LV5는 코드 리뷰어 배정이다.</li>
+  <li><strong>근거 표기</strong>: 공식 문서(1차)와 커뮤니티 모범 사례(2차)를 구분해 표기했다. 커뮤니티발 수치(예: 컨텍스트 40% 저하 구간)는 "커뮤니티 관찰"로 명시한다.</li>
+</ul>
+
+<footer class="refs">
+  <p style="font-weight:600; color:var(--ink); margin-bottom:8px">시리즈 공통 근거 (2026-07 검색으로 접근 확인)</p>
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 컨텍스트 제약 대전제, 플랜 모드, 검증 서브에이전트, 증거 기반 완료</li>
+    <li>[공식·연구] <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic, How Claude Code is used in practice</a> — 40만 세션 분석: 사람이 what, 에이전트가 how</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan/claude-code-best-practice</a> — 69개 팁 (Claude Code 개발자 Boris Cherny 입력 포함)</li>
+    <li>[커뮤니티] <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community, Claude Code Workflow</a> — CLAUDE.md 레버리지·훅 = 보증 프레임</li>
+    <li>[커뮤니티] <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory, From Vibe Coding to Agentic Engineering</a> — 프리미티브 용어집, 수렴 패턴</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <span></span>
+  <a class="next" href="01-claude-md.html"><span class="dir">다음 · 1강</span>CLAUDE.md — 최고의 레버리지 포인트 →</a>
+</nav>
+
+</div></body></html>
