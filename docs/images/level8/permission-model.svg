@@ -1,0 +1,62 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Intro -->
+  <text x="20" y="32" font-size="16" fill="#1A1A18">신입의 사원증 권한 — 사무실 출입 자유(allow), 서버실 동행(ask), 금고 접근 불가(deny). 비가역 작업이 분류의 1차 기준.</text>
+
+  <!-- 3 columns: allow / ask / deny. w=400, gap 20, from x=20. y 56..384 -->
+  <!-- allow -->
+  <rect x="20" y="56" width="400" height="328" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <circle cx="52" cy="90" r="10" fill="#0F766E"/>
+  <text x="76" y="97" font-size="24" font-weight="700" fill="#0F766E" font-family="JetBrains Mono, monospace">allow</text>
+  <text x="40" y="128" font-size="17" font-weight="700" fill="#1A1A18">확인 없이 즉시 실행</text>
+  <line x1="40" y1="144" x2="400" y2="144" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="40" y="176" font-size="15" font-weight="700" fill="#6B6560">예시</text>
+  <rect x="40" y="192" width="200" height="34" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="56" y="214" font-size="16" fill="#0F766E" font-family="JetBrains Mono, monospace">pnpm test</text>
+  <rect x="40" y="236" width="240" height="34" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="56" y="258" font-size="16" fill="#0F766E" font-family="JetBrains Mono, monospace">Read(src/**)</text>
+  <text x="40" y="316" font-size="15" fill="#6B6560">이 안에서는 사람 개입 없이</text>
+  <text x="40" y="338" font-size="15" fill="#6B6560">전속력으로 진행한다.</text>
+
+  <!-- ask -->
+  <rect x="440" y="56" width="400" height="328" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <circle cx="472" cy="90" r="10" fill="#6B6560"/>
+  <text x="496" y="97" font-size="24" font-weight="700" fill="#1A1A18" font-family="JetBrains Mono, monospace">ask</text>
+  <text x="460" y="128" font-size="17" font-weight="700" fill="#1A1A18">사람 확인 후 실행</text>
+  <line x1="460" y1="144" x2="820" y2="144" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="460" y="176" font-size="15" font-weight="700" fill="#6B6560">예시</text>
+  <rect x="460" y="192" width="180" height="34" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="476" y="214" font-size="16" fill="#1A1A18" font-family="JetBrains Mono, monospace">git push</text>
+  <text x="460" y="258" font-size="16" fill="#1A1A18">의존성 추가</text>
+  <text x="460" y="286" font-size="16" fill="#1A1A18">배포</text>
+  <text x="460" y="330" font-size="15" fill="#6B6560">위험 신호만 사람에게</text>
+  <text x="460" y="352" font-size="15" fill="#6B6560">올린다.</text>
+
+  <!-- deny -->
+  <rect x="860" y="56" width="400" height="328" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.5" rx="6"/>
+  <circle cx="892" cy="90" r="10" fill="#B91C1C"/>
+  <text x="916" y="97" font-size="24" font-weight="700" fill="#B91C1C" font-family="JetBrains Mono, monospace">deny</text>
+  <text x="880" y="128" font-size="17" font-weight="700" fill="#1A1A18">무조건 차단</text>
+  <line x1="880" y1="144" x2="1240" y2="144" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="880" y="176" font-size="15" font-weight="700" fill="#6B6560">예시</text>
+  <rect x="880" y="192" width="160" height="34" fill="#FAF3E6" stroke="#B91C1C" stroke-width="1" rx="4"/>
+  <text x="896" y="214" font-size="16" fill="#B91C1C" font-family="JetBrains Mono, monospace">rm -rf</text>
+  <rect x="880" y="236" width="200" height="34" fill="#FAF3E6" stroke="#B91C1C" stroke-width="1" rx="4"/>
+  <text x="896" y="258" font-size="16" fill="#B91C1C" font-family="JetBrains Mono, monospace">.env 읽기</text>
+  <text x="880" y="316" font-size="15" fill="#6B6560">모델의 의지와 무관하게</text>
+  <text x="880" y="338" font-size="15" fill="#6B6560">exit 2로 막힌다.</text>
+
+  <!-- Bottom band: two callouts -->
+  <rect x="20" y="400" width="612" height="170" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="430" font-size="17" font-weight="700" fill="#0F766E">명시적 경계의 역설</text>
+  <text x="44" y="458" font-size="15" fill="#1A1A18">경계가 없으면 (a) 모든 호출 확인에 지쳐 안 쓰거나</text>
+  <text x="44" y="480" font-size="15" fill="#1A1A18">(b) 겁나서 안 맡긴다.</text>
+  <text x="44" y="510" font-size="15" fill="#1A1A18">경계가 있으면 allow 안에서 전속력, 위험 신호만 사람에게 —</text>
+  <text x="44" y="540" font-size="15" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">확인 총량은 줄고 확인의 밀도는 올라간다.</tspan></text>
+
+  <rect x="648" y="400" width="612" height="170" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="672" y="430" font-size="17" font-weight="700" fill="#0F766E">플랜 모드 = 권한의 시간 축</text>
+  <text x="672" y="458" font-size="15" fill="#1A1A18">곧장 코딩시키면 "잘못된 문제를 푸는 코드"가 나온다.</text>
+  <text x="672" y="480" font-size="15" fill="#1A1A18">리서치 · 계획을 구현에서 분리하고 계획 승인 후 실행.</text>
+  <text x="672" y="510" font-size="15" fill="#1A1A18">40만 세션 연구의 분업(사람=what, 에이전트=how)과 일치 —</text>
+  <text x="672" y="540" font-size="15" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">what은 ask 이상, how는 allow로.</tspan></text>
+</svg>

@@ -14,12 +14,12 @@
 - `src/scene/pendingCommit.ts` — imported by **6** files
 - `src/library/deckRegistry.ts` — imported by **5** files
 - `src/persistence/persistenceStore.ts` — imported by **5** files
+- `src/exporter/linkify.ts` — imported by **5** files
 - `src/highlight/highlighter.ts` — imported by **5** files
 - `src/generator/blockify.ts` — imported by **5** files
 - `src/generator/inlineThemeCss.ts` — imported by **4** files
 - `src/generator/quality/detector.ts` — imported by **4** files
 - `src/editor/Toast.tsx` — imported by **4** files
-- `src/exporter/linkify.ts` — imported by **4** files
 - `src/scene/applySlideBackground.ts` — imported by **4** files
 - `src/scene/blockId.ts` — imported by **4** files
 

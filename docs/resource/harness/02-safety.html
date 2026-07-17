@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2강 · 권한 모델과 settings.json — 프로그래머블 안전</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">LV2</span> · 2강</div>
+<header class="page">
+  <div class="kicker">Level 2 · Programmable Safety</div>
+  <h1>권한 모델과 settings.json — 프로그래머블 안전</h1>
+  <p class="subtitle">"부탁"과 "강제"를 구분하는 것이 하네스 설계의 두 번째 계단이다. 보수적 권한 모델은 마찰이 아니라 프로그래밍 가능한 안전장치이며, 경계가 명시되는 순간 자율성은 오히려 커진다.</p>
+</header>
+
+<h2>2-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>권한 모델 (Permission Model)</dt>
+  <dd>에이전트의 각 도구 호출을 <strong>allow(무확인 실행) / ask(사람 확인 후 실행) / deny(무조건 차단)</strong>로 분류하는 규칙 체계.
+  <span class="easy">쉬운 비유: 신입의 사원증 권한. 사무실 출입은 자유(allow), 서버실은 동행 필수(ask), 금고는 접근 불가(deny).</span></dd>
+  <dt>settings.json</dt>
+  <dd><code>.claude/settings.json</code>에 두는 하네스 설정 파일. 권한 규칙, 모델 선택, 어트리뷰션 등 <strong>하네스가 결정적으로 강제하는 행동</strong>을 담으며, 레포에 체크인해 팀이 공유한다.</dd>
+  <dt>플랜 모드 (Plan Mode)</dt>
+  <dd>에이전트가 곧장 실행하지 않고 <strong>계획을 제안한 뒤 승인을 기다리는</strong> 모드. 권한 모델의 "시간 축" 버전 — 공간(어떤 도구)이 아니라 시점(실행 전)에 게이트를 세운다.</dd>
+  <dt>비가역 작업 (Irreversible Action)</dt>
+  <dd>실행 후 되돌리기 어렵거나 불가능한 작업 — 원격 push, 배포, 삭제, 외부 발송. 권한 분류의 1차 기준이 된다.</dd>
+  <dt>YOLO 모드</dt>
+  <dd>확인 프롬프트를 전부 건너뛰는 실행(<code>--dangerously-skip-permissions</code>). 학습·개인 프로젝트에서 유용하지만, 단계별 확인을 우회하므로 공유 레포·프로덕션 코드베이스에서는 확인을 유지해 감독을 지키라는 것이 실무 권고다.
+  <span class="easy">근거: <a href="https://www.lowtouch.ai/claude-code-windows-wsl-setup-guide/">lowtouch.ai 셋업 가이드</a></span></dd>
+</dl>
+
+<h2>2-2. 이론 — 왜 명시적 경계가 생산성을 "올리는가"</h2>
+<p>Claude Code의 보수적 권한 모델은 흔히 마찰로 오해되지만 실제로는 <strong>프로그래머블 안전</strong>이다. 핵심 논리는 역설적이다: <strong>에이전트 생산성은 안전 경계가 암묵적으로 가정되는 대신 명시적으로 정의될 때 극적으로 증가한다.</strong> <span class="src">(<a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a>)</span></p>
+<ul>
+  <li><strong>경계가 없으면</strong> 사람은 두 나쁜 균형 중 하나를 고른다 — (a) 모든 호출을 확인하다 지쳐 에이전트를 안 쓰거나, (b) 겁나서 자율 실행 자체를 안 맡긴다.</li>
+  <li><strong>경계가 있으면</strong> allow 영역 안에서는 확인 없이 전속력으로 달리고, 위험 신호만 사람에게 올라온다. 확인의 총량은 줄고 확인의 <em>밀도</em>(위험 대비 확인 비율)는 올라간다.</li>
+  <li><strong>시간 축의 같은 원리가 플랜 모드다</strong>: 곧장 코딩에 들어가게 두면 "잘못된 문제를 푸는 코드"가 나온다 — 리서치·계획을 구현에서 분리하고 계획 승인 후 실행하게 하라는 것이 공식 권고다. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a>)</span></li>
+</ul>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">도구 호출 1건의 권한 결정 흐름</text>
+  <rect x="20" y="50" width="150" height="40" fill="#ffffff" stroke="#1a1a1a"/>
+  <text x="35" y="74" fill="#1a1a1a">에이전트가 도구 호출 시도</text>
+  <line x1="170" y1="70" x2="220" y2="70" stroke="#555555"/>
+  <rect x="220" y="50" width="170" height="40" fill="#f6f6f6" stroke="#d9d9d9"/>
+  <text x="235" y="68" fill="#1a1a1a">settings.json 규칙 매칭</text>
+  <text x="235" y="84" fill="#555555" font-size="11">allow / ask / deny</text>
+  <line x1="390" y1="60" x2="460" y2="40" stroke="#555555"/>
+  <line x1="390" y1="70" x2="460" y2="100" stroke="#555555"/>
+  <line x1="390" y1="80" x2="460" y2="160" stroke="#555555"/>
+  <rect x="460" y="24" width="270" height="34" fill="#ffffff" stroke="#d9d9d9"/>
+  <text x="472" y="45" fill="#1a1a1a"><tspan font-weight="600">allow</tspan> — 확인 없이 즉시 실행 (예: pnpm test)</text>
+  <rect x="460" y="84" width="270" height="34" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="472" y="105" fill="#1a1a1a"><tspan font-weight="600" fill="#0f4bd8">ask</tspan> — 사람 확인 후 실행 (예: git push)</text>
+  <rect x="460" y="144" width="270" height="34" fill="#ffffff" stroke="#1a1a1a"/>
+  <text x="472" y="165" fill="#1a1a1a"><tspan font-weight="600">deny</tspan> — 무조건 차단 (예: rm -rf, .env 읽기)</text>
+</svg>
+<figcaption>권한은 문장이 아니라 규칙 매칭으로 결정된다. "위험한 명령은 하지 마"(CLAUDE.md의 요청)와 deny 규칙(강제)의 차이가 이 강의의 핵심이다.</figcaption>
+</figure>
+
+<h2>2-3. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">권한 경계 명시 전</th><th>명시 후</th></tr></thead>
+  <tbody>
+    <tr><td>매 도구 호출마다 확인 팝업 → 확인 피로 → "그냥 다 승인"이 습관화되어 확인이 무의미해짐.</td><td>안전 작업은 무확인 통과, 확인 요청은 진짜 위험 신호로만 — 확인 1건의 정보 가치가 회복됨.</td></tr>
+    <tr><td>반대 극단: 겁나서 자율 실행을 못 맡기고 에이전트를 "자동완성"으로만 사용.</td><td>allow 영역 안에서 장시간 자율 실행을 맡길 수 있게 됨 — 40만 세션 연구가 보여준 "사람은 what, 에이전트는 how" 분업이 안정 작동. <span class="src">(<a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic Research</a>)</span></td></tr>
+    <tr><td>팀원마다 로컬 권한 설정이 달라, 같은 프롬프트가 사람마다 다른 위험 프로파일로 실행됨.</td><td>체크인된 settings.json으로 팀 전원의 하네스가 동일 경계 공유 — 스코프 지정 allow/ask가 프로젝트 수준 설정의 가장 유용한 메커니즘으로 꼽히는 이유. <span class="src">(<a href="https://github.com/awattar/claude-code-best-practices">awattar</a>)</span></td></tr>
+    <tr><td>계획 없이 곧장 구현 → 수백 줄을 쓴 뒤에야 방향이 틀렸음을 발견.</td><td>플랜 모드로 탐색·계획을 분리, 승인된 계획만 실행 — "잘못된 문제를 푸는 코드"가 사전 차단. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>)</span></td></tr>
+  </tbody>
+</table>
+
+<h2>2-4. 예제 — 프로젝트 settings.json</h2>
+<p><strong>사용 방법</strong>: <code>.claude/settings.json</code>을 레포에 체크인한다. 이후 팀 누구의 세션이든 같은 경계 안에서 돈다.</p>
+<pre><code>// .claude/settings.json (예시 — 키 이름은 설치 버전 공식 문서로 확인)
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test:*)",       // 테스트는 자유롭게
+      "Bash(pnpm check)",
+      "Read(src/**)"
+    ],
+    "ask": [
+      "Bash(git push:*)",        // 원격 반영은 사람 확인
+      "Bash(pnpm add:*)"         // 의존성 추가도 확인
+    ],
+    "deny": [
+      "Read(.env*)",             // 시크릿 접근 원천 차단
+      "Bash(rm -rf:*)"
+    ]
+  }
+}
+</code></pre>
+<p class="note">설정 스키마는 버전에 따라 다를 수 있으므로 반드시 <a href="https://code.claude.com/docs/en/setup">설치 버전 공식 문서</a>와 대조. 핵심은 스키마 암기가 아니라 "부탁이 아닌 규칙으로 경계를 긋는다"는 원칙이다.</p>
+
+<h2>2-5. 판별법 — "결정적으로 처리 가능한 것"을 찾아내기</h2>
+<p>커뮤니티 팁 모음의 원칙: <strong>하네스가 강제할 수 있는 행동(어트리뷰션·권한·모델 선택)은 settings.json으로 처리하라</strong> — 커밋 어트리뷰션을 CLAUDE.md에 "NEVER add Co-Authored-By"라고 적는 것보다 <code>attribution.commit: ""</code> 설정이 결정적이다. <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></p>
+<div class="box gate">
+  <div class="label">판별 질문 2개 (순서대로)</div>
+  <p style="margin-bottom:6px"><strong>Q1. 이 규칙이 어겨지면 곤란한가, 아쉬운가?</strong> — 아쉬운 정도면 CLAUDE.md(요청)로 충분. 곤란하면 Q2로.</p>
+  <p style="margin:0"><strong>Q2. 하네스 설정으로 표현 가능한가?</strong> — 가능(권한·어트리뷰션·모델)하면 settings.json. 불가능(임의 로직 필요)하면 4강의 훅.</p>
+</div>
+
+<h2>2-6. 실증 — 분업 데이터가 말해주는 것</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px">40만 세션 분석에서 확인된 분업 — <strong>사람이 계획 결정의 대부분, 에이전트가 실행 결정의 대부분</strong> — 은 권한 설계의 데이터 기반 청사진이다: 사람이 유지해야 할 결정(what: 무엇을 만들지, 무엇을 원격에 반영할지)은 ask 이상으로, 에이전트에게 넘어간 결정(how: 어떤 파일을 읽고 어떤 테스트를 돌릴지)은 allow로 배치하는 것이 데이터가 보여주는 자연 분업과 일치한다. 연구는 또한 도메인 전문가가 오류·오해에서 더 잘 회복함을 보여주는데, ask 게이트는 바로 그 "사람의 회복 개입 지점"을 제도화한 것이다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic, How Claude Code is used in practice</a></p>
+</div>
+
+<h2>2-7. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">전부 ask</td><td>확인 피로 → 무지성 승인 → 확인의 정보 가치 0</td><td>안전 작업을 적극적으로 allow로 내려 확인 밀도를 회복</td></tr>
+    <tr><td class="key">공유 레포에서 YOLO 상시화</td><td>단계별 감독이 사라져 비가역 실수가 그대로 반영됨</td><td>YOLO는 학습·개인 프로젝트 한정, 공유 코드베이스는 확인 유지 <span class="src">(<a href="https://www.lowtouch.ai/claude-code-windows-wsl-setup-guide/">lowtouch.ai</a>)</span></td></tr>
+    <tr><td class="key">개인 로컬 설정 방치</td><td>팀원마다 다른 위험 프로파일 — 사고가 "누구 세션이었냐"에 좌우</td><td>settings.json 체크인으로 경계를 코드처럼 리뷰</td></tr>
+  </tbody>
+</table>
+
+<h2>2-8. 체크리스트</h2>
+<ul class="check">
+  <li>.claude/settings.json이 레포에 체크인되어 팀이 공유하는가</li>
+  <li>시크릿(.env 등) 접근이 deny로 원천 차단되어 있는가</li>
+  <li>비가역 작업(push·배포·삭제)이 ask 이상으로 분류되어 있는가</li>
+  <li>"곤란한 규칙"이 CLAUDE.md 문장이 아니라 설정으로 존재하는가 (판별 질문 2개 통과)</li>
+  <li>비자명한 작업에서 플랜 모드(계획 승인 → 실행)가 기본인가</li>
+  <li>YOLO 모드 사용 범위가 개인·학습 프로젝트로 한정되어 있는가</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 플랜 모드, 리서치/구현 분리</li>
+    <li>[공식·연구] <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic, How Claude Code is used in practice</a> — what/how 분업, 전문가의 오류 회복</li>
+    <li>[커뮤니티] <a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a> — 프로그래머블 안전, 명시적 경계와 생산성</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> — settings.json 결정적 처리 / <a href="https://github.com/awattar/claude-code-best-practices">awattar</a> — 체크인 패턴 / <a href="https://www.lowtouch.ai/claude-code-windows-wsl-setup-guide/">lowtouch.ai</a> — YOLO 모드 사용 한계</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="01-claude-md.html"><span class="dir">이전 · 1강</span>← CLAUDE.md</a>
+  <a class="next" href="03-skills-commands.html"><span class="dir">다음 · 3강</span>커맨드와 스킬 →</a>
+</nav>
+
+</div></body></html>

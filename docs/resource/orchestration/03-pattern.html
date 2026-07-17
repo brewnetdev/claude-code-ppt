@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="card">
+  <div class="head">
+    <span class="kicker">02 · Pattern Selection</span>
+    <span class="index">03 / 05</span>
+  </div>
+
+  <h1 class="title">병렬화 전, 3단 질문</h1>
+  <div class="mark"></div>
+  <p class="subtitle">단일 세션이 정답인 경우가 생각보다 많다. 순서대로 답한다.</p>
+
+  <div class="body">
+    <div class="qrow">
+      <div class="q"><span class="tag">Q1</span><span>누가 조율하나?</span></div>
+      <div class="a">내가 머문다 → <b>병렬 세션(+worktree)</b> · 던져둔다 → <b>백그라운드</b><br>Claude가 지휘 → <b>Agent Teams</b> · 코드가 조율 → <b>Dynamic Workflows</b></div>
+    </div>
+    <div class="qrow">
+      <div class="q"><span class="tag">Q2</span><span>작업자끼리 대화해야 하나?</span></div>
+      <div class="a">아니오, 보고만 → <b>서브에이전트 (기본값)</b><br>예, 발견 공유·상호 반박 → <b>Agent Teams</b></div>
+    </div>
+    <div class="qrow">
+      <div class="q"><span class="tag">Q3</span><span>같은 파일을 건드리나?</span></div>
+      <div class="a">예 → <b>worktree 격리</b> 또는 <b>파일 소유권 분할</b> (필수)</div>
+    </div>
+
+    <div class="note">
+      <div class="lab">Default</div>
+      <div class="val">대부분의 위임(탐색·리뷰·테스트)은 <b style="color:var(--ink)">서브에이전트에서 시작</b>한다. 병렬은 필요할 때만.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="repo">carve-harness</span>
+    <span>orchestration.md · §2</span>
+  </div>
+</div>
+</body>
+</html>

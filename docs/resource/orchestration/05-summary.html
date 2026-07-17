@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="card">
+  <div class="head">
+    <span class="kicker">04 · Ship Checklist</span>
+    <span class="index">05 / 05</span>
+  </div>
+
+  <h1 class="title">시작 전 체크리스트<br>&amp; 종료 기준</h1>
+  <div class="mark"></div>
+
+  <div class="body">
+    <div class="checks">
+      <div class="check"><span class="box">[ ]</span><span>독립 조각으로 분해되는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>공유 계약을 먼저 합의했는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>파일 소유권이 안 겹치는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>플랜 승인 게이트가 있는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>TaskCompleted 훅이 걸렸는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>워커 모델이 고정됐는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>에스컬레이션 경로가 명시됐는가</span></div>
+      <div class="check"><span class="box">[ ]</span><span>피처 브랜치인가</span></div>
+    </div>
+
+    <div class="stop">
+      <div class="lab">종료 기준</div>
+      <div class="val">동일 오류 <b>3회 교착</b> → 에스컬레이션 후 중단<br>토큰 예산 <b>85% 도달</b> → 자동 일시정지 + 보고</div>
+    </div>
+
+    <div class="gitblock">
+      <div class="lab">Full rules &amp; templates</div>
+      <div class="url">github.com/claude-code-expert/carve-harness</div>
+      <div class="path">docs/md/orchestration.md</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="repo">carve-harness</span>
+    <span>신뢰하되 검증하라</span>
+  </div>
+</div>
+</body>
+</html>

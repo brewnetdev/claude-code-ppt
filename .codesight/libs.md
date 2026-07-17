@@ -1,5 +1,11 @@
 # Libraries
 
+- `docs/images/level0/gen-intro-diagrams.py`
+  - function page: (body)
+  - function esc: (s)
+  - function level_diagram: (num, parts, missions)
+  - function map_diagram: ()
+  - function paths_diagram: ()
 - `scripts/insert-global-settings-slide.py` — function line: (inner)
 - `src/canvas/autoLinkUrl.ts` — function tryAutoLinkOnSpace: (e) => boolean
 - `src/canvas/documentEditingBridge.ts`

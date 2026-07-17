@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 676 288" width="676" height="288">
+  <!-- LEVEL 4 + LEVEL 5 결합 배너 — 크림/그레이 뉴트럴 -->
+  <rect x="0" y="0" width="676" height="288" fill="#F0EDE8"/>
+  <rect x="10" y="10" width="656" height="268" fill="none" stroke="#cbc4b8" stroke-width="1.2" rx="10"/>
+  <line x1="338" y1="30" x2="338" y2="258" stroke="#d8d2c8" stroke-width="1"/>
+
+  <!-- ================= LEVEL 04 ================= -->
+  <g id="panel-l4">
+    <text x="32" y="64" font-family="JetBrains Mono, monospace" font-size="30" font-weight="700" fill="#1a1a1a" letter-spacing="1">LEVEL 04</text>
+    <text x="34" y="88" font-family="Noto Sans KR, sans-serif" font-size="12" fill="#6b6b6b">Claude Code 확장과 자동화</text>
+    <line x1="32" y1="100" x2="316" y2="100" stroke="#d0d0d0" stroke-width="1"/>
+
+    <g id="l4-cards">
+      <g>
+        <rect x="32" y="114" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="42" y="132" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">01</text>
+        <text x="100" y="156" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="700" fill="#1a1a1a">Command</text>
+      </g>
+      <g>
+        <rect x="180" y="114" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="190" y="132" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">02</text>
+        <text x="248" y="156" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="700" fill="#1a1a1a">Skill</text>
+      </g>
+      <g>
+        <rect x="32" y="189" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="42" y="207" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">03</text>
+        <text x="100" y="231" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="700" fill="#1a1a1a">Hook</text>
+      </g>
+      <g>
+        <rect x="180" y="189" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="190" y="207" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">04</text>
+        <text x="248" y="231" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="700" fill="#1a1a1a">MCP</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= LEVEL 05 ================= -->
+  <g id="panel-l5">
+    <text x="360" y="64" font-family="JetBrains Mono, monospace" font-size="30" font-weight="700" fill="#1a1a1a" letter-spacing="1">LEVEL 05</text>
+    <text x="362" y="88" font-family="Noto Sans KR, sans-serif" font-size="12" fill="#6b6b6b">실전 워크플로우 — 기획부터 리팩토링까지</text>
+    <line x1="360" y1="100" x2="644" y2="100" stroke="#d0d0d0" stroke-width="1"/>
+
+    <g id="l5-cards">
+      <g>
+        <rect x="360" y="114" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="370" y="132" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">01</text>
+        <text x="428" y="155" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">기획·요구사항</text>
+      </g>
+      <g>
+        <rect x="508" y="114" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="518" y="132" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">02</text>
+        <text x="576" y="155" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">명세·설계</text>
+      </g>
+      <g>
+        <rect x="360" y="189" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="370" y="207" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">03</text>
+        <text x="428" y="230" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">SDD · GSD</text>
+      </g>
+      <g>
+        <rect x="508" y="189" width="136" height="63" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+        <text x="518" y="207" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#a89f92">04</text>
+        <text x="576" y="230" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="14" font-weight="700" fill="#1a1a1a">디버깅·리팩토링</text>
+      </g>
+    </g>
+  </g>
+</svg>

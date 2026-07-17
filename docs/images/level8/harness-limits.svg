@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Column headers -->
+  <text x="60" y="42" font-size="18" font-weight="700" fill="#B91C1C">하네스의 한계</text>
+  <text x="720" y="42" font-size="18" font-weight="700" fill="#0F766E">EDD의 해결 장치</text>
+  <line x1="20" y1="54" x2="1260" y2="54" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- Row 1 -->
+  <rect x="20" y="66" width="600" height="106" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="100" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#B91C1C">①</tspan> 판정이 정성적</text>
+  <text x="40" y="128" font-size="15" fill="#6B6560">review는 "갭 있음/없음"만 —</text>
+  <text x="40" y="150" font-size="15" fill="#6B6560">개선 · 회귀의 정도를 말하지 못한다</text>
+  <line x1="626" y1="119" x2="676" y2="119" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="682" y="66" width="578" height="106" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="702" y="104" font-size="16" font-weight="700" fill="#0F766E">루브릭 점수 + 임계값</text>
+  <text x="702" y="140" font-size="15" fill="#1A1A18">Judge–인간 일치율로 채점 자체를 교정</text>
+
+  <!-- Row 2 -->
+  <rect x="20" y="180" width="600" height="106" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="214" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#B91C1C">②</tspan> 추이를 모른다</text>
+  <text x="40" y="242" font-size="15" fill="#6B6560">게이트는 이번 변경만 본다 — "지난달보다</text>
+  <text x="40" y="264" font-size="15" fill="#6B6560">나아졌는가"에 답할 데이터가 없다</text>
+  <line x1="626" y1="233" x2="676" y2="233" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="682" y="180" width="578" height="106" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="702" y="218" font-size="16" font-weight="700" fill="#0F766E">골든셋 고정 + 매 변경 재채점</text>
+  <text x="702" y="254" font-size="15" fill="#1A1A18">→ regression delta 시계열</text>
+
+  <!-- Row 3 -->
+  <rect x="20" y="294" width="600" height="106" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="328" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#B91C1C">③</tspan> 시스템 실패가 미탐지</text>
+  <text x="40" y="356" font-size="15" fill="#6B6560">프롬프트-응답 정확도 중심 평가로는</text>
+  <text x="40" y="378" font-size="15" fill="#6B6560">도구 오용 · 메모리 오염이 남는다</text>
+  <line x1="626" y1="347" x2="676" y2="347" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="682" y="294" width="578" height="106" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="702" y="332" font-size="16" font-weight="700" fill="#0F766E">시스템 수준 평가</text>
+  <text x="702" y="368" font-size="15" fill="#1A1A18">파이프라인 · 아티팩트 전체를 범위로 + 실패 트리아지</text>
+
+  <!-- Row 4 -->
+  <rect x="20" y="408" width="600" height="106" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="442" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#B91C1C">④</tspan> 배포 후가 무방비</text>
+  <text x="40" y="470" font-size="15" fill="#6B6560">게이트는 배포 전에 끝난다 — 입력 분포</text>
+  <text x="40" y="492" font-size="15" fill="#6B6560">변화 · 드리프트는 아무도 안 잰다</text>
+  <line x1="626" y1="461" x2="676" y2="461" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="682" y="408" width="578" height="106" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="702" y="446" font-size="16" font-weight="700" fill="#0F766E">온라인 모니터링 eval (샘플링 채점)</text>
+  <text x="702" y="482" font-size="15" fill="#1A1A18">+ 런타임 blocking eval (가드레일)</text>
+
+  <!-- Bottom band -->
+  <rect x="20" y="528" width="1240" height="46" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="44" y="556" font-size="16" fill="#1A1A18">완성형 하네스의 마지막 체크리스트 항목 — <tspan font-weight="700" fill="#0F766E">"지난달보다 나아졌는가에 숫자로 답할 수 있는가."</tspan> 없다면 성장은 감에 의존한다.</text>
+</svg>

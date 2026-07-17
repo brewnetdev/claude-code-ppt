@@ -1,0 +1,53 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Column headers -->
+  <text x="40" y="42" font-size="16" font-weight="700" fill="#6B6560">계층</text>
+  <text x="188" y="42" font-size="16" font-weight="700" fill="#6B6560">검사 대상</text>
+  <text x="560" y="42" font-size="16" font-weight="700" fill="#6B6560">수단</text>
+  <text x="900" y="42" font-size="16" font-weight="700" fill="#6B6560">실패 시 동작</text>
+  <line x1="40" y1="54" x2="1240" y2="54" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- Layer 1: 입력 -->
+  <rect x="40" y="66" width="1200" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="112" font-size="20" font-weight="700" fill="#0F766E">입력</text>
+  <text x="188" y="102" font-size="16" fill="#1A1A18">프롬프트 인젝션 · 범위 밖 · PII</text>
+  <text x="560" y="102" font-size="16" fill="#1A1A18">분류기 · 패턴 매칭 · 허용 토픽</text>
+  <text x="900" y="102" font-size="16" fill="#1A1A18">거부 또는 정제 후 통과</text>
+
+  <!-- Layer 2: 출력 -->
+  <rect x="40" y="156" width="1200" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="202" font-size="20" font-weight="700" fill="#0F766E">출력</text>
+  <text x="188" y="192" font-size="16" fill="#1A1A18">형식 · 금칙어 · 정책 위반</text>
+  <text x="560" y="192" font-size="16" fill="#1A1A18">스키마 검증 → 코드 필터 → LLM-Judge</text>
+  <text x="900" y="192" font-size="16" fill="#1A1A18">재시도 → 폴백 → escalate</text>
+
+  <!-- Layer 3: 행동 -->
+  <rect x="40" y="246" width="1200" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="292" font-size="20" font-weight="700" fill="#0F766E">행동</text>
+  <text x="188" y="282" font-size="16" fill="#1A1A18">도구 호출 · 비가역 작업(삭제 · 전송 · 결제)</text>
+  <text x="560" y="282" font-size="16" fill="#1A1A18">화이트리스트 · 비가역 직전 중간 검사</text>
+  <text x="900" y="282" font-size="16" fill="#1A1A18">차단 + 휴먼 승인 대기</text>
+
+  <!-- Layer 4: 운영 -->
+  <rect x="40" y="336" width="1200" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="60" y="382" font-size="20" font-weight="700" fill="#0F766E">운영</text>
+  <text x="188" y="372" font-size="16" fill="#1A1A18">점수 드리프트 · escalation 급증</text>
+  <text x="560" y="372" font-size="16" fill="#1A1A18">모니터링 eval · 알림</text>
+  <text x="900" y="372" font-size="16" fill="#1A1A18">롤백 또는 재개발 트리거</text>
+
+  <!-- defense-line ordering arrow (light) on far left -->
+  <line x1="30" y1="80" x2="30" y2="402" stroke="#0F766E" stroke-width="1.5" marker-end="url(#ar)" opacity="0.4"/>
+
+  <!-- Warning band -->
+  <rect x="40" y="436" width="1200" height="134" fill="#FAF3E6" stroke="#B91C1C" stroke-width="1.5" rx="6"/>
+  <text x="64" y="468" font-size="20" font-weight="700" fill="#B91C1C">"달았다 ≠ 막힌다"</text>
+  <text x="270" y="468" font-size="16" fill="#1A1A18">— 인젝션 공격 대상 실측 (TRIAD):</text>
+  <text x="64" y="498" font-size="16" fill="#1A1A18">대표 가드레일 평균 탐지 recall <tspan font-weight="700" fill="#B91C1C">58.57%</tspan>, 차단 성공 <tspan font-weight="700" fill="#B91C1C">37.26%</tspan> 미만, 정상 과제 보존 <tspan font-weight="700" fill="#B91C1C">2.31%</tspan> 미만.</text>
+  <text x="64" y="526" font-size="16" fill="#1A1A18">가드레일 자체를 공격 데이터셋으로 정기 평가하고, 이진 차단 대신 <tspan font-weight="700" fill="#0F766E">proceed/refuse/update 3중 판정</tspan> + 언어 피드백으로 교정 루프를 만든다.</text>
+  <text x="64" y="554" font-size="15" fill="#6B6560">배치 원칙 — 가볍고 결정적인 검사를 앞에, 무거운 Judge를 뒤에. Blocking(크리티컬 패스)과 Monitoring(백그라운드 샘플링)을 구분.</text>
+</svg>
