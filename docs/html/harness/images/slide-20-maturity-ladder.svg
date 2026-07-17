@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="성숙도 6단 계단 다이어그램: 좌하단 Lv.0 프롬프트만·0분에서 우상단 Lv.5 실패 패턴 축적·지속까지 상승하며, Lv.1 CLAUDE.md·5분 단계에 여기서 시작 강조">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <marker id="ara" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#644ac9"/></marker>
+  </defs>
+  <style>
+    .title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+    .sub{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a}
+    .h{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#282a36}
+    .h.acc{fill:#644ac9}
+    .mono{font-family:"JetBrains Mono",monospace}
+    .eff{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:500;fill:#59617a}
+    .chip{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#59617a}
+    .chip.acc{fill:#644ac9}
+    .acc{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:700;fill:#644ac9}
+    .accm{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;fill:#644ac9}
+    .axl{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:500;fill:#59617a}
+    .box{fill:#ffffff;stroke:#d8dae5;stroke-width:1.5}
+    .boxacc{fill:#ffffff;stroke:#644ac9;stroke-width:2}
+    .flow{stroke:#59617a;stroke-width:2;fill:none}
+    .accline{stroke:#644ac9;stroke-width:2;fill:none}
+    .axis{stroke:#59617a;stroke-width:1.5;fill:none}
+  </style>
+
+  <text class="title" x="24" y="42">성숙도 6단 계단</text>
+  <text class="sub" x="24" y="68">좌하단 → 우상단 — 단계마다 실수를 시스템에 규칙으로 축적한다</text>
+
+  <!-- axes: 시간 투자 → · 효과·성숙도 ↑ -->
+  <line class="axis" x1="44" y1="564" x2="44" y2="56" marker-end="url(#ar)"/>
+  <line class="axis" x1="44" y1="578" x2="944" y2="578" marker-end="url(#ar)"/>
+  <text class="axl" transform="rotate(-90 26 312)" x="26" y="312" text-anchor="middle">효과 · 성숙도</text>
+  <text class="axl" x="820" y="572" text-anchor="middle">시간 투자</text>
+
+  <!-- riser arrows (step up) -->
+  <line class="flow" x1="210" y1="500" x2="210" y2="472" marker-end="url(#ar)"/>
+  <line class="flow" x1="320" y1="408" x2="320" y2="380" marker-end="url(#ar)"/>
+  <line class="flow" x1="430" y1="316" x2="430" y2="288" marker-end="url(#ar)"/>
+  <line class="flow" x1="540" y1="224" x2="540" y2="196" marker-end="url(#ar)"/>
+  <line class="flow" x1="650" y1="132" x2="650" y2="104" marker-end="url(#ar)"/>
+
+  <!-- Lv.0 -->
+  <rect class="box" x="60" y="500" width="320" height="64" rx="8"/>
+  <text class="h" x="76" y="530"><tspan class="mono">Lv.0</tspan><tspan dx="10">프롬프트만</tspan></text>
+  <text class="chip" x="364" y="530" text-anchor="end">0분</text>
+  <text class="eff" x="76" y="554">기본</text>
+
+  <!-- Lv.1 (emphasis) -->
+  <rect class="boxacc" x="170" y="408" width="320" height="64" rx="8"/>
+  <text class="h acc" x="186" y="438"><tspan class="mono">Lv.1</tspan><tspan class="mono" dx="10">CLAUDE.md</tspan></text>
+  <text class="chip acc" x="474" y="438" text-anchor="end">5분</text>
+  <text class="eff" x="186" y="462">반복 실수 30%↓</text>
+
+  <!-- Lv.2 -->
+  <rect class="box" x="280" y="316" width="320" height="64" rx="8"/>
+  <text class="h" x="296" y="346"><tspan class="mono">Lv.2</tspan><tspan dx="10">역할 분리</tspan></text>
+  <text class="chip" x="584" y="346" text-anchor="end">30분</text>
+  <text class="eff" x="296" y="370">자기 평가 편향 제거</text>
+
+  <!-- Lv.3 -->
+  <rect class="box" x="390" y="224" width="320" height="64" rx="8"/>
+  <text class="h" x="406" y="254"><tspan class="mono">Lv.3</tspan><tspan dx="10">Hook 자동 검증</tspan></text>
+  <text class="chip" x="694" y="254" text-anchor="end">1시간</text>
+  <text class="eff" x="406" y="278">규칙 망각 해결</text>
+
+  <!-- Lv.4 -->
+  <rect class="box" x="500" y="132" width="320" height="64" rx="8"/>
+  <text class="h" x="516" y="162"><tspan class="mono">Lv.4</tspan><tspan dx="10">파일 핸드오프</tspan></text>
+  <text class="chip" x="804" y="162" text-anchor="end">2시간</text>
+  <text class="eff" x="516" y="186">대규모 작업 가능</text>
+
+  <!-- Lv.5 -->
+  <rect class="box" x="610" y="40" width="320" height="64" rx="8"/>
+  <text class="h" x="626" y="70"><tspan class="mono">Lv.5</tspan><tspan dx="10">실패 패턴 축적</tspan></text>
+  <text class="chip" x="914" y="70" text-anchor="end">지속</text>
+  <text class="eff" x="626" y="94">하네스 자체가 진화</text>
+
+  <!-- start-here callout for Lv.1 -->
+  <line class="accline" x1="558" y1="440" x2="494" y2="440" marker-end="url(#ara)"/>
+  <rect class="boxacc" x="560" y="410" width="210" height="60" rx="8"/>
+  <text class="acc" x="665" y="441" text-anchor="middle">여기서 시작</text>
+  <text class="accm" x="665" y="464" text-anchor="middle">5분</text>
+</svg>

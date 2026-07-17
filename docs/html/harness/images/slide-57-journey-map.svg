@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="1~5장 여정 맵과 하네스 자산이 EDD 부품으로 승격되는 4쌍, 그리고 '엔진은 바뀐다 차를 만들어라' 결론">
+<defs>
+<marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa5c9"/></marker>
+</defs>
+<style>
+.s{font-family:"IBM Plex Sans KR",sans-serif}
+.c{font-family:"JetBrains Mono",monospace}
+.ink{fill:#f8f8f2}.mut{fill:#9aa5c9}.acc{fill:#bd93f9}
+</style>
+
+<text class="s ink" x="24" y="44" font-size="30" font-weight="700">1~5장 여정 → EDD 부품 승격</text>
+
+<!-- Journey stations -->
+<rect x="24" y="64" width="148" height="120" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="c acc" x="98" y="100" font-size="26" font-weight="700" text-anchor="middle">1장</text>
+<text class="s ink" x="98" y="132" font-size="21" font-weight="500" text-anchor="middle">틀렸는지<tspan x="98" dy="1.3em">모른다</tspan></text>
+
+<rect x="200" y="64" width="148" height="120" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="c acc" x="274" y="100" font-size="26" font-weight="700" text-anchor="middle">2장</text>
+<text class="s ink" x="274" y="132" font-size="21" font-weight="500" text-anchor="middle">모델 +<tspan x="274" dy="1.3em">하네스</tspan></text>
+
+<rect x="376" y="64" width="148" height="120" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="c acc" x="450" y="100" font-size="26" font-weight="700" text-anchor="middle">3장</text>
+<text class="s ink" x="450" y="132" font-size="21" font-weight="500" text-anchor="middle">성숙도<tspan x="450" dy="1.3em">사다리</tspan></text>
+
+<rect x="552" y="64" width="148" height="120" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="c acc" x="626" y="100" font-size="26" font-weight="700" text-anchor="middle">4장</text>
+<text class="s ink" x="626" y="132" font-size="21" font-weight="500" text-anchor="middle">판정을<tspan x="626" dy="1.3em">숫자로</tspan></text>
+
+<rect x="728" y="64" width="148" height="120" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="c acc" x="802" y="100" font-size="26" font-weight="700" text-anchor="middle">5장</text>
+<text class="s ink" x="802" y="132" font-size="21" font-weight="500" text-anchor="middle">프롬프트=<tspan x="802" dy="1.3em">Eval 한 몸</tspan></text>
+
+<line x1="176" y1="124" x2="196" y2="124" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="352" y1="124" x2="372" y2="124" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="528" y1="124" x2="548" y2="124" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="704" y1="124" x2="724" y2="124" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+
+<line x1="24" y1="200" x2="876" y2="200" stroke="#44475a" stroke-width="1"/>
+
+<!-- Zone B: promotion -->
+<text class="s ink" x="24" y="224" font-size="22" font-weight="700">부품 승격 — 하네스 자산이 곧 EDD 부품이다</text>
+<text class="s mut" x="219" y="250" font-size="20" font-weight="700" text-anchor="middle">하네스 자산</text>
+<text class="s mut" x="450" y="250" font-size="18" font-weight="500" text-anchor="middle">승격</text>
+<text class="s acc" x="680" y="250" font-size="20" font-weight="700" text-anchor="middle">EDD 부품</text>
+
+<!-- Row 1 -->
+<rect x="24" y="262" width="391" height="44" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="s ink" x="219" y="291" font-size="23" font-weight="600" text-anchor="middle">검증 서브에이전트</text>
+<line x1="421" y1="284" x2="479" y2="284" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="485" y="262" width="391" height="44" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="s ink" x="680" y="291" font-size="23" font-weight="600" text-anchor="middle">LLM-as-Judge</text>
+
+<!-- Row 2 -->
+<rect x="24" y="314" width="391" height="44" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="c ink" x="219" y="343" font-size="23" font-weight="600" text-anchor="middle">PLAN.md</text>
+<line x1="421" y1="336" x2="479" y2="336" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="485" y="314" width="391" height="44" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="s ink" x="680" y="343" font-size="23" font-weight="600" text-anchor="middle">골든셋</text>
+
+<!-- Row 3 -->
+<rect x="24" y="366" width="391" height="44" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="s ink" x="219" y="395" font-size="23" font-weight="600" text-anchor="middle">훅 · 차단기</text>
+<line x1="421" y1="388" x2="479" y2="388" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="485" y="366" width="391" height="44" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="s ink" x="680" y="395" font-size="23" font-weight="600" text-anchor="middle">Blocking eval</text>
+
+<!-- Row 4 -->
+<rect x="24" y="418" width="391" height="44" rx="8" fill="#343746" stroke="#44475a" stroke-width="1.5"/>
+<text class="s ink" x="219" y="447" font-size="23" font-weight="600" text-anchor="middle">커맨드 점검</text>
+<line x1="421" y1="440" x2="479" y2="440" stroke="#9aa5c9" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="485" y="418" width="391" height="44" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="s ink" x="680" y="447" font-size="23" font-weight="600" text-anchor="middle">CI 평가 게이트</text>
+
+<!-- Bottom banner -->
+<rect x="24" y="480" width="852" height="44" rx="8" fill="#343746" stroke="#bd93f9" stroke-width="2"/>
+<text class="s acc" x="450" y="510" font-size="19" font-weight="700" text-anchor="middle">엔진이 어떻게 바뀌든, 차량(하네스+Evaluator)을 고치고 능숙하게 운전하라</text>
+</svg>

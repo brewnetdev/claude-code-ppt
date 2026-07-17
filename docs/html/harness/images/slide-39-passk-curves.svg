@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="pass@k와 pass^k 곡선. x축 k=1~10, y축 0~100%. accent 상승 곡선 pass@k는 100%로 접근, ink 하강 곡선 pass^k는 0%로 접근하며 k=1에서 p=75%로 만난다.">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+  </defs>
+  <style>
+    .title-t{font-family:"IBM Plex Sans KR",sans-serif;fill:#282a36;font-weight:700;font-size:30px}
+    .lead{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;font-size:24px}
+    .body-t{font-family:"IBM Plex Sans KR",sans-serif;font-weight:500;font-size:21px;fill:#282a36}
+    .cap{font-family:"IBM Plex Sans KR",sans-serif;font-weight:400;font-size:18px;fill:#59617a}
+    .axis-n{font-family:"JetBrains Mono",monospace;font-size:18px;fill:#59617a}
+    .mono{font-family:"JetBrains Mono",monospace;font-size:21px;fill:#282a36}
+    .foot{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;fill:#282a36}
+  </style>
+
+  <text class="title-t" x="24" y="46">pass@k vs pass^k — k에 따른 성공 확률</text>
+
+  <!-- gridlines -->
+  <line x1="110" y1="110" x2="680" y2="110" stroke="#d8dae5" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="110" y1="200" x2="680" y2="200" stroke="#59617a" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="110" y1="290" x2="680" y2="290" stroke="#d8dae5" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="110" y1="380" x2="680" y2="380" stroke="#d8dae5" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- axes -->
+  <line x1="110" y1="470" x2="110" y2="100" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="110" y1="470" x2="690" y2="470" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- y labels -->
+  <text class="axis-n" x="98" y="116" text-anchor="end">100%</text>
+  <text class="axis-n" x="98" y="206" text-anchor="end">75%</text>
+  <text class="axis-n" x="98" y="296" text-anchor="end">50%</text>
+  <text class="axis-n" x="98" y="386" text-anchor="end">25%</text>
+  <text class="axis-n" x="98" y="476" text-anchor="end">0%</text>
+
+  <!-- x labels k=1..10 -->
+  <text class="axis-n" x="110" y="495" text-anchor="middle">1</text>
+  <text class="axis-n" x="173.3" y="495" text-anchor="middle">2</text>
+  <text class="axis-n" x="236.7" y="495" text-anchor="middle">3</text>
+  <text class="axis-n" x="300" y="495" text-anchor="middle">4</text>
+  <text class="axis-n" x="363.3" y="495" text-anchor="middle">5</text>
+  <text class="axis-n" x="426.7" y="495" text-anchor="middle">6</text>
+  <text class="axis-n" x="490" y="495" text-anchor="middle">7</text>
+  <text class="axis-n" x="553.3" y="495" text-anchor="middle">8</text>
+  <text class="axis-n" x="616.7" y="495" text-anchor="middle">9</text>
+  <text class="axis-n" x="680" y="495" text-anchor="middle">10</text>
+
+  <!-- axis titles -->
+  <text class="cap" x="395" y="520" text-anchor="middle">k (시도 횟수, 1~10)</text>
+  <text class="cap" x="44" y="290" text-anchor="middle" transform="rotate(-90 44 290)">성공 확률</text>
+
+  <!-- pass@k curve (accent, rising) -->
+  <polyline points="110,200 173.3,132.5 236.7,115.6 300,111.4 363.3,110.4 426.7,110.1 490,110 553.3,110 616.7,110 680,110" fill="none" stroke="#644ac9" stroke-width="3"/>
+  <!-- pass^k curve (ink, falling) -->
+  <polyline points="110,200 173.3,267.5 236.7,318.1 300,356.1 363.3,384.6 426.7,405.9 490,421.9 553.3,434 616.7,443 680,449.7" fill="none" stroke="#282a36" stroke-width="3"/>
+
+  <!-- pass@k dots -->
+  <g fill="#644ac9">
+    <circle cx="173.3" cy="132.5" r="3.5"/><circle cx="236.7" cy="115.6" r="3.5"/><circle cx="300" cy="111.4" r="3.5"/><circle cx="363.3" cy="110.4" r="3.5"/><circle cx="426.7" cy="110.1" r="3.5"/><circle cx="490" cy="110" r="3.5"/><circle cx="553.3" cy="110" r="3.5"/><circle cx="616.7" cy="110" r="3.5"/><circle cx="680" cy="110" r="3.5"/>
+  </g>
+  <!-- pass^k dots -->
+  <g fill="#282a36">
+    <circle cx="173.3" cy="267.5" r="3.5"/><circle cx="236.7" cy="318.1" r="3.5"/><circle cx="300" cy="356.1" r="3.5"/><circle cx="363.3" cy="384.6" r="3.5"/><circle cx="426.7" cy="405.9" r="3.5"/><circle cx="490" cy="421.9" r="3.5"/><circle cx="553.3" cy="434" r="3.5"/><circle cx="616.7" cy="443" r="3.5"/><circle cx="680" cy="449.7" r="3.5"/>
+  </g>
+
+  <!-- inline curve labels -->
+  <text class="lead" x="452" y="140" fill="#644ac9">pass@k → 100%</text>
+  <text class="lead" x="470" y="440" fill="#282a36">pass^k → 0%</text>
+
+  <!-- 42% annotation at k=3 pass^k -->
+  <circle cx="236.7" cy="318.1" r="5" fill="#282a36"/>
+  <text class="cap" x="252" y="308" fill="#282a36">k=3 → ≈42%</text>
+
+  <!-- crossing point at k=1, p=75% -->
+  <circle cx="110" cy="200" r="6.5" fill="#ffffff" stroke="#282a36" stroke-width="2.5"/>
+  <text class="cap" x="124" y="186" fill="#282a36">k=1: 둘 다 75% (교차)</text>
+
+  <!-- right panel: legend cards -->
+  <rect x="700" y="120" width="284" height="128" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <line x1="716" y1="150" x2="746" y2="150" stroke="#644ac9" stroke-width="4"/>
+  <text class="lead" x="756" y="158" fill="#644ac9">pass@k</text>
+  <text class="mono" x="716" y="196">1 − (1−p)^k</text>
+  <text class="cap" x="716" y="228">능력의 상한 · 100% 접근</text>
+
+  <rect x="700" y="268" width="284" height="128" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <line x1="716" y1="298" x2="746" y2="298" stroke="#282a36" stroke-width="4"/>
+  <text class="lead" x="756" y="306" fill="#282a36">pass^k</text>
+  <text class="mono" x="716" y="344">p^k</text>
+  <text class="cap" x="716" y="376">일관성의 하한 · 0% 접근</text>
+
+  <rect x="700" y="416" width="284" height="86" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="body-t" x="716" y="448">예: 시도당 75%, 3회</text>
+  <text class="mono" x="716" y="484" font-weight="700">pass^3 ≈ 42%</text>
+
+  <!-- footnote -->
+  <line x1="24" y1="540" x2="976" y2="540" stroke="#d8dae5" stroke-width="1"/>
+  <text class="foot" x="24" y="568">제품 요구가 지표를 결정한다 — 한 번이면 충분한가, 매번 신뢰가 필요한가.</text>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="바이브 코딩 대 검증된 코딩 2패널 비교: 좌측은 프롬프트에서 코드, 배포로 이어지며 게이트 0개, 우측은 계획 게이트와 검증 게이트 2개를 거친다">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/>
+    </marker>
+    <style>
+      .title { font-family:"IBM Plex Sans KR",sans-serif; font-size:30px; font-weight:700; fill:#282a36; }
+      .phead { font-family:"IBM Plex Sans KR",sans-serif; font-size:26px; font-weight:700; fill:#282a36; }
+      .node  { font-family:"IBM Plex Sans KR",sans-serif; font-size:24px; font-weight:700; fill:#282a36; }
+      .gate  { font-family:"IBM Plex Sans KR",sans-serif; font-size:24px; font-weight:700; fill:#644ac9; }
+      .badgeD{ font-family:"IBM Plex Sans KR",sans-serif; font-size:18px; font-weight:700; fill:#c93030; }
+      .badgeA{ font-family:"IBM Plex Sans KR",sans-serif; font-size:18px; font-weight:700; fill:#644ac9; }
+      .cap   { font-family:"IBM Plex Sans KR",sans-serif; font-size:20px; font-weight:400; fill:#59617a; }
+    </style>
+  </defs>
+
+  <text class="title" x="24" y="46">바이브 코딩 vs 검증된 코딩</text>
+
+  <!-- ══ LEFT PANEL : 바이브 코딩 ══ -->
+  <rect x="24" y="72" width="372" height="476" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="phead" x="44" y="112">바이브 코딩</text>
+  <rect x="268" y="90" width="114" height="30" rx="6" fill="#ffffff" stroke="#c93030" stroke-width="1.5"/>
+  <text class="badgeD" x="325" y="110" text-anchor="middle">게이트 0개</text>
+
+  <rect x="110" y="150" width="200" height="56" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="210" y="186" text-anchor="middle">프롬프트</text>
+
+  <line x1="210" y1="208" x2="210" y2="298" stroke="#59617a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+
+  <rect x="110" y="300" width="200" height="56" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="210" y="336" text-anchor="middle">코드</text>
+
+  <line x1="210" y1="358" x2="210" y2="448" stroke="#59617a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+
+  <rect x="110" y="450" width="200" height="56" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="210" y="486" text-anchor="middle">배포</text>
+
+  <!-- ══ RIGHT PANEL : 검증된 코딩 ══ -->
+  <rect x="424" y="72" width="372" height="476" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="phead" x="444" y="112">검증된 코딩</text>
+  <rect x="668" y="90" width="114" height="30" rx="6" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="badgeA" x="725" y="110" text-anchor="middle">게이트 2개</text>
+
+  <rect x="510" y="150" width="200" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="610" y="184" text-anchor="middle">프롬프트</text>
+
+  <line x1="610" y1="204" x2="610" y2="232" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="510" y="234" width="200" height="52" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="gate" x="610" y="268" text-anchor="middle">계획 게이트</text>
+
+  <line x1="610" y1="288" x2="610" y2="316" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="510" y="318" width="200" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="610" y="352" text-anchor="middle">코드</text>
+
+  <line x1="610" y1="372" x2="610" y2="400" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="510" y="402" width="200" height="52" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="gate" x="610" y="436" text-anchor="middle">검증 게이트</text>
+
+  <line x1="610" y1="456" x2="610" y2="484" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="510" y="486" width="200" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="node" x="610" y="520" text-anchor="middle">배포</text>
+
+  <!-- caption -->
+  <text class="cap" x="410" y="582" text-anchor="middle">게이트 = 명시된 통과 조건</text>
+</svg>

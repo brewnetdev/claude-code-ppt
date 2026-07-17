@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발표자 노트 — 바이브 코딩에서 검증된 코딩으로</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#f8f8f2; --surface:#ffffff; --border:#d8dae5; --ink:#282a36;
+    --muted:#59617a; --accent:#644ac9; --danger:#c93030; --ok:#1d8a45; --warn:#b26214;
+    --sans:"IBM Plex Sans KR","IBM Plex Sans",sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.7;word-break:keep-all;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 28px 120px}
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:8px}
+  header.doc h1{font-size:26px;font-weight:700;margin:0 0 6px}
+  header.doc p{color:var(--muted);font-size:15px;margin:0}
+  .howto{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:14px 18px;margin:24px 0 8px;font-size:14px;color:var(--muted)}
+  .howto b{color:var(--ink)}
+  .howto .tag{font-family:var(--mono);font-weight:700;font-size:12px;padding:1px 6px;border-radius:4px;border:1px solid var(--border)}
+  .tag.img{color:var(--accent);border-color:var(--accent)}
+  .tag.term{color:var(--warn);border-color:var(--warn)}
+  .tag.easy{color:var(--ok);border-color:var(--ok)}
+
+  .chap-div{margin:44px 0 8px;padding:10px 0 8px;border-bottom:1px solid var(--border)}
+  .chap-div h2{font-size:20px;font-weight:700;margin:0;color:var(--accent)}
+
+  article.note{border:1px solid var(--border);border-radius:8px;background:var(--surface);
+    padding:22px 24px;margin:18px 0}
+  .note .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px}
+  .note .num{font-family:var(--mono);font-weight:700;font-size:15px;color:#fff;background:var(--accent);
+    border-radius:4px;padding:2px 9px}
+  .note .head h3{font-size:19px;font-weight:700;margin:0;flex:1;min-width:60%}
+  .note .head .kind{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .note .script p{font-size:16px;margin:0 0 10px}
+  .note .block{margin-top:14px;padding:12px 16px;border-radius:6px;border:1px solid var(--border);font-size:15px}
+  .note .block .tag{font-family:var(--mono);font-weight:700;font-size:12px;padding:1px 7px;border-radius:4px;margin-right:8px;display:inline-block}
+  .note .img{border-left:3px solid var(--accent);background:#f4f2fb}
+  .note .img .tag{color:var(--accent);border:1px solid var(--accent)}
+  .note .terms{border-left:3px solid var(--warn);background:#fbf6ef}
+  .note .terms .tag{color:var(--warn);border:1px solid var(--warn)}
+  .note .terms dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+  .note .terms dt{font-weight:700;font-family:var(--mono);font-size:13px;white-space:nowrap}
+  .note .terms dd{margin:0;color:var(--ink)}
+  .note .easy{border-left:3px solid var(--ok);background:#f0f7f2}
+  .note .easy .tag{color:var(--ok);border:1px solid var(--ok)}
+  .note strong{font-weight:700}
+  code,.mono{font-family:var(--mono);font-size:.92em;background:#eef0f6;padding:1px 5px;border-radius:3px}
+  .note .img code,.note .terms dd code{background:#e7e3f5}
+  @media print{ body{background:#fff} article.note{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>발표자 노트 — 바이브 코딩에서 검증된 코딩으로</h1>
+  <p>하네스 엔지니어링과 Evaluator 제어 · 전 59슬라이드 키노트 프레젠터 스크립트</p>
+</header>
+
+<div class="howto">
+  각 카드 = 슬라이드 1장. <b>발표 스크립트</b>는 그대로 말하듯 읽으면 되고,
+  <span class="tag img">[이미지]</span> 는 화면 도해를 청중에게 풀어 설명하는 부분,
+  <span class="tag term">[용어]</span> 는 처음 나오는 어려운 용어의 풀네임과 뜻,
+  <span class="tag easy">[쉬운 설명]</span> 은 개념을 비유로 쉽게 푸는 부분이다.
+</div>
+
+<!-- ═══════════════════ 1장 ═══════════════════ -->
+<div class="chap-div"><h2>1장 · 왜 ‘바이브 코딩’은 한계에 부딪히는가</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">01</span><h3>표지 — 바이브 코딩에서 검증된 코딩으로</h3><span class="kind">Cover</span></div>
+  <div class="script">
+    <p>오늘 발표의 한 문장 요약이 곧 제목입니다. 감으로 시키고 감으로 받아들이는 ‘바이브 코딩’에서, 시스템이 스스로 검증하는 ‘검증된 코딩’으로 어떻게 넘어가는지를 다룹니다. 그 도구가 바로 <strong>하네스 엔지니어링</strong>과 <strong>Evaluator</strong>입니다.</p>
+    <p>대상은 개발자·엔지니어이고, 배경은 회사 안에서 돌리는 온프레미스 코딩 에이전트입니다. 클라우드로 코드를 내보낼 수 없는 환경에서도 AI를 신뢰 가능하게 쓰는 방법이 핵심입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>하네스(harness)</dt><dd>모델을 감싸 컨텍스트·도구·규칙·검증을 제어하는 <b>실행 환경 전체</b>. 마구(馬具)처럼 말(모델)을 통제하는 장치라는 뜻.</dd>
+      <dt>Evaluator</dt><dd>에이전트의 산출물이 ‘얼마나 잘됐는지’를 점수·게이트로 판정하는 <b>독립 평가자</b>.</dd>
+      <dt>온프레미스</dt><dd>클라우드가 아니라 회사 자체 서버·장비 안에서 돌리는 방식. 보안·규제로 외부 유출이 안 되는 환경.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">02</span><h3>아젠다 — 감(感)에서 지표로 가는 5단계</h3><span class="kind">Agenda</span></div>
+  <div class="script">
+    <p>다섯 장으로 진행합니다. 앞의 두 장이 ‘왜’와 ‘무엇’, 뒤의 세 장이 ‘어떻게’입니다. 1장은 바이브 코딩의 한계라는 문제 인식, 2장은 하네스가 대체 무엇인가라는 정의, 3장은 실전 조립, 4장은 결과를 숫자로 재는 Evaluator 설계, 5장은 프롬프트와 평가를 함께 설계하는 법입니다.</p>
+    <p>1장은 청중과 눈높이를 맞추는 장이니, 여기서 “감으로 짠 코드가 왜 위험한가”에 공감대를 만들고 시작하겠습니다.</p>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">03</span><h3>1장 섹션 표지</h3><span class="kind">Section</span></div>
+  <div class="script">
+    <p>1장을 시작합니다. 핵심 질문은 하나입니다 — 프로토타입에서는 잘 통하던 ‘감으로 짠 코드’가 왜 프로덕션 규모에서 무너지는가.</p>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">04</span><h3>바이브 코딩 = 계획도, 리뷰도, 테스트도 없는 원샷</h3><span class="kind">정의</span></div>
+  <div class="script">
+    <p><strong>바이브 코딩</strong>이라는 말 자체는 비하가 아니라 프로토타이핑 기법의 이름입니다. 문제는 그걸 프로덕션 규모로 끌고 갈 때입니다. 원래는 research(조사)·plan(계획)·execute(구현)·review(검토)·ship(배포) 다섯 단계가 각각 통과 조건, 즉 <strong>게이트</strong>를 갖는데, 바이브 코딩은 이 전부를 “설명 한 번”으로 뭉개버립니다. 게이트가 0개인 거죠.</p>
+    <p>질문 자체가 바뀌었습니다. 2025년엔 “AI가 동작하는 코드를 쓸 수 있는가”였다면, 2026년은 “프로덕션 코드를 배포하도록 AI를 어떻게 오케스트레이션(조율)하는가”입니다. 규모 근거로, 코딩 에이전트가 활동하는 GitHub 프로젝트 비중이 2025년 말 이후 2배 이상으로 늘었고, Claude Code 사용자는 주당 평균 20시간을 씁니다. 이미 상시 파이프라인이라는 뜻입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    좌우 2패널 비교입니다. <b>왼쪽 ‘바이브 코딩’</b>은 프롬프트 → 코드 → 배포가 점선으로만 이어지고 우측 상단에 빨간 “게이트 0개”. <b>오른쪽 ‘검증된 코딩’</b>은 프롬프트 → <b>계획 게이트</b> → 코드 → <b>검증 게이트</b> → 배포로, 두 게이트가 보라색으로 강조되고 “게이트 2개”라고 적혀 있습니다. 즉 오른쪽은 배포 전에 반드시 통과해야 할 조건이 두 군데 박혀 있다는 걸 시각적으로 보여줍니다.
+  </div>
+  <div class="block easy"><span class="tag">[쉬운 설명]</span>
+    비유하면, 설계도 없이 감으로 짓는 창고입니다. 헛간까지는 서지만 3층부터 기웁니다. 게이트는 “여기서 검사 통과 못 하면 다음 단계로 못 넘어간다”는 검문소예요.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">05</span><h3>프롬프트 → 컨텍스트 → 하네스</h3><span class="kind">패러다임</span></div>
+  <div class="script">
+    <p>하네스 엔지니어링은 프롬프트를 버리는 게 아닙니다. 각 단계는 이전을 <strong>포함하며 확장</strong>합니다. 2022~2024년은 프롬프트 엔지니어링 — “어떻게 말해야 하는가”가 핵심이었고, 완벽한 이메일 한 통을 쓰는 기술에 비유됩니다. 2025년은 컨텍스트 엔지니어링 — “모델이 무엇을 알아야 하는가”, 첨부파일을 빠짐없이 붙인 이메일이죠. 2026년이 하네스 엔지니어링 — “시스템을 어떻게 설계해야 하는가”, 즉 자동화된 품질 시스템 전체를 만드는 단계입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    풀페이지 도해입니다. 왼쪽에 3단 타임라인 카드(프롬프트·컨텍스트·하네스 엔지니어링) 각각의 연도·핵심 질문·기법이 화살표로 이어지고, 오른쪽에 <b>동심원 3겹</b>이 있습니다. 가장 안쪽이 프롬프트, 그걸 감싸는 게 컨텍스트, 가장 바깥이 하네스 — “프롬프트 ⊂ 컨텍스트 ⊂ 하네스”라는 포함 관계를 그림으로 보여줍니다. 하단 설명이 이 포함 관계를 한 줄로 정리합니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>Few-shot</dt><dd>예시 몇 개를 프롬프트에 넣어 원하는 형식을 유도하는 기법.</dd>
+      <dt>CoT</dt><dd>Chain-of-Thought(사고 사슬). 답을 바로 내지 않고 추론 단계를 거치게 유도하는 기법.</dd>
+      <dt>RAG</dt><dd>Retrieval-Augmented Generation(검색 증강 생성). 외부에서 근거 문서를 검색해 붙인 뒤 생성.</dd>
+      <dt>MCP</dt><dd>Model Context Protocol. 모델에 도구·데이터를 연결하는 표준 규격.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">06</span><h3>프롬프트로 해결할 수 없는 문제 6가지</h3><span class="kind">구조적 실패</span></div>
+  <div class="script">
+    <p>이 표의 핵심은, <strong>왼쪽 열은 전부 “지시”이고 오른쪽 열은 전부 “구조”</strong>라는 점입니다. 지시는 확률적으로 지켜지지만 구조는 물리적으로 강제됩니다. 예를 들어 “비판적으로 리뷰하라”고 지시해도 모델은 자기 코드를 칭찬합니다(자기 평가 편향). 이건 말로 못 고치고, Generator와 Evaluator를 물리적으로 분리해야 잡힙니다. “5번 이상 시도 금지”라고 써도 무시되지만, 반복 횟수 하드 리밋을 코드로 걸면 못 넘습니다.</p>
+    <p>여섯 가지 — 자기 평가 편향, 컨텍스트 불안, 규칙 망각, 아키텍처 침범, 무한 루프, 상태 유실 — 모두 “더 잘 말하기”로는 재발합니다. 구조로만 막힙니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>컴팩션</dt><dd>compaction. 대화가 길어질 때 컨텍스트를 압축·요약하는 것.</dd>
+      <dt>핸드오프</dt><dd>handoff. 세션이 끊길 때 진행 상태를 파일로 넘겨 다음 세션이 이어받게 하는 것.</dd>
+      <dt>Hook</dt><dd>훅. 도구 호출·응답 종료 같은 특정 시점에 자동으로 끼어들어 검사·차단하는 스크립트.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">07</span><h3>모든 문제의 뿌리 — 컨텍스트 윈도우</h3><span class="kind">단일 제약</span></div>
+  <div class="script">
+    <p>앞의 여섯 문제는 사실 하나의 뿌리에서 나옵니다. Claude Code 공식 Best Practices의 표현으로 “대부분의 모범 사례는 <strong>컨텍스트 윈도우는 빨리 차고, 차면 성능이 저하된다</strong>는 단일 제약에서 나온다.” 규칙 준수율은 세션 길이의 감소 함수라서, 위반이 “가끔, 긴 세션에서, 하필 중요한 순간에” 나는 건 버그가 아니라 확률적 준수의 구조적 성질입니다.</p>
+    <p>Terraform 창시자 Mitchell Hashimoto의 말을 인용합니다 — 실수할 때마다 다음엔 더 잘하라고 말하는 게 아니라, 그 특정 실수가 <strong>구조적으로 반복되기 어렵도록 시스템을 바꾼다</strong>. 프롬프트는 “요청”이고 하네스는 “강제”라는 게 1장의 결론입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽에 컨텍스트 예산 막대 2개 — 위는 간결한 CLAUDE.md(약 60줄)라 규칙이 차지하는 파란 블록이 작고 작업 공간이 넓습니다. 아래는 비대한 CLAUDE.md(400줄+)라 규칙 블록이 커지고 작업 공간이 좁아집니다. 오른쪽엔 세션이 길어질수록 규칙 준수율이 내려가는 하강 곡선이 있고, 약 40% 지점부터 성능 저하 밴드가 표시됩니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>컨텍스트 윈도우</dt><dd>모델이 한 번에 볼 수 있는 텍스트의 총량(토큰 한도). 이걸 넘으면 앞부분을 잊습니다.</dd>
+      <dt>CLAUDE.md</dt><dd>매 세션 자동으로 읽히는 프로젝트 규칙 파일. 여기에 쓴 규칙은 항상 로드됩니다.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">08</span><h3>감으로 짠 코드의 대가 — 반응적 루프</h3><span class="kind">대가</span></div>
+  <div class="script">
+    <p>바이브 코딩의 리스크는 “코드가 틀린다”가 아니라 — <strong>틀렸는지 아닌지를 팀이 모른다</strong>는 데 있습니다. Eval·게이트 없는 팀에서 세 가지가 목격됩니다. 첫째 반응적 루프 — 하나를 고치면 다른 게 깨지고, 진짜 회귀인지 노이즈인지 구분 못한 채 수렁에 빠집니다. 둘째 프로덕션에서만 발견 — 사용자 불만이 먼저 오고, 수동 재현·수정 후 “다른 게 안 깨졌기를 기도”합니다. 셋째 “느낌이 나빠졌다” 논쟁 — 팀원마다 체감이 달라 회의 안건은 되지만 행동은 못 합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽은 원형 순환도 <b>‘반응적 루프’</b> — 불만 대기 → 수동 재현 → 수정 → 새 실패(빨강) → 다시 불만으로 돌아 제자리를 맴돕니다. 오른쪽은 상승 계단 <b>‘복리 루프’</b> — 실패 → 테스트 케이스 → 회귀 방지 → 지표 축적으로 올라갑니다. 같은 “실패”가 왼쪽에선 소모되고 오른쪽에선 자산으로 쌓인다는 대비입니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>회귀(regression)</dt><dd>이전에 잘 되던 기능이 새 변경으로 다시 깨지는 것.</dd>
+      <dt>복리 루프</dt><dd>실패가 테스트·지표로 축적되어 시간이 갈수록 안전망이 두꺼워지는 선순환.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">09</span><h3>왜 지금인가 — 세 가지 변화의 수렴</h3><span class="kind">타이밍</span></div>
+  <div class="script">
+    <p>세 가지 변화가 동시에 하네스를 요구합니다. 첫째 <strong>모델의 상품화</strong> — Claude·GPT·Gemini가 벤치마크에서 좁은 범위로 수렴해서, 차이를 만드는 건 모델이 아니라 모델을 감싸는 시스템입니다. 둘째 <strong>에이전트의 프로덕션 진입</strong> — 2026년엔 에이전트가 실제 프로덕션 코드를 짜고, “다운되면 안 된다” 수준의 신뢰도가 요구됩니다. 셋째 <strong>벤치마크의 한계 노출</strong> — 벤치마크는 단일 턴 측정인데 프로덕션 에이전트는 수백 단계를 갑니다. 50단계 후 방향이 이탈하면 벤치마크 1% 향상은 무의미하죠.</p>
+    <p>하나만 있어도 하네스는 유용하지만, 셋이 겹친 2026년엔 필수가 됩니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    위쪽에 세 패널 — 모델 수렴 그래프(여러 모델 곡선이 한 점으로 좁아짐), 프로덕션 진입 화살표, 단일 턴 vs 수백 단계 비교 — 이 세 화살표가 아래 하나의 꼭짓점 <b>‘하네스 엔지니어링’</b>(보라 박스)으로 모이는 구도입니다. 세 흐름이 같은 결론으로 수렴한다는 걸 시각적으로 보여줍니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>벤치마크</dt><dd>모델 성능을 표준 문제셋으로 점수 매기는 시험. 보통 단발성 문제라 실전의 장기 작업을 못 잽니다.</dd>
+      <dt>상품화(commoditization)</dt><dd>제품들이 성능이 비슷해져 차별점이 사라지는 현상.</dd>
+    </dl>
+  </div>
+</article>
+
+<!-- ═══════════════════ 2장 ═══════════════════ -->
+<div class="chap-div"><h2>2장 · 코딩 에이전트 하네스란 무엇인가</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">10</span><h3>2장 섹션 표지</h3><span class="kind">Section</span></div>
+  <div class="script">
+    <p>2장은 정의입니다. 에이전트는 곧 모델과 하네스의 합이라는 것, 그리고 컨텍스트·툴·가드레일이 모델의 행동을 실제로 바꾼다는 걸 실증까지 보여드립니다.</p>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">11</span><h3>에이전트 = 모델(엔진) + 하네스(나머지 전부)</h3><span class="kind">정의</span></div>
+  <div class="script">
+    <p>에이전트를 모델과 동일시하는 오해를 첫 슬라이드에서 깹니다. 하네스는 “모델을 제외한 모든 것”입니다. 자동차로 치면 엔진을 뺀 차체 전부죠 — 이 비유가 발표 전체를 관통합니다. 엔진(모델)은 지능·동력이지만 그 자체로는 도로를 못 달립니다. 핸들이 방향 제어(프롬프트·계획·제약), 브레이크가 안전장치(권한·차단 훅·가드레일), 변속기가 동력 전달(도구 호출), 계기판과 내비가 관찰·상태 관리입니다.</p>
+    <p>핵심 메시지 — 아무리 좋은 엔진도 브레이크 없는 차엔 아무도 안 탑니다. <strong>모델 업그레이드는 엔진 교체이고, 하네스는 차 전체를 만드는 일</strong>입니다. OpenHarness 저장소의 표현으로 “The model is the agent. The code is the harness.”</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    자동차 측면을 선으로 그린 도해입니다. 엔진 위치의 박스에 <b>‘모델(LLM)’</b>이 보라색으로 강조되고, 핸들·브레이크·변속기·계기판·연료계에서 각각 연결선이 뻗어 ‘제약/방향’, ‘가드레일/안전’, ‘도구 호출’, ‘관찰’, ‘상태’ 라벨로 이어집니다. 하단에 등식 “에이전트 = 모델(엔진) + 하네스(나머지 전부)”가 놓여 있습니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>LLM</dt><dd>Large Language Model(대규모 언어 모델). 여기서 ‘모델=엔진’이 바로 이것.</dd>
+      <dt>가드레일(guardrail)</dt><dd>위험한 행동을 막는 안전 난간. 권한 제한·차단 훅 등.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">12</span><h3>Harness = Tools + Knowledge + Observation + Action + Permissions</h3><span class="kind">코드로 증명된 정의</span></div>
+  <div class="script">
+    <p>하네스는 추상 개념이 아니라 <strong>코드로 증명된 실체</strong>입니다. 등식으로 보면 하네스 = 도구(Tools) + 지식(Knowledge) + 관찰(Observation) + 행동(Action) + 권한(Permissions)입니다. LLM 단독은 텍스트만 생성합니다. 파일을 읽고(도구), 도메인 지식을 참조하고(스킬), 결과를 관찰하고, 편집·커밋을 행동으로 옮기고, 안전 경계 안에서 움직이게 하는 전체 — 그게 하네스입니다.</p>
+    <p>이걸 코드로 보여주는 교과서가 <strong>OpenHarness</strong>입니다. 홍콩대(HKUDS)가 만든 오픈소스로, 약 51만 줄짜리 Claude Code의 핵심을 훨씬 작게 재구현한 프로젝트예요.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    위쪽에 등식 5박스(Tools·Knowledge·Observation·Action·Permissions), 각 박스 아래 짧은 설명(파일·명령 실행 / 스킬·도메인 규칙 / 결과 확인·로그 / 편집·커밋 / 안전 경계). 아래쪽에 <b>스탯 카드 5개</b>가 나란히 있고, 맨 아래에 “Harness = 모델을 제외한 실행 환경 전체”라는 요약 줄이 있습니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span> <b>OpenHarness ‘실측 스탯’이 정확히 무엇을 잰 숫자인가</b> — 이건 “Claude Code의 하네스를 얼마나 작고 완결적으로 다시 구현했는가”를 실제 코드베이스에서 <b>세어본(측정한)</b> 수치입니다. 카드별 의미:
+    <dl>
+      <dt>11,733 LOC</dt><dd>LOC = Lines Of Code(코드 줄 수). OpenHarness 전체가 1만 1,733줄. Claude Code(약 51만 줄) 대비 <b>약 44배 가볍다</b>는 뜻 — 하네스의 본질만 남기면 이 정도로 작아진다는 증거.</dd>
+      <dt>163 files</dt><dd>전체 소스 파일 수 163개. 원본(약 1,884개) 대비 훨씬 적은 파일로 같은 골격을 구현.</dd>
+      <dt>43 tools</dt><dd>에이전트가 쓸 수 있는 <b>도구 개수</b> 43개. 이게 Claude Code 도구의 <b>약 98%</b>를 커버 — 즉 도구 기능은 거의 그대로 재현.</dd>
+      <dt>54 commands</dt><dd>사용자가 부르는 <b>슬래시 커맨드</b> 54개로 원본의 약 61%.</dd>
+      <dt>확장점 4</dt><dd>하네스를 넓히는 방법이 딱 4가지 — Tool(도구), Skill(지식), Plugin(플러그인), Hook(가로채기).</dd>
+    </dl>
+    한마디로: “하네스는 말로만 하는 개념이 아니라, 1만 줄대로 압축해도 도구의 98%가 도는 <b>실재하는 코드</b>다”를 숫자로 못박은 슬라이드입니다. 검증도 됨 — 유닛 테스트 114개 + E2E(End-to-End, 종단간) 테스트 6개.
+  </div>
+  <div class="block easy"><span class="tag">[쉬운 설명]</span>
+    “스탯”은 게임 캐릭터 능력치처럼, 이 오픈소스가 <b>얼마나 알차고 검증됐는지</b>를 보여주는 수치라고 보면 됩니다. ‘51만 줄 → 1만 줄’인데 ‘도구는 98% 그대로’ = 군더더기를 다 빼도 하네스의 알맹이는 이만큼 작다는 실물 증거예요.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">13</span><h3>The Agent Loop — 제약·검증이 주입되는 자리</h3><span class="kind">심장</span></div>
+  <div class="script">
+    <p>에이전트의 심장은 단순한 while 루프 하나입니다. 모델이 도구 사용(tool_use)을 반환하는 동안 계속 돌고, 아니면 종료합니다. 핵심은 도구 실행 사이에 끼어드는 파이프라인 — <strong>권한 검사 → PreToolUse 훅 → 실행 → PostToolUse 훅</strong>입니다. 바로 이 지점이 프로젝트별 제약과 검증 훅이 주입되는 자리예요. 뒤에서 다룰 ‘차단 훅(exit 2)’도 여기서 발동합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    원형 루프 다이어그램입니다. ‘모델 스트림’에서 ‘tool_use?’ 분기로 가고, 예(도구 사용)면 보라색으로 강조된 4단 파이프라인 박스(권한 검사·PreToolUse 훅·실행·PostToolUse 훅)를 지나 ‘결과 append(덧붙이기)’ 후 다시 모델로 순환합니다. 아니오면 ‘종료’로 빠집니다. 파이프라인 아래에 “제약·검증 주입 지점”이라는 라벨이 붙어 있습니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>Agent Loop</dt><dd>에이전트가 “행동 → 관찰 → 다음 행동”을 반복하는 기본 순환 구조.</dd>
+      <dt>PreToolUse / PostToolUse 훅</dt><dd>도구를 쓰기 <b>직전/직후</b>에 자동 실행되는 검사 스크립트. 위험하면 여기서 막습니다.</dd>
+      <dt>exit 2</dt><dd>스크립트가 ‘비정상 종료 코드 2’를 반환하면 도구 호출이 <b>차단</b>됩니다(뒤 슬라이드에서 상세).</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">14</span><h3>하네스의 세 기둥 — 제약 · 피드백 루프 · 상태 관리</h3><span class="kind">3기둥</span></div>
+  <div class="script">
+    <p>하네스는 세 기둥으로 섭니다. <strong>제약</strong>은 “무엇을 하지 못하게 할 것인가” — 제약이 생산성을 낮출 것 같지만, 실제로는 탐색 공간을 줄여 에이전트를 집중시킵니다(직관에 반하는 지점). <strong>피드백 루프</strong>는 “실수를 어떻게 잡을 것인가” — 자기 리뷰(가장 약함)에서 독립 리뷰어(중간), 자동 검증(가장 강함)으로 강도가 올라갑니다. Anthropic 관찰로, 에이전트는 자기 작업이 미흡해도 자신 있게 칭찬하므로 독립 평가자를 회의적으로 튜닝하는 편이 훨씬 다루기 쉽습니다. <strong>상태 관리</strong>는 “맥락을 어떻게 유지할 것인가” — 컨텍스트 밖에 상태를 저장·복원합니다.</p>
+    <p>가장 효과적인 하네스는 자동 검증 → 독립 리뷰어 → 인간 체크포인트의 계층 조합입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    세 기둥(제약 / 피드백 루프 / 상태 관리)이 위쪽 지붕 ‘신뢰 가능한 에이전트’를 떠받치는 구조물입니다. 가운데 피드백 기둥 안에는 강도 순으로 <b>자동 검증(가장 강함, 보라 강조) → 독립 리뷰어(중간) → 자기 리뷰(가장 약함)</b> 세 박스가 세로로 가지런히 정렬돼 있습니다.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">15</span><h3>서브시스템 → 3기둥 매핑 (OpenHarness 10+)</h3><span class="kind">해부</span></div>
+  <div class="script">
+    <p>앞의 3기둥이 실제 코드베이스에서 어떤 디렉토리로 구현되는지 보여주는 매핑입니다. <strong>제약</strong>은 <code>permissions/</code>와 <code>hooks/</code>, <strong>피드백</strong>은 <code>skills/</code>·<code>coordinator/</code>·검색/테스트 도구, <strong>상태</strong>는 <code>memory/</code>·<code>tasks/</code>·<code>prompts/</code>·<code>config/</code>가 담당하고, <code>engine/</code>과 <code>tools/</code>가 세 기둥을 떠받치는 코어입니다. 권한은 3모드 — Default(쓰기·실행 전 확인) / Auto(전부 허용, 샌드박스) / Plan Mode(모든 쓰기 차단)입니다.</p>
+    <p>이 매핑은 강의 프레임에 따른 해석이지 OpenHarness의 공식 분류가 아니라는 점을 정직하게 밝힙니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>서브시스템</dt><dd>큰 시스템을 이루는 하위 모듈(디렉토리) 단위.</dd>
+      <dt>Pydantic</dt><dd>파이썬에서 입력값을 검증하는 라이브러리. 43개 도구가 이걸로 입력을 검사.</dd>
+      <dt>샌드박스</dt><dd>바깥에 영향을 못 주도록 격리된 실험용 공간.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">16</span><h3>하네스는 로컬 모델의 행동을 실제로 바꾸는가 (실증 A/B — 설명)</h3><span class="kind">실증 A/B</span></div>
+  <div class="script">
+    <p>이론이 아니라 실험으로 증명합니다. <strong>A/B 테스트</strong>, 즉 조건 하나만 다르게 둔 대조 실험입니다. 완전히 동일한 <code>opencode 1.17.15 + qwen3.6:35b</code>(ollama로 돌린 로컬 모델)에, 하네스 유무만 다르게 두고 똑같은 위반 유도 명령 7종(S0~S6)을 넣었습니다. 결과 — <strong>7개 중 4개의 결과가 갈렸고</strong>, 대조군은 위험 코드를 그대로 생성한 게 4건. 하드 커밋 게이트는 4/4 전부 차단에 성공했습니다(대조군은 게이트가 없어 0). 다음 페이지에서 전체 매트릭스를 봅니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>A/B 테스트</dt><dd>딱 한 조건만 바꾸고 나머지는 똑같이 둔 뒤 결과 차이를 보는 대조 실험.</dd>
+      <dt>ollama</dt><dd>로컬 컴퓨터에서 오픈 모델을 돌리는 실행 런타임(프로그램).</dd>
+      <dt>opencode / qwen3.6:35b</dt><dd>실험에 쓴 오픈소스 코딩 에이전트 툴과 350억(35B) 파라미터짜리 로컬 모델.</dd>
+      <dt>커밋 게이트</dt><dd>git 커밋 시점에 자동으로 도는 검사. 통과 못 하면 커밋 자체를 막음.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">17</span><h3>S0–S6 행동 매트릭스 (풀페이지 도해)</h3><span class="kind">실증 A/B · 매트릭스</span></div>
+  <div class="script">
+    <p>같은 모델·같은 명령인데 하네스 유무만으로 결과가 어떻게 갈렸는지 한눈에 봅니다. <strong>결정적으로 갈린 4건</strong>이 핵심입니다 — S1(WHERE 없는 DELETE, 즉 전체 삭제), S2(force push 같은 위험 git), S4(마이그레이션 직접 수정), S6(eval 인젝션). 대조군은 이걸 그대로 만들었고, 하네스가 있을 때만 근거를 들어 거부하거나 안전한 대안을 냈습니다. 반대로 S0·S3처럼 이미 모델 기본 정렬이 막는 건 결과가 같았고(‘동일’), S5(시각 스타일 규칙)는 강제 장치가 없어 ‘강제 안 함’입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    7행(S0~S6) × 4열(위반 유도 / CONTROL 하네스 없음 / HARNESS 하네스 있음 / 효과) 표입니다. 각 셀에 큰 판정어 — ✓거부(보라), ✗생성(빨강), 신규(초록), 무효·고지(회색) — 가 붙고, 효과 열에서 <b>결정적 4건(S1·S2·S4·S6)</b>이 보라 테두리로 강조됩니다. 상단에 실험 조건 한 줄(opencode 1.17.15 + qwen3.6:35b, 시나리오별 독립 세션, 2026-07-08)이 있습니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>eval 인젝션</dt><dd>사용자 입력을 그대로 <code>eval()</code>로 실행해 임의 코드가 돌게 되는 심각한 보안 취약점.</dd>
+      <dt>마이그레이션</dt><dd>DB 스키마 변경 이력 파일. 기존 파일을 고치면 이력이 깨지므로 ‘새 버전만 추가’가 규칙.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">18</span><h3>하네스가 값을 하는 3지점, 무의미한 2지점</h3><span class="kind">실증 해석</span></div>
+  <div class="script">
+    <p>A/B 결과의 차이는 무작위가 아니라 정확히 세 유형에 몰렸습니다. <strong>A. 정상 작업으로 포장된 위험 요청</strong>(S1·S2·S6) — “cleanup 함수”·“배포 스크립트”로 포장하면 모델 기본 정렬(alignment, 안전·의도를 지키려는 성향)이 뚫립니다. <strong>B. 모델이 모르는 프로젝트 고유 관례</strong>(S4) — “마이그레이션 불변”은 팀 규칙이라 학습 지식에 없습니다. 도메인 규칙 전파는 하네스만의 몫입니다. <strong>C. 결정론적 하드 게이트</strong> — 모델 순응은 확률적이라 위에서도 4건이 뚫렸지만, 커밋 게이트만은 100% 차단을 보장합니다.</p>
+    <p>반대로 이미 정렬이 막는 명백한 위반(S0·S3)에서 하네스의 가치는 감사추적 명문화뿐이고, 강제 없는 스타일 규칙(S5)은 권고에 그칩니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽에 ‘값을 하는 3지점’ 카드 3개(A·B·C)가 보라 테두리로, 오른쪽에 ‘무의미한 2지점’ 카드 2개(S0·S3 / S5)가 회색으로 배치됩니다. 맨 아래 결론 띠 — “모델 순응은 확률적 → 결정론이 필요한 규칙은 커밋 게이트·CI로 이중화”.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>정렬(alignment)</dt><dd>모델이 안전·의도에 맞게 행동하도록 맞춰진 성향. ‘기본 정렬’이 뚫린다 = 포장에 속아 위험 요청을 들어준다.</dd>
+      <dt>결정론적(deterministic)</dt><dd>같은 입력이면 항상 같은 결과. 확률이 아니라 100% 보장.</dd>
+      <dt>CI</dt><dd>Continuous Integration(지속적 통합). 변경마다 자동으로 빌드·검사를 돌리는 파이프라인.</dd>
+    </dl>
+  </div>
+</article>
+
+<!-- ═══════════════════ 3장 ═══════════════════ -->
+<div class="chap-div"><h2>3장 · 하네스 엔지니어링 실전</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">19</span><h3>3장 섹션 표지</h3><span class="kind">Section</span></div>
+  <div class="script"><p>3장은 실전입니다. Claude Code를 통제 가능한 워크플로우로 만드는 과정을, 성숙도 사다리 Lv.0에서 Lv.5까지 오르며 부품을 하나씩 조립해 봅니다.</p></div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">20</span><h3>성숙도 모델 — 5분부터 시작하라</h3><span class="kind">로드맵</span></div>
+  <div class="script">
+    <p>하네스 도입의 진입 장벽은 생각보다 낮습니다. Lv.1 CLAUDE.md는 5분 투자로 반복 실수를 약 30% 줄이고, 단계가 올라갈수록 자기 평가 편향 제거(Lv.2), 규칙 망각 해결(Lv.3), 대규모 작업 확장(Lv.4)으로 넓어집니다. 핵심은 레벨 자체가 아니라 <strong>습관</strong>입니다 — 같은 실수를 두 번 보면 그 자리에서 고치고 끝내지 말고 “시스템에 규칙으로 추가”하는 것.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    좌하단에서 우상단으로 오르는 6단 계단입니다. Lv.0(프롬프트만·0분)부터 Lv.5(실패 패턴 축적·지속·하네스 자체가 진화)까지 각 단에 명칭·투자 시간·효과가 적혀 있고, Lv.1 CLAUDE.md 단에 “여기서 시작: 5분”이라는 보라색 화살표가 붙어 있습니다. 왼쪽엔 같은 내용을 표로도 정리해 뒀습니다.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">21</span><h3>CLAUDE.md — 최고 레버리지, 최다 오남용</h3><span class="kind">부품 · CLAUDE.md</span></div>
+  <div class="script">
+    <p>CLAUDE.md는 가장 싸고 강력한 부품이지만 가장 많이 오남용됩니다. <strong>레버리지</strong> — 매 세션 자동 로드라, 모든 줄이 앞으로의 모든 세션·프롬프트에 곱해집니다. <strong>오남용</strong> — 같은 곱셈이 비용에도 적용됩니다. 400줄짜리 파일은 실제 프롬프트와 주의를 경쟁하다 부분적으로 무시됩니다. 길수록 덜 지켜지는 역설이고, 경험칙은 200줄 이하입니다. 40만 세션 분석에서 사람은 what(무엇)을, Claude는 how(어떻게)의 대부분을 결정했는데, 도메인 이해를 많이 주입할수록 지시 1건당 산출이 커졌습니다.</p>
+    <p>오른쪽 코드가 좋은 예입니다 — 짧게, 안정적인 것만. 도메인 제약(트랜잭션 안 외부 호출 금지 등), 구조 규칙(레이어 침범 금지), 완료의 정의를 몇 줄로.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>레버리지(leverage)</dt><dd>작은 입력이 큰 효과로 곱해지는 지렛대 효과.</dd>
+      <dt>DTO</dt><dd>Data Transfer Object(데이터 전송 객체). 계층 사이에 데이터를 넘기는 그릇. 엔티티를 그대로 노출하지 않기 위한 것.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">22</span><h3>무엇을 넣고, 무엇을 빼는가 — CLAUDE.md는 항상 로드된다</h3><span class="kind">CLAUDE.md 심화</span></div>
+  <div class="script">
+    <p>CLAUDE.md는 항상 로드되므로, 조건부 지식과 강제 규칙은 다른 계층으로 빼야 합니다. <strong>넣는 것</strong> — 빌드·테스트·실행 명령어, 코드 컨벤션 핵심 몇 줄, 완료의 정의, 절대 건드리면 안 되는 경로. <strong>빼는 것</strong> — 스타일 가이드 전문은 린터·포매터+훅이 강제하게, 조건부로만 필요한 긴 지식은 스킬의 점진적 공개로, 반드시 강제될 것은 settings.json·훅으로(설정 한 줄이 “NEVER” 문장보다 결정적입니다), 경로 종속 규칙은 <code>.claude/rules/*.md</code>로 지연 로드.</p>
+    <p>운영 원칙 — 같은 실수 2회면 규칙 후보입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>린터/포매터</dt><dd>린터=코드 규칙 위반을 잡는 도구, 포매터=코드 서식을 자동 정리하는 도구.</dd>
+      <dt>점진적 공개(progressive disclosure)</dt><dd>필요할 때만 관련 지식을 꺼내 보여줘 상시 비용을 0으로 만드는 방식.</dd>
+      <dt>지연 로드(lazy load)</dt><dd>미리 다 읽지 않고 해당 상황에서만 읽어 들이는 것.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">23</span><h3>권한 모델 — 명시적 경계가 생산성을 올린다</h3><span class="kind">권한 모델</span></div>
+  <div class="script">
+    <p>경계가 없으면 두 나쁜 균형에 빠집니다 — 모든 호출을 확인하다 피로해져 무지성 승인하거나, 아예 자율 실행을 포기하거나. 경계가 있으면 <strong>allow(허용) 영역은 전속력</strong>으로 가고, 위험 신호만 사람에게 물어 확인의 밀도를 회복합니다. 판별 질문 두 개 — Q1. 어겨지면 곤란한가 아쉬운가? 아쉬우면 CLAUDE.md, 곤란하면 Q2. Q2. 설정으로 표현 가능한가? 가능하면 settings.json, 불가능하면 훅.</p>
+    <p>오른쪽 <code>settings.json</code> 예시는 allow(테스트·읽기)·ask(git push)·deny(.env 읽기·rm -rf)를 명시해 부탁이 아닌 규칙으로 경계를 긋습니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>settings.json</dt><dd>레포에 체크인하는 팀 공유 설정 파일. 권한·훅을 코드로 못박습니다.</dd>
+      <dt>allow / ask / deny</dt><dd>허용 / 물어보기 / 금지. 도구 호출을 세 등급으로 나누는 권한 정책.</dd>
+      <dt>플랜 모드(Plan Mode)</dt><dd>계획을 먼저 승인받고 실행하는 모드. 모든 쓰기를 잠급니다.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">24</span><h3>커맨드와 스킬 — 반복 워크플로의 자산화</h3><span class="kind">커맨드/스킬</span></div>
+  <div class="script">
+    <p>판별 흐름은 이렇습니다. 사람이 <code>/명령</code>으로 부르면 <strong>커맨드</strong>(저장된 프롬프트, 매크로 카드). 상황이 맞으면 모델이 스스로 로드하면 <strong>스킬</strong>(조건부 지식, 사내 위키 절차서). 격리 실행이면 <strong>서브에이전트</strong>, 외부 시스템 실행이면 <strong>MCP</strong> — 스킬은 지식이고 MCP는 행동입니다. 스킬 설계 4원칙 — description은 요약이 아니라 “언제 발동하는가” 트리거로, 당연한 건 쓰지 않기, 단계별 레일 말고 목표·제약을, 그리고 Gotchas(실패 이력)가 최고 신호. 스킬의 미덕은 지식 총량은 늘리되 상시 비용은 0(지연 로드)입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>서브에이전트</dt><dd>메인과 분리된 자체 컨텍스트에서 도는 하위 에이전트. 원자료로 메인을 오염시키지 않음.</dd>
+      <dt>MCP</dt><dd>Model Context Protocol. 외부 시스템·도구를 표준 방식으로 연결·실행.</dd>
+      <dt>Gotchas</dt><dd>“이거 조심” — 과거 실패에서 나온 함정 목록. 스킬 가치의 대부분.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">25</span><h3>요청(request)과 보증(guarantee)은 다르다</h3><span class="kind">핵심 원리</span></div>
+  <div class="script">
+    <p>3장 전체를 관통하는 원리입니다. <strong>요청 층</strong>(확률적) — CLAUDE.md·스킬·프롬프트. 대체로 지켜지지만 컨텍스트가 차면 누락됩니다. <strong>보증 층</strong>(결정적) — Pre/PostToolUse·Stop 훅, settings.json의 deny, CI 게이트. 모델이 잊거나 무시할 수 없습니다. 설계 규칙 원문 그대로 — “반드시 일어나야 하는 것은 훅에 속한다. 가드레일은 훅에 넣고, 그 외 전부는 정중한 제안이다.” 어떤 규칙을 어디에 둘지 고민되면 질문은 하나 — <strong>어기면 곤란한가?</strong> 예면 훅/설정, 아니오면 CLAUDE.md/스킬.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    상하 2층 다이어그램입니다. 위층(회색) ‘요청 층 — 확률적 준수’에 CLAUDE.md·스킬·프롬프트가, 아래층(보라 강조) ‘보증 층 — 결정적 강제’에 Pre/PostToolUse·Stop 훅·deny·CI 게이트가 있고 “exit 2로 차단”이 적혀 있습니다. 두 층 사이에 ‘승격’ 화살표 — 같은 실수 2회면 규칙 후보가 되고, ‘반드시’ 수준이면 훅으로 올라갑니다.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">26</span><h3>훅 — 반드시 일어나야 하는 일을 코드로</h3><span class="kind">훅</span></div>
+  <div class="script">
+    <p>실제 구현은 두 블록이 전부입니다 — settings.json에 등록(PostToolUse=자동 포맷 prettier, PreToolUse=위험 명령 차단)하고, 차단기 본체는 위험 패턴(루트 삭제·강제 푸시·원격 스크립트 실행)을 정규식으로 걸러 매칭되면 종료합니다. 주의할 규약이 하나 — <strong>차단은 반드시 exit 2</strong>여야 합니다. exit 1은 비차단으로 처리되어 위험 동작이 그대로 진행됩니다. 그리고 훅이 실패했는데 조용히 넘어가면, 보증 층이 있다고 믿는 만큼 오히려 요청 층보다 더 위험해집니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>정규식(regex)</dt><dd>문자열 패턴을 표현하는 규칙. “rm -rf /” 같은 위험 명령을 패턴으로 잡습니다.</dd>
+      <dt>종료 코드(exit code)</dt><dd>프로그램이 끝날 때 반환하는 숫자. 0=성공, 2=차단(도구 호출 취소).</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">27</span><h3>역할 분리 — Generator ≠ Evaluator</h3><span class="kind">역할 분리</span></div>
+  <div class="script">
+    <p>Anthropic 인사이트를 다시 인용하면 — 에이전트에게 자기 작업을 평가하라 하면 미흡한 결과에도 자신 있게 칭찬합니다. 이걸 <strong>자기 평가 편향(Self-Eval Blindspot)</strong>이라 합니다. 자기 서사가 쌓인 컨텍스트는 반박을 못 하거든요. 해법은 독립 평가자를 회의적으로 튜닝하는 것이고, 이쪽이 훨씬 다루기 쉽습니다. 같은 모델이라도 컨텍스트가 다르면 서로 버그를 찾아냅니다. 공식 문서는 과보고도 경고합니다 — 갭을 찾으라고 프롬프트된 리뷰어는 건전할 때도 뭔가를 보고하니, 정확성·명시 요구사항 갭만 좇고 나머지는 선택으로. 그리고 완료 판정은 단언이 아니라 <strong>증거</strong>(테스트 출력·명령 반환값·스크린샷)여야 합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽 ‘자기 평가’ — 한 에이전트가 자기 출력에 스스로 체크하는 구조에 빨간 ‘자기 평가 편향’ 경고. 오른쪽 ‘분리 평가’ — Generator(생성) → 산출물 → 독립 Evaluator(평가) → PASS/FAIL 판정이 보라색으로 이어집니다. 하단에 피드백 강도 3단 계단(자기 리뷰 → 독립 리뷰어 → 자동 검증)이 있습니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>Generator / Evaluator</dt><dd>생성 역할 / 평가 역할. 둘을 물리적으로 분리하는 게 자기 평가 편향의 해법.</dd>
+      <dt>Self-Eval Blindspot</dt><dd>자기 작업의 결함을 스스로는 못 보는 사각지대.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">28</span><h3>완성형 하네스 — research → plan → execute → review → ship</h3><span class="kind">조립</span></div>
+  <div class="script">
+    <p>앞의 부품들을 조립하면 이 파이프라인이 됩니다. 각 단계 전환마다 명시된 통과 조건이 있어야 하고, review의 갭 지적은 사람 개입 없이 execute로 되돌아가 수정됩니다. 이 패턴의 가장 강한 근거는 <strong>독립 재발명의 수렴</strong>입니다 — Superpowers, BMAD-METHOD, OpenSpec, Spec Kit처럼 서로 무관하게 만들어진 방법론들이 같은 구조에 도달했습니다. 계획 단계에서는 AI 기본값인 ‘수평 페이징’(DB 전부→API 전부→UI 전부)을 ‘수직 슬라이스’(매 단계 DB+API+UI 관통)로 재단해, 통합 리스크가 끝에 몰리는 걸 막습니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    research → plan → execute → review → ship 다섯 박스 가로 파이프라인. review에서 execute로 되돌아가는 루프 화살표에 “사람 개입 없이”가 적혀 있고, 아래에 상시 동작 부품 띠(CLAUDE.md·settings.json·훅·서브에이전트·사람=게이트), 최하단에 수평 페이징(빨강) vs 수직 슬라이스(파랑) 비교가 있습니다. (이 페이지는 이미지를 크게 쓰고 표는 왼쪽에 간략히 배치했습니다.)
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>수직 슬라이스</dt><dd>기능 하나를 DB부터 UI까지 세로로 관통해 완성하는 방식. 통합 문제를 매 단계에서 발견.</dd>
+      <dt>수평 페이징</dt><dd>계층별로 전부 만든 뒤 마지막에 합치는 방식. 통합 리스크가 끝에 몰림.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">29</span><h3>PLAN.md — 모호한 계획은 모호한 검증을 낳는다</h3><span class="kind">검증 가능한 계획</span></div>
+  <div class="script">
+    <p>PLAN.md의 요체는 문장 형식입니다. 요구사항·엣지 케이스를 <strong>체크박스 문장</strong>으로 쓰면 review 단계가 코드 변경(diff)과 기계적으로 대조할 수 있고, ‘범위 밖’ 절은 범위 밖 변경을 차단하는 근거가 됩니다. 오른쪽 예시처럼 “60회 초과 시 429 반환”, “한도는 환경변수로” 같은 요구사항이 곧 검증 항목이 됩니다. 계획 전에는 모델이 나를 인터뷰하게 해 모호성을 표면화하는 패턴이 유효합니다. 복선 하나 — 이 1회용 대조표는 4장에서 <strong>영구 재사용되는 골든셋</strong>으로 승격됩니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>diff</dt><dd>변경 전/후 코드 차이. review가 이걸 PLAN의 체크박스와 대조.</dd>
+      <dt>엣지 케이스</dt><dd>경계·예외 상황(예: 59초→61초 윈도우 경계). 각각 테스트 필요.</dd>
+      <dt>골든셋(golden set)</dt><dd>정답이 검증된 표준 테스트 케이스 모음. 매 변경마다 재채점하는 기준.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">30</span><h3>실물 하네스 해부 — carve-harness</h3><span class="kind">실물 케이스 1</span></div>
+  <div class="script">
+    <p>하네스는 이론이 아닙니다. 이 프로젝트가 실제로 쓰는 carve-harness는 4계층입니다 — <strong>강제 훅 8개</strong>(<code>.claude/hooks/</code>+settings.json, 툴 호출/프롬프트 자동, 결정적이라 차단은 exit 2), <strong>Squad 에이전트 9종</strong>(<code>/squad</code>로 부르는 단일 책임 위임), <strong>워크플로 스킬</strong>(자연어 또는 <code>/carve-*</code>로 절차 자동화), <strong>계약·규칙 문서</strong>(루트의 flight-rules 등, 단일 진실 출처). 대표 훅으로 block-destructive(포크밤·rm -rf 차단), protect-secrets(.env·키 차단), pre-push-test(테스트 실패 시 push 차단), anti-slop(시각 산출물 검사), precompact-handoff(압축 전 상태 인계)가 있습니다. 슬림화 결정으로 11→8 훅까지 줄였습니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>flight-rules</dt><dd>‘운영 규칙 문서’. 에이전트·훅이 참조하는 단일 진실 출처(계약).</dd>
+      <dt>포크밤(fork bomb)</dt><dd>프로세스를 무한 복제해 시스템을 마비시키는 악성 명령.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">31</span><h3>프로젝트 필수 하네스 구성 — API 포탈 (Spring + React)</h3><span class="kind">실물 케이스 2</span></div>
+  <div class="script">
+    <p>3기둥 위에 토큰 관리·SDD·게이트웨이 검증을 얹어 완성한 실제 구성입니다 — 한 번에 다 하지 말라는 게 교훈입니다. ① 에이전트 정의(back/front/gateway 역할 분리, AGENTS.md 계층), ② 스킬(세션 인계 handoff·결정 기록 changelog), ③ 훅(포맷·린트·머지 금지·커밋룰, 차단 exit 2), ④ 서브에이전트(타입·예외·시크릿·인증 검증, security-reviewer·evaluator), ⑤ 룰/가드레일(검증 가능한 규칙 md), ⑥⑦⑧ 토큰 관리·SDD 킷·게이트웨이 검증.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>SDD</dt><dd>Spec-Driven Development(명세 주도 개발). 스펙을 먼저 확정하고 그에 맞춰 개발.</dd>
+      <dt>GSD</dt><dd>Get Shit Done. 여기서 쓰는 SDD 킷(스펙→개발 자동화 도구)의 이름.</dd>
+      <dt>게이트웨이</dt><dd>클라이언트와 백엔드 사이에서 요청을 중계·검증하는 관문 서버.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">32</span><h3>토큰 관리 — 광고 수치와 실효 절감은 다르다</h3><span class="kind">토큰 매니지먼트</span></div>
+  <div class="script">
+    <p>토큰(모델이 처리하는 텍스트 단위)을 줄이는 도구 네 가지를 적층합니다 — headroom(API 페이로드를 프록시에서 압축, 광고 47~92%), caveman(Claude 출력을 전보문처럼 축약, 50~75%), LSP(코드 탐색을 좌표로 축소, 정의 43배), codesight(세션 시작 구조 파악을 압축 맵 1개로, 6.8배). <strong>단, 중요한 경고</strong> — 독립 실측(6억 1,400만 토큰 기준)에서 headroom+rtk+caveman 합산 실효 절감은 약 3.7%에 불과했습니다. 비용 대부분이 캐시 생성·출력 스트림인데, 이 도구들이 손대지 않는 부분이기 때문입니다. 광고 수치는 “특정 스트림 단독 최선값”이라는 걸 반드시 짚어야 합니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>토큰(token)</dt><dd>모델이 처리하는 텍스트 최소 단위(대략 단어 조각). 비용·한도의 계량 단위.</dd>
+      <dt>LSP</dt><dd>Language Server Protocol(언어 서버 프로토콜). 코드 심볼 위치를 좌표로 알려줘 본문 없이 탐색.</dd>
+      <dt>실효 절감</dt><dd>광고된 최대치가 아니라 실제 워크로드에서 체감되는 절감. 스트림 구성에 크게 의존.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">33</span><h3>Harness Handbook — “어디를 고칠지”가 병목이다</h3><span class="kind">하네스의 진화</span></div>
+  <div class="script">
+    <p>하네스도 코드라서 모델·API·요구사항이 바뀌면 계속 수정해야 하는데, 문제는 수정 요청은 “행동”을 말하고 레포는 “파일”로 조직돼 있다는 표현 불일치입니다. 하나의 행동이 여러 파일·단계·상태에 흩어져 있어 <strong>모든 구현 지점을 찾는 것(behavior localization)</strong>이 진화의 병목입니다. Tencent(텐센트)의 Harness Handbook은 정적 분석과 LLM으로 코드베이스를 행동 중심으로 재조직합니다 — L1 시스템 개요 → L2 컴포넌트 → L3 유닛 딥다이브 계층과 상태 레지스터 뷰로요. 결과 — 플랜 품질 승률이 +10.0~18.9%p, 플래너 토큰은 8.6~12.7% 줄어 품질과 비용을 동시에 개선했습니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    풀페이지 도해입니다. 왼쪽에 L1→L2→L3 3단 피라미드와 오른쪽 상태 레지스터(변수 상태) 뷰, ‘행동 → 소스 링크’ 화살표. 오른쪽에 결과 막대 세 개 — 플랜 품질 승률 +10.0/+18.9%p(보라), 플래너 토큰 −12.7/−8.6%, 완전 실패(Wrong) −25.9%p(초록). 하단에 제목과 “진화는 ‘수정을 생성’만이 아니라 ‘어디를 고칠지 아는’ 표현에 달렸다”는 정리.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>BGPD</dt><dd>Behavior-Guided Progressive Disclosure(행동 유도 점진 공개). L1→L2→L3로 필요한 만큼만 펼쳐 후보 지점을 찾는 기법.</dd>
+      <dt>pp / %p</dt><dd>퍼센트포인트. 승률이 40%→50%면 “+10%p”(비율의 절대 차이).</dd>
+      <dt>arXiv</dt><dd>논문 사전공개 저장소. ‘arXiv:2607.13285’는 그 논문 식별번호.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">34</span><h3>하네스는 진화한다 — 그리고 은퇴한다</h3><span class="kind">메타 원칙</span></div>
+  <div class="script">
+    <p>하네스는 완성품이 아니라 <strong>가정의 집합</strong>입니다. Anthropic 메타 원칙 — “하네스의 모든 컴포넌트는 ‘모델이 스스로 할 수 없는 것’에 대한 가정을 인코딩한다. 그 가정들은 스트레스 테스트할 가치가 있다.” 모델이 개선되면 일부 컴포넌트는 은퇴시켜야 합니다. 분기마다 세 질문 — 이 제약은 아직 필요한가? 이 피드백 루프가 잡는 문제가 아직 발생하는가? 새 모델로 가능해진 더 나은 패턴은 없는가? Fred Brooks가 1986년에 말했듯 “은탄환은 없다.” 오늘 시작하고, 실패에서 배우고, 계속 발전시키는 것뿐입니다. 남은 질문 하나 — 이 하네스의 결과물이 얼마나 좋은지는 누가 재는가? 4장 Evaluator로 이어집니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    위쪽에 Anthropic 메타 원칙 인용 박스. 아래에 6단계 여정 — ① 챗봇 버리기 → ② 자기 작업 재현 → ③ 퇴근 전 에이전트 → ④ 확실한 작업 위임 → ⑤ 하네스 엔지니어링(보라 강조) → ⑥ 항상 에이전트 실행. 지금 이 발표가 ⑤ 단계에 해당한다는 표시입니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>은탄환(silver bullet)</dt><dd>모든 문제를 단번에 푸는 만능 해법. 소프트웨어엔 없다는 고전 명제(Fred Brooks).</dd>
+      <dt>스트레스 테스트</dt><dd>가정이 여전히 유효한지 일부러 강하게 흔들어 확인하는 것.</dd>
+    </dl>
+  </div>
+</article>
+
+<!-- ═══════════════════ 4장 ═══════════════════ -->
+<div class="chap-div"><h2>4장 · Evaluator 설계</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">35</span><h3>4장 섹션 표지</h3><span class="kind">Section</span></div>
+  <div class="script"><p>4장은 결과를 ‘느낌’이 아니라 ‘지표’로 재는 법입니다. 채점기, 비결정성(pass@k vs pass^k), 3계층 게이트, 그리고 95점까지 자동으로 되먹이는 Evaluator Driven 평가 게이트 루프를 다룹니다.</p></div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">36</span><h3>완성형 하네스에도 남는 구멍</h3><span class="kind">왜 EVAL인가</span></div>
+  <div class="script">
+    <p>3장에서 파이프라인을 완성했지만 세 가지가 여전히 비어 있습니다. LLM 개발의 진짜 병목은 코드 생성이 아니라 <strong>검증</strong>입니다 — “구현 완료” 선언과 실제 사이의 간극(스텁만 있고 동작 안 함, 테스트 없음, 스펙 누락, 주장만 있고 코드 없음). ① 판정이 정성적 — review는 갭 있음/없음만 말하고 개선·회귀의 ‘정도’를 못 말합니다 → 루브릭 점수+임계값. ② 추이를 모른다 — 게이트는 이번 변경만 봅니다 → 골든셋 고정+매 변경 재채점으로 점수 시계열. ③ 배포 후 무방비 — 드리프트를 아무도 안 잽니다 → 온라인 모니터링+런타임 blocking eval. 하네스는 ‘올바르게 실행’하게 만들고, Evaluator는 ‘얼마나 잘하는지’를 숫자로 관리합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    3장의 파이프라인이 배경에 흐리게 깔리고, 그 위에 세 개의 ‘구멍’(① 정성 판정, ② 추이 없음, ③ 배포 후 무방비)이 빨간 테두리로 표시됩니다. 오른쪽 보라색 ‘Evaluator 층’ 패널이 세 구멍을 각각 덮는(루브릭 점수·점수 시계열·런타임 eval) 구도입니다.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>드리프트(drift)</dt><dd>배포 후 시간이 지나며 성능이 서서히 변(악)하는 현상.</dd>
+      <dt>루브릭(rubric)</dt><dd>채점 기준표. “이런 조건이면 몇 점” 식으로 품질을 점수화.</dd>
+      <dt>스텁(stub)</dt><dd>겉만 만들어 두고 실제 동작은 없는 껍데기 코드.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">37</span><h3>Eval의 3가지 본질 — 전통 테스트와 다른 점</h3><span class="kind">기초</span></div>
+  <div class="script">
+    <p>전통 테스트와 eval(평가)의 차이는 세 축입니다. ① <strong>판정이 이진이 아니라 통계적</strong> — 성공/실패 단언(assert)이 아니라 케이스 집합의 통과율·점수 분포입니다. eval 점수는 ‘문항 우주’에서 뽑은 표본이라, 노이즈 속의 측정 과학이에요. ② <strong>기준이 코드가 아니라 ‘성공 정의’에서 출발</strong> — “좋은 성능”(✕)이 아니라 “규정 수치를 정확히 인용하고 규정 외 약속을 하지 않는다”(○)처럼 측정 가능하게. ③ <strong>대상이 모델이 아니라 시스템 전체</strong> — 컨텍스트·플래닝·메모리·도구·가드레일이 결합된 컴파운드 시스템입니다. 셋 중 하나라도 빠지면 전통 QA의 연장선일 뿐 eval이 아닙니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    정삼각형의 세 꼭짓점에 ‘통계적 판정’, ‘성공 정의’, ‘시스템 수준’, 중심에 ‘Eval’이 있습니다. 각 꼭짓점 옆에 반례 한 줄(assert가 아니다 / “좋은 성능”이 아니다 / 모델 점수만이 아니다).
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>assert</dt><dd>“이 값은 반드시 X여야 한다”고 단언하는 이진 테스트. eval은 이걸 넘어 통과율·점수로 봄.</dd>
+      <dt>컴파운드 시스템</dt><dd>여러 부품이 결합된 복합 시스템. 모델 하나가 아니라 전체가 평가 대상.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">38</span><h3>채점기 3종 — 대체재가 아니라 조합이다</h3><span class="kind">채점기</span></div>
+  <div class="script">
+    <p>채점기는 셋을 섞어 씁니다 — 가능하면 결정적으로, 필요하면 LLM으로, 검증엔 사람. <strong>코드형</strong>(정규식 매칭·이진 테스트·정적 분석)은 빠르고 저렴·객관·재현 가능하지만 유효한 변형에 뻣뻣합니다. <strong>모델형(LLM-as-Judge)</strong>은 루브릭 점수·쌍대 비교·다중 Judge 합의로 유연하고 뉘앙스를 잡지만, 비결정적이고 비싸며 사람과 보정이 필요합니다. <strong>사람형</strong>(SME 리뷰·스팟체크·A/B)은 정답지 수준 품질이지만 비싸고 느립니다. 핵심 원칙 — 경로가 아니라 <strong>결과를 채점</strong>하세요. 에이전트가 예상 밖의 유효한 접근을 찾았을 때 감점하면 창의성을 벌하는 꼴입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>LLM-as-Judge</dt><dd>LLM을 채점관(Judge)으로 써서 산출물을 루브릭으로 평가하는 방식.</dd>
+      <dt>SME</dt><dd>Subject Matter Expert(해당 분야 전문가).</dd>
+      <dt>쌍대 비교</dt><dd>A안과 B안 중 어느 쪽이 나은지 둘씩 비교해 판정하는 방법.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">39</span><h3>pass@k vs pass^k — 능력과 일관성을 분리 측정</h3><span class="kind">비결정성</span></div>
+  <div class="script">
+    <p>같은 시스템이라도 어떤 지표로 재느냐에 따라 완전히 다른 숫자가 나옵니다. <strong>pass@k</strong>는 k번 중 <strong>한 번이라도</strong> 성공할 확률 — k가 커질수록 값이 올라갑니다. 이건 능력의 상한이에요(한 번의 성공이면 충분한 경우, 예: 코딩 첫 시도). <strong>pass^k</strong>는 k번 <strong>모두</strong> 성공할 확률 — k가 커질수록 값이 떨어집니다. 이건 일관성의 하한이고, 매번 신뢰가 필요한 고객 대면 에이전트의 기준입니다. 두 곡선의 간극 자체가 정보인데, 간극이 크면 “가끔 되는 시스템”이라는 신호입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    x축 k=1~10, y축 0~100%의 선 그래프입니다. 보라색 상승 곡선 pass@k는 100%로 접근하고, 검정 하강 곡선 pass^k는 0%로 접근합니다. k=1에서 두 곡선이 시도당 성공률 p(75%) 지점에서 만나고, 각 곡선에 수식이 붙어 있습니다.
+  </div>
+  <div class="block easy"><span class="tag">[쉬운 설명]</span>
+    주사위로 비유하면 — pass@k는 “여러 번 굴려서 한 번이라도 6이 나오면 성공”이라 굴릴수록 유리, pass^k는 “굴릴 때마다 매번 6이 나와야 성공”이라 굴릴수록 불리합니다. 시도당 75%라도 3번 연속 모두 성공(pass^3)은 0.75×0.75×0.75 ≈ <b>42%</b>로 뚝 떨어집니다. 데모는 pass@k로 빛나고, 프로덕션은 pass^k로 무너집니다.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">40</span><h3>3계층 게이트 — 결정론 → LLM-as-Judge → 사람</h3><span class="kind">온프레미스</span></div>
+  <div class="script">
+    <p>폐쇄망 실전 구성입니다. 1층 <strong>결정론적 게이트</strong>가 규칙화 가능한 것 전부를 하드 게이트로 걸러냅니다(컴파일·테스트·Checkstyle·ArchUnit·grep). 2층 <strong>로컬 vLLM Judge</strong>가 루브릭 G-Eval로 7.0 이상을 요구합니다. 3층 <strong>사람</strong>은 교정과 엣지케이스만 봅니다. 임계값은 유형별 허용 실패율로 — convention 5% / correctness 3% / <strong>domain_safety 0%</strong>(어떤 비율에서도 배포 차단). Judge 출력은 guided_json으로 <code>{score, reason}</code> 스키마를 토큰 단위로 강제하고 temperature 0으로 돌려, 매 실행이 흔들리지 않게 합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    위에서 아래로 좁아지는 깔때기 3단 — 1단 결정론(넓은 입구, “규칙화 가능한 것 전부”), 2단 LLM-as-Judge(중간, “주관 품질”), 3단 사람(좁은 출구, “교정·엣지만”). 오른쪽에 유형별 허용 실패율 세 칩(convention 5%, correctness 3%, domain_safety 0% — 이것만 빨강).
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>vLLM</dt><dd>오픈 모델을 회사 서버에서 빠르게 돌리는 추론 서버(프로그램).</dd>
+      <dt>G-Eval / guided_json</dt><dd>G-Eval=LLM으로 루브릭 채점하는 기법 / guided_json=출력을 정해진 JSON 스키마로 강제하는 기능.</dd>
+      <dt>ArchUnit / Checkstyle</dt><dd>ArchUnit=아키텍처 규칙을 테스트로 검사 / Checkstyle=코드 스타일 검사 도구(둘 다 Java).</dd>
+      <dt>temperature 0</dt><dd>모델 출력의 무작위성을 0으로 — 같은 입력이면 같은 답(재현성 확보).</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">41</span><h3>규칙으로 표현 가능한 것은 전부 결정론적으로</h3><span class="kind">결정론 우선</span></div>
+  <div class="script">
+    <p>LLM Judge보다 먼저, 규칙화 가능한 건 전부 결정론적으로 잡습니다. Run-AI 규약을 자동 검사로 매핑한 표입니다 — 컴파일/전체 테스트는 <code>./gradlew compileJava test</code>, 스타일·네이밍은 Checkstyle, “컨트롤러가 엔티티를 직접 반환 금지”는 ArchUnit으로, “연관관계는 LAZY”는 ArchUnit+grep으로 EAGER 패턴을 금지, “AI 호출은 컨트롤러 스레드에서 동기 금지”는 grep으로, “Flyway 기존 마이그레이션 미수정”은 CI diff 검사로. <strong>2장 A/B의 S4(마이그레이션)가 바로 여기서 회수됩니다</strong> — 모델이 모르던 팀 관례를 결정론 검사가 강제하는 거죠.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>LAZY / EAGER</dt><dd>연관 데이터를 ‘필요할 때만 불러오기(LAZY)’ vs ‘즉시 다 불러오기(EAGER)’. EAGER는 불필요한 대량 조회(N+1)를 유발해 금지.</dd>
+      <dt>Flyway</dt><dd>DB 마이그레이션 관리 도구. 기존 버전 파일은 불변, 새 버전만 추가.</dd>
+      <dt>grep</dt><dd>파일에서 특정 패턴 문자열을 찾는 명령. 금지 패턴 존재 여부 확인에 사용.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">42</span><h3>evaluation-criteria — 100점 정량 채점</h3><span class="kind">실물 채점표</span></div>
+  <div class="script">
+    <p>이 프로젝트가 실제 쓰는 100점 정량 채점표입니다. PASS 기준은 90점 이상이되, <strong>게이트 항목이 0점이면 나머지가 만점이어도 총점 무관 FAIL</strong>입니다. G1 빌드/타입체크(25점, 게이트), G2 테스트 통과(25, 게이트), G3 안전 위반 0건(15, 게이트) — 이 셋 중 하나라도 0이면 즉시 실패. 그 외 린트 10, 회귀 없음 10, 커버리지 5, anti-slop(시각 산출물 검사) 10. “좋은 결과”를 주관에 두지 않고 배점·규칙으로 못박은 겁니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>게이트 항목</dt><dd>0점이면 총점과 무관하게 전체를 실패시키는 필수 통과 조건.</dd>
+      <dt>커버리지(coverage)</dt><dd>테스트가 코드의 몇 %를 실제로 실행·검증했는지 비율.</dd>
+      <dt>anti-slop</dt><dd>그라데이션·글로우 등 AI 티 나는 조악한 시각 산출물을 걸러내는 검사.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">43</span><h3>Evaluator Driven 평가 게이트 — “구현했다”는 주장을 믿지 않는다</h3><span class="kind">EVALUATOR-DRIVEN 게이트</span></div>
+  <div class="script">
+    <p>이건 제가 직접 만든 하네스 서브시스템, <strong>Evaluator Driven 평가 게이트</strong>입니다. 항목마다 실제 코드와 대조·테스트해 0~100점으로 채점하고, 전 항목이 95점 이상이 될 때까지 개발↔검증 루프를 자동으로 돌립니다. 간극을 닫는 3장치 — ① <strong>전수 체크리스트</strong>: 스펙(성공 기준, SC)과 실제 git diff를 교차해 ‘구현 주장 요소’를 빠짐없이 열거(누락·허위 동시 포착). ② <strong>교차검증 채점</strong>: 항목마다 독립 2렌즈로 0~100점을 매기고 둘의 최솟값(min)을 채택(낙관 편향 차단). ③ <strong>95점 게이트 루프</strong>: 하나라도 95 미만이면 미진사항을 개발로 되먹여 재실행. 단, 테스트 인프라가 없는 프로토타입에는 못 씁니다 — test 축이 0이면 95가 구조적으로 불가능하니까요.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>SC</dt><dd>Success Criteria(성공 기준). 무엇이 완료인지 검증 가능한 문장으로 정의한 것.</dd>
+      <dt>2렌즈 min</dt><dd>서로 다른 두 관점으로 각각 채점한 뒤 <b>더 낮은 점수</b>를 택함. 한쪽이 후해도 통과 못 함.</dd>
+      <dt>낙관 편향</dt><dd>실제보다 잘됐다고 후하게 보는 경향. min 채택으로 차단.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">44</span><h3>게이트가 열릴 때까지 되먹인다</h3><span class="kind">EVALUATOR-DRIVEN 게이트 루프</span></div>
+  <div class="script">
+    <p>루프의 핵심은 게이트에서 되돌아가는 피드백 화살표입니다. 흐름 — 스펙 분해 → 개발/빌드(Generator) → 체크리스트 전수 열거 → 2렌즈 채점(read-only) → 게이트에서 “전 항목 95 이상?”, 아니면 미진사항(deficiencies)을 개발로 되먹이고, 맞으면 DONE. 무한 루프 방지를 위해 가드 셋 — 최대 반복 8회(MAX_ITER=8), 동일 오류 3회면 임의 판단으로 진행하지 않고 에스컬레이션 후 중단, 그리고 <strong>Generator와 Evaluator는 절대 같은 에이전트가 아님</strong>. 에이전트 간 통신은 항상 파일을 경유합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    좌→우 다섯 박스 파이프라인(스펙 분해 → 개발/빌드 → 체크리스트 열거 → 2렌즈 채점 → 게이트 ≥95)과 DONE. 게이트에서 ‘deficiencies 피드백’ 화살표가 위로 크게 돌아 개발/빌드로 복귀합니다. 하단에 가드 띠 — MAX_ITER=8 · 동일오류 3회→중단 · Generator≠Evaluator.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>read-only</dt><dd>읽기 전용. 채점 에이전트는 코드를 못 바꾸고 보기만 함(중립성 확보).</dd>
+      <dt>에스컬레이션</dt><dd>스스로 못 풀면 임의로 밀어붙이지 않고 상급(사람)에게 넘겨 판단받는 것.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">45</span><h3>5축 100점, 2렌즈 min — 테스트 없으면 95는 불가능</h3><span class="kind">EVALUATOR-DRIVEN 게이트 루브릭</span></div>
+  <div class="script">
+    <p>배점 설계 자체가 정책입니다. 5축 — exists(실제 구현 존재, 25) / match(코드가 주장과 일치, 25) / test(verify 명령 실제 실행·통과, 25) / contract(타입·에러·입력검증·인가 경계 안전, 15) / no-regress(기존 항목 퇴행 없음, 10). <strong>test 축이 25점이라, verify 명령을 실제로 실행해 통과하지 않으면 최대 75점</strong> — 95 게이트를 절대 못 넘습니다. 즉 루브릭이 사실상 테스트를 강제하는 거죠. 그리고 두 렌즈는 정적 대조(code-match)와 실제 실행(test-pass)이라는 독립 근거를 쓰고 min을 채택하므로, 한쪽이 후하게 줘도 소용없습니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽에 5축 가로 막대(exists 25 / match 25 / test 25 / contract 15 / no-regress 10, 배점 비례 길이. test 축에 “없으면 95 불가” 빨강 라벨). 오른쪽에 2렌즈 다이어그램 — code-match(정적) × test-pass(실행) → min → ‘항목 점수’, 아래 ‘낙관 편향 차단’.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">46</span><h3>하네스 통합 — Stop 게이트가 거짓 완료를 물리적으로 막는다</h3><span class="kind">EVALUATOR-DRIVEN 게이트 통합</span></div>
+  <div class="script">
+    <p>이건 별도 도구가 아니라 하네스의 여러 표면(커맨드·스킬·에이전트·워크플로)에 계약과 훅을 더한 통합입니다. 핵심은 <strong>Stop 훅</strong> — 응답이 끝나는 시점마다 SCORE.json을 스캔해서, 게이트 미달이면 exit 2로 “다 됐다” 선언 자체를 차단합니다. 상태별로 — 파일 없음/active:false면 통과, active:true인데 전 항목이 임계값 이상이면 통과, 미만 항목이 있으면 <strong>차단</strong>, 점수가 깨져 있으면(malformed) fail-closed로 역시 차단. 3장의 훅(요청→보증)에 4장의 점수가 꽂힌 형태로, 훅의 검사 내용이 정규식에서 점수로 바뀐 것입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>Stop 훅</dt><dd>에이전트가 응답을 마치려는 순간 자동 실행되는 검사. 미완인데 완료 선언하면 막음.</dd>
+      <dt>fail-closed</dt><dd>불확실하면 ‘안전한 쪽(차단)’으로 닫는 원칙. 점수 파일이 깨지면 통과가 아니라 차단.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">47</span><h3>워크스루 — 쿠폰 적용 API, 2회차 수렴</h3><span class="kind">워크스루</span></div>
+  <div class="script">
+    <p>실제 흐름을 쿠폰 적용 API로 봅니다. 회차 1 — 체크리스트 4항목을 채점했더니 C1:97, <strong>C2:70</strong>(중복검증 테스트 없음), <strong>C3:92</strong>(만료 경계 미검증), C4:100. 게이트가 차단되고, 미진사항이 “C2는 verify 테스트 추가·중복 시 409 반환”, “C3는 만료 경계 테스트” 같은 구체 지시로 내려갑니다. 회차 2 — 미달 2건만 재작업해 C2:96·C3:97로 게이트가 해제됩니다. 관찰 포인트 — <strong>전체 재생성이 아니라 미달 항목만 재작업</strong>했고, 종료는 선언이 아니라 게이트 해제라는 점입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    C1~C4 4항목의 회차1/회차2 점수 막대 차트입니다. 95점 합격선이 가로 점선으로 그어져 있고, 회차1의 C2(70)·C3(92)는 빨강, 회차2의 C2(96)·C3(97)은 초록입니다. 하단 타임라인에 차단 → 피드백 → DONE 3단계.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>409</dt><dd>HTTP 상태 코드 409 Conflict. “중복 요청” 같은 충돌을 알리는 응답.</dd>
+      <dt>수렴</dt><dd>루프를 돌수록 목표(전 항목 95)에 가까워져 결국 통과하는 것.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">48</span><h3>EDD 성숙도 — 바이브 체크에서 완전한 루프까지</h3><span class="kind">성숙도</span></div>
+  <div class="script">
+    <p>3장의 하네스 성숙도(Lv0~5)와 나란히 놓으면, 하네스 사다리를 오른 팀은 <strong>EDD 사다리의 부품을 이미 절반 갖고 있습니다</strong>. LV0 바이브 체크(채팅창에서 몇 개 돌려보고 배포)에서 시작해, LV1 골든셋+수동 채점(“3번·7번 케이스가 깨졌다”가 처음 가능), LV2 자동 채점, LV3 Judge+CI 게이트, LV4 런타임 가드레일, LV5 완전한 EDD 루프(실패→분류→최초 결정 지점 수정→골든셋 환류가 규정으로 회전)까지. 각 레벨의 ‘다음 행동’ 열이 실행 지침입니다 — 지금 팀이 어느 줄에 있는지 찾고 그 줄 오른쪽 칸부터 시작하면 됩니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>EDD</dt><dd>Evaluation-Driven Development(평가 주도 개발). 평가를 먼저 설계하고 그에 맞춰 개발.</dd>
+      <dt>환류(feedback loop)</dt><dd>운영 실패를 다시 골든셋에 되먹여 평가가 계속 진화하게 하는 순환.</dd>
+    </dl>
+  </div>
+</article>
+
+<!-- ═══════════════════ 5장 ═══════════════════ -->
+<div class="chap-div"><h2>5장 · 제대로 질문하고 제대로 평가하기</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">49</span><h3>5장 섹션 표지</h3><span class="kind">Section</span></div>
+  <div class="script"><p>마지막 5장은 프롬프트와 평가를 <strong>함께</strong> 설계하는 법입니다. 시작 로드맵, CI 게이트로 배포 결정, 가드레일의 실측 성능, 그리고 안티패턴 다섯 가지를 봅니다.</p></div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">50</span><h3>프롬프트와 Eval은 같은 산출물의 앞뒷면</h3><span class="kind">원리</span></div>
+  <div class="script">
+    <p>Anthropic 공식 문서는 LLM 앱 구축의 첫 단계를 “성공 기준을 명확히 정의하고 그것을 측정할 평가를 설계하는 것”으로 못박습니다. “좋은 답변” 같은 표현은 지시로도 채점 기준으로도 쓸 수 없습니다. 반면 “규정 수치를 정확히 인용하고 규정 외 약속을 하지 않는다”는 문장 하나가 <strong>프롬프트의 지시이자 동시에 채점 기준</strong>이 됩니다. 그리고 프롬프트 한 줄 수정도 코드와 똑같은 CI 게이트를 통과해야 합니다 — CLAUDE.md 변경도 결국 프롬프트 변경이니까요.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    중앙 상단에 ‘성공 기준’ 카드(“규정 수치 정확 인용, 규정 외 약속 금지”)가 있고, 거기서 좌우 두 갈래 화살표가 갈라져 왼쪽 ‘프롬프트(지시)’ 패널과 오른쪽 ‘Eval(채점 기준)’ 패널로 흘러갑니다. 같은 문장이 지시문 형태와 채점 기준 형태로 나뉘어 적혀 있고, 하단에 ‘같은 문장, 두 용도’.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">51</span><h3>시작 로드맵 — 완벽을 기다리지 마라</h3><span class="kind">시작</span></div>
+  <div class="script">
+    <p>eval을 미루는 흔한 이유가 “제대로 된 스위트부터”인데, 가이드는 정반대입니다. <strong>Step 0</strong> — 수백 개 필요 없습니다. 실제 실패에서 뽑은 20~50개면 강력하게 출발합니다. 초기 변경은 효과가 커서 작은 표본으로도 신호가 잡히고, 미룰수록 만들기 어려워집니다. <strong>Step 1</strong> — 이미 하는 것에서: 릴리스 전 수동 체크, 버그 트래커, CS 큐가 최고 소재입니다. <strong>Step 2</strong> — 모호하지 않게: 품질 기준은 “전문가 2명이 독립적으로 같은 합/불 판정”. 명세의 모호함이 곧 지표의 노이즈입니다. <strong>Step 3</strong> — 균형: 일어나야 하는 케이스와 일어나면 안 되는 케이스 모두. 신호 해석 — 프론티어 모델이 pass@100(100번 시도 중 1회 이상 통과)에서 0%면, 에이전트가 아니라 태스크가 깨진 신호입니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>스위트(suite)</dt><dd>테스트/평가 케이스 묶음.</dd>
+      <dt>참조 해법</dt><dd>모든 채점기를 통과하는 검증된 정답 출력. 풀이 가능성과 채점기를 동시에 증명.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">52</span><h3>프롬프트와 assert를 한 파일에서 — promptfoo</h3><span class="kind">실전</span></div>
+  <div class="script">
+    <p>promptfoo는 프롬프트·모델·검사(assert)를 YAML 한 파일에 둡니다. 결정적인 코드형 assert(contains=규정 수치 포함, not-contains=금칙어 없음, latency=응답 시간 게이트)와 정성 기준을 정량화하는 <strong>llm-rubric</strong>을 섞어 씁니다. 이렇게 하면 5장 첫 슬라이드의 ‘앞뒷면’이 물리적으로 한 파일이 됩니다. 프롬프트를 고칠 때마다 <code>npx promptfoo eval</code> 한 줄로 전 케이스를 재채점해 회귀를 즉시 잡습니다. 골든셋을 Claude로 늘릴 수도 있지만, 생성 문항은 반드시 인간이 검수해야 자기강화를 막습니다.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>promptfoo</dt><dd>프롬프트를 자동 평가·회귀 검사하는 오픈소스 도구.</dd>
+      <dt>YAML</dt><dd>사람이 읽기 쉬운 설정 파일 형식.</dd>
+      <dt>llm-rubric</dt><dd>LLM이 루브릭 기준으로 정성 품질을 점수화하는 assert 유형.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">53</span><h3>CI 게이트와 버전 비교 — 숫자로 배포를 결정</h3><span class="kind">배포 판정</span></div>
+  <div class="script">
+    <p>배포는 감이 아니라 숫자로 결정합니다. <strong>회귀 게이트</strong> — 매 PR에서 골든셋을 돌리고, 핵심 지표가 ±3% 넘게 떨어지면 빌드를 실패시킵니다. <strong>버전 비교는 짝지은 측정</strong>으로 — 같은 골든셋·같은 Judge에서 케이스별 점수차를 부트스트랩(재표집) 1만 회로 다시 뽑아 평균차의 90% 신뢰구간(CI)을 봅니다. CI가 0을 포함하면 유의하지 않으니 배포를 보류합니다. <strong>카나리</strong> — 트래픽 5%를 신버전에 보내 온라인 eval로 대조군과 비교하고, 안정·개선일 때만 승격합니다. 통계 주의 — 표본을 키우면 사소한 차이도 ‘유의’해지므로, p값이 아니라 효과 크기(CI 폭)·비용·지연을 함께 봐야 합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    좌→우 흐름도 — PR → 골든셋 실행 → 판정 다이아몬드(“delta ≤ −3%?”)에서 예(빨강)면 ‘빌드 실패’, 아니오(파랑)면 ‘머지’ → 카나리 5% → 승격. 하단 각주 “부트스트랩 90% CI가 0을 포함하면 배포 보류”.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>부트스트랩(bootstrap)</dt><dd>가진 데이터에서 무작위 재표집을 반복해 통계의 불확실성(신뢰구간)을 추정하는 방법.</dd>
+      <dt>신뢰구간(CI)</dt><dd>참값이 들어있을 범위. 90% CI가 0을 포함 = “차이가 없을 수도 있다”.</dd>
+      <dt>카나리(canary)</dt><dd>소수 트래픽에 먼저 배포해 이상을 조기에 감지하는 방식(탄광 카나리에서 유래).</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">54</span><h3>가드레일 — “달았다”와 “막힌다”는 다르다</h3><span class="kind">런타임 방어선</span></div>
+  <div class="script">
+    <p>가드레일을 ‘달았다’는 것과 실제로 ‘막힌다’는 건 다릅니다. TRIAD 벤치마크 실측(프롬프트 인젝션 공격 기준)에서 — 대표 가드레일들의 평균 탐지 <strong>recall(재현율)이 58.57%</strong>, 탐지해도 실제 차단 성공률은 <strong>37.26% 미만</strong>, 차단 후 원래 정상 과제를 보존한 비율은 <strong>2.31% 미만</strong>으로 단계마다 급감합니다. 그래서 허용/거부 이진 대신 <strong>proceed / refuse / update 3중 판정</strong>과 구조화된 언어 피드백을 컨텍스트에 주입하는 폐쇄 루프가 대안입니다. 결론 — 가드레일 자체를 공격 데이터셋으로 정기 평가하고, recall과 차단률을 분리 측정해야 합니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    왼쪽에 위→아래로 급감하는 가로 막대 세 개 — 탐지 recall 58.57%, 차단 37.26% 미만, 정상 과제 보존 2.31% 미만(마지막만 빨강). 오른쪽에 proceed/refuse/update 3분기 다이어그램과 “구조화 피드백을 컨텍스트에 주입”.
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>가드레일(guardrail)</dt><dd>런타임에 위험 입출력을 차단·재시도·폴백하는 방어선.</dd>
+      <dt>recall(재현율)</dt><dd>실제 공격 중 실제로 탐지해낸 비율. 58.57%면 절반 넘게 놓친다는 뜻.</dd>
+      <dt>프롬프트 인젝션</dt><dd>악의적 문구를 입력에 심어 모델의 지시를 탈취·우회하는 공격.</dd>
+      <dt>proceed/refuse/update</dt><dd>진행/거부/수정 — 이진이 아니라 3중 판정으로 정상 과제를 보존.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">55</span><h3>트랜스크립트를 읽어라 — 점수를 액면 그대로 믿지 마라</h3><span class="kind">마지막 규율</span></div>
+  <div class="script">
+    <p>점수는 트랜스크립트(실행 기록 전문)를 읽기 전까지 믿지 않는 게 규율입니다. 실패는 공정해 보여야 합니다 — 무엇을 왜 틀렸는지 명확해야 하죠. 실사례 둘 — <strong>CORE-Bench</strong>에서 어떤 모델의 42%는 채점기가 “96.124991…”을 기대하며 “96.12”를 벌하는 식의 경직 채점 탓이었고, 명세·재현 문제를 고치자 95%로 급등했습니다. 범인은 에이전트가 아니라 채점기였던 거죠. <strong>METR</strong>은 임계값까지 최적화하라 해놓고 채점은 초과해야 통과시키는 역설을 보였습니다 — 지시를 따른 모델이 벌점, 무시한 모델이 고득점. 신호 경보 — 일괄 0%는 태스크·환경 결함, 일괄 100%는 포화(saturation)라 축하가 아니라 문항 교체 신호입니다. SWE-bench Verified가 1년 만에 40%→80%+로 포화에 접근했죠.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>트랜스크립트</dt><dd>에이전트가 실제로 무엇을 했는지의 전체 기록(대화·명령·결과).</dd>
+      <dt>포화(saturation)</dt><dd>거의 모두 통과해 변별력이 사라진 상태. 더 어려운 문항으로 교체할 신호.</dd>
+      <dt>CORE-Bench / METR / SWE-bench</dt><dd>대표적인 에이전트/코딩 평가 벤치마크들.</dd>
+    </dl>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">56</span><h3>안티패턴 5가지</h3><span class="kind">함정과 점검</span></div>
+  <div class="script">
+    <p>다섯 안티패턴은 이번 발표에서 다룬 규율의 반대편입니다 — ① 완벽한 스위트를 기다림(→ 실패 20~50건으로 즉시 시작), ② 검증 없는 Judge 전면 도입(→ 인간 일치율 κ≥0.6 통과 지표에만 단계 도입), ③ 오차 범위 없는 델타 판정(→ 표본 크기 기반 허용치+pass^k 병행), ④ 가드레일 설치 후 방치(→ 공격셋으로 recall·차단률 정기 측정), ⑤ 모델 수준 점수만 관리(→ 파이프라인+아티팩트 전체를 평가 범위로). 오른쪽 자가 점검 여섯 문항 중 세 개 이상 ‘아니오’면, eval보다 성공 기준 문서화부터 시작하세요.</p>
+  </div>
+  <div class="block terms"><span class="tag">[용어]</span>
+    <dl>
+      <dt>κ (Cohen’s kappa)</dt><dd>두 평가자(사람↔Judge)의 일치도 계수. 0.6 미만이면 Judge를 신뢰할 수 없어 루브릭 재작성.</dd>
+      <dt>델타(delta)</dt><dd>버전 간 점수 차이. 오차 범위(신뢰구간) 없이 델타만 보면 오판.</dd>
+    </dl>
+  </div>
+</article>
+
+<!-- ═══════════════════ 결론 ═══════════════════ -->
+<div class="chap-div"><h2>결론</h2></div>
+
+<article class="note">
+  <div class="head"><span class="num">57</span><h3>엔진이 아니라, 차를 운전하라</h3><span class="kind">Conclusion</span></div>
+  <div class="script">
+    <p>다섯 장의 여정을 요약합니다 — 바이브 코딩의 리스크(1장)에서 출발해, 에이전트를 모델과 하네스로 분해하고(2장), 성숙도 사다리로 하네스를 조립하고(3장), Evaluator로 판정을 숫자로 바꾸고(4장), 프롬프트와 eval을 한 몸으로 설계했습니다(5장). 성실하게 쌓은 하네스는 EDD 부품을 이미 절반 이상 갖고 있고, 순서는 정해져 있습니다 — 하네스 없는 EDD는 측정할 파이프라인이 없고, EDD 없는 하네스는 성장을 감에 맡깁니다.</p>
+    <p>마무리 메시지는 이렇습니다. <strong>모델(엔진)이 어떻게 바뀌든, 우리가 고치고 능숙하게 운전하는 것은 차량 — 즉 하네스+Evaluator입니다.</strong> 엔진은 계속 교체되지만, 잘 굴러가는 차를 만들고 능숙하게 모는 역량이 진짜 자산입니다.</p>
+  </div>
+  <div class="block img"><span class="tag">[이미지]</span>
+    다크 배경 도해입니다. 위쪽에 1~5장 여정 스테이션 다섯 개, 아래쪽에 ‘부품 승격’ 4쌍 — 하네스 자산(검증 서브에이전트·PLAN.md·훅·커맨드 점검)이 화살표로 EDD 부품(LLM-as-Judge·골든셋·Blocking eval·CI 평가 게이트)으로 승격됩니다. 맨 아래 띠 — “엔진이 어떻게 바뀌든, 차량(하네스+Evaluator)을 고치고 능숙하게 운전하라”.
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">58</span><h3>질문과 토론 (Q&amp;A)</h3><span class="kind">Q&amp;A</span></div>
+  <div class="script">
+    <p>여기서 질문을 받습니다. 자주 나오는 질문 대비 — “우리 팀은 어디부터?” → Lv.1 CLAUDE.md 5분 + 실패 20~50건 골든셋. “Judge를 믿어도 되나?” → 사람 라벨 100건과 κ≥0.6 검증 전엔 게이트로 쓰지 말 것. “온프레미스인데 실시간 차단 훅이 없다” → AGENTS.md(소프트)+커밋 게이트(하드) 2계층으로 이중화. 편하게 물어봐 주세요.</p>
+  </div>
+</article>
+
+<article class="note">
+  <div class="head"><span class="num">59</span><h3>감사합니다</h3><span class="kind">Thank You</span></div>
+  <div class="script">
+    <p>들어주셔서 감사합니다. 발표자는 빌런입니다. 질문이나 협업은 이메일로, 하네스 참고자료는 GitHub 저장소를 봐주세요.</p>
+  </div>
+  <div class="block terms"><span class="tag">[연락처]</span>
+    <dl>
+      <dt>이메일</dt><dd>villainscode@gmail.com</dd>
+      <dt>하네스 참고자료</dt><dd><code>https://github.com/claude-code-expert/carve-harness</code></dd>
+    </dl>
+  </div>
+</article>
+
+</div>
+</body>
+</html>

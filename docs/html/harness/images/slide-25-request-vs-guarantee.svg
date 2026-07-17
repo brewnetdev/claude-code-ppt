@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="요청 층과 보증 층 2층 다이어그램: 상층 확률적 요청, 하층 결정적 보증, 사이에 승격 화살표">
+<defs>
+<marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+</defs>
+<style>
+text{font-family:"IBM Plex Sans KR",sans-serif;}
+.mono{font-family:"JetBrains Mono",monospace;}
+.title{font-size:30px;font-weight:700;fill:#282a36;}
+.head{font-size:27px;font-weight:700;}
+.chip{font-size:22px;font-weight:500;fill:#282a36;}
+.foot{font-size:19px;font-weight:400;fill:#59617a;}
+.prom{font-size:24px;font-weight:700;fill:#644ac9;}
+.promsub{font-size:19px;font-weight:400;fill:#59617a;}
+</style>
+
+<text class="title" x="24" y="44">요청 층 vs 보증 층</text>
+
+<!-- ===== 상층: 요청 층 (확률적, muted) ===== -->
+<rect x="40" y="68" width="740" height="200" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="head" x="64" y="112" fill="#59617a">요청 층 — 확률적 준수</text>
+
+<rect x="64" y="132" width="210" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="169" y="161" text-anchor="middle" dominant-baseline="central"><tspan class="mono">CLAUDE.md</tspan> 규칙</text>
+
+<rect x="305" y="132" width="210" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="410" y="161" text-anchor="middle" dominant-baseline="central">스킬 지시</text>
+
+<rect x="546" y="132" width="210" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="651" y="161" text-anchor="middle" dominant-baseline="central">프롬프트</text>
+
+<text class="foot" x="64" y="236">각주: 컨텍스트가 차면 누락될 수 있음</text>
+
+<!-- ===== 승격 화살표 ===== -->
+<line x1="110" y1="278" x2="110" y2="342" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+<text class="prom" x="140" y="300">승격</text>
+<text class="promsub" x="140" y="326">같은 실수 2회 → 규칙 후보</text>
+<text class="promsub" x="140" y="349">‘반드시’ 수준이면 훅으로</text>
+
+<!-- ===== 하층: 보증 층 (결정적, accent) ===== -->
+<rect x="40" y="352" width="740" height="244" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<text class="head" x="64" y="396" fill="#644ac9">보증 층 — 결정적 강제</text>
+
+<rect x="64" y="414" width="331" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="229" y="443" text-anchor="middle" dominant-baseline="central"><tspan class="mono">Pre / PostToolUse</tspan> 훅</text>
+
+<rect x="425" y="414" width="331" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="590" y="443" text-anchor="middle" dominant-baseline="central"><tspan class="mono">Stop</tspan> 훅</text>
+
+<rect x="64" y="482" width="331" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="229" y="511" text-anchor="middle" dominant-baseline="central"><tspan class="mono">settings.json deny</tspan></text>
+
+<rect x="425" y="482" width="331" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="chip" x="590" y="511" text-anchor="middle" dominant-baseline="central"><tspan class="mono">CI</tspan> 게이트</text>
+
+<text class="foot" x="64" y="576">각주: <tspan class="mono" fill="#c93030" font-weight="700">exit 2</tspan> 차단 — 모델 의지와 무관</text>
+</svg>

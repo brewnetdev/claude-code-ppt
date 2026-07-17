@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="하네스의 세 기둥: 제약·피드백 루프·상태 관리가 신뢰 가능한 에이전트를 떠받치고, 피드백 기둥에 자기 리뷰(약)→독립 리뷰어(중)→자동 검증(강)">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+  </defs>
+  <style>
+    .t-title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+    .roof{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#644ac9}
+    .p-head{font-family:"IBM Plex Sans KR",sans-serif;font-size:25px;font-weight:700;fill:#282a36}
+    .p-en{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#59617a}
+    .p-q{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:500;fill:#282a36}
+    .mean{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:500;fill:#282a36}
+    .mono{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#282a36}
+    .step{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:700;fill:#282a36}
+    .step-a{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:700;fill:#644ac9}
+    .cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a}
+    .chip{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:600;fill:#282a36}
+  </style>
+
+  <text class="t-title" x="24" y="42">하네스의 세 기둥</text>
+
+  <!-- roof: goal -->
+  <rect x="48" y="64" width="724" height="54" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="roof" x="410" y="99" text-anchor="middle">신뢰 가능한 에이전트</text>
+
+  <!-- pillar 1: 제약 -->
+  <rect x="48" y="124" width="224" height="430" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-head" x="160" y="162" text-anchor="middle">제약</text>
+  <text class="p-en" x="160" y="184" text-anchor="middle">Constraints</text>
+  <line x1="66" y1="198" x2="254" y2="198" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-q" x="160" y="228" text-anchor="middle">무엇을 하지 못하게<tspan x="160" dy="1.2em">할 것인가?</tspan></text>
+  <rect x="66" y="282" width="7" height="7" fill="#59617a"/>
+  <text class="mono" x="88" y="290">CLAUDE.md</text>
+  <text class="mean" x="88" y="314">규칙 주입</text>
+  <rect x="66" y="338" width="7" height="7" fill="#59617a"/>
+  <text class="mono" x="88" y="346">allowed_tools</text>
+  <text class="mean" x="88" y="370">도구 제한</text>
+  <rect x="66" y="394" width="7" height="7" fill="#59617a"/>
+  <text class="mean" x="88" y="402">커스텀 린터 ·</text>
+  <text class="mean" x="88" y="426">구조 테스트</text>
+
+  <!-- pillar 2: 피드백 루프 (aligned column) -->
+  <rect x="298" y="124" width="224" height="430" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-head" x="410" y="162" text-anchor="middle">피드백 루프</text>
+  <text class="p-en" x="410" y="184" text-anchor="middle">Feedback Loops</text>
+  <line x1="314" y1="198" x2="506" y2="198" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-q" x="410" y="228" text-anchor="middle">실수를 어떻게<tspan x="410" dy="1.2em">잡을 것인가?</tspan></text>
+  <text class="cap" x="418" y="292" text-anchor="middle">강도: 약 → 강</text>
+  <!-- step 3 strong (top) -->
+  <rect x="326" y="300" width="168" height="52" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="step-a" x="410" y="328" text-anchor="middle">자동 검증</text>
+  <text class="cap" x="410" y="347" text-anchor="middle">가장 강함</text>
+  <!-- step 2 medium -->
+  <rect x="326" y="362" width="168" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="step" x="410" y="390" text-anchor="middle">독립 리뷰어</text>
+  <text class="cap" x="410" y="409" text-anchor="middle">중간</text>
+  <!-- step 1 weak (bottom) -->
+  <rect x="326" y="424" width="168" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="step" x="410" y="452" text-anchor="middle">자기 리뷰</text>
+  <text class="cap" x="410" y="471" text-anchor="middle">가장 약함</text>
+
+  <!-- pillar 3: 상태 관리 -->
+  <rect x="548" y="124" width="224" height="430" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-head" x="660" y="162" text-anchor="middle">상태 관리</text>
+  <text class="p-en" x="660" y="184" text-anchor="middle">State Mgmt</text>
+  <line x1="566" y1="198" x2="754" y2="198" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="p-q" x="660" y="228" text-anchor="middle">맥락을 어떻게<tspan x="660" dy="1.2em">유지할 것인가?</tspan></text>
+  <rect x="566" y="282" width="7" height="7" fill="#59617a"/>
+  <text class="mean" x="588" y="290">파일 핸드오프</text>
+  <rect x="566" y="338" width="7" height="7" fill="#59617a"/>
+  <text class="mean" x="588" y="346">컨텍스트 리셋 ·</text>
+  <text class="mean" x="588" y="370">컴팩션</text>
+  <rect x="566" y="394" width="7" height="7" fill="#59617a"/>
+  <text class="mean" x="588" y="402">서브에이전트 격리</text>
+
+</svg>

@@ -251,8 +251,9 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       },
       {
         level: 9,
-        label: '클로드 코드 딥 다이브',
-        topic: '에이전트 내부 동작·소스 분석',
+        label: '하네스 엔지니어링 · Evaluator 제어',
+        topic: '바이브→검증된 코딩 · 하네스 5단계 · Evaluator 설계 · EDD 평가 게이트',
+        deckId: 'claude-code-harness-evaluator',
       },
       {
         level: 10,
