@@ -2306,6 +2306,47 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
+    <div class="t-chapter" data-block-id="bWhSetupLbl"><span style="letter-spacing: 1.98px;">4.3.4 작업 완료 시 알림 받기 - NOTIFICATION</span></div>
+    <div class="t-title" data-block-id="bWhSetupTtl">Slack Webhook 개설·연동 — URL 발급부터 환경변수 등록까지</div>
+    <div style="margin-top:12px; border:1px solid var(--border); border-radius:6px; background:rgba(15,118,110,0.05); padding:11px 16px; font-size:15px; line-height:1.5; color:#0F172A;" data-block-id="bWhSetupIntro"><strong>Webhook</strong> = 이벤트 발생 시 미리 등록한 URL로 데이터를 자동으로 쏘는 방식 — Slack이 발급한 URL 하나에 메시지를 POST하면 지정 채널에 글이 뜬다. 이 장은 그 URL을 <strong>발급받아 환경변수로 등록</strong>하는 절차다.</div>
+    <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px;" data-block-id="bWhSetupGrid">
+      <div style="border:1px solid var(--border); border-radius:6px; padding:4px 16px 8px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:#0F766E; letter-spacing:0.06em; padding:9px 0 5px;">STEP · 개설 4단계</div>
+        <div style="display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px; line-height:1.5; color:#0F172A;"><span style="font-family:'JetBrains Mono',monospace; color:#0F766E; font-weight:700; flex:0 0 auto;">①</span><div><strong>Create App</strong> — <code style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">api.slack.com/apps</code> → "From scratch", 앱 이름·워크스페이스 선택</div></div>
+        <div style="display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px; line-height:1.5; color:#0F172A;"><span style="font-family:'JetBrains Mono',monospace; color:#0F766E; font-weight:700; flex:0 0 auto;">②</span><div><strong>Incoming Webhooks</strong> — 앱 설정 좌측 메뉴에서 상단 토글을 <strong>On</strong></div></div>
+        <div style="display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px; line-height:1.5; color:#0F172A;"><span style="font-family:'JetBrains Mono',monospace; color:#0F766E; font-weight:700; flex:0 0 auto;">③</span><div><strong>Add to Workspace</strong> — 알림 받을 채널(<code style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">#dev-alerts</code>) 선택 → 허용</div></div>
+        <div style="display:flex; gap:10px; padding:9px 0; font-size:14px; line-height:1.5; color:#0F172A;"><span style="font-family:'JetBrains Mono',monospace; color:#0F766E; font-weight:700; flex:0 0 auto;">④</span><div><strong>Copy URL</strong> — <code style="font-family:'JetBrains Mono',monospace; font-size:12px;">hooks.slack.com/services/T.../B.../...</code> 복사</div></div>
+      </div>
+      <div class="code-block" style="font-size:12.5px;">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+<pre><code><span class="gray"># macOS · Linux — 셸 프로필에 export</span>
+export SLACK_WEBHOOK_URL=<span class="cyan">"https://hooks.slack.com/..."</span>
+source ~/.zshrc        <span class="gray"># 또는 새 터미널</span>
+
+<span class="gray"># Windows — setx (새 터미널부터 적용)</span>
+setx SLACK_WEBHOOK_URL <span class="cyan">"https://hooks.slack.com/..."</span>
+
+<span class="gray"># WSL — Windows 값 미전달 → WSL ~/.bashrc 에 export</span>
+
+<span class="gray"># 연동 테스트 (macOS·Linux·WSL)</span>
+curl -X POST -H <span class="cyan">'Content-type: application/json'</span> \
+  --data <span class="cyan">'{"text":"연동 테스트"}'</span> $SLACK_WEBHOOK_URL</code></pre>
+      </div>
+    </div>
+    <div style="margin-top:14px; border:1px solid var(--border); border-radius:6px; padding:13px 16px; font-size:14.5px; line-height:1.55; color:#0F172A;" data-block-id="bWhSetupSec"><span style="font-family:'JetBrains Mono',monospace; color:#0F766E; font-size:13px; font-weight:700; margin-right:11px;">보안</span>이 URL 자체가 <strong>비밀번호</strong>다 — 아는 사람은 누구나 그 채널에 글을 쓸 수 있다. 코드·settings.json에 하드코딩 금지, <strong>환경변수로만</strong>. 실수로 커밋했다면 Slack 앱에서 <code style="font-family:'JetBrains Mono',monospace; font-size:13px;">revoke</code> 후 재발급.</div>
+  </div>
+  <div class="slide-footer" spellcheck="false">
+    <span class="slide-footer-left">4.3.4 알림 Hook</span>
+    <span class="slide-footer-right">31</span>
+  </div>
+</div>
+</div>
+</section>
+<section class="export-slide" data-index="30">
+<div class="export-stage slide-canvas-host">
+<div class="slide" data-template="report">
+  <div class="slide-topbar"></div>
+  <div class="slide-inner" spellcheck="false">
     <div class="t-chapter" data-block-id="bSpwtQanV"><span style="letter-spacing: 1.98px;">4.3.4 작업 완료 시 알림 받기 - NOTIFICATION</span></div>
     <div class="t-title" data-block-id="bN2W98TTC">알림 Hook — 권한 요청·완료 통지 (Slack 알림)</div>
     
@@ -2335,12 +2376,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.4 알림 Hook</span>
-    <span class="slide-footer-right">31</span>
+    <span class="slide-footer-right">32</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="30">
+<section class="export-slide" data-index="31">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2372,12 +2413,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.4 알림 Hook</span>
-    <span class="slide-footer-right">32</span>
+    <span class="slide-footer-right">33</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="31">
+<section class="export-slide" data-index="32">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2411,12 +2452,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.5 가드레일 — 보호 파일</span>
-    <span class="slide-footer-right">33</span>
+    <span class="slide-footer-right">34</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="32">
+<section class="export-slide" data-index="33">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2448,12 +2489,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.5 가드레일 — 보호 파일</span>
-    <span class="slide-footer-right">34</span>
+    <span class="slide-footer-right">35</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="33">
+<section class="export-slide" data-index="34">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2485,12 +2526,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.6 가드레일 — lint·tsc</span>
-    <span class="slide-footer-right">35</span>
+    <span class="slide-footer-right">36</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="34">
+<section class="export-slide" data-index="35">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2524,12 +2565,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.6 가드레일 — lint·tsc</span>
-    <span class="slide-footer-right">36</span>
+    <span class="slide-footer-right">37</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="35">
+<section class="export-slide" data-index="36">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2555,12 +2596,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.6 가드레일 — lint·tsc</span>
-    <span class="slide-footer-right">37</span>
+    <span class="slide-footer-right">38</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="36">
+<section class="export-slide" data-index="37">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2591,12 +2632,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.6 가드레일 — lint·tsc</span>
-    <span class="slide-footer-right">38</span>
+    <span class="slide-footer-right">39</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="37">
+<section class="export-slide" data-index="38">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2620,12 +2661,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.3.6 가드레일 — lint·tsc</span>
-    <span class="slide-footer-right">39</span>
+    <span class="slide-footer-right">40</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="38">
+<section class="export-slide" data-index="39">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2646,12 +2687,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer">
     <span class="slide-footer-left">4.3.7 주의사항·디버깅</span>
-    <span class="slide-footer-right">40</span>
+    <span class="slide-footer-right">41</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="39">
+<section class="export-slide" data-index="40">
 <div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
@@ -2665,12 +2706,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">04 · 4.4 MCP</span>
-    <span class="slide-footer-right">41</span>
+    <span class="slide-footer-right">42</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="40">
+<section class="export-slide" data-index="41">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2682,13 +2723,13 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.1 MCP Transport</span>
-    <span class="slide-footer-right">42</span>
+    <span class="slide-footer-right">43</span>
   </div>
 <img class="export-overlay" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDE4IDU1NCIgZm9udC1mYW1pbHk9IidJQk0gUGxleCBTYW5zIEtSJywnUHJldGVuZGFyZCcsJ05vdG8gU2FucyBLUicsc2Fucy1zZXJpZiI+CiAgPCEtLSB0aXRsZSAtLT4KICA8dGV4dCB4PSI0MCIgeT0iNDQiIGZvbnQtc2l6ZT0iMjYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxRTI5M0IiPk1DUCDigJQgQUnrpbwg7JyE7ZWcIO2RnOykgCDsl7DqsrAg7Y+s7Yq4PC90ZXh0PgogIDx0ZXh0IHg9IjQwIiB5PSI3NCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzY0NzQ4QiI+VVNCLUPsspjrn7wsIO2UhOuhnO2GoOy9nCDtlZjrgpjroZwg66qo65OgIOyZuOu2gCDrj4TqtazsmYAg642w7J207YSw66W8IOqwmeydgCDrsKnsi53snLzroZwg7Jew6rKw7ZWc64ukPC90ZXh0PgoKICA8IS0tIGhvc3QgYm94IC0tPgogIDxyZWN0IHg9IjQwIiB5PSIxMzAiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzMwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMSIgcng9IjYiLz4KICA8dGV4dCB4PSI2NiIgeT0iMTcyIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMUUyOTNCIj5NQ1AgSG9zdDwvdGV4dD4KICA8dGV4dCB4PSI2NiIgeT0iMTk4IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNjQ3NDhCIj5DbGF1ZGUgQ29kZSDCtyBDbGF1ZGUg7JWxIMK3IOq4sO2DgCBBSSDrj4Tqtaw8L3RleHQ+CiAgPHJlY3QgeD0iNjYiIHk9IjIzMCIgd2lkdGg9IjI0OCIgaGVpZ2h0PSI4NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEY3NjZFIiBzdHJva2Utd2lkdGg9IjEuNSIgcng9IjYiLz4KICA8dGV4dCB4PSI5MCIgeT0iMjY2IiBmb250LXNpemU9IjE3IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMEY3NjZFIj5NQ1AgQ2xpZW50PC90ZXh0PgogIDx0ZXh0IHg9IjkwIiB5PSIyOTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NDc0OEIiPuyEnOuyhOuniOuLpCAxOjEg7Jew6rKw7J2EIOycoOyngDwvdGV4dD4KICA8dGV4dCB4PSI2NiIgeT0iNDI0IiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTRBM0I4Ij7tmLjsiqTtirjripQg7ISc67KE6rCAIOustOyXh+ydtOuToDwvdGV4dD4KICA8dGV4dCB4PSI2NiIgeT0iNDQ0IiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTRBM0I4Ij7qsJnsnYAg7ZSE66Gc7Yag7L2c66GcIOuMgO2ZlO2VnOuLpDwvdGV4dD4KCiAgPCEtLSBwcm90b2NvbCBodWIgYmFyIC0tPgogIDxyZWN0IHg9IjQyNCIgeT0iMTMwIiB3aWR0aD0iNTIiIGhlaWdodD0iMzMwIiBmaWxsPSIjRjVGM0YwIiBzdHJva2U9IiMwRjc2NkUiIHN0cm9rZS13aWR0aD0iMS41IiByeD0iNiIvPgogIDx0ZXh0IHg9IjQ1NiIgeT0iMjk1IiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMEY3NjZFIiB0cmFuc2Zvcm09InJvdGF0ZSgtOTAgNDU2IDI5NSkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1DUCDtlITroZzthqDsvZw8L3RleHQ+CgogIDwhLS0gY2xpZW50IHRvIGh1YiAtLT4KICA8bGluZSB4MT0iMzE0IiB5MT0iMjczIiB4Mj0iNDI0IiB5Mj0iMjczIiBzdHJva2U9IiMwRjc2NkUiIHN0cm9rZS13aWR0aD0iMS41Ii8+CgogIDwhLS0gaHViIHRvIHNlcnZlcnMgLS0+CiAgPGxpbmUgeDE9IjQ3NiIgeTE9IjE3NSIgeDI9IjU2MCIgeTI9IjE3NSIgc3Ryb2tlPSIjQzVDMkJDIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxsaW5lIHgxPSI0NzYiIHkxPSIyOTUiIHgyPSI1NjAiIHkyPSIyOTUiIHN0cm9rZT0iI0M1QzJCQyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8bGluZSB4MT0iNDc2IiB5MT0iNDE1IiB4Mj0iNTYwIiB5Mj0iNDE1IiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMS41Ii8+CgogIDwhLS0gc2VydmVyIGJveGVzIC0tPgogIDxyZWN0IHg9IjU2MCIgeT0iMTMwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjkwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMSIgcng9IjYiLz4KICA8dGV4dCB4PSI1ODQiIHk9IjE2NiIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFFMjkzQiI+TUNQIFNlcnZlciDigJQgR2l0SHViPC90ZXh0PgogIDx0ZXh0IHg9IjU4NCIgeT0iMTkyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjQ3NDhCIj5QUiDCtyDsnbTsioggwrcg7L2U65OcIOumrOu3sDwvdGV4dD4KCiAgPHJlY3QgeD0iNTYwIiB5PSIyNTAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0M1QzJCQyIgc3Ryb2tlLXdpZHRoPSIxIiByeD0iNiIvPgogIDx0ZXh0IHg9IjU4NCIgeT0iMjg2IiBmb250LXNpemU9IjE3IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMUUyOTNCIj5NQ1AgU2VydmVyIOKAlCBTbGFjazwvdGV4dD4KICA8dGV4dCB4PSI1ODQiIHk9IjMxMiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY0NzQ4QiI+66mU7Iuc7KeAIMK3IOyxhOuEkCDslYzrprw8L3RleHQ+CgogIDxyZWN0IHg9IjU2MCIgeT0iMzcwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjkwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMSIgcng9IjYiLz4KICA8dGV4dCB4PSI1ODQiIHk9IjQwNiIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFFMjkzQiI+TUNQIFNlcnZlciDigJQgRmlsZXN5c3RlbTwvdGV4dD4KICA8dGV4dCB4PSI1ODQiIHk9IjQzMiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY0NzQ4QiI+66Gc7LusIO2MjOydvCDsnb3quLAgwrcg7JOw6riwPC90ZXh0PgoKICA8IS0tIHNlcnZlciB0byByZXNvdXJjZSB0YWdzIC0tPgogIDxsaW5lIHgxPSI4MDAiIHkxPSIxNzUiIHgyPSI4NTYiIHkyPSIxNzUiIHN0cm9rZT0iI0M1QzJCQyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8bGluZSB4MT0iODAwIiB5MT0iMjk1IiB4Mj0iODU2IiB5Mj0iMjk1IiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGxpbmUgeDE9IjgwMCIgeTE9IjQxNSIgeDI9Ijg1NiIgeTI9IjQxNSIgc3Ryb2tlPSIjQzVDMkJDIiBzdHJva2Utd2lkdGg9IjEuNSIvPgoKICA8cmVjdCB4PSI4NTYiIHk9IjE0NSIgd2lkdGg9IjEyMiIgaGVpZ2h0PSI2MCIgZmlsbD0iI0Y1RjNGMCIgc3Ryb2tlPSIjQzVDMkJDIiBzdHJva2Utd2lkdGg9IjEiIHJ4PSI2Ii8+CiAgPHRleHQgeD0iOTE3IiB5PSIxODEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM0NzU1NjkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuybkOqyqSDshJzruYTsiqQ8L3RleHQ+CiAgPHJlY3QgeD0iODU2IiB5PSIyNjUiIHdpZHRoPSIxMjIiIGhlaWdodD0iNjAiIGZpbGw9IiNGNUYzRjAiIHN0cm9rZT0iI0M1QzJCQyIgc3Ryb2tlLXdpZHRoPSIxIiByeD0iNiIvPgogIDx0ZXh0IHg9IjkxNyIgeT0iMzAxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNDc1NTY5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7sm5Dqsqkg7ISc67mE7IqkPC90ZXh0PgogIDxyZWN0IHg9Ijg1NiIgeT0iMzg1IiB3aWR0aD0iMTIyIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjVGM0YwIiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMSIgcng9IjYiLz4KICA8dGV4dCB4PSI5MTciIHk9IjQyMSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzQ3NTU2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+66Gc7LusIOuNsOydtO2EsDwvdGV4dD4KCiAgPCEtLSBib3R0b20gY2FwdGlvbiAtLT4KICA8dGV4dCB4PSI0MCIgeT0iNTIwIiBmb250LXNpemU9IjE1IiBmaWxsPSIjNDc1NTY5Ij7shJzrsoQg7ZWY64KY66W8IOuNlCDqvYLsnLzrqbQg64ql66Cl7J20IO2VmOuCmCDripjslrTrgpzri6Qg4oCUIO2YuOyKpO2KuCDsvZTrk5zripQg6re464yA66GcLjwvdGV4dD4KPC9zdmc+" alt="" style="left:130.128px;top:94.9282px;width:1017.55px;height:554.349px;">
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="41">
+<section class="export-slide" data-index="42">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2721,12 +2762,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   <div class="t-caption" style="margin-bottom: 10px; flex: 0 0 auto;">SKILL.md 한 파일 = 이름 · 설명 · 허용 도구 · 본문 절차</div></div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.1 MCP Transport</span>
-    <span class="slide-footer-right">43</span>
+    <span class="slide-footer-right">44</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="42">
+<section class="export-slide" data-index="43">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2739,7 +2780,7 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.1 MCP Scope</span>
-    <span class="slide-footer-right">44</span>
+    <span class="slide-footer-right">45</span>
   </div>
 
 
@@ -2749,7 +2790,7 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="43">
+<section class="export-slide" data-index="44">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2765,13 +2806,13 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.2 필수 MCP 서버</span>
-    <span class="slide-footer-right">45</span>
+    <span class="slide-footer-right">46</span>
   </div>
 <img class="export-overlay" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MTYgNTExIiBmb250LWZhbWlseT0iJ0lCTSBQbGV4IFNhbnMgS1InLCdQcmV0ZW5kYXJkJywnTm90byBTYW5zIEtSJyxzYW5zLXNlcmlmIj4KICA8IS0tIGhlYWRlciAtLT4KICA8bGluZSB4MT0iOCIgeTE9IjE2IiB4Mj0iODA4IiB5Mj0iMTYiIHN0cm9rZT0iIzBGNzY2RSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIyMCIgeT0iNDQiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiM0NzU1NjkiPiM8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9IjQ0IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjNDc1NTY5Ij5NQ1A8L3RleHQ+CiAgPHRleHQgeD0iMjYwIiB5PSI0NCIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzQ3NTU2OSI+7Jqp64+EPC90ZXh0PgogIDx0ZXh0IHg9IjY0MCIgeT0iNDQiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiM0NzU1NjkiPuy5tO2FjOqzoOumrDwvdGV4dD4KICA8bGluZSB4MT0iOCIgeTE9IjYwIiB4Mj0iODA4IiB5Mj0iNjAiIHN0cm9rZT0iI0M1QzJCQyIgc3Ryb2tlLXdpZHRoPSIxIi8+CgogIDwhLS0gcm93cyAtLT4KICA8dGV4dCB4PSIyMCIgeT0iOTQiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM5NEEzQjgiPjE8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9Ijk0IiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMUUyOTNCIj5HaXRIdWI8L3RleHQ+CiAgPHRleHQgeD0iMjYwIiB5PSI5NCIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzQ3NTU2OSI+UFIgwrcg7J207IqIIMK3IOy9lOuTnCDrpqzrt7A8L3RleHQ+CiAgPHRleHQgeD0iNjQwIiB5PSI5NCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY0NzQ4QiI+6rCc67CcIOybjO2BrO2UjOuhnOyasDwvdGV4dD4KICA8bGluZSB4MT0iOCIgeTE9IjExMiIgeDI9IjgwOCIgeTI9IjExMiIgc3Ryb2tlPSIjRTdFM0RBIiBzdHJva2Utd2lkdGg9IjEiLz4KCiAgPHRleHQgeD0iMjAiIHk9IjE0NiIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzk0QTNCOCI+MjwvdGV4dD4KICA8dGV4dCB4PSI3MCIgeT0iMTQ2IiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMUUyOTNCIj5GaWxlc3lzdGVtPC90ZXh0PgogIDx0ZXh0IHg9IjI2MCIgeT0iMTQ2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNDc1NTY5Ij7tjIzsnbwg6raM7ZWcIOu2hOumrCDsoJHqt7w8L3RleHQ+CiAgPHRleHQgeD0iNjQwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NDc0OEIiPuqwnOuwnCDsm4ztgaztlIzroZzsmrA8L3RleHQ+CiAgPGxpbmUgeDE9IjgiIHkxPSIxNjQiIHgyPSI4MDgiIHkyPSIxNjQiIHN0cm9rZT0iI0U3RTNEQSIgc3Ryb2tlLXdpZHRoPSIxIi8+CgogIDx0ZXh0IHg9IjIwIiB5PSIxOTgiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM5NEEzQjgiPjM8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9IjE5OCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFFMjkzQiI+UG9zdGdyZVNRTDwvdGV4dD4KICA8dGV4dCB4PSIyNjAiIHk9IjE5OCIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzQ3NTU2OSI+7Iqk7YKk66eIIMK3IOy/vOumrCDCtyDrlJTrsoTquYU8L3RleHQ+CiAgPHRleHQgeD0iNjQwIiB5PSIxOTgiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NDc0OEIiPuuNsOydtO2EsDwvdGV4dD4KICA8bGluZSB4MT0iOCIgeTE9IjIxNiIgeDI9IjgwOCIgeTI9IjIxNiIgc3Ryb2tlPSIjRTdFM0RBIiBzdHJva2Utd2lkdGg9IjEiLz4KCiAgPHRleHQgeD0iMjAiIHk9IjI1MCIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzk0QTNCOCI+NDwvdGV4dD4KICA8dGV4dCB4PSI3MCIgeT0iMjUwIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMUUyOTNCIj5CcmF2ZSBTZWFyY2g8L3RleHQ+CiAgPHRleHQgeD0iMjYwIiB5PSIyNTAiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM0NzU1NjkiPuyLpOyLnOqwhCDsm7kg6rKA7IOJPC90ZXh0PgogIDx0ZXh0IHg9IjY0MCIgeT0iMjUwIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjQ3NDhCIj7smbjrtoAg7KCV67O0PC90ZXh0PgogIDxsaW5lIHgxPSI4IiB5MT0iMjY4IiB4Mj0iODA4IiB5Mj0iMjY4IiBzdHJva2U9IiNFN0UzREEiIHN0cm9rZS13aWR0aD0iMSIvPgoKICA8dGV4dCB4PSIyMCIgeT0iMzAyIiBmb250LXNpemU9IjE1IiBmaWxsPSIjOTRBM0I4Ij41PC90ZXh0PgogIDx0ZXh0IHg9IjcwIiB5PSIzMDIiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiMxRTI5M0IiPkNvbnRleHQ3PC90ZXh0PgogIDx0ZXh0IHg9IjI2MCIgeT0iMzAyIiBmb250LXNpemU9IjE1IiBmaWxsPSIjNDc1NTY5Ij7rnbzsnbTruIzrn6zrpqwg7LWc7IugIOusuOyEnCDso7zsnoU8L3RleHQ+CiAgPHRleHQgeD0iNjQwIiB5PSIzMDIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NDc0OEIiPuyZuOu2gCDsoJXrs7Q8L3RleHQ+CiAgPGxpbmUgeDE9IjgiIHkxPSIzMjAiIHgyPSI4MDgiIHkyPSIzMjAiIHN0cm9rZT0iI0U3RTNEQSIgc3Ryb2tlLXdpZHRoPSIxIi8+CgogIDx0ZXh0IHg9IjIwIiB5PSIzNTQiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM5NEEzQjgiPjY8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9IjM1NCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFFMjkzQiI+UGxheXdyaWdodDwvdGV4dD4KICA8dGV4dCB4PSIyNjAiIHk9IjM1NCIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzQ3NTU2OSI+67iM65287Jqw7KCAIOyekOuPme2ZlCDCtyBFMkUg7YWM7Iqk7Yq4PC90ZXh0PgogIDx0ZXh0IHg9IjY0MCIgeT0iMzU0IiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjQ3NDhCIj7snpDrj5ntmZQgwrcg7YWM7Iqk7Yq4PC90ZXh0PgogIDxsaW5lIHgxPSI4IiB5MT0iMzcyIiB4Mj0iODA4IiB5Mj0iMzcyIiBzdHJva2U9IiNFN0UzREEiIHN0cm9rZS13aWR0aD0iMSIvPgoKICA8dGV4dCB4PSIyMCIgeT0iNDA2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjOTRBM0I4Ij43PC90ZXh0PgogIDx0ZXh0IHg9IjcwIiB5PSI0MDYiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiMxRTI5M0IiPlNlcXVlbnRpYWw8L3RleHQ+CiAgPHRleHQgeD0iMjYwIiB5PSI0MDYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM0NzU1NjkiPuuLqOqzhOuzhCDqtazsobDtmZQg7LaU66GgPC90ZXh0PgogIDx0ZXh0IHg9IjY0MCIgeT0iNDA2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjQ3NDhCIj7stpTroaAgwrcg6riw7Ja1PC90ZXh0PgogIDxsaW5lIHgxPSI4IiB5MT0iNDI0IiB4Mj0iODA4IiB5Mj0iNDI0IiBzdHJva2U9IiNFN0UzREEiIHN0cm9rZS13aWR0aD0iMSIvPgoKICA8dGV4dCB4PSIyMCIgeT0iNDU4IiBmb250LXNpemU9IjE1IiBmaWxsPSIjOTRBM0I4Ij44PC90ZXh0PgogIDx0ZXh0IHg9IjcwIiB5PSI0NTgiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiMxRTI5M0IiPk1lbW9yeTwvdGV4dD4KICA8dGV4dCB4PSIyNjAiIHk9IjQ1OCIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzQ3NTU2OSI+7IS47IWYIOqwhCDsmIHsho0g66mU66qo66asPC90ZXh0PgogIDx0ZXh0IHg9IjY0MCIgeT0iNDU4IiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjQ3NDhCIj7stpTroaAgwrcg6riw7Ja1PC90ZXh0PgogIDxsaW5lIHgxPSI4IiB5MT0iNDc2IiB4Mj0iODA4IiB5Mj0iNDc2IiBzdHJva2U9IiNDNUMyQkMiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=" alt="" style="left:446.898px;top:89.9731px;width:816.239px;height:511.012px;">
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="44">
+<section class="export-slide" data-index="45">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2804,12 +2845,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.3 필수 MCP 설치</span>
-    <span class="slide-footer-right">46</span>
+    <span class="slide-footer-right">47</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="45">
+<section class="export-slide" data-index="46">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2839,12 +2880,12 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">4.4.3 .mcp.json 구문</span>
-    <span class="slide-footer-right">47</span>
+    <span class="slide-footer-right">48</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="46">
+<section class="export-slide" data-index="47">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2882,12 +2923,12 @@ echo $env:GITHUB_PAT  <span class="gray"># PowerShell 확인</span>
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left" data-slot="caption">4.4.3 API 키 저장 위치</span>
-    <span class="slide-footer-right" data-slot="page-num">48</span>
+    <span class="slide-footer-right" data-slot="page-num">49</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="47">
+<section class="export-slide" data-index="48">
 <div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report">
   <div class="slide-topbar"></div>
@@ -2899,12 +2940,12 @@ echo $env:GITHUB_PAT  <span class="gray"># PowerShell 확인</span>
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">05 · 4.5 실습</span>
-    <span class="slide-footer-right">49</span>
+    <span class="slide-footer-right">50</span>
   </div>
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="48">
+<section class="export-slide" data-index="49">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report">
   <div class="slide-topbar"></div>
@@ -2931,7 +2972,7 @@ echo $env:GITHUB_PAT  <span class="gray"># PowerShell 확인</span>
 </div>
 </div>
 </section>
-<div class="export-nav" id="export-nav">1 / 49 · ↑ ↓ · P = Print</div>
+<div class="export-nav" id="export-nav">1 / 50 · ↑ ↓ · P = Print</div>
 <script>
 (function(){
   var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
