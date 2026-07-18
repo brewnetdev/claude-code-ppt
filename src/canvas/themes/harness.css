@@ -7,14 +7,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 
-:root {
+[data-template="harness"] {
   --bg:        #f8f8f2;
   --surface:   #ffffff;
   --border:    #d8dae5;
   --text:      #282a36;
-  --muted:     #59617a;   
+  --muted:     #59617a;
   --faint:     #6272a4;
-  --accent:    #644ac9;   
+  --accent:    #644ac9;
   --accent-ink:#ffffff;
   --danger:    #c93030;
   --success:   #1d8a45;

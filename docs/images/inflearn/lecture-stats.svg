@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 130" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif" data-sae-id="e0001">
   <!-- outer frame: amber accent border to stand out -->
-  <rect id="frame" x="3" y="3" width="954" height="124" rx="8" fill="#ffffff" stroke="#F5A623" stroke-width="3" data-sae-id="e0002"/>
+  <rect id="frame" x="3" y="3" width="954" height="124" rx="8" fill="#ffffff" stroke="#E23B3B" stroke-width="3" data-sae-id="e0002"/>
 
   <!-- column dividers (frame interior 3..957 split into 4 equal columns) -->
   <g id="dividers" stroke="#e2e2e2" stroke-width="1" data-sae-id="e0003">
@@ -34,6 +34,6 @@
   <!-- cell 4: 수강생 수 (center 837.75) -->
   <g id="cell-students" data-sae-id="e0018">
     <text x="825.75" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b" data-sae-id="e0019">수강생 수</text>
-    <text x="825.75" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a" data-sae-id="e0020">3,448명</text>
+    <text x="825.75" y="93" text-anchor="middle" font-size="40" font-weight="800" fill="#E23B3B" data-sae-id="e0020">3500+</text>
   </g>
 </svg>

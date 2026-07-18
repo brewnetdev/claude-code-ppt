@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1000px;height:170px;background:#ffffff;overflow:hidden}
+  .wrap{position:relative;width:1000px;height:170px;background:#ffffff;
+    display:flex;align-items:center;justify-content:center}
+  svg{display:block}
+  /* red pulsing border glow driven by --glow */
+  #frame{
+    stroke: rgb(var(--sr,214,45,45));
+    filter: drop-shadow(0 0 calc(2px + var(--glow)*13px) rgba(226,59,59, calc(.30 + var(--glow)*.60)));
+  }
+</style></head>
+<body>
+<div class="wrap" id="wrap" style="--glow:0.5;--sr:214,45,45">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="130" viewBox="0 0 960 130" font-family="IBM Plex Sans KR, IBM Plex Sans, sans-serif">
+  <rect id="frame" x="3" y="3" width="954" height="124" rx="8" fill="#ffffff" stroke="#E23B3B" stroke-width="3"/>
+  <g id="dividers" stroke="#e2e2e2" stroke-width="1">
+    <line x1="241.5" y1="25" x2="241.5" y2="105"/>
+    <line x1="480" y1="25" x2="480" y2="105"/>
+    <line x1="718.5" y1="25" x2="718.5" y2="105"/>
+  </g>
+  <g id="cell-courses">
+    <text x="110.25" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b">강의 수</text>
+    <text x="110.25" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a">5개</text>
+  </g>
+  <g id="cell-rating">
+    <text x="348.75" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b">강의 평점</text>
+    <g id="star" transform="translate(291,63) scale(1.24)" fill="#F5A623">
+      <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.783 1.401 8.169L12 18.896l-7.335 3.866 1.401-8.169L.132 9.21l8.2-1.192z"/>
+    </g>
+    <text x="329" y="93" text-anchor="start" font-size="40" font-weight="700" fill="#1a1a1a">4.89</text>
+  </g>
+  <g id="cell-reviews">
+    <text x="587.25" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b">수강평</text>
+    <text x="587.25" y="93" text-anchor="middle" font-size="40" font-weight="700" fill="#1a1a1a">158</text>
+  </g>
+  <g id="cell-students">
+    <text x="825.75" y="43" text-anchor="middle" font-size="20" fill="#6b6b6b">수강생 수</text>
+    <text x="825.75" y="93" text-anchor="middle" font-size="40" font-weight="800" fill="#E23B3B">3500+</text>
+  </g>
+</svg>
+</div>
+<script>
+  window.setFrame = function(i, N){
+    var t = i / N;
+    var glow = 0.5 + 0.5*Math.sin(2*Math.PI*t);          // breathing red border
+    var wrap = document.getElementById('wrap');
+    wrap.style.setProperty('--glow', glow.toFixed(3));
+    // stroke red brightens at peak: dim(176,34,34) -> bright(255,86,86)
+    var lo=[176,34,34], hi=[255,86,86];
+    var c = lo.map((v,k)=> Math.round(v + (hi[k]-v)*glow));
+    wrap.style.setProperty('--sr', c.join(','));
+  };
+</script>
+</body></html>
