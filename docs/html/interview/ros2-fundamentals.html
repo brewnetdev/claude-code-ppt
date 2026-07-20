@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>ROS2 — 면접 대비 단계별 학습 (개념 + Backend 연동)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ROS2(Robot Operating System 2)를 정의·용어사전·아키텍처·4대 통신·QoS·실행 모델·Backend 연동·면접 필수 개념·예상 질답까지 쉬움→필수 순으로 정리한 로봇/백엔드 엔지니어 면접 대비 학습 자료.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  /* 용어 사전 표 — 약어/풀네임을 고정폭으로 강조 */
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Robotics Interview · ROS2</div>
+    <h1>ROS2 — Node · Topic · Service · Action + Backend 연동</h1>
+    <p class="lead">"ROS2가 뭐냐"는 정의부터 <strong>용어 사전</strong>, 아키텍처 계층, 4대 통신, QoS 함정, 실행 모델,
+       <strong>백엔드 연동 구조</strong>, 면접 필수 개념, 예상 질답까지 <strong>쉬움 → 필수</strong> 순으로 쌓아 올린다.
+       로봇/백엔드 엔지니어 면접에서 실제로 찔리는 지점을 중심으로 정리했다.</p>
+    <p class="meta">기준: ROS2 Humble(2022 LTS) · Jazzy(2024 LTS) · 버전 의존 항목은 본문에 표시</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">ROS2란? · 왜 만들어졌나</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">아키텍처 — 계층 스택</a></li>
+        <li><a href="#s3">4대 통신 — Node·Topic·Service·Action</a></li>
+        <li><a href="#s4">QoS — 통신 품질과 mismatch 함정</a></li>
+        <li><a href="#s5">실행 모델 — Executor·Callback Group·Lifecycle</a></li>
+        <li><a href="#s6">ROS2 ↔ Backend 연동 구조</a></li>
+        <li><a href="#s7">베스트 프랙티스</a></li>
+        <li><a href="#s8">면접 필수 개념</a></li>
+        <li><a href="#s9">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s10">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p>섹션마다 난이도 태그가 붙어 있다. <strong>00~01</strong>은 개념·용어 잡기(쉬움), <strong>02~07</strong>은 실무 원리·연동(중간),
+           <strong>08~09</strong>는 면접 직전 정리(필수)다. 모르는 약어가 나오면 <strong>01 용어 사전</strong>으로 돌아가면 된다.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>ROS2란? · 왜 만들어졌나<span class="lvl">난이도 쉬움</span></h2>
+        <p><strong>ROS2(Robot Operating System 2)</strong>는 이름과 달리 운영체제가 아니라, 로봇 소프트웨어를 만드는
+           <strong>미들웨어 + 툴 + 라이브러리 생태계</strong>다. 센서 드라이버·인지(perception)·계획(planning)·제어(control)를
+           각각 독립 프로세스(<strong>node</strong>)로 짜고, 표준 메시지로 pub/sub·요청/응답을 주고받아 하나의 로봇 시스템으로 엮는 것이 핵심 패러다임이다.</p>
+
+        <p>ROS2는 ROS1(2007~, 최종 Noetic)의 점진적 업그레이드가 아니라 <strong>바닥부터 재설계(ground-up rearchitecture)</strong>다.
+           ROS1이 산업 현장에서 막혔던 지점이 곧 ROS2의 존재 이유다.</p>
+
+        <table>
+          <thead><tr><th>ROS1의 한계</th><th>ROS2의 해법</th></tr></thead>
+          <tbody>
+            <tr><td>중앙 <code>rosmaster</code>가 discovery 중개 → 죽으면 전체 마비(<strong>SPOF</strong>)</td><td><strong>DDS 분산 discovery</strong> — master 제거, node끼리 P2P로 발견</td></tr>
+            <tr><td>자체 TCPROS/UDPROS → 무선·실시간 제어에 부적합, 품질 제어 불가</td><td><strong>DDS + QoS</strong> — reliable/best-effort 등 통신 품질을 정책으로 튜닝</td></tr>
+            <tr><td>실시간성·보안 전무(암호화·인증 없음)</td><td><strong>Executor 정비 + DDS-Security</strong>(인증·암호화)</td></tr>
+            <tr><td><code>roscpp</code>/<code>rospy</code> 기능 불일치, Linux 전용</td><td>공통 C 코어 <code>rcl</code> 위 언어 바인딩 · <strong>Linux/Win/macOS</strong>·micro-ROS</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>ROS2 = "중앙 master를 없애고 <strong>DDS</strong>를 통신 백본으로 채택해, 분산 discovery·QoS·실시간·보안·멀티플랫폼을 얻은 로봇 미들웨어."</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <p>ROS2 문서·면접에는 약어가 쏟아진다. 아래 표는 <strong>약어 → 풀 네이밍 → 한 줄 의미</strong>로 정리했다.
+           나머지 섹션을 읽다 막히면 여기로 돌아오면 된다.</p>
+
+        <h3>스택 · 미들웨어</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>ROS</td><td>Robot Operating System</td><td>OS가 아니라 로봇 SW 미들웨어·툴·라이브러리 생태계.</td></tr>
+            <tr><td>rcl</td><td>ROS Client Library</td><td>node·topic·timer 등 핵심 로직의 언어 독립 <strong>C</strong> 구현. 상위 언어 라이브러리의 공통 토대.</td></tr>
+            <tr><td>rclcpp / rclpy</td><td>ROS Client Library (C++ / Python)</td><td>개발자가 직접 쓰는 언어별 API. rcl 위에 executor·parameter·action을 얹음.</td></tr>
+            <tr><td>rmw</td><td>ROS Middleware (interface)</td><td>DDS 벤더를 갈아끼우게 해주는 추상 인터페이스. <code>RMW_IMPLEMENTATION</code>으로 교체.</td></tr>
+            <tr><td>DDS</td><td>Data Distribution Service</td><td>OMG 표준 pub/sub 미들웨어. ROS2의 통신 백본(발견·전송·QoS·보안).</td></tr>
+            <tr><td>RTPS</td><td>Real-Time Publish-Subscribe (DDSI-RTPS)</td><td>DDS의 와이어 프로토콜. UDP 위에서 실제 패킷을 주고받는 규약.</td></tr>
+            <tr><td>CDR</td><td>Common Data Representation</td><td>메시지 직렬화 포맷(ROS2는 XCDR2). node 간에 바이트로 변환돼 전송됨.</td></tr>
+            <tr><td>DataWriter / DataReader</td><td>(약어 아님)</td><td>DDS의 송신/수신 엔드포인트. ROS Publisher = DataWriter, Subscription = DataReader.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>발견 · 통신 품질</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>QoS</td><td>Quality of Service</td><td>pub/sub 통신 품질 정책(reliability·durability·history 등). mismatch 시 조용히 두절.</td></tr>
+            <tr><td>SPDP</td><td>Simple Participant Discovery Protocol</td><td>같은 네트워크의 다른 DDS 프로세스(participant)를 멀티캐스트로 발견.</td></tr>
+            <tr><td>SEDP</td><td>Simple Endpoint Discovery Protocol</td><td>발견된 participant끼리 pub/sub·topic·타입·QoS 정보를 교환.</td></tr>
+            <tr><td>DomainID</td><td><code>ROS_DOMAIN_ID</code></td><td>발견 범위를 나누는 정수. 같은 domain끼리만 서로 본다(로봇·팀 격리).</td></tr>
+            <tr><td>SPOF</td><td>Single Point Of Failure</td><td>단일 장애점. ROS1의 rosmaster가 이에 해당 → ROS2가 제거.</td></tr>
+            <tr><td>RPC</td><td>Remote Procedure Call</td><td>원격 함수 호출. ROS2의 Service가 이 모델(request→reply).</td></tr>
+          </tbody>
+        </table>
+
+        <h3>실행 · 빌드 · 좌표 · 스택</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>Executor</td><td>(약어 아님)</td><td>node의 콜백을 <code>spin</code>하며 실행하는 스케줄러(single/multi-threaded).</td></tr>
+            <tr><td>Overlay / Underlay</td><td>(약어 아님)</td><td>workspace 계층. 시스템 설치본(underlay) 위에 내 workspace(overlay)를 덧씌움.</td></tr>
+            <tr><td>colcon</td><td>collective construction</td><td>ROS2 표준 빌드 툴(<code>colcon build</code>). 여러 패키지를 한 번에 빌드.</td></tr>
+            <tr><td>ament</td><td>(약어 아님)</td><td>ROS2 빌드 시스템(<code>ament_cmake</code>·<code>ament_python</code>). ROS1의 catkin 후속.</td></tr>
+            <tr><td>tf2</td><td>TransForm 2</td><td>시간버퍼 좌표 변환 트리 라이브러리. 프레임 간 위치·자세 변환.</td></tr>
+            <tr><td>URDF / SRDF</td><td>Unified / Semantic Robot Description Format</td><td>로봇 물리 구조(링크·조인트) / 시맨틱(그룹·충돌 규칙) XML 기술.</td></tr>
+            <tr><td>REP</td><td>ROS Enhancement Proposal</td><td>ROS 표준 제안 문서(예: REP-105 좌표 프레임 규약).</td></tr>
+            <tr><td>Nav2 / MoveIt2</td><td>Navigation 2 / MoveIt 2</td><td>자율주행 스택 / 매니퓰레이터(로봇팔) 모션 플래닝 프레임워크.</td></tr>
+            <tr><td>AMCL</td><td>Adaptive Monte Carlo Localization</td><td>파티클 필터 기반 로봇 위치 추정(Nav2 구성요소).</td></tr>
+            <tr><td>IK</td><td>Inverse Kinematics</td><td>역기구학 — 목표 말단 자세로부터 각 조인트 각도를 역산.</td></tr>
+            <tr><td>micro-ROS</td><td>(약어 아님)</td><td>마이크로컨트롤러(MCU)용 ROS2. 자원 제약 하드웨어에 ROS2 통신 이식.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 아키텍처 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>아키텍처 — 계층 스택<span class="lvl">난이도 중간</span></h2>
+        <p>ROS2는 위(내 코드)에서 아래(네트워크)로 내려가는 <strong>수직 계층 스택</strong>이다. 각 계층이 아래 계층의 세부를 숨기기 때문에,
+           <strong>DDS 벤더를 코드 수정 없이 교체</strong>할 수 있다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 430" role="img" aria-label="ROS2 계층 스택 다이어그램">
+            <style>
+              .lyr{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .lyr-soft{fill:#F8F7F4;stroke:#9CA3AF;stroke-width:1.2}
+              .lyr-acc{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .tl{font-family:'JetBrains Mono',monospace;font-size:14px;fill:#111}
+              .tl-s{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .lbl{font-family:'Noto Sans KR',sans-serif;font-size:13px;fill:#111}
+            </style>
+            <rect class="lyr-soft" x="90" y="20"  width="540" height="44" rx="4"/>
+            <text class="lbl" x="360" y="47" text-anchor="middle">User Application — 내가 만드는 Node</text>
+
+            <rect class="lyr" x="90" y="76"  width="264" height="44" rx="4"/>
+            <text class="tl" x="222" y="103" text-anchor="middle">rclcpp (C++)</text>
+            <rect class="lyr" x="366" y="76" width="264" height="44" rx="4"/>
+            <text class="tl" x="498" y="103" text-anchor="middle">rclpy (Python)</text>
+
+            <rect class="lyr" x="90" y="132" width="540" height="44" rx="4"/>
+            <text class="tl" x="360" y="153" text-anchor="middle">rcl</text>
+            <text class="tl-s" x="360" y="168" text-anchor="middle">언어 독립 C 코어 · node/topic/service/timer 로직</text>
+
+            <rect class="lyr-acc" x="90" y="188" width="540" height="44" rx="4"/>
+            <text class="tl" x="360" y="209" text-anchor="middle" fill="#B45309">rmw — 미들웨어 추상 인터페이스</text>
+            <text class="tl-s" x="360" y="224" text-anchor="middle">RMW_IMPLEMENTATION 으로 벤더 교체</text>
+
+            <rect class="lyr" x="90" y="244" width="540" height="44" rx="4"/>
+            <text class="tl" x="360" y="265" text-anchor="middle">DDS 구현</text>
+            <text class="tl-s" x="360" y="280" text-anchor="middle">Fast DDS(기본) · Cyclone DDS · Connext · (Zenoh)</text>
+
+            <rect class="lyr" x="90" y="300" width="540" height="44" rx="4"/>
+            <text class="tl" x="360" y="321" text-anchor="middle">RTPS wire protocol</text>
+            <text class="tl-s" x="360" y="336" text-anchor="middle">UDP · Shared Memory · OS network</text>
+
+            <line x1="646" y1="188" x2="646" y2="288" stroke="#B45309" stroke-width="1.4"/>
+            <line x1="646" y1="188" x2="638" y2="188" stroke="#B45309" stroke-width="1.4"/>
+            <line x1="646" y1="288" x2="638" y2="288" stroke="#B45309" stroke-width="1.4"/>
+            <text class="lbl" x="654" y="234" fill="#B45309" font-size="12">교체</text>
+            <text class="lbl" x="654" y="250" fill="#B45309" font-size="12">지점</text>
+
+            <text class="tl-s" x="360" y="372" text-anchor="middle">Publisher = DDS DataWriter · Subscription = DataReader · 메시지 = CDR 직렬화</text>
+
+            <rect x="90" y="388" width="540" height="30" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="lbl" x="360" y="407" text-anchor="middle" font-size="12">Discovery: rosmaster 없음 → RTPS SPDP/SEDP 로 P2P 발견 · ROS_DOMAIN_ID 로 격리</text>
+          </svg>
+          <figcaption>ROS2 계층 스택 — 내 코드는 rclcpp/rclpy만 보고, rmw가 DDS 벤더를 추상화한다.</figcaption>
+        </figure>
+
+        <ul>
+          <li><strong>rclcpp / rclpy</strong> — 실제 쓰는 언어별 API(<code>create_publisher</code>, <code>spin</code>). executor·parameter·lifecycle·action 래핑이 여기 있다.</li>
+          <li><strong>rcl</strong> — node·topic 등 핵심 로직의 <strong>언어 독립 C 구현</strong>. 각 언어 라이브러리가 로직을 중복 구현하지 않게 해 rclcpp/rclpy를 얇고 일관되게 유지한다.</li>
+          <li><strong>rmw</strong> — DDS 벤더 추상화. <code class="inline">RMW_IMPLEMENTATION=rmw_cyclonedds_cpp</code>처럼 런타임에 교체(기본 Fast DDS <code>rmw_fastrtps_cpp</code>).</li>
+          <li><strong>DDS / RTPS</strong> — 실제 통신 엔진. 같은 호스트면 shared-memory, 아니면 UDP.</li>
+        </ul>
+
+        <div class="note">
+          <div class="t">면접 포인트 — Discovery</div>
+          <p>ROS2엔 중앙 master가 없다. 각 프로세스가 <strong>DDS Participant</strong>가 되어 <strong>SPDP</strong>(participant 발견)·<strong>SEDP</strong>(endpoint·topic·QoS 교환)로
+             서로를 멀티캐스트로 찾아 <strong>P2P</strong> 연결한다. 발견 범위는 <code class="inline">ROS_DOMAIN_ID</code>로 격리한다.</p>
+        </div>
+      </section>
+
+      <!-- 3 : 4대 통신 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>4대 통신 — Node · Topic · Service · Action<span class="lvl">난이도 중간</span></h2>
+        <p><strong>Node</strong>는 역할 하나에 대응하는 논리적 연산 단위다(<code>/lidar_driver</code>, <code>/motion_controller</code>).
+           node들은 세 가지 통신 방식으로 엮이며, 여기에 설정값을 담는 <strong>Parameter</strong>가 더해진다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 360" role="img" aria-label="ROS2 통신 프리미티브 다이어그램">
+            <style>
+              .nd{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .ndl{font-family:'JetBrains Mono',monospace;font-size:12.5px;fill:#111}
+              .cap{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .tag{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .ln{stroke:#B45309;stroke-width:1.6;fill:none}
+              .ln2{stroke:#6B7280;stroke-width:1.4;fill:none}
+            </style>
+            <defs>
+              <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker>
+              <marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6B7280"/></marker>
+            </defs>
+
+            <text class="tag" x="16" y="42">TOPIC</text>
+            <text class="cap" x="16" y="60">pub/sub · 비동기 · N:M</text>
+            <rect class="nd" x="150" y="26" width="150" height="40" rx="4"/>
+            <text class="ndl" x="225" y="51" text-anchor="middle">/lidar_driver</text>
+            <line class="ln" x1="300" y1="46" x2="470" y2="46" marker-end="url(#ah)"/>
+            <text class="tag" x="385" y="38" text-anchor="middle">/scan</text>
+            <rect class="nd" x="470" y="26" width="150" height="40" rx="4"/>
+            <text class="ndl" x="545" y="51" text-anchor="middle">/slam</text>
+
+            <text class="tag" x="16" y="152">SERVICE</text>
+            <text class="cap" x="16" y="170">req/reply · 1:1 · 즉답 RPC</text>
+            <rect class="nd" x="150" y="132" width="150" height="40" rx="4"/>
+            <text class="ndl" x="225" y="157" text-anchor="middle">/ui_client</text>
+            <line class="ln" x1="300" y1="150" x2="470" y2="150" marker-end="url(#ah)"/>
+            <text class="tag" x="385" y="142" text-anchor="middle">request</text>
+            <line class="ln2" x1="470" y1="164" x2="300" y2="164" marker-end="url(#ah2)"/>
+            <text class="cap" x="385" y="182" text-anchor="middle">reply</text>
+            <rect class="nd" x="470" y="132" width="150" height="40" rx="4"/>
+            <text class="ndl" x="545" y="157" text-anchor="middle">/map_server</text>
+
+            <text class="tag" x="16" y="278">ACTION</text>
+            <text class="cap" x="16" y="296">장시간 · 피드백 · 취소</text>
+            <rect class="nd" x="150" y="252" width="150" height="52" rx="4"/>
+            <text class="ndl" x="225" y="282" text-anchor="middle">/nav_client</text>
+            <line class="ln" x1="300" y1="266" x2="470" y2="266" marker-end="url(#ah)"/>
+            <text class="tag" x="385" y="258" text-anchor="middle">goal</text>
+            <line class="ln2" x1="470" y1="282" x2="300" y2="282" marker-end="url(#ah2)"/>
+            <text class="cap" x="385" y="300" text-anchor="middle">feedback / result</text>
+            <rect class="nd" x="470" y="252" width="150" height="52" rx="4"/>
+            <text class="ndl" x="545" y="282" text-anchor="middle">/nav_server</text>
+
+            <line x1="16" y1="92" x2="704" y2="92" stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="16" y1="210" x2="704" y2="210" stroke="#E5E7EB" stroke-width="1"/>
+          </svg>
+          <figcaption>세 통신 패턴 — 스트림은 Topic, 즉답은 Service, 장시간·취소 가능은 Action.</figcaption>
+        </figure>
+
+        <h3>① Topic — Publish/Subscribe</h3>
+        <p><strong>연속 스트림</strong>용. 송신자는 수신 여부를 모르고(fire-and-forget), N:M 가능. 완전 비동기.
+           예: LiDAR가 <code class="inline">/scan</code>을 10~40Hz로 publish → SLAM과 obstacle node가 동시에 subscribe. 속도 명령 <code class="inline">/cmd_vel</code>.</p>
+
+        <h3>② Service — Request/Reply</h3>
+        <p><strong>짧고 즉시 끝나는</strong> 질의/명령(RPC). client가 request → server가 응답 1개 반환. 진행 피드백·취소 불필요할 때.
+           호출은 <strong>async 권장</strong>(<code class="inline">call_async</code>) — 콜백 안에서 같은 executor로 동기 대기하면 deadlock(§05).</p>
+
+        <h3>③ Action — Goal / Feedback / Result</h3>
+        <p><strong>오래 걸리는(초~분) 작업</strong>용. goal 전송 → 진행하며 feedback 스트림 → 완료 시 result, 도중 <strong>취소/선점</strong> 가능.
+           내부는 <strong>3개 service(send_goal·cancel_goal·get_result) + 2개 topic(feedback·status)</strong>로 구성된다(면접 단골).
+           예: <code class="inline">NavigateToPose</code>, MoveIt 팔 궤적, 도킹.</p>
+
+        <h3>④ Parameters</h3>
+        <p>node가 소유한 <strong>typed 설정값</strong>. ROS1의 전역 param 서버와 달리 <strong>파라미터는 각 node 안에 산다</strong>.
+           <code class="inline">declare_parameter()</code>로 선언, launch YAML로 주입, <code class="inline">add_on_set_parameters_callback</code>으로 검증. 예: <code class="inline">max_speed</code>, PID 게인.</p>
+
+        <div class="note">
+          <div class="t">결정 트리</div>
+          <p>연속 스트림·다수 구독자 → <strong>Topic</strong> / 짧은 즉답 질의·명령 → <strong>Service</strong> /
+             장시간·피드백·취소 → <strong>Action</strong> / 재구성 가능한 설정값 → <strong>Parameter</strong>.</p>
+        </div>
+      </section>
+
+      <!-- 4 : QoS -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>QoS — 통신 품질과 mismatch 함정<span class="lvl">난이도 중간</span></h2>
+        <p><strong>QoS(Quality of Service)</strong>는 각 pub/sub·service의 통신 품질 정책 묶음(profile)이다. DDS 덕분에 ROS2는
+           <strong>TCP만큼 신뢰</strong>하게도, <strong>UDP만큼 best-effort</strong>하게도 튜닝된다.</p>
+
+        <table>
+          <thead><tr><th>정책</th><th>값</th><th>언제</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Reliability</strong></td><td><code>RELIABLE</code>(재전송 보장) · <code>BEST_EFFORT</code>(유실 허용)</td><td>명령/설정은 reliable, 고속 센서·무선은 best-effort</td></tr>
+            <tr><td><strong>Durability</strong></td><td><code>VOLATILE</code> · <code>TRANSIENT_LOCAL</code>(늦게 온 구독자도 마지막 값 수신)</td><td>정적 지도·TF static·latched 데이터는 transient_local</td></tr>
+            <tr><td><strong>History+Depth</strong></td><td><code>KEEP_LAST</code>(최근 N) · <code>KEEP_ALL</code></td><td>버퍼 크기 — <strong>호환성엔 영향 없음</strong></td></tr>
+            <tr><td><strong>Deadline / Liveliness / Lifespan</strong></td><td>주기 감시 · 생존 확인 · 샘플 만료</td><td>센서 stall 감지, publisher 사망 감지</td></tr>
+          </tbody>
+        </table>
+
+        <h3>"QoS mismatch = 조용한 두절" (최다 실전 함정)</h3>
+        <p>매칭은 <strong>Requested(subscriber) vs Offered(publisher)</strong> 모델이다. subscriber의 요구가 publisher의 제공보다 <strong>엄격하면
+           연결 자체가 안 되고, 에러 없이 데이터가 0</strong>이 된다. 실무 90%는 reliability·durability에서 터진다.</p>
+
+        <table>
+          <thead><tr><th>Publisher (offered)</th><th>Subscriber (requested)</th><th>통신</th></tr></thead>
+          <tbody>
+            <tr><td>best_effort</td><td>best_effort</td><td>OK</td></tr>
+            <tr><td>best_effort</td><td><strong>reliable</strong></td><td><strong>두절</strong></td></tr>
+            <tr><td>reliable</td><td>best_effort</td><td>OK</td></tr>
+            <tr><td>reliable</td><td>reliable</td><td>OK</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">규칙 한 줄 + 진단</div>
+          <p><strong>제공 ≥ 요구</strong>여야 한다(reliable ≥ best_effort, transient_local ≥ volatile). 대표 사고: best-effort로 publish하는 카메라를
+             기본(reliable) subscriber로 받으면 <strong>아무것도 안 들어온다</strong>. 진단은 <code class="inline">ros2 topic info -v</code>로 양쪽 QoS 대조.</p>
+        </div>
+      </section>
+
+      <!-- 5 : 실행 모델 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>실행 모델 — Executor · Callback Group · Lifecycle<span class="lvl">난이도 중간</span></h2>
+        <p>node 자체는 콜백을 실행하지 않는다. <strong>Executor가 <code>spin</code>하며 준비된 콜백을 실행</strong>한다. 여기서 스레딩·race·deadlock이 갈린다.</p>
+
+        <h3>Executor — 콜백 스케줄러</h3>
+        <ul>
+          <li><strong>SingleThreadedExecutor</strong>(기본) — 한 스레드에서 콜백을 하나씩. 결정적이지만 긴 콜백이 나머지를 막는다.</li>
+          <li><strong>MultiThreadedExecutor</strong> — 스레드 풀로 콜백 병렬. 단, <strong>병렬 여부는 callback group이 결정</strong>한다.</li>
+        </ul>
+
+        <h3>Callback Group — 병렬성·race 제어의 핵심</h3>
+        <ul>
+          <li><strong>MutuallyExclusive</strong>(기본) — 그룹 내 콜백 동시 실행 금지(직렬화).</li>
+          <li><strong>Reentrant</strong> — 그룹 내 콜백 병렬 허용(같은 콜백의 중복 인스턴스도 동시 가능).</li>
+        </ul>
+        <div class="note">
+          <div class="t">핵심 함정</div>
+          <p>node의 모든 콜백이 <strong>기본(하나의 mutually-exclusive) 그룹</strong>이면, MultiThreadedExecutor를 켜도 <strong>직렬 실행</strong>된다.
+             병렬을 원하면 reentrant나 여러 개의 그룹을 명시 배정해야 한다. <strong>공유 자원을 만지는 콜백은 같은 mutually-exclusive 그룹</strong>에 묶어 race를 원천 차단한다.</p>
+        </div>
+
+        <h3>Lifecycle (Managed) Nodes</h3>
+        <p>초기화·종료를 명시적 <strong>상태 머신</strong>으로 통제한다:
+           <code class="inline">Unconfigured → Inactive → Active → Inactive → Finalized</code>.
+           <strong>Inactive</strong>는 리소스는 잡되 publish·콜백은 비활성 → 결정적 순차 bring-up에 쓴다.
+           대표적으로 <strong>Nav2 Lifecycle Manager</strong>가 서버들을 순차 configure→activate하고, 하나라도 실패하면 전체 activate를 막는다.</p>
+
+        <h3>colcon · Overlay</h3>
+        <p><code class="inline">colcon build --symlink-install</code>로 빌드. 시스템 설치본(underlay, <code>/opt/ros/&lt;distro&gt;</code>) 위에 내 workspace(overlay)를
+           <code class="inline">source install/setup.bash</code>하면 덧씌워지고, 같은 패키지는 <strong>overlay 우선</strong>이다.</p>
+      </section>
+
+      <!-- 6 : ROS2 ↔ Backend 연동 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>ROS2 ↔ Backend 연동 구조<span class="lvl">난이도 중간→필수</span></h2>
+        <p>로봇은 <strong>ROS2/DDS 도메인(LAN·P2P·실시간)</strong>에서 돌고, 웹 대시보드·API·DB·fleet 관제는 <strong>클라우드 백엔드(인터넷·REST·영속화)</strong>에 있다.
+           DDS는 인터넷 너머로 그대로 못 나가므로, 둘 사이에 <strong>bridge(브리지)</strong>를 둔다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 320" role="img" aria-label="ROS2와 백엔드 연동 아키텍처 다이어그램">
+            <style>
+              .bx{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .bx-soft{fill:#F8F7F4;stroke:#9CA3AF;stroke-width:1.2}
+              .bx-acc{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .zt{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280;font-weight:700;letter-spacing:.04em}
+              .m{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .s{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#6B7280}
+              .k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .fl{stroke:#B45309;stroke-width:1.6;fill:none}
+            </style>
+            <defs><marker id="fah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <!-- zone labels -->
+            <text class="zt" x="30" y="24">로봇 온보드 (ROS2 / DDS)</text>
+            <text class="zt" x="300" y="24">네트워크 브리지</text>
+            <text class="zt" x="545" y="24">클라우드 백엔드</text>
+
+            <!-- robot zone -->
+            <rect x="30" y="40" width="190" height="240" rx="6" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <rect class="bx-soft" x="46" y="60" width="158" height="34" rx="4"/><text class="m" x="125" y="82" text-anchor="middle">/sensor nodes</text>
+            <rect class="bx-soft" x="46" y="104" width="158" height="34" rx="4"/><text class="m" x="125" y="126" text-anchor="middle">/perception</text>
+            <rect class="bx-soft" x="46" y="148" width="158" height="34" rx="4"/><text class="m" x="125" y="170" text-anchor="middle">/controller</text>
+            <rect class="bx-acc" x="46" y="210" width="158" height="46" rx="4"/><text class="m" x="125" y="230" text-anchor="middle" fill="#B45309">bridge node</text><text class="s" x="125" y="246" text-anchor="middle">ROS2 ↔ 외부</text>
+
+            <!-- bridge zone -->
+            <rect class="bx" x="290" y="70" width="150" height="30" rx="4"/><text class="m" x="365" y="90" text-anchor="middle">rosbridge / WS</text>
+            <rect class="bx" x="290" y="110" width="150" height="30" rx="4"/><text class="m" x="365" y="130" text-anchor="middle">foxglove_bridge</text>
+            <rect class="bx" x="290" y="150" width="150" height="30" rx="4"/><text class="m" x="365" y="170" text-anchor="middle">mqtt_client</text>
+            <rect class="bx" x="290" y="190" width="150" height="30" rx="4"/><text class="m" x="365" y="210" text-anchor="middle">zenoh / DDS Router</text>
+            <rect class="bx" x="290" y="230" width="150" height="30" rx="4"/><text class="m" x="365" y="250" text-anchor="middle">gRPC / REST GW</text>
+
+            <!-- backend zone -->
+            <rect x="510" y="40" width="185" height="240" rx="6" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <rect class="bx" x="526" y="70" width="153" height="40" rx="4"/><text class="k" x="602" y="94" text-anchor="middle">API 서버</text>
+            <rect class="bx" x="526" y="120" width="153" height="40" rx="4"/><text class="k" x="602" y="144" text-anchor="middle">DB · 텔레메트리 저장</text>
+            <rect class="bx" x="526" y="170" width="153" height="40" rx="4"/><text class="k" x="602" y="194" text-anchor="middle">웹 대시보드</text>
+            <rect class="bx" x="526" y="220" width="153" height="40" rx="4"/><text class="k" x="602" y="244" text-anchor="middle">Fleet 관제</text>
+
+            <!-- flows -->
+            <line class="fl" x1="204" y1="233" x2="288" y2="180" marker-end="url(#fah)"/>
+            <line class="fl" x1="440" y1="165" x2="508" y2="150" marker-end="url(#fah)"/>
+            <text class="s" x="455" y="292" text-anchor="middle">TLS · 압축 · QoS↔전송신뢰성 매핑</text>
+          </svg>
+          <figcaption>로봇 온보드의 bridge node가 ROS2 내부를 WS/MQTT/Zenoh/gRPC로 변환해 클라우드 백엔드에 연결한다.</figcaption>
+        </figure>
+
+        <h3>연동 방법 — 무엇을 언제</h3>
+        <table>
+          <thead><tr><th>도구</th><th>전송</th><th>언제</th></tr></thead>
+          <tbody>
+            <tr><td><code>rosbridge_suite</code> (rosbridge_server)</td><td>WebSocket + JSON (roslibjs)</td><td>웹·모바일 UI에서 topic pub/sub — 가장 흔한 웹 연동</td></tr>
+            <tr><td><code>foxglove_bridge</code></td><td>WebSocket</td><td>Foxglove로 실시간 관측·시각화·디버깅</td></tr>
+            <tr><td><code>mqtt_client</code></td><td>ROS2 topic ↔ MQTT broker</td><td>IoT·원격 텔레메트리·저대역 무선</td></tr>
+            <tr><td><code>zenoh-bridge-ros2dds</code></td><td>DDS ↔ Zenoh</td><td>WAN·멀티로봇·인터넷 라우팅·방화벽 통과</td></tr>
+            <tr><td>eProsima DDS Router (<code>ddsrouter</code>)</td><td>DDS ↔ DDS (WAN-over-TCP/TLS)</td><td>DDS 도메인·네트워크 간 브리지(방화벽 너머). 흔한 "Fast DDS Router"는 통칭</td></tr>
+            <tr><td>커스텀 gRPC / REST 게이트웨이 node</td><td>gRPC · HTTP</td><td>ROS2 service/action을 백엔드에 노출 · 백엔드→로봇 명령</td></tr>
+          </tbody>
+        </table>
+
+        <h3>연동 시 반드시 고려할 것</h3>
+        <ul>
+          <li><strong>대역폭</strong> — 이미지·포인트클라우드는 그대로 보내지 말고 압축·다운샘플·해상도 조정. 고빈도 topic은 throttle.</li>
+          <li><strong>QoS ↔ 전송 신뢰성 매핑</strong> — ROS2 reliable을 TCP/WS의 신뢰 전송에, best-effort를 손실 허용 경로에 대응. 브리지가 QoS를 삼키지 않는지 확인.</li>
+          <li><strong>보안</strong> — 온보드는 DDS-Security(인증·암호화), 브리지 밖 구간은 TLS/mTLS + 인증 토큰. 로봇을 공용 인터넷에 그대로 노출 금지.</li>
+          <li><strong>시간 동기</strong> — 로봇·백엔드 타임스탬프 정합을 위해 NTP(또는 정밀 제어는 PTP).</li>
+          <li><strong>back-pressure · 오프라인</strong> — 네트워크 단절 시 온보드 버퍼링·재전송 큐, 백엔드 과부하 시 drop 정책.</li>
+        </ul>
+
+        <div class="note">
+          <div class="t">면접 포인트</div>
+          <p>· 로봇 상태를 <strong>웹 대시보드에 실시간</strong> 표시? → <code>rosbridge_server</code>(WS)+roslibjs 또는 <code>foxglove_bridge</code>, 고빈도는 다운샘플/best-effort.<br>
+             · <strong>여러 로봇을 클라우드에서 관제</strong>? → <code>zenoh-bridge-ros2dds</code>/DDS Router로 WAN 브리지 + MQTT 텔레메트리 + fleet 백엔드, 로봇별 <code>ROS_DOMAIN_ID</code>·namespace 격리.<br>
+             · <strong>백엔드에서 로봇에 명령</strong>? → gRPC/REST 게이트웨이 node가 요청을 받아 ROS2 <code>service</code>/<code>action</code>으로 변환(장시간 작업은 action).</p>
+        </div>
+      </section>
+
+      <!-- 7 : 베스트 프랙티스 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>QoS</td><td>topic별 QoS를 API 계약처럼 문서화 · 센서는 SensorDataQoS, 명령은 reliable, 지도는 transient_local</td><td>기본 QoS 방치 후 "왜 안 와?" · best-effort pub ↔ reliable sub 조합</td></tr>
+            <tr><td>Composition</td><td>지연·고대역 경로(카메라→인지)는 한 container 컴포넌트로 intra-process·제로카피</td><td>무조건 프로세스 분리로 대용량 메시지 매번 직렬화·복사</td></tr>
+            <tr><td>Executor</td><td>공유 상태 콜백은 하나의 mutually-exclusive 그룹 · 호출부/응답부는 다른 그룹</td><td>콜백 내부 동기 spin·장시간 블로킹 · Multi-threaded 켜고 그룹은 전부 기본</td></tr>
+            <tr><td>Parameters</td><td>전부 declare + 타입 명시 · launch YAML 주입 · on_set 콜백으로 값 검증</td><td>하드코딩 · 바뀌면 안 되는 값을 파라미터로 노출</td></tr>
+            <tr><td>네트워크·연동</td><td><code>ROS_DOMAIN_ID</code>로 로봇 격리 · 인터넷 구간은 bridge+TLS · 대용량은 압축</td><td>DDS를 공용 인터넷에 직접 노출 · 원본 이미지를 그대로 브리지로 전송</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 8 : 면접 필수 개념 -->
+      <section id="s8">
+        <h2 class="sec"><span class="n">08</span>면접 필수 개념<span class="lvl">난이도 필수</span></h2>
+        <ol>
+          <li><strong>Topic vs Service vs Action</strong> — 스트림 / 즉답 RPC / 장시간+피드백+취소. action = 내부 3 service + 2 topic.</li>
+          <li><strong>DDS 분산 discovery</strong> — master 없음, RTPS SPDP/SEDP, <code>ROS_DOMAIN_ID</code> 격리, P2P.</li>
+          <li><strong>QoS 호환성</strong> — reliability·durability 매칭(offered ≥ requested), mismatch = 조용한 두절, <code>ros2 topic info -v</code> 진단.</li>
+          <li><strong>Executor + Callback Group</strong> — single vs multi-threaded, mutually-exclusive vs reentrant, 기본 그룹이 병렬을 막는 함정.</li>
+          <li><strong>ROS1 vs ROS2</strong> — master 제거, TCPROS→DDS, QoS·실시간·보안, 통합 rcl, 멀티플랫폼.</li>
+          <li><strong>rmw/rcl 계층</strong> — 벤더 스왑(<code>RMW_IMPLEMENTATION</code>), Fast DDS 기본.</li>
+          <li><strong>Lifecycle nodes</strong> — 상태 머신, 순차 bring-up(Nav2 Lifecycle Manager).</li>
+          <li><strong>ROS2 ↔ Backend 연동</strong> — rosbridge(WS)·mqtt_client·zenoh/DDS Router·gRPC 게이트웨이, QoS↔전송·보안·대역폭 고려.</li>
+          <li><strong>tf2</strong> — 시간버퍼 좌표 변환 트리, <code>/tf</code>·<code>/tf_static</code>, REP-105의 <code class="inline">map → odom → base_link</code>. Nav2·MoveIt2의 공통 backbone.</li>
+          <li><strong>Nav2 / MoveIt2(개괄)</strong> — Nav2: behavior tree 자율주행(경로계획·costmap·AMCL·<code>NavigateToPose</code>). MoveIt2: 매니퓰레이터 모션 플래닝(IK·충돌회피).</li>
+        </ol>
+      </section>
+
+      <!-- 9 : 예상 질문 & 답변 -->
+      <section id="s9">
+        <h2 class="sec"><span class="n">09</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+
+        <div class="qa">
+          <div class="q">Topic과 Action은 각각 언제 쓰나?</div>
+          <div class="a">Topic은 <strong>연속 스트림 + 다수 구독자 + 응답 불필요</strong>(센서 데이터, <code class="inline">/cmd_vel</code>).
+             Action은 <strong>오래 걸리고(초~분) + 진행 피드백 + 중간 취소/선점</strong>이 필요할 때(웨이포인트 이동, 팔 궤적). 짧은 즉답이면 action이 아니라 service.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">QoS mismatch로 통신이 안 될 때 원인과 진단은?</div>
+          <div class="a">subscriber 요구가 publisher 제공보다 엄격하면 매칭 실패로 <strong>에러 없이 데이터 0</strong>. 최다 케이스는
+             best-effort publisher(카메라 SensorDataQoS) ↔ reliable subscriber(기본). 규칙은 "제공 ≥ 요구". <code class="inline">ros2 topic info -v</code>로 양쪽 실제 QoS를 비교해 맞춘다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">ROS2가 rosmaster를 없앤 이유는?</div>
+          <div class="a"><code>rosmaster</code>는 모든 discovery를 중개하는 <strong>단일 장애점</strong>이라 죽으면 새 연결이 전부 불가했다. ROS2는 <strong>DDS 분산 discovery(RTPS SPDP/SEDP)</strong>로
+             중앙 조정자 없이 P2P로 서로를 발견한다. 부분 장애 내성·동적 확장·자동 발견을 얻고, <code>ROS_DOMAIN_ID</code>로 논리 격리·QoS·보안까지 표준으로 딸려온다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">MultiThreadedExecutor에서 콜백 race를 어떻게 막나?</div>
+          <div class="a">callback group으로 통제한다. <strong>공유 상태를 만지는 콜백들을 같은 MutuallyExclusiveCallbackGroup</strong>에 배정하면 executor가 그 그룹을 직렬화해 동시 접근이 없다.
+             병렬이 필요한 독립 콜백만 별도 그룹/reentrant에 둔다. 주의: 기본 그룹은 mutually-exclusive라, 아무 지정 없이 multi-threaded만 켜면 실제로는 직렬 실행된다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Service를 콜백 안에서 동기로 호출하면 왜 deadlock이 나나?</div>
+          <div class="a">single-thread(또는 하나의 mutually-exclusive 그룹)에서 <strong>콜백 안에서 service를 보내고 같은 executor로 응답을 spin-wait</strong>하면,
+             응답 콜백을 돌릴 스레드가 그 콜백에 붙잡혀 영원히 대기한다. 해결: <code class="inline">call_async</code> + future 콜백, 또는 호출부/응답부를 다른 callback group에 두고 multi-threaded 사용.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">로봇의 실시간 상태를 웹 대시보드로 어떻게 내보내나?</div>
+          <div class="a">온보드에 <strong>bridge node</strong>를 둔다. 웹이면 <code>rosbridge_server</code>(WebSocket+JSON)에 roslibjs로 붙어 topic을 구독하거나, 관측·디버깅은 <code>foxglove_bridge</code>.
+             고빈도·대용량(카메라)은 <strong>다운샘플·압축·best-effort</strong>로 대역폭을 줄이고, 브리지 밖 구간은 <strong>TLS</strong>로 감싼다. 멀티로봇 관제는 <code>zenoh-bridge-ros2dds</code>/DDS Router로 WAN을 잇는다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Lifecycle node는 일반 node와 뭐가 다르고 언제 쓰나?</div>
+          <div class="a">일반 node는 생성 즉시 동작하지만, lifecycle node는 <code class="inline">Unconfigured→Inactive→Active</code> 상태 머신을 거쳐 리소스 초기화와 동작 시점을 분리한다.
+             Inactive에선 리소스는 잡되 publish·콜백은 비활성이라 <strong>결정적 순차 부팅</strong>이 된다. 다수 node를 정해진 순서로 켜야 하는 시스템(대표적으로 Nav2)에서 쓴다.</div>
+        </div>
+      </section>
+
+      <!-- 10 : 참고자료 -->
+      <section id="s10">
+        <h2 class="sec"><span class="n">10</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <ul>
+          <li><a class="link" href="https://docs.ros.org/en/jazzy/Concepts.html" target="_blank" rel="noopener">ROS2 Concepts — 개념 인덱스 (Jazzy)</a></li>
+          <li><a class="link" href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html" target="_blank" rel="noopener">QoS 설정 개념</a> · <a class="link" href="https://design.ros2.org/articles/qos.html" target="_blank" rel="noopener">QoS 설계 근거</a></li>
+          <li><a class="link" href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Executors.html" target="_blank" rel="noopener">Executors 개념</a> · <a class="link" href="https://docs.ros.org/en/jazzy/How-To-Guides/Using-callback-groups.html" target="_blank" rel="noopener">Callback groups 가이드</a></li>
+          <li><a class="link" href="https://docs.ros.org/en/jazzy/Concepts/Basic/About-Actions.html" target="_blank" rel="noopener">Actions 개념</a> · <a class="link" href="https://design.ros2.org/articles/actions.html" target="_blank" rel="noopener">Actions 설계</a></li>
+          <li><a class="link" href="https://design.ros2.org/articles/node_lifecycle.html" target="_blank" rel="noopener">Managed(Lifecycle) Nodes 설계</a></li>
+          <li><a class="link" href="https://github.com/RobotWebTools/rosbridge_suite" target="_blank" rel="noopener">rosbridge_suite</a> · <a class="link" href="https://github.com/foxglove/ros-foxglove-bridge" target="_blank" rel="noopener">foxglove_bridge</a> · <a class="link" href="https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds" target="_blank" rel="noopener">zenoh-bridge-ros2dds</a></li>
+          <li><a class="link" href="https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Tf2.html" target="_blank" rel="noopener">tf2 개념</a> · <a class="link" href="https://www.ros.org/reps/rep-0105.html" target="_blank" rel="noopener">좌표 프레임 표준 REP-105</a></li>
+          <li><a class="link" href="https://docs.nav2.org/" target="_blank" rel="noopener">Nav2 문서</a> · <a class="link" href="https://moveit.picknik.ai/" target="_blank" rel="noopener">MoveIt2 문서</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        ROS2 학습 자료 (개념 + Backend 연동) · 로봇/백엔드 엔지니어 면접 대비 시리즈 · 출처는 각 섹션의 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 목차 스크롤스파이 — 현재 화면의 섹션을 TOC에서 강조
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+
+  // 코드블록 복사 버튼
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>
