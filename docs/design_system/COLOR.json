@@ -1,0 +1,81 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "OHPen Landing System",
+  "version": "1.0.0",
+  "source": "index.html",
+  "updated": "2026-07-21",
+  "description": "라이트 웜 페이퍼 마케팅 랜딩 시스템. 무채색 웜 그레이 베이스 + 액센트 1색(딥 틸 #003748). 다크 헤더 1개, 랜딩 본문엔 그림자 없음(테두리로 구획). 그라데이션 금지(텔레그램 카드 1곳만 예외). 데모 위젯(#demo)은 앱 UI를 재현하는 별도 다크 팔레트 스코프이며 이 토큰과 섞지 않는다.",
+
+  "color": {
+    "bg":          { "value": "#faf9f5", "usage": "페이지 배경(웜 페이퍼)" },
+    "surface":     { "value": "#ffffff", "usage": "카드·표·FAQ·가격박스 면" },
+    "border":      { "value": "#e7e5dc", "usage": "1px 구획선(모든 카드·표·입력)" },
+    "text":        { "value": "#1a1a18", "usage": "본문·제목" },
+    "text-muted":  { "value": "#57564f", "usage": "보조 텍스트·메타·캡션" },
+    "accent":      { "value": "#003748", "usage": "유일 액센트 — 버튼·링크·kbd 칩·Pro 칩·강조 테두리·Pro 열·헤더 (딥 틸)" },
+    "accent-ink":  { "value": "#ffffff", "usage": "액센트 배경 위 텍스트" },
+    "link":        { "value": "#003748", "usage": "링크(accent와 동일 값)" },
+    "kbd-bg":      { "value": "#efeee7", "usage": "FAQ kbd 칩·CTA 밴드·hover 면(웜 그레이)" }
+  },
+
+  "header": {
+    "comment": "사이트 유일 다크 영역. 나머지 페이지는 전부 라이트.",
+    "bg":         { "value": "#003748", "usage": "헤더 배경(accent와 동일)" },
+    "text":       { "value": "rgba(255,255,255,0.75)", "usage": "네비 링크" },
+    "text-mono":  { "value": "rgba(255,255,255,0.7)",  "usage": "언어 스위치" },
+    "text-strong":{ "value": "#ffffff", "usage": "로고·현재 언어·hover" },
+    "border":     { "value": "rgba(255,255,255,0.14)", "usage": "헤더 하단 구획선" },
+    "cta-border": { "value": "rgba(255,255,255,0.5)",  "usage": "다크 헤더 위 accent 버튼(동색)의 구획 테두리" }
+  },
+
+  "overlay": {
+    "comment": "중성 오버레이(데모 줌 렌즈·영상 모달). 유채색 없음. 렌즈 배경 = 슬라이드색 #F4F5F7(목업 클론이 투명 → wrap 배경 대체; #000이면 검정 반전).",
+    "lens-bg":       { "value": "#F4F5F7", "usage": "데모 줌 렌즈 배경(슬라이드색)" },
+    "lens-border":   { "value": "rgba(0,0,0,0.5)", "usage": "데모 줌 렌즈 테두리(라이트 슬라이드 위)" },
+    "select-border": { "value": "rgba(0,0,0,0.6)", "usage": "데모 줌 러버밴드 선택 사각형" },
+    "scrim":         { "value": "rgba(0,0,0,0.6)",  "usage": "데모 줌 닫기 버튼 배경" },
+    "scrim-badge":   { "value": "rgba(0,0,0,0.65)", "usage": "렌즈 배율 배지" },
+    "scrim-shadow":  { "value": "rgba(0,0,0,0.35)", "usage": "데모 렌즈 그림자(사이트 유일 그림자)" },
+    "modal-backdrop":{ "value": "rgba(26,26,24,0.72)", "usage": "영상 모달 백드롭" }
+  },
+
+  "font": {
+    "sans": { "value": "\"IBM Plex Sans KR\", \"IBM Plex Sans\", sans-serif", "usage": "본문·제목(한글 글리프 포함)" },
+    "mono": { "value": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, monospace", "usage": "kbd·메타·캡션·가격·수치" }
+  },
+
+  "radius": {
+    "sm": { "value": "4px", "usage": "칩·작은 요소" },
+    "md": { "value": "8px", "usage": "버튼·카드·표·FAQ 기본" }
+  },
+
+  "layout": {
+    "max-width": { "value": "1120px", "usage": "콘텐츠 최대 폭(--maxw)" }
+  },
+
+  "exceptions": {
+    "comment": "시스템 규칙(그라데이션 금지·액센트 1색·그림자 없음)의 명시적 예외.",
+    "telegram-gradient": {
+      "value": "linear-gradient(180deg, #2AABEE, #229ED9)",
+      "usage": "FAQ 하단 문의 카드 1곳만. 서드파티(Telegram) 브랜드 재현 — 사이트 유일 그라데이션·유일 유채색 요소. 확장 금지."
+    }
+  },
+
+  "demoWidget": {
+    "comment": "인터랙티브 데모(#demo)는 실제 앱 UI를 재현하는 임베드 위젯. `.ohpen-demo`로 스코프된 별도 다크 팔레트 — 랜딩 토큰과 섞지 말 것. 정본: docs/demo/index.html.",
+    "chrome": {
+      "bg":      { "value": "#1C2024", "usage": "데모 툴바 배경" },
+      "surface": { "value": "#2B2D30", "usage": "데모 버튼·면" },
+      "border":  { "value": "rgba(255,255,255,0.08)", "usage": "데모 구획선" },
+      "text":    { "value": "#EDEEF0", "usage": "데모 텍스트" },
+      "muted":   { "value": "#9BA1A6", "usage": "데모 보조" },
+      "accent":  { "value": "#E5484D", "usage": "데모 액센트(앱 기본 펜 색)" },
+      "kbd-bg":  { "value": "#17191C", "usage": "데모 kbd" }
+    },
+    "drawingPalette": {
+      "comment": "앱 src/shared/shapes.ts 미러. 데모 색상 스와치.",
+      "pen":         ["#E5484D", "#F76B15", "#FFE629", "#30A46C", "#0090FF", "#1C2024", "#FFFFFF"],
+      "highlighter": ["#FBFF00", "#FF2E9A", "#3DFF6E", "#00E1FF", "#FF7A00", "#B26BFF"]
+    }
+  }
+}
