@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>REST API / gRPC 설계 — 면접 대비 단계별 학습</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="REST API와 gRPC를 정의·용어사전·통신 구조·설계 원리·베스트 프랙티스·면접 핵심·예상 질답까지 쉬움→필수 순으로 정리한 백엔드 엔지니어 면접 대비 학습 자료.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  /* 용어 사전 표 — 약어/풀네임을 고정폭으로 강조 */
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Backend Interview · API Design</div>
+    <h1>REST API / gRPC 설계</h1>
+    <p class="lead">두 API 스타일을 <strong>정의 → 용어 사전 → 통신 구조 → 설계 원리 → 베스트 프랙티스 → 면접 핵심 → 예상 질답</strong> 순으로
+       <strong>쉬움 → 필수</strong>로 쌓는다. "언제 REST, 언제 gRPC"를 근거로 말할 수 있게 만드는 것이 목표다.</p>
+    <p class="meta">대상: 백엔드/API 엔지니어 면접 · 기준: HTTP/1.1·HTTP/2 · gRPC(protobuf 3)</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">REST와 gRPC란? · 왜</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">통신 구조 — REST vs gRPC</a></li>
+        <li><a href="#s3">설계 원리 / 핵심 요소</a></li>
+        <li><a href="#s4">베스트 프랙티스</a></li>
+        <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
+        <li><a href="#s6">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s7">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p>섹션마다 난이도 태그가 붙어 있다. <strong>00~01</strong>은 개념·용어(쉬움), <strong>02~04</strong>는 설계 원리(중간),
+           <strong>05~06</strong>은 면접 직전 정리(필수)다. 모르는 약어는 <strong>01 용어 사전</strong>으로 돌아가면 된다.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>REST와 gRPC란? · 왜<span class="lvl">난이도 쉬움</span></h2>
+        <p><strong>REST(Representational State Transfer)</strong>는 자원(resource)을 URL로 지목하고 HTTP 메서드(GET/POST/PUT/DELETE)로
+           조작하는 <strong>아키텍처 스타일</strong>이다. 텍스트(주로 JSON)로 주고받고, 사람이 읽기 쉽고, 브라우저·캐시·프록시 등 HTTP 생태계를 그대로 쓴다.</p>
+        <p><strong>gRPC</strong>는 Google이 만든 <strong>RPC(원격 프로시저 호출) 프레임워크</strong>다. <code>.proto</code> IDL로 서비스·메시지를 정의하고,
+           <strong>HTTP/2</strong> 위에서 <strong>protobuf</strong> 바이너리로 통신한다. 코드 생성으로 클라이언트 stub을 자동으로 만들고, 4가지 스트리밍을 지원한다.</p>
+        <table>
+          <thead><tr><th>축</th><th>REST</th><th>gRPC</th></tr></thead>
+          <tbody>
+            <tr><td>모델</td><td>자원 중심(resource) · CRUD 매핑</td><td>동작 중심(procedure) · 함수 호출</td></tr>
+            <tr><td>전송/포맷</td><td>HTTP/1.1 · JSON(텍스트)</td><td>HTTP/2 · protobuf(바이너리)</td></tr>
+            <tr><td>계약</td><td>OpenAPI(선택, 느슨)</td><td><code>.proto</code> IDL(강제, 엄격)</td></tr>
+            <tr><td>스트리밍</td><td>기본 요청-응답(SSE로 단방향 보조)</td><td>4종(unary·server·client·bidi)</td></tr>
+            <tr><td>브라우저</td><td>네이티브 지원</td><td>직접 불가 → grpc-web 필요</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>외부 공개·브라우저·캐시 친화 = <strong>REST</strong>. 내부 서비스 간 저지연·강한 계약·스트리밍 = <strong>gRPC</strong>.</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <p>API 설계 면접에 쏟아지는 약어를 <strong>약어 → 풀 네이밍 → 한 줄 의미</strong>로 정리했다.</p>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>REST</td><td>Representational State Transfer</td><td>자원을 URL로 지목, HTTP 메서드로 조작하는 아키텍처 스타일.</td></tr>
+            <tr><td>RPC</td><td>Remote Procedure Call</td><td>원격 함수를 로컬 함수처럼 호출하는 모델. gRPC의 뿌리.</td></tr>
+            <tr><td>gRPC</td><td>gRPC Remote Procedure Calls</td><td>HTTP/2 + protobuf 기반 고성능 RPC 프레임워크(재귀 약어).</td></tr>
+            <tr><td>HTTP</td><td>HyperText Transfer Protocol</td><td>웹 요청/응답 프로토콜. REST의 전송 계층.</td></tr>
+            <tr><td>HTTP/2</td><td>(버전 2)</td><td>멀티플렉싱·헤더 압축·바이너리 프레이밍. gRPC 전송.</td></tr>
+            <tr><td>protobuf</td><td>Protocol Buffers</td><td>Google의 바이너리 직렬화 포맷 + IDL. 작고 빠르고 스키마 강제.</td></tr>
+            <tr><td>IDL</td><td>Interface Definition Language</td><td>서비스·메시지 계약 기술 언어(gRPC의 <code>.proto</code>).</td></tr>
+            <tr><td>CRUD</td><td>Create · Read · Update · Delete</td><td>자원 4대 연산. REST 메서드에 매핑(POST/GET/PUT/DELETE).</td></tr>
+            <tr><td>idempotent</td><td>(멱등)</td><td>같은 요청을 여러 번 보내도 결과가 같음. GET/PUT/DELETE는 멱등, POST는 아님.</td></tr>
+            <tr><td>HATEOAS</td><td>Hypermedia As The Engine Of Application State</td><td>응답에 다음 동작 링크 포함(REST 성숙도 최상위 레벨 3).</td></tr>
+            <tr><td>OpenAPI</td><td>(구 Swagger)</td><td>REST API 계약 명세 표준(문서·코드생성).</td></tr>
+            <tr><td>stub</td><td>(클라이언트 스텁)</td><td>protobuf에서 생성된 원격 호출 대리 객체.</td></tr>
+            <tr><td>deadline / timeout</td><td>(gRPC 데드라인)</td><td>호출 마감 시각. 초과 시 취소. 분산 호출 전파에 중요.</td></tr>
+            <tr><td>grpc-web</td><td>(브라우저용 gRPC)</td><td>브라우저 제약 우회를 위한 프록시 기반 gRPC 클라이언트.</td></tr>
+            <tr><td>SSE</td><td>Server-Sent Events</td><td>HTTP로 서버→클라 단방향 스트리밍(REST 보조).</td></tr>
+            <tr><td>TLS / mTLS</td><td>Transport Layer Security / mutual TLS</td><td>전송 암호화 / 양방향 인증(내부 gRPC에 흔함).</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 통신 구조 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>통신 구조 — REST vs gRPC<span class="lvl">난이도 중간</span></h2>
+        <p>같은 "클라이언트가 서버를 호출한다"라도 계층·포맷·연결 방식이 다르다.</p>
+        <figure>
+          <svg viewBox="0 0 720 340" role="img" aria-label="REST와 gRPC 통신 구조 비교">
+            <style>
+              .b{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .b2{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .t1{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111}
+              .t2{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .kk{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .a1{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .l1{stroke:#B45309;stroke-width:1.6;fill:none}
+              .l2{stroke:#6B7280;stroke-width:1.4;fill:none}
+            </style>
+            <defs>
+              <marker id="r_a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker>
+              <marker id="r_a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6B7280"/></marker>
+            </defs>
+
+            <!-- REST -->
+            <text class="kk" x="30" y="28" font-weight="700">REST</text>
+            <rect class="b" x="30" y="44" width="150" height="46" rx="4"/>
+            <text class="t1" x="105" y="72" text-anchor="middle">Client</text>
+            <line class="l1" x1="180" y1="60" x2="330" y2="60" marker-end="url(#r_a)"/>
+            <text class="a1" x="255" y="52" text-anchor="middle">GET /users/1</text>
+            <line class="l2" x1="330" y1="76" x2="180" y2="76" marker-end="url(#r_a2)"/>
+            <text class="t2" x="255" y="94" text-anchor="middle">200 · JSON</text>
+            <rect class="b" x="330" y="44" width="150" height="46" rx="4"/>
+            <text class="t1" x="405" y="72" text-anchor="middle">Server</text>
+            <text class="t2" x="520" y="60" text-anchor="start">HTTP/1.1</text>
+            <text class="t2" x="520" y="80" text-anchor="start">텍스트 · 요청-응답</text>
+
+            <line x1="30" y1="120" x2="690" y2="120" stroke="#E5E7EB" stroke-width="1"/>
+
+            <!-- gRPC -->
+            <text class="kk" x="30" y="156" font-weight="700">gRPC</text>
+            <rect class="b" x="30" y="172" width="150" height="46" rx="4"/>
+            <text class="t1" x="105" y="194" text-anchor="middle">Client</text>
+            <text class="t2" x="105" y="210" text-anchor="middle">stub</text>
+            <line class="l1" x1="180" y1="188" x2="330" y2="188" marker-end="url(#r_a)"/>
+            <text class="a1" x="255" y="180" text-anchor="middle">GetUser(id)</text>
+            <line class="l2" x1="330" y1="204" x2="180" y2="204" marker-end="url(#r_a2)"/>
+            <text class="t2" x="255" y="222" text-anchor="middle">protobuf</text>
+            <rect class="b" x="330" y="172" width="150" height="46" rx="4"/>
+            <text class="t1" x="405" y="194" text-anchor="middle">Server</text>
+            <text class="t2" x="405" y="210" text-anchor="middle">impl</text>
+            <text class="t2" x="520" y="188" text-anchor="start">HTTP/2 멀티플렉싱</text>
+            <text class="t2" x="520" y="208" text-anchor="start">바이너리 · 스트리밍</text>
+
+            <!-- streaming modes -->
+            <rect class="b2" x="30" y="250" width="660" height="66" rx="4"/>
+            <text class="kk" x="45" y="272" font-weight="700" font-size="12">gRPC 4 스트리밍</text>
+            <text class="t2" x="45" y="294">unary(1:1) · server-streaming(1:N) · client-streaming(N:1) · bidirectional(N:N)</text>
+            <text class="t2" x="45" y="310">.proto IDL → 코드생성(stub) · deadline 전파 · TLS/mTLS</text>
+          </svg>
+          <figcaption>REST는 HTTP/1.1+JSON 요청-응답, gRPC는 HTTP/2+protobuf에 4가지 스트리밍.</figcaption>
+        </figure>
+      </section>
+
+      <!-- 3 : 설계 원리 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>설계 원리 / 핵심 요소<span class="lvl">난이도 중간</span></h2>
+        <h3>REST 핵심</h3>
+        <ul>
+          <li><strong>Statelessness</strong> — 서버가 세션 상태를 안 들고, 요청마다 자기충족. 수평 확장 쉬움.</li>
+          <li><strong>메서드 · 상태코드</strong> — GET(조회)·POST(생성)·PUT(전체 교체)·PATCH(부분)·DELETE. 2xx 성공·4xx 클라 오류·5xx 서버 오류.</li>
+          <li><strong>멱등성</strong> — GET/PUT/DELETE는 멱등, POST는 아님. 재시도 안전성의 근거.</li>
+          <li><strong>캐싱</strong> — <code>ETag</code>·<code>Cache-Control</code>로 HTTP 캐시/CDN 활용(REST의 큰 이점).</li>
+          <li><strong>Richardson 성숙도</strong> — L0 단일 엔드포인트 → L1 자원 → L2 HTTP 메서드/상태코드 → L3 HATEOAS.</li>
+        </ul>
+        <h3>gRPC 핵심</h3>
+        <ul>
+          <li><strong>protobuf IDL</strong> — <code>.proto</code>에 서비스·메시지 정의 → 다국어 stub 코드 생성. 계약이 코드로 강제됨.</li>
+          <li><strong>HTTP/2</strong> — 한 연결에 다중 스트림 멀티플렉싱, 헤더 압축(HPACK)으로 저지연·고효율.</li>
+          <li><strong>4 스트리밍</strong> — unary/server/client/bidirectional. 실시간·대용량에 유리.</li>
+          <li><strong>deadline</strong> — 호출 마감을 서버 체인으로 전파해 tail latency·자원 누수 방지.</li>
+          <li><strong>스키마 진화</strong> — 필드 번호 기반. 필드 추가는 호환, 번호 재사용·타입 변경은 파괴.</li>
+        </ul>
+      </section>
+
+      <!-- 4 : 베스트 프랙티스 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>버저닝</td><td>REST: URL(<code>/v1</code>)·헤더 · gRPC: 패키지 버전 · 하위호환 우선</td><td>기존 필드 의미 변경 · protobuf 필드 번호 재사용</td></tr>
+            <tr><td>에러 모델</td><td>REST: 표준 상태코드 + 문제 상세 · gRPC: status code + details</td><td>모든 오류를 200으로 감싸기</td></tr>
+            <tr><td>페이지네이션</td><td>커서 기반(안정) · 정렬 키 명시</td><td>대량 데이터에 offset만 · 무제한 목록</td></tr>
+            <tr><td>계약</td><td>REST: OpenAPI 문서화 · gRPC: <code>.proto</code>를 단일 출처</td><td>문서 없이 필드 추가 · 클라와 서버 스키마 불일치</td></tr>
+            <tr><td>선택</td><td>외부·브라우저·캐시=REST · 내부 저지연·스트리밍=gRPC · 유연 조회=GraphQL</td><td>브라우저 직결에 gRPC 강행(grpc-web 없이)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5 : 면접 핵심 정리 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong> 반드시 그릴 그림 · 파고드는 설명 · 정의할 용어 · 아는지 확인하는 체크리스트를 모았다.</p>
+
+        <h3>① 반드시 그리는 그림 — 선택 기준</h3>
+        <figure>
+          <svg viewBox="0 0 720 260" role="img" aria-label="REST vs gRPC 선택 기준 다이어그램">
+            <style>
+              .db{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .dt{font-family:'Noto Sans KR',sans-serif;font-size:13px;fill:#111}
+              .ds{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .da{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .dl{stroke:#B45309;stroke-width:1.6;fill:none}
+            </style>
+            <defs><marker id="d_a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+            <rect class="db" x="270" y="20" width="180" height="44" rx="4"/>
+            <text class="dt" x="360" y="47" text-anchor="middle">API 경계는?</text>
+
+            <line class="dl" x1="360" y1="64" x2="150" y2="120" marker-end="url(#d_a)"/>
+            <line class="dl" x1="360" y1="64" x2="570" y2="120" marker-end="url(#d_a)"/>
+            <text class="da" x="230" y="98">외부·브라우저</text>
+            <text class="da" x="470" y="98">내부 서비스 간</text>
+
+            <rect class="db" x="60" y="124" width="200" height="50" rx="4"/>
+            <text class="dt" x="160" y="146" text-anchor="middle">REST + JSON</text>
+            <text class="ds" x="160" y="164" text-anchor="middle">캐시·HTTP 생태계</text>
+            <rect class="db" x="460" y="124" width="200" height="50" rx="4"/>
+            <text class="dt" x="560" y="146" text-anchor="middle">gRPC + protobuf</text>
+            <text class="ds" x="560" y="164" text-anchor="middle">저지연·스트리밍·계약</text>
+
+            <rect x="60" y="196" width="600" height="44" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="ds" x="360" y="222" text-anchor="middle">유연한 조회(과다/과소 페칭)가 문제면 → GraphQL 검토</text>
+          </svg>
+          <figcaption>경계로 나눈다 — 외부/브라우저는 REST, 내부 저지연·스트리밍은 gRPC.</figcaption>
+        </figure>
+
+        <h3>② 추가 설명 — 면접관이 파고드는 지점</h3>
+        <ul>
+          <li><strong>멱등성이 왜 중요한가</strong> — 네트워크 재시도 시 중복 부작용 방지. POST는 비멱등이라 <em>idempotency key</em>로 보완한다.</li>
+          <li><strong>gRPC가 브라우저에서 왜 안 되나</strong> — 브라우저가 HTTP/2 프레임을 직접 제어 못 해 <strong>grpc-web</strong> 프록시가 필요하다.</li>
+          <li><strong>HTTP/2 멀티플렉싱 이점</strong> — 한 TCP 연결에 다중 스트림으로 head-of-line 블로킹(HTTP/1.1)을 줄인다.</li>
+          <li><strong>protobuf 스키마 진화</strong> — 필드 <em>번호</em>가 계약. 추가는 호환, 번호 재사용·타입 변경은 파괴적.</li>
+        </ul>
+
+        <h3>③ 반드시 정의할 핵심 용어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>면접용 한 줄 정의</th></tr></thead>
+          <tbody>
+            <tr><td>Statelessness</td><td>서버가 세션을 안 들어 요청마다 자기충족 → 수평 확장 용이.</td></tr>
+            <tr><td>Idempotent</td><td>같은 요청 반복해도 결과 동일. GET/PUT/DELETE 멱등, POST 비멱등.</td></tr>
+            <tr><td>protobuf</td><td>바이너리 직렬화 + IDL. 필드 번호가 스키마 계약.</td></tr>
+            <tr><td>HTTP/2 멀티플렉싱</td><td>한 연결에 다중 스트림 → 저지연, HOL 블로킹 완화.</td></tr>
+            <tr><td>gRPC 4 스트리밍</td><td>unary·server·client·bidirectional.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 반드시 아는 개념 체크리스트</h3>
+        <ol>
+          <li><strong>REST vs gRPC vs GraphQL</strong> — 자원/캐시 · 저지연/스트리밍 · 유연 조회.</li>
+          <li><strong>HTTP 메서드·상태코드·멱등성</strong> — 재시도 안전성의 근거.</li>
+          <li><strong>Richardson 성숙도 · HATEOAS</strong>.</li>
+          <li><strong>protobuf IDL·코드생성·스키마 진화</strong>.</li>
+          <li><strong>HTTP/2 멀티플렉싱·deadline 전파</strong>.</li>
+          <li><strong>버저닝·에러 모델·커서 페이지네이션</strong>.</li>
+        </ol>
+      </section>
+
+      <!-- 6 : 예상 질문 & 답변 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+        <div class="qa">
+          <div class="q">REST와 gRPC 중 무엇을 언제 쓰나?</div>
+          <div class="a">외부 공개·브라우저·HTTP 캐시가 중요하면 <strong>REST</strong>. 내부 마이크로서비스 간 저지연·강한 계약·스트리밍이 중요하면 <strong>gRPC</strong>. 실무는 엣지(외부)=REST, 내부=gRPC 혼용이 흔하다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">멱등성이 무엇이고 왜 중요한가?</div>
+          <div class="a">같은 요청을 여러 번 보내도 결과가 같은 성질. GET/PUT/DELETE는 멱등이라 네트워크 재시도가 안전하다. POST는 비멱등이라 결제 같은 곳은 <strong>idempotency key</strong>로 중복 생성을 막는다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">gRPC가 브라우저에서 바로 안 되는 이유는?</div>
+          <div class="a">브라우저 fetch/XHR가 HTTP/2 프레이밍을 직접 제어할 수 없어 gRPC 와이어를 그대로 못 쓴다. <strong>grpc-web</strong>(프록시가 gRPC↔HTTP 변환)을 써야 하며, 이 때문에 순수 브라우저 API는 REST/GraphQL이 흔하다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">HTTP/2가 gRPC에 주는 이점은?</div>
+          <div class="a">한 TCP 연결에서 다중 스트림 <strong>멀티플렉싱</strong>으로 HTTP/1.1의 head-of-line 블로킹을 완화하고, 헤더 압축(HPACK)과 바이너리 프레이밍으로 오버헤드를 줄인다. 이 위에서 4가지 스트리밍이 가능하다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">protobuf 스키마를 안전하게 진화시키려면?</div>
+          <div class="a">필드 <strong>번호</strong>가 계약이다. 새 필드는 새 번호로 추가(하위호환), 삭제한 번호는 <code>reserved</code>로 잠근다. 번호 재사용·타입 변경·required 강제는 파괴적이라 금지한다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">REST 성숙도(Richardson) 레벨을 설명하라.</div>
+          <div class="a">L0: 단일 엔드포인트(RPC 흉내), L1: 자원별 URL, L2: HTTP 메서드·상태코드 제대로 사용(대부분의 "RESTful"), L3: HATEOAS(응답에 다음 동작 링크). 실무는 L2가 현실적 목표다.</div>
+        </div>
+      </section>
+
+      <!-- 7 : 참고자료 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <ul>
+          <li><a class="link" href="https://grpc.io/docs/what-is-grpc/introduction/" target="_blank" rel="noopener">gRPC — Introduction / Core concepts</a></li>
+          <li><a class="link" href="https://protobuf.dev/" target="_blank" rel="noopener">Protocol Buffers 공식 문서</a></li>
+          <li><a class="link" href="https://cloud.google.com/apis/design" target="_blank" rel="noopener">Google API Design Guide (REST/gRPC)</a></li>
+          <li><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods" target="_blank" rel="noopener">MDN — HTTP 메서드 / 상태코드</a></li>
+          <li><a class="link" href="https://www.rfc-editor.org/rfc/rfc9110.html" target="_blank" rel="noopener">RFC 9110 — HTTP Semantics</a></li>
+          <li><a class="link" href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        REST API / gRPC 설계 학습 자료 · 백엔드 엔지니어 면접 대비 시리즈 · 출처는 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 목차 스크롤스파이 — 현재 화면의 섹션을 TOC에서 강조
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+
+  // 코드블록 복사 버튼
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>

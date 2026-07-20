@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>Docker / Kubernetes 운영 — 면접 대비 단계별 학습</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Docker와 Kubernetes를 정의·용어사전·클러스터 아키텍처·동작 원리·운영 베스트 프랙티스·면접 핵심·예상 질답까지 쉬움→필수 순으로 정리한 백엔드/인프라 엔지니어 면접 대비 학습 자료.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Infra Interview · Containers</div>
+    <h1>Docker / Kubernetes 운영</h1>
+    <p class="lead">컨테이너(Docker)와 오케스트레이션(Kubernetes)을 <strong>정의 → 용어 → 클러스터 아키텍처 → 동작 원리 → 운영 베스트 → 면접 핵심 → 질답</strong>
+       순으로 <strong>쉬움 → 필수</strong>로 쌓는다. "선언적 desired-state가 어떻게 유지되나"를 설명할 수 있게 만드는 것이 목표다.</p>
+    <p class="meta">기준: Kubernetes v1.3x(2026) · dockershim 제거(v1.24) · native sidecar 안정화(v1.33) · Gateway API GA</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">컨테이너·오케스트레이션이란? · 왜</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">클러스터 아키텍처</a></li>
+        <li><a href="#s3">동작 원리 — 이미지 · 조정 루프</a></li>
+        <li><a href="#s4">운영 베스트 프랙티스</a></li>
+        <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
+        <li><a href="#s6">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s7">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p><strong>00~01</strong> 개념·용어(쉬움), <strong>02~04</strong> 아키텍처·원리·운영(중간), <strong>05~06</strong> 면접 직전 정리(필수).
+           모르는 용어는 <strong>01 용어 사전</strong>으로 돌아가면 된다.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>컨테이너·오케스트레이션이란? · 왜<span class="lvl">난이도 쉬움</span></h2>
+        <p><strong>Docker</strong>는 앱과 의존성을 하나의 <strong>이미지</strong>로 묶어 어디서나 동일하게 실행하는 컨테이너 도구다.
+           컨테이너는 VM과 달리 호스트 커널을 공유(namespace·cgroup 격리)해 <strong>가볍고 빠르다</strong> — "내 로컬에선 되는데" 문제를 없앤다.</p>
+        <p><strong>Kubernetes(K8s)</strong>는 수많은 컨테이너를 여러 노드에 걸쳐 <strong>선언적으로</strong> 배치·확장·복구하는 오케스트레이터다.
+           "원하는 상태(desired state)"를 선언하면, 컨트롤러가 실제 상태를 거기에 맞춰 <strong>계속 조정(reconcile)</strong>한다.</p>
+        <table>
+          <thead><tr><th>문제</th><th>Docker</th><th>Kubernetes</th></tr></thead>
+          <tbody>
+            <tr><td>일관된 실행 환경</td><td>이미지로 패키징 → 어디서나 동일</td><td>—</td></tr>
+            <tr><td>다수 컨테이너 배치·확장</td><td>단일 호스트 위주</td><td>다수 노드 스케줄링·오토스케일</td></tr>
+            <tr><td>장애 자동 복구</td><td>재시작 정책 수준</td><td>desired-state 조정으로 자가 치유</td></tr>
+            <tr><td>무중단 배포</td><td>수동</td><td>롤링 업데이트·롤백 내장</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>Docker = "앱을 이미지로 격리·패키징". Kubernetes = "그 컨테이너들을 선언적으로 배치·확장·치유하는 조정 시스템".</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <h3>Docker · 이미지</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀/유형</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>image</td><td>(불변 템플릿)</td><td>앱+의존성+런타임을 담은 읽기전용 패키지. 레이어로 구성.</td></tr>
+            <tr><td>container</td><td>(실행 인스턴스)</td><td>이미지를 실행한 격리 프로세스(namespace·cgroup).</td></tr>
+            <tr><td>layer</td><td>(이미지 레이어)</td><td>Dockerfile 명령마다 쌓이는 캐시 가능한 차분. 공유·재사용.</td></tr>
+            <tr><td>registry</td><td>(이미지 저장소)</td><td>이미지를 push/pull하는 곳(Docker Hub, ECR 등).</td></tr>
+            <tr><td>BuildKit</td><td>(빌드 엔진)</td><td>병렬·캐시 최적화 빌드. 멀티스테이지에 유리.</td></tr>
+          </tbody>
+        </table>
+        <h3>Kubernetes 오브젝트</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀/유형</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>Pod</td><td>(최소 배포 단위)</td><td>1개 이상 컨테이너를 묶은 스케줄 단위. 네트워크·스토리지 공유.</td></tr>
+            <tr><td>ReplicaSet</td><td>(복제 보장)</td><td>Pod 복제본 수를 원하는 만큼 유지.</td></tr>
+            <tr><td>Deployment</td><td>(무상태 워크로드)</td><td>ReplicaSet을 관리하며 롤링 업데이트·롤백 제공.</td></tr>
+            <tr><td>StatefulSet</td><td>(상태 워크로드)</td><td>안정적 이름·순서·영속 볼륨(DB 등).</td></tr>
+            <tr><td>DaemonSet</td><td>(노드별 1개)</td><td>모든(또는 선택) 노드에 Pod 하나씩(로그·모니터링 에이전트).</td></tr>
+            <tr><td>Service</td><td>(안정 엔드포인트)</td><td>Pod 집합에 고정 가상 IP·DNS 제공(ClusterIP/NodePort/LoadBalancer).</td></tr>
+            <tr><td>Ingress / Gateway API</td><td>(L7 라우팅)</td><td>외부 HTTP(S)를 Service로 라우팅. Ingress는 동결, Gateway API가 후속.</td></tr>
+            <tr><td>ConfigMap / Secret</td><td>(설정 / 비밀)</td><td>설정값 / 민감정보를 Pod에 주입.</td></tr>
+            <tr><td>PV / PVC</td><td>PersistentVolume / Claim</td><td>영속 스토리지 자원 / 그에 대한 요청.</td></tr>
+            <tr><td>Namespace</td><td>(논리 격리)</td><td>클러스터 내 리소스 그룹·격리 단위.</td></tr>
+            <tr><td>CRD</td><td>Custom Resource Definition</td><td>K8s API를 확장하는 사용자 정의 리소스(오퍼레이터 기반).</td></tr>
+            <tr><td>HPA</td><td>Horizontal Pod Autoscaler</td><td>지표(CPU 등) 기반으로 Pod 수 자동 조절.</td></tr>
+          </tbody>
+        </table>
+        <h3>컨트롤 플레인 구성요소</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀/유형</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>kube-apiserver</td><td>(API 관문)</td><td>모든 요청의 진입점. 상태를 etcd에 저장. 유일한 etcd 접근자.</td></tr>
+            <tr><td>etcd</td><td>(분산 KV 저장소)</td><td>클러스터의 단일 진실 소스(desired/actual state).</td></tr>
+            <tr><td>scheduler</td><td>(스케줄러)</td><td>새 Pod를 어느 노드에 둘지 결정.</td></tr>
+            <tr><td>controller-manager</td><td>(컨트롤러)</td><td>desired와 actual을 맞추는 조정 루프 실행.</td></tr>
+            <tr><td>kubelet</td><td>(노드 에이전트)</td><td>각 노드에서 Pod를 실제로 실행·보고.</td></tr>
+            <tr><td>kube-proxy / CNI</td><td>(네트워킹)</td><td>Service 트래픽 라우팅 / Pod 네트워크 플러그인.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 아키텍처 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>클러스터 아키텍처<span class="lvl">난이도 중간</span></h2>
+        <p>클러스터는 <strong>Control Plane</strong>(두뇌)과 <strong>Worker Node</strong>(일꾼)로 나뉜다. 외부 트래픽은 Ingress/Gateway → Service → Pod로 흐른다.</p>
+        <figure>
+          <svg viewBox="0 0 720 380" role="img" aria-label="Kubernetes 클러스터 아키텍처 다이어그램">
+            <style>
+              .cz{fill:#F3F4F6;stroke:#E5E7EB;stroke-width:1}
+              .cb{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .ca{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .ct{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .czt{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280;font-weight:700}
+              .cl{stroke:#B45309;stroke-width:1.6;fill:none}
+            </style>
+            <defs><marker id="k_a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <!-- control plane -->
+            <text class="czt" x="40" y="30">Control Plane</text>
+            <rect class="cz" x="40" y="40" width="300" height="150" rx="6"/>
+            <rect class="ca" x="56" y="56" width="128" height="34" rx="4"/><text class="ct" x="120" y="78" text-anchor="middle">kube-apiserver</text>
+            <rect class="cb" x="196" y="56" width="128" height="34" rx="4"/><text class="ct" x="260" y="78" text-anchor="middle">etcd</text>
+            <rect class="cb" x="56" y="100" width="128" height="34" rx="4"/><text class="ct" x="120" y="122" text-anchor="middle">scheduler</text>
+            <rect class="cb" x="196" y="100" width="128" height="34" rx="4"/><text class="ct" x="260" y="122" text-anchor="middle">controller-mgr</text>
+            <text class="ct" x="190" y="164" text-anchor="middle" fill="#6B7280" font-size="11">선언 상태 저장 · 조정 루프</text>
+
+            <!-- worker nodes -->
+            <text class="czt" x="400" y="30">Worker Node</text>
+            <rect class="cz" x="400" y="40" width="280" height="150" rx="6"/>
+            <rect class="cb" x="416" y="56" width="120" height="30" rx="4"/><text class="ct" x="476" y="76" text-anchor="middle">kubelet</text>
+            <rect class="cb" x="548" y="56" width="120" height="30" rx="4"/><text class="ct" x="608" y="76" text-anchor="middle">kube-proxy</text>
+            <rect class="cb" x="416" y="98" width="120" height="76" rx="4"/><text class="ct" x="476" y="120" text-anchor="middle">Pod</text><text class="ct" x="476" y="140" text-anchor="middle" font-size="11" fill="#6B7280">container(s)</text>
+            <rect class="cb" x="548" y="98" width="120" height="76" rx="4"/><text class="ct" x="608" y="120" text-anchor="middle">Pod</text><text class="ct" x="608" y="140" text-anchor="middle" font-size="11" fill="#6B7280">container(s)</text>
+
+            <line class="cl" x1="340" y1="115" x2="398" y2="115" marker-end="url(#k_a)"/>
+
+            <!-- traffic path -->
+            <rect x="40" y="230" width="640" height="120" rx="6" fill="#F8F7F4" stroke="#E5E7EB"/>
+            <text class="czt" x="56" y="252">외부 트래픽 경로</text>
+            <rect class="cb" x="56" y="266" width="120" height="40" rx="4"/><text class="ct" x="116" y="290" text-anchor="middle">Client</text>
+            <rect class="cb" x="212" y="266" width="140" height="40" rx="4"/><text class="ct" x="282" y="290" text-anchor="middle">Ingress/Gateway</text>
+            <rect class="cb" x="388" y="266" width="120" height="40" rx="4"/><text class="ct" x="448" y="290" text-anchor="middle">Service</text>
+            <rect class="cb" x="544" y="266" width="120" height="40" rx="4"/><text class="ct" x="604" y="290" text-anchor="middle">Pod</text>
+            <line class="cl" x1="176" y1="286" x2="210" y2="286" marker-end="url(#k_a)"/>
+            <line class="cl" x1="352" y1="286" x2="386" y2="286" marker-end="url(#k_a)"/>
+            <line class="cl" x1="508" y1="286" x2="542" y2="286" marker-end="url(#k_a)"/>
+            <text class="ct" x="360" y="332" text-anchor="middle" fill="#6B7280" font-size="11">L7 라우팅 → 안정 엔드포인트(Service) → 실행 Pod(로드밸런싱)</text>
+          </svg>
+          <figcaption>Control Plane이 상태를 조정하고, 외부 트래픽은 Ingress/Gateway→Service→Pod로 흐른다.</figcaption>
+        </figure>
+      </section>
+
+      <!-- 3 : 동작 원리 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>동작 원리 — 이미지 · 조정 루프<span class="lvl">난이도 중간</span></h2>
+        <h3>이미지 레이어 & 빌드</h3>
+        <ul>
+          <li><strong>레이어 캐시</strong> — Dockerfile 명령마다 레이어. 자주 안 바뀌는 것(의존성 설치)을 위로, 자주 바뀌는 것(소스 복사)을 아래로 배치해 캐시 적중률↑.</li>
+          <li><strong>멀티스테이지 빌드</strong> — 빌드 스테이지에서 컴파일 후, 런타임 스테이지에 산출물만 복사 → 최종 이미지 슬림·공격면 축소.</li>
+        </ul>
+        <h3>선언적 조정 루프(reconcile)</h3>
+        <ul>
+          <li>사용자가 <strong>desired state</strong>(예: replicas=3)를 apiserver에 선언 → etcd에 저장.</li>
+          <li><strong>controller</strong>가 actual(현재 Pod 수)과 desired를 비교, 부족하면 생성·초과면 삭제 → 계속 반복.</li>
+          <li><strong>scheduler</strong>가 새 Pod를 리소스·제약(affinity·taint)에 맞는 노드에 배치, <strong>kubelet</strong>이 실행.</li>
+          <li>노드·Pod 장애 시 조정 루프가 자동으로 재생성 → <strong>자가 치유</strong>.</li>
+        </ul>
+        <h3>롤링 업데이트 & 헬스체크</h3>
+        <p>Deployment는 새 ReplicaSet을 점진적으로 늘리고 옛 것을 줄인다(<code>maxSurge</code>/<code>maxUnavailable</code>).
+           <strong>readiness</strong> 프로브가 통과해야 트래픽을 받고, 실패 시 롤아웃이 멈춰 안전하다. 문제 시 <code class="inline">kubectl rollout undo</code>로 롤백.</p>
+      </section>
+
+      <!-- 4 : 베스트 프랙티스 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>운영 베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>이미지</td><td>멀티스테이지·슬림 베이스·특정 태그/digest 고정·비루트 실행</td><td><code>latest</code> 태그 · 빌드툴을 런타임에 포함</td></tr>
+            <tr><td>리소스</td><td>requests/limits 명시 · HPA로 오토스케일</td><td>limit 없이 방치(노이지 네이버·OOM)</td></tr>
+            <tr><td>헬스체크</td><td>liveness(재시작)·readiness(트래픽)·startup 프로브 분리</td><td>둘을 혼동 · 프로브 없이 배포</td></tr>
+            <tr><td>상태</td><td>앱은 무상태화 · 상태는 StatefulSet/외부 스토리지</td><td>Pod 로컬 디스크에 중요한 데이터</td></tr>
+            <tr><td>보안·설정</td><td>Secret 외부화 · 최소 권한 RBAC · 네트워크 정책</td><td>이미지·환경변수에 비밀 하드코딩</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5 : 면접 핵심 정리 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong> 반드시 그릴 그림 · 파고드는 설명 · 정의할 용어 · 체크리스트를 모았다.</p>
+
+        <h3>① 반드시 그리는 그림 — 조정 루프</h3>
+        <figure>
+          <svg viewBox="0 0 720 240" role="img" aria-label="Kubernetes 선언적 조정 루프">
+            <style>
+              .rb{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .rt{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .rk{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .rl{stroke:#B45309;stroke-width:1.6;fill:none}
+              .ra{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+            </style>
+            <defs><marker id="rl_a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+            <rect class="rb" x="40" y="90" width="150" height="46" rx="4"/><text class="rt" x="115" y="118" text-anchor="middle">desired state</text>
+            <rect class="rb" x="285" y="90" width="150" height="46" rx="4"/><text class="rt" x="360" y="112" text-anchor="middle">controller</text><text class="rk" x="360" y="128" text-anchor="middle">비교·조정</text>
+            <rect class="rb" x="530" y="90" width="150" height="46" rx="4"/><text class="rt" x="605" y="118" text-anchor="middle">actual state</text>
+            <line class="rl" x1="190" y1="113" x2="283" y2="113" marker-end="url(#rl_a)"/>
+            <line class="rl" x1="435" y1="113" x2="528" y2="113" marker-end="url(#rl_a)"/>
+            <path class="rl" d="M605 136 L605 190 L115 190 L115 138" marker-end="url(#rl_a)"/>
+            <text class="ra" x="360" y="184" text-anchor="middle">diff 감지 → 재생성/축소 (계속 반복)</text>
+          </svg>
+          <figcaption>선언 상태와 실제 상태의 차이를 컨트롤러가 계속 좁힌다 = 자가 치유.</figcaption>
+        </figure>
+
+        <h3>② 추가 설명 — 면접관이 파고드는 지점</h3>
+        <ul>
+          <li><strong>왜 "선언적"인가</strong> — 명령형(이걸 실행해)이 아니라 "이 상태가 되게 하라". 컨트롤러가 어떤 경로로든 그 상태로 수렴시켜 장애에 강하다.</li>
+          <li><strong>Deployment vs StatefulSet</strong> — 무상태·교체 가능(Deployment) vs 안정적 이름·순서·영속볼륨(StatefulSet, DB류).</li>
+          <li><strong>liveness vs readiness</strong> — liveness 실패=컨테이너 재시작, readiness 실패=트래픽만 차단(재시작 안 함). 혼동은 롤아웃 사고로 이어진다.</li>
+          <li><strong>requests vs limits</strong> — requests=스케줄링·보장, limits=상한(초과 시 CPU throttle·메모리 OOMKill).</li>
+        </ul>
+
+        <h3>③ 반드시 정의할 핵심 용어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>면접용 한 줄 정의</th></tr></thead>
+          <tbody>
+            <tr><td>Pod</td><td>K8s 최소 배포 단위. 네트워크·스토리지를 공유하는 컨테이너 묶음.</td></tr>
+            <tr><td>reconcile loop</td><td>desired와 actual을 계속 비교·수렴시키는 컨트롤러 동작.</td></tr>
+            <tr><td>Service</td><td>Pod 집합에 고정 IP·DNS·로드밸런싱을 주는 안정 엔드포인트.</td></tr>
+            <tr><td>etcd</td><td>클러스터 상태의 단일 진실 소스(분산 KV).</td></tr>
+            <tr><td>HPA</td><td>지표 기반 Pod 수 자동 스케일링.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 반드시 아는 개념 체크리스트</h3>
+        <ol>
+          <li><strong>컨테이너 vs VM</strong> — 커널 공유·경량 vs 완전 격리·무거움.</li>
+          <li><strong>선언적 desired-state · 조정 루프 · 자가 치유</strong>.</li>
+          <li><strong>Deployment/StatefulSet/DaemonSet</strong> 차이.</li>
+          <li><strong>Service 타입 · Ingress/Gateway API</strong>.</li>
+          <li><strong>liveness/readiness · requests/limits · HPA</strong>.</li>
+          <li><strong>멀티스테이지 빌드 · 이미지 레이어 캐시 · Secret 외부화</strong>.</li>
+        </ol>
+      </section>
+
+      <!-- 6 : 예상 질문 & 답변 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+        <div class="qa">
+          <div class="q">컨테이너와 VM의 차이는?</div>
+          <div class="a">VM은 하이퍼바이저 위에 <strong>게스트 OS 전체</strong>를 띄워 강하게 격리하지만 무겁다. 컨테이너는 <strong>호스트 커널을 공유</strong>하고 namespace·cgroup으로 격리해 가볍고 빠르게 뜬다. 대신 커널 수준 격리는 VM이 강하다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">Deployment와 StatefulSet은 언제 각각 쓰나?</div>
+          <div class="a">교체 가능한 무상태 워크로드(웹 API)는 <strong>Deployment</strong>. 안정적 네트워크 이름·순서·개별 영속 볼륨이 필요한 상태 워크로드(DB, Kafka)는 <strong>StatefulSet</strong>. 후자는 Pod 이름이 <code>-0,-1</code>처럼 고정된다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">liveness와 readiness 프로브의 차이는?</div>
+          <div class="a"><strong>liveness</strong> 실패 → 컨테이너를 <em>재시작</em>(데드락 복구). <strong>readiness</strong> 실패 → Service 트래픽에서 <em>제외</em>(재시작 안 함, 준비될 때까지 대기). 초기화가 긴 앱은 startup 프로브로 초기 구간을 분리한다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">requests와 limits를 어떻게 설정하나?</div>
+          <div class="a"><strong>requests</strong>는 스케줄러가 노드 배치에 쓰는 보장치, <strong>limits</strong>는 상한이다. CPU 초과는 throttle, 메모리 초과는 <strong>OOMKill</strong>. requests를 실측 기반으로 잡고 limits는 여유를 두되, 메모리는 requests≈limits로 안정화하는 편이 흔하다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">무중단 롤링 업데이트와 롤백은 어떻게 되나?</div>
+          <div class="a">Deployment가 새 ReplicaSet을 <code>maxSurge</code>만큼 늘리고 옛 것을 <code>maxUnavailable</code>만큼 줄이며 교체한다. readiness가 통과해야 트래픽을 받으므로 안전하고, 문제 시 <code class="inline">kubectl rollout undo</code>로 이전 리비전으로 되돌린다.</div>
+        </div>
+        <div class="qa">
+          <div class="q">이미지를 작고 안전하게 만들려면?</div>
+          <div class="a"><strong>멀티스테이지 빌드</strong>로 빌드 산출물만 슬림 런타임(distroless·alpine)에 복사하고, 레이어 순서를 캐시 친화적으로(의존성 먼저) 배치한다. 비루트 사용자로 실행하고, 태그 대신 digest 고정으로 재현성을 확보한다.</div>
+        </div>
+      </section>
+
+      <!-- 7 : 참고자료 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <ul>
+          <li><a class="link" href="https://kubernetes.io/docs/concepts/" target="_blank" rel="noopener">Kubernetes Concepts</a></li>
+          <li><a class="link" href="https://kubernetes.io/docs/concepts/architecture/" target="_blank" rel="noopener">K8s 클러스터 아키텍처</a></li>
+          <li><a class="link" href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Pods / 워크로드</a></li>
+          <li><a class="link" href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">Docker 멀티스테이지 빌드</a></li>
+          <li><a class="link" href="https://kubernetes.io/docs/concepts/services-networking/gateway/" target="_blank" rel="noopener">Gateway API</a></li>
+          <li><a class="link" href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/" target="_blank" rel="noopener">Liveness/Readiness/Startup 프로브</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        Docker / Kubernetes 운영 학습 자료 · 백엔드/인프라 엔지니어 면접 대비 시리즈 · 출처는 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>
