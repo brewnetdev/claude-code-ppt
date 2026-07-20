@@ -24,7 +24,7 @@ const REPORT_SLIDE = slide(
 );
 
 describe('buildHtmlBundle theme bundling', () => {
-  it('ships all four theme stylesheets, not just brewnet-dark', async () => {
+  it('ships every theme stylesheet, not just brewnet-dark', async () => {
     const out = await buildHtmlBundle({ slides: [REPORT_SLIDE], overlaysBySlide: {} });
     // report.css light token block — proves the report theme is present so a
     // report deck no longer falls back to the dark base (the original bug).
@@ -32,6 +32,10 @@ describe('buildHtmlBundle theme bundling', () => {
     expect(out).toContain('#FAFAF8'); // report --bg (warm off-white)
     // portfolio.css present too → all per-template overrides are bundled.
     expect(out).toContain('[data-template="portfolio"]');
+    // harness.css (LV.9 deck theme) — the recurrence: a 5th theme added to
+    // SlideRenderer but forgotten in the export bundle, so harness decks leaked
+    // the dark brewnet chrome. Guard the whole theme list, not a fixed count.
+    expect(out).toContain('[data-template="harness"]');
     // brewnet-dark base is still the foundation.
     expect(out).toMatch(/--bg:\s*#0F172A/);
   });

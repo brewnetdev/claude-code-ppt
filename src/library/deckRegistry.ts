@@ -9,15 +9,17 @@
 // override maps below let us pin a title/subtitle/priority for hand-curated
 // decks (e.g. the Brewnet sample) without changing their on-disk filename.
 
-// Restricted to the three template subdirs so unrelated reference HTML at
+// Restricted to the template subdirs so unrelated reference HTML at
 // docs/html/* and docs/html/manual/* (developer scratch files, not decks)
-// stays out of the bundle and out of the library grid.
+// stays out of the bundle and out of the library grid. Segment match is exact:
+// `harness` scans docs/html/harness/ (the LV.9 editor deck) but NOT
+// docs/html/harness-sample/ (the hand-authored reference deck family + notes).
 const eagerHtml = import.meta.glob(
-  '../../docs/html/{presentation,portfolio,report}/**/*.html',
+  '../../docs/html/{presentation,portfolio,report,harness}/**/*.html',
   { query: '?raw', import: 'default', eager: true },
 ) as Record<string, string>;
 
-export type DeckTemplate = 'presentation' | 'portfolio' | 'report';
+export type DeckTemplate = 'presentation' | 'portfolio' | 'report' | 'harness';
 export type DeckSourceKind = 'builtin';
 
 export type DeckRegistryEntry = {
@@ -34,7 +36,7 @@ export type DeckRegistryEntry = {
   sourceHash?: string;
 };
 
-const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report'];
+const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report', 'harness'];
 
 const TITLE_OVERRIDES: Record<string, string> = {
   'brewnet-presentation': 'Brewnet — Claude Code Master',
