@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>MLOps — 면접 대비 단계별 학습 (모델 배포·버전관리·모니터링)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="MLOps를 정의·용어사전·라이프사이클·동작원리·배포전략·모니터링·면접 필수 개념·예상 질답까지 쉬움→필수 순으로 정리한 ML 엔지니어 면접 대비 학습 자료. model registry·feature store·experiment tracking·CI/CD/CT·data/concept drift·canary/shadow/blue-green 포함.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  /* 용어 사전 표 — 약어/풀네임을 고정폭으로 강조 */
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">MLOps Interview · Model Lifecycle</div>
+    <h1>MLOps — 모델 배포 · 버전관리 · 모니터링</h1>
+    <p class="lead">"MLOps가 뭐냐"는 정의부터 <strong>용어 사전</strong>, 라이프사이클 폐루프, 동작 원리, <strong>배포 전략</strong>,
+       drift 모니터링, 면접 필수 개념, 예상 질답까지 <strong>쉬움 → 필수</strong> 순으로 쌓아 올린다.
+       model registry·feature store·experiment tracking·CI/CD/CT를 실제 면접에서 찔리는 지점 중심으로 정리했다.</p>
+    <p class="meta">기준: Google MLOps 성숙도 L0~L2 · MLflow 3.x(stages deprecated → aliases) · Kubeflow / Feast / Evidently · 도구 버전은 본문 표시</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">MLOps란? · 왜 필요한가</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">라이프사이클 — 폐루프 구조</a></li>
+        <li><a href="#s3">동작 원리 — 추적·승격·배포·모니터링·CT</a></li>
+        <li><a href="#s4">베스트 프랙티스</a></li>
+        <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
+        <li><a href="#s6">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s7">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p>섹션마다 난이도 태그가 붙어 있다. <strong>00~01</strong>은 개념·용어 잡기(쉬움), <strong>02~04</strong>는 라이프사이클·동작 원리(중간),
+           <strong>05~06</strong>은 면접 직전 정리(필수)다. 모르는 용어가 나오면 <strong>01 용어 사전</strong>으로 돌아가면 된다.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>MLOps란? · 왜 필요한가<span class="lvl">난이도 쉬움</span></h2>
+        <p><strong>MLOps(Machine Learning Operations)</strong>는 <strong>ML + DevOps + Data Engineering</strong>을 합친 실무 규율이다.
+           모델을 한 번 학습해 던지는 게 아니라, <strong>데이터 → 학습 → 평가 → 레지스트리 → 배포 → 모니터링 → (drift 감지) → 재학습</strong>을
+           <strong>재현 가능하고 자동화된 파이프라인</strong>으로 운영하는 것이 핵심이다.</p>
+
+        <p>일반 소프트웨어는 코드만 버전·테스트·배포하면 된다. ML 시스템은 <strong>코드 + 데이터 + 모델</strong> 세 가지가 모두 산출물이라,
+           DevOps의 CI/CD에 ML 고유의 <strong>CT(Continuous Training)</strong>가 더 붙는다. 그래서 "코드는 그대로인데 데이터가 바뀌어 결과가 달라지는" 상황을 통제해야 한다.</p>
+
+        <table>
+          <thead><tr><th>일반 소프트웨어</th><th>ML 시스템 (MLOps가 필요한 이유)</th></tr></thead>
+          <tbody>
+            <tr><td>버전 대상 = 코드</td><td>버전 대상 = <strong>코드 + 데이터 + 모델</strong> (3중 버전)</td></tr>
+            <tr><td>테스트 = 단위/통합 테스트</td><td>테스트 = 코드 + <strong>데이터 검증 + 모델 검증</strong></td></tr>
+            <tr><td>배포하면 동작이 고정</td><td>배포 순간부터 <strong>drift로 성능이 열화</strong>(data/concept drift)</td></tr>
+            <tr><td>릴리스 트리거 = 코드 변경</td><td>릴리스 트리거 = 코드 + <strong>신규 데이터 · 성능 저하 · 스케줄</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h3>왜 하는가 — 세 가지 동기</h3>
+        <ul>
+          <li><strong>재현성(reproducibility)</strong> — "운영 중인 이 모델이 <em>어떤 데이터·코드·하이퍼파라미터</em>로 나왔나"를 추적·복원할 수 있어야 한다. 실험이 재현 안 되면 디버깅·개선이 불가능하다.</li>
+          <li><strong>거버넌스·감사(governance)</strong> — 규제 환경에서 "운영 모델이 어떤 데이터로 학습됐나", "6개월 전 모델을 그대로 재현할 수 있나"에 답해야 하고, 문제 시 <strong>롤백</strong>할 수 있어야 한다.</li>
+          <li><strong>drift 대응</strong> — 현실 데이터는 시간이 지나면 변한다. 모델은 배포 시점부터 열화하므로 <strong>지속 모니터링 + 재학습(CT)</strong> 없이는 정확도가 서서히 무너진다.</li>
+        </ul>
+
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>MLOps = "코드·데이터·모델을 함께 버전·테스트·배포하고, 배포 후에도 <strong>drift를 감지해 재학습(CT)</strong>하는 <strong>닫힌 루프</strong>로 ML 시스템을 운영하는 것."</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <p>MLOps 문서·면접에는 약어와 도구명이 쏟아진다. 아래 표는 <strong>용어 → (풀 네이밍) → 한 줄 의미</strong>로 정리했다.
+           나머지 섹션을 읽다 막히면 여기로 돌아오면 된다.</p>
+
+        <h3>자산 · 버전관리</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>model registry</td><td>(모델 레지스트리)</td><td>학습된 <strong>모델 버전의 중앙 저장소</strong>. 버전·별칭(alias)·배포 상태·승격을 관리. 서빙 코드는 이름으로 모델을 당겨 쓴다.</td></tr>
+            <tr><td>feature store</td><td>(피처 스토어)</td><td>학습·서빙이 <strong>같은 feature 정의를 공유</strong>하는 저장/서빙 계층. online(저지연)/offline(학습) 이중 저장으로 <strong>training-serving skew</strong> 방지.</td></tr>
+            <tr><td>experiment tracking</td><td>(실험 추적)</td><td>실험마다 <strong>파라미터·메트릭·코드 버전·아티팩트</strong>를 기록·비교(예: MLflow Tracking). 어떤 실험이 최고였는지 재현 가능.</td></tr>
+            <tr><td>artifact</td><td>(아티팩트)</td><td>파이프라인 산출물 — 모델 가중치, 전처리기(scaler/encoder), 평가 리포트, 데이터 스냅샷 등.</td></tr>
+            <tr><td>lineage</td><td>(계보 · provenance)</td><td>운영 모델 → 학습에 쓴 <strong>코드 커밋·데이터 버전·하이퍼파라미터</strong>로 역추적하는 연결. 감사·재현의 근거.</td></tr>
+            <tr><td>versioning</td><td>data / model / code</td><td><strong>3중 버전</strong> — 코드=Git, 데이터=DVC 등, 모델=registry. 셋을 묶어야 특정 모델을 재현할 수 있다.</td></tr>
+            <tr><td>reproducibility</td><td>(재현성)</td><td>같은 입력(데이터·코드·환경) → <strong>같은 산출물</strong>. 컨테이너·시드 고정·의존성 pin으로 확보.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>파이프라인 · 자동화</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>CI</td><td>Continuous Integration</td><td>코드 검증에 더해 <strong>데이터·모델 검증</strong>까지 자동화. ML에선 "학습 파이프라인이 올바른가"를 테스트.</td></tr>
+            <tr><td>CD</td><td>Continuous Delivery</td><td>학습 파이프라인·<strong>예측 서비스</strong>를 자동 배포. 산출물은 모델 하나가 아니라 "재학습을 돌리는 파이프라인".</td></tr>
+            <tr><td>CT</td><td>Continuous Training</td><td><strong>ML 고유</strong>. 신규 데이터·drift·성능 저하·스케줄을 트리거로 <strong>자동 재학습·재배포</strong>. DevOps엔 없는 축.</td></tr>
+            <tr><td>pipeline</td><td>(ML 파이프라인)</td><td>데이터 준비 → 학습 → 평가 → 등록 → 배포를 잇는 자동 실행 그래프(예: Kubeflow Pipelines).</td></tr>
+            <tr><td>maturity level</td><td>MLOps L0 / L1 / L2</td><td>Google 기준 — L0 수동, L1 학습 파이프라인 자동화(CT), L2 CI/CD 파이프라인 자동화.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>배포 · 서빙 · 모니터링</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>champion / challenger</td><td>(운영 · 도전 모델)</td><td>현재 트래픽을 받는 <strong>champion</strong> vs 검증 중인 <strong>challenger</strong>. 좋으면 challenger를 champion으로 승격.</td></tr>
+            <tr><td>alias</td><td>(모델 별칭)</td><td>특정 model version을 가리키는 <strong>가변 named 참조</strong>(예: <code>@champion</code>). MLflow에서 구 stages를 대체.</td></tr>
+            <tr><td>canary</td><td>(카나리 배포)</td><td>신규 버전에 <strong>소량 트래픽(예: 1~10%)</strong>부터 보내고 지표를 보며 점진 확대. blast radius 최소화.</td></tr>
+            <tr><td>shadow</td><td>(섀도 배포 · dark launch)</td><td>신규 버전이 <strong>동일 입력을 처리하되 응답은 사용자에게 안 주고 로깅만</strong>. 무영향으로 실전 검증.</td></tr>
+            <tr><td>blue-green</td><td>(블루-그린)</td><td>old(blue)·new(green)를 <strong>동시 유지</strong>하고 스위치로 전환. 문제 시 <strong>즉시 롤백</strong>, 대신 인프라 2배.</td></tr>
+            <tr><td>serving</td><td>online / batch</td><td><strong>online</strong>=실시간 저지연 요청/응답(REST/gRPC). <strong>batch</strong>=대량 데이터를 주기적으로 오프라인 예측.</td></tr>
+            <tr><td>data drift</td><td>covariate shift</td><td><strong>입력 분포</strong>가 학습 때와 달라짐. 입력→출력 <em>관계는 그대로</em>. 예: 신규 시장 유입으로 특성 분포 이동.</td></tr>
+            <tr><td>concept drift</td><td>(개념 드리프트)</td><td><strong>입력→출력 관계 자체</strong>가 변함. 입력 분포는 같아도 정답이 달라짐. 예: 소비 트렌드 변화로 선호 매핑이 바뀜.</td></tr>
+            <tr><td>training-serving skew</td><td>(학습-서빙 편향)</td><td>학습 때 feature와 서빙 때 feature가 <strong>다르게 계산</strong>돼 생기는 성능 저하. feature store가 완화.</td></tr>
+            <tr><td>rollback</td><td>(롤백)</td><td>문제 발생 시 <strong>이전 model version을 다시 champion으로 재승격</strong>. registry 덕에 코드 변경 없이 무중단.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 라이프사이클 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>라이프사이클 — 폐루프 구조<span class="lvl">난이도 중간</span></h2>
+        <p>MLOps의 뼈대는 직선이 아니라 <strong>닫힌 루프(closed loop)</strong>다. 배포는 종착점이 아니라 루프의 한 지점이고,
+           모니터링이 <strong>drift·성능 저하</strong>를 감지하면 다시 학습으로 돌아간다(CT). 이 순환을 그림으로 못 그리면 면접에서 바로 드러난다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 380" role="img" aria-label="MLOps 라이프사이클 폐루프 다이어그램">
+            <style>
+              .nb{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .nbt{font-family:'JetBrains Mono',monospace;font-size:14px;fill:#111}
+              .nbs{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .ct{font-family:'Noto Sans KR',sans-serif;font-size:13px;fill:#111}
+              .cts{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .ca{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#B45309;font-weight:700}
+              .fl{stroke:#B45309;stroke-width:1.8;fill:none}
+            </style>
+            <defs><marker id="la" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <!-- top row -->
+            <rect class="nb" x="40" y="44" width="150" height="56" rx="6"/>
+            <text class="nbt" x="115" y="70" text-anchor="middle">① 데이터</text>
+            <text class="nbs" x="115" y="88" text-anchor="middle">수집·검증·Feature</text>
+
+            <rect class="nb" x="285" y="44" width="150" height="56" rx="6"/>
+            <text class="nbt" x="360" y="70" text-anchor="middle">② 학습 Train</text>
+            <text class="nbs" x="360" y="88" text-anchor="middle">실험추적 · CI</text>
+
+            <rect class="nb" x="530" y="44" width="150" height="56" rx="6"/>
+            <text class="nbt" x="605" y="70" text-anchor="middle">③ 평가 Eval</text>
+            <text class="nbs" x="605" y="88" text-anchor="middle">검증 게이트</text>
+
+            <!-- bottom row -->
+            <rect class="nb" x="530" y="280" width="150" height="56" rx="6"/>
+            <text class="nbt" x="605" y="306" text-anchor="middle">④ 레지스트리</text>
+            <text class="nbs" x="605" y="324" text-anchor="middle">버전·승격 champion</text>
+
+            <rect class="nb" x="285" y="280" width="150" height="56" rx="6"/>
+            <text class="nbt" x="360" y="306" text-anchor="middle">⑤ 배포 Deploy</text>
+            <text class="nbs" x="360" y="324" text-anchor="middle">canary·shadow · CD</text>
+
+            <rect class="nb" x="40" y="280" width="150" height="56" rx="6"/>
+            <text class="nbt" x="115" y="306" text-anchor="middle">⑥ 모니터</text>
+            <text class="nbs" x="115" y="324" text-anchor="middle">성능·drift 감시</text>
+
+            <!-- clockwise flow -->
+            <line class="fl" x1="190" y1="72" x2="281" y2="72" marker-end="url(#la)"/>
+            <line class="fl" x1="435" y1="72" x2="526" y2="72" marker-end="url(#la)"/>
+            <line class="fl" x1="605" y1="100" x2="605" y2="276" marker-end="url(#la)"/>
+            <line class="fl" x1="530" y1="308" x2="439" y2="308" marker-end="url(#la)"/>
+            <line class="fl" x1="285" y1="308" x2="194" y2="308" marker-end="url(#la)"/>
+            <line class="fl" x1="115" y1="280" x2="115" y2="104" marker-end="url(#la)"/>
+
+            <!-- center annotation -->
+            <text class="ct" x="372" y="172" text-anchor="middle">닫힌 루프 — 배포 후에도 계속 돈다</text>
+            <text class="cts" x="372" y="194" text-anchor="middle">monitor 신호가 재학습(CT)을 트리거한다</text>
+            <text class="ca" x="214" y="252" text-anchor="middle">drift·성능 저하 → 재학습(CT)</text>
+          </svg>
+          <figcaption>MLOps 폐루프 — 데이터→학습→평가→레지스트리→배포→모니터의 시계방향 순환, 왼쪽 세로 화살표가 재학습(CT) 귀환 경로.</figcaption>
+        </figure>
+
+        <h3>단계별 역할</h3>
+        <ul>
+          <li><strong>① 데이터</strong> — 수집·검증(스키마·품질), feature 계산. feature store가 학습/서빙 공통 정의를 공급한다.</li>
+          <li><strong>② 학습(Train)</strong> — 실험 추적으로 파라미터·메트릭·아티팩트를 기록. 코드/데이터 버전이 함께 고정된다(CI).</li>
+          <li><strong>③ 평가(Eval)</strong> — 홀드아웃·오프라인 지표로 <strong>승격 게이트</strong> 통과 여부 판정. 기준 미달이면 여기서 멈춘다.</li>
+          <li><strong>④ 레지스트리</strong> — 통과 모델을 <strong>버전으로 등록</strong>하고 alias(예: <code class="inline">@challenger</code>)를 부여.</li>
+          <li><strong>⑤ 배포(Deploy)</strong> — canary/shadow/blue-green으로 안전하게 서빙에 반영(CD). 서빙 코드는 alias만 바라본다.</li>
+          <li><strong>⑥ 모니터</strong> — 성능·데이터 분포·drift를 감시. 이상 신호가 <strong>재학습(CT)</strong>을 트리거해 루프가 닫힌다.</li>
+        </ul>
+
+        <h3>성숙도 레벨 (Google 기준)</h3>
+        <table>
+          <thead><tr><th>레벨</th><th>상태</th><th>특징</th></tr></thead>
+          <tbody>
+            <tr><td><strong>L0</strong></td><td>수동 프로세스</td><td>노트북에서 손으로 학습·배포. 릴리스가 드물다(연 몇 회). CI/CD 없음.</td></tr>
+            <tr><td><strong>L1</strong></td><td>ML 파이프라인 자동화</td><td>학습 파이프라인 자동화로 <strong>CT</strong> 달성 — 신규 데이터로 자동 재학습. 데이터·모델 검증, 트리거, 메타데이터 관리 도입.</td></tr>
+            <tr><td><strong>L2</strong></td><td>CI/CD 파이프라인 자동화</td><td>파이프라인 자체를 CI/CD로 빠르게 갱신·배포. 실험→운영 반영이 신속·반복 가능.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">면접 포인트 — 폐루프</div>
+          <p>ML 시스템은 배포로 끝나지 않는다. <strong>monitor가 drift·성능 저하를 감지 → CT가 재학습을 트리거 → 새 버전을 registry에 등록 → 다시 배포</strong>로 루프가 닫힌다.
+             이 귀환 경로(CT)가 일반 DevOps와 MLOps를 가르는 핵심이다.</p>
+        </div>
+      </section>
+
+      <!-- 3 : 동작 원리 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>동작 원리 — 추적 · 승격 · 배포 · 모니터링 · CT<span class="lvl">난이도 중간</span></h2>
+
+        <h3>① 실험 추적 · 버전관리</h3>
+        <p>학습마다 <strong>파라미터·메트릭·코드 버전·아티팩트</strong>를 기록해(experiment tracking) 어떤 실험이 최고였는지 비교하고 재현한다.
+           재현의 전제는 <strong>3중 버전</strong> — <strong>코드(Git) · 데이터(DVC 등) · 모델(registry)</strong>을 묶어야 특정 모델을 그대로 되살릴 수 있다.
+           그 연결이 <strong>lineage</strong>다. 운영 모델에서 학습 데이터·코드 커밋까지 역추적되어야 감사·디버깅이 가능하다.</p>
+
+        <h3>② 레지스트리 · 승격</h3>
+        <p>평가를 통과한 모델은 <strong>registry에 버전으로 등록</strong>된다. 과거 MLflow는 <code class="inline">Staging/Production/Archived</code>라는 고정 <strong>stage</strong>로 상태를 표현했지만,
+           경직성 탓에 <strong>MLflow 2.9에서 stage가 deprecated</strong>되고 <strong>alias + tag</strong>로 대체됐다.
+           이제 <code class="inline">@champion</code> 같은 <strong>가변 named 참조</strong>를 특정 버전에 붙인다. 한 버전에 여러 alias를 달 수 있어 A/B·점진 롤아웃이 쉽다.</p>
+        <div class="note">
+          <div class="t">배포 ≠ 재학습 (핵심)</div>
+          <p>서빙 코드는 항상 <code class="inline">models:/MyModel@champion</code>처럼 <strong>alias만 바라본다</strong>. 새 모델을 밀 때는 challenger를 검증한 뒤
+             <strong>champion alias를 새 버전으로 옮기기만</strong> 하면 된다 — <strong>서빙 코드는 그대로</strong>. 롤백도 alias를 이전 버전으로 되돌리는 것이라 무중단이다.</p>
+        </div>
+
+        <h3>③ 배포 전략 — canary · shadow · blue-green</h3>
+        <p>새 모델을 한 번에 전량 교체하면 사고 시 blast radius가 크다. 그래서 <strong>위험도·인프라 비용에 따라</strong> 세 전략을 쓴다(조합도 가능 — 먼저 shadow로 무영향 검증 후 canary로 점진 확대).</p>
+
+        <figure>
+          <svg viewBox="0 0 720 350" role="img" aria-label="배포 전략 canary shadow blue-green 비교 다이어그램">
+            <style>
+              .db{fill:#F8F7F4;stroke:#111;stroke-width:1.3}
+              .dba{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .dbl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111}
+              .dbla{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#B45309;font-weight:600}
+              .dtag{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#B45309;font-weight:600}
+              .dcap{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .dsl{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .dfl{stroke:#B45309;stroke-width:1.6;fill:none}
+              .dfld{stroke:#B45309;stroke-width:1.5;fill:none;stroke-dasharray:5 4}
+            </style>
+            <defs><marker id="da" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <!-- CANARY -->
+            <text class="dtag" x="16" y="44">CANARY</text>
+            <text class="dcap" x="16" y="62">소량부터 → 점진 확대</text>
+            <rect class="db" x="150" y="30" width="110" height="44" rx="4"/>
+            <text class="dbl" x="205" y="57" text-anchor="middle">유입 트래픽</text>
+            <rect class="db" x="455" y="24" width="195" height="34" rx="4"/>
+            <text class="dbl" x="552" y="45" text-anchor="middle">v1 안정 · 90%</text>
+            <rect class="dba" x="455" y="66" width="195" height="34" rx="4"/>
+            <text class="dbla" x="552" y="87" text-anchor="middle">v2 canary · 10%</text>
+            <line class="dfl" x1="262" y1="46" x2="453" y2="41" marker-end="url(#da)"/>
+            <line class="dfl" x1="262" y1="52" x2="453" y2="83" marker-end="url(#da)"/>
+
+            <line x1="16" y1="110" x2="704" y2="110" stroke="#E5E7EB" stroke-width="1"/>
+
+            <!-- SHADOW -->
+            <text class="dtag" x="16" y="164">SHADOW</text>
+            <text class="dcap" x="16" y="182">복제 입력 · 응답 폐기</text>
+            <rect class="db" x="150" y="150" width="110" height="44" rx="4"/>
+            <text class="dbl" x="205" y="177" text-anchor="middle">유입 트래픽</text>
+            <rect class="db" x="455" y="144" width="195" height="34" rx="4"/>
+            <text class="dbl" x="552" y="165" text-anchor="middle">v1 운영 · 응답 반환</text>
+            <rect class="dba" x="455" y="186" width="195" height="34" rx="4"/>
+            <text class="dbla" x="552" y="207" text-anchor="middle">v2 shadow · 미반영</text>
+            <line class="dfl" x1="262" y1="166" x2="453" y2="161" marker-end="url(#da)"/>
+            <line class="dfld" x1="262" y1="172" x2="453" y2="203" marker-end="url(#da)"/>
+            <text class="dsl" x="358" y="214" text-anchor="middle">복제(로깅만)</text>
+
+            <line x1="16" y1="230" x2="704" y2="230" stroke="#E5E7EB" stroke-width="1"/>
+
+            <!-- BLUE-GREEN -->
+            <text class="dtag" x="16" y="284">BLUE-GREEN</text>
+            <text class="dcap" x="16" y="302">동시 유지 · 즉시 전환/롤백</text>
+            <rect class="db" x="150" y="270" width="110" height="44" rx="4"/>
+            <text class="dbl" x="205" y="297" text-anchor="middle">유입(스위치)</text>
+            <rect class="dba" x="455" y="264" width="195" height="34" rx="4"/>
+            <text class="dbla" x="552" y="285" text-anchor="middle">blue · 현재 live</text>
+            <rect class="db" x="455" y="306" width="195" height="34" rx="4"/>
+            <text class="dbl" x="552" y="327" text-anchor="middle">green · 대기/신규</text>
+            <line class="dfl" x1="262" y1="286" x2="453" y2="281" marker-end="url(#da)"/>
+            <line class="dfld" x1="262" y1="292" x2="453" y2="323" marker-end="url(#da)"/>
+            <text class="dsl" x="358" y="334" text-anchor="middle">전환 시 flip</text>
+          </svg>
+          <figcaption>세 배포 전략 — canary는 소량→점진 확대, shadow는 복제 입력을 로깅만(무영향), blue-green은 스위치로 즉시 전환·롤백.</figcaption>
+        </figure>
+
+        <table>
+          <thead><tr><th>전략</th><th>사용자 영향</th><th>인프라</th><th>언제</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Shadow</strong></td><td><strong>0</strong> (응답 미반영)</td><td>추가 서빙 1대</td><td>고위험 변경의 실전 무영향 검증 — 예측만 비교</td></tr>
+            <tr><td><strong>Canary</strong></td><td>소수(예: 1~10%)</td><td>라우팅 필요</td><td>지표 보며 점진 확대 — 강한 모니터링 전제</td></tr>
+            <tr><td><strong>Blue-Green</strong></td><td>전환 순간 전량</td><td><strong>2배</strong> 동시 유지</td><td>빠른 전환 + <strong>즉시 롤백</strong>이 중요할 때</td></tr>
+            <tr><td>A/B test</td><td>분할</td><td>라우팅 + 분석</td><td>모델 변형의 <strong>비즈니스 지표</strong> 비교(통계 검정)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 모니터링 — 성능과 drift</h3>
+        <p>배포 후에는 두 가지를 본다 — <strong>모델 성능</strong>(정답이 지연 도착하면 대리 지표)과 <strong>drift</strong>. drift는 두 종류로 갈리고, <strong>대응이 다르다</strong>.</p>
+        <table>
+          <thead><tr><th>구분</th><th>무엇이 변하나</th><th>예시</th><th>탐지</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Data drift</strong><br>(covariate shift)</td><td><strong>입력 분포</strong>만 변함<br>(입력→출력 관계는 유지)</td><td>신규 지역 유입으로 나이·기기 분포 이동</td><td>입력 분포 통계 비교(PSI, KS test 등)</td></tr>
+            <tr><td><strong>Concept drift</strong></td><td><strong>입력→출력 관계</strong>가 변함<br>(입력 분포는 같을 수 있음)</td><td>소비 트렌드 변화로 "선호"의 정의가 바뀜</td><td>성능/오류율 감시(DDM·ADWIN 등)</td></tr>
+          </tbody>
+        </table>
+        <p>실무 순서는 <strong>넓게 → 좁게</strong> — 먼저 data drift를 감시하고, 성능이 떨어지는데 입력→출력 관계까지 바뀌었는지 확인해 concept drift를 판정한다.
+           data drift가 방치되면 concept drift로 번지기도 한다. 오픈소스로는 <strong>Evidently</strong> 같은 도구로 데이터 품질·drift 리포트를 만든다.</p>
+
+        <h3>⑤ CT — 재학습 트리거</h3>
+        <p>모니터링이 잡은 신호가 <strong>재학습(CT)</strong>을 촉발한다. 트리거는 보통 <strong>신규 데이터 도착 · 스케줄(예: 매일) · drift 감지 · 성능 저하</strong>다.
+           재학습된 모델은 다시 <strong>평가 게이트 → registry 등록 → 배포</strong>를 거쳐 루프가 닫힌다. 이 자동 귀환이 있어야 성숙도 L1 이상이다.</p>
+      </section>
+
+      <!-- 4 : 베스트 프랙티스 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>버전관리</td><td>코드·데이터·모델을 <strong>함께 버전</strong>하고 lineage로 연결 · 학습 시 시드·의존성 pin</td><td>모델 파일만 저장 · 어떤 데이터로 학습했는지 미기록(재현 불가)</td></tr>
+            <tr><td>Feature</td><td>학습·서빙이 <strong>feature store 공통 정의</strong> 공유 · point-in-time 조회로 누수 차단</td><td>학습 파이프라인과 서빙에서 feature를 <strong>따로 계산</strong>(training-serving skew)</td></tr>
+            <tr><td>Registry·배포</td><td>서빙은 <strong>alias(@champion)만</strong> 참조 · 승격은 alias 스왑 · 배포 전 shadow/canary</td><td>모델 URL·경로 하드코딩 · 전량 즉시 교체 · deprecated stage에 의존</td></tr>
+            <tr><td>모니터링</td><td>성능 + data/concept drift를 <strong>둘 다</strong> 감시 · 알람 임계값 문서화</td><td>배포 후 방치 · 정확도만 보고 입력 분포 변화 무시</td></tr>
+            <tr><td>CI/CD/CT</td><td>데이터·모델 검증을 CI에 포함 · <strong>재학습 자동 트리거</strong> · 파이프라인을 배포 단위로</td><td>수동 재학습(L0) · 모델만 배포하고 학습 파이프라인은 비재현</td></tr>
+            <tr><td>재현성</td><td>컨테이너로 환경 고정 · 실험 파라미터·메트릭 자동 로깅</td><td>"내 노트북에선 됨" · 환경·랜덤성 미고정</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5 : 면접 핵심 정리 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong>, MLOps에서 반드시 그릴 아키텍처 · 파고드는 추가 설명 · 정의할 핵심 용어 · 아는지 확인하는 체크리스트를 한 곳에 모았다.</p>
+
+        <h3>① 반드시 그리는 아키텍처</h3>
+        <p>"ML 모델을 운영하는 구조를 그려봐"라고 하면 이 그림이다. 세 축이 핵심 — <strong>registry 승격(alias 스왑 = 배포)</strong>, <strong>모니터링→재학습(CT) 귀환</strong>, <strong>3중 버전 재현성 + 롤백</strong>.</p>
+        <figure>
+          <svg viewBox="0 0 720 280" role="img" aria-label="MLOps 면접 필수 아키텍처 요약">
+            <style>
+              .s3{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .s3t{font-family:'JetBrains Mono',monospace;font-size:14px;fill:#111}
+              .s3s{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#6B7280}
+              .s3k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .s3a{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .s3fl{stroke:#B45309;stroke-width:1.8;fill:none}
+            </style>
+            <defs><marker id="sa" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <rect class="s3" x="50" y="54" width="250" height="58" rx="6"/>
+            <text class="s3t" x="175" y="80" text-anchor="middle">학습 파이프라인</text>
+            <text class="s3s" x="175" y="99" text-anchor="middle">CI · 실험추적 · data/model 버전</text>
+
+            <rect class="s3" x="420" y="54" width="250" height="58" rx="6"/>
+            <text class="s3t" x="545" y="80" text-anchor="middle">서빙 · 배포</text>
+            <text class="s3s" x="545" y="99" text-anchor="middle">Registry champion → canary/shadow</text>
+
+            <line class="s3fl" x1="300" y1="74" x2="418" y2="74" marker-end="url(#sa)"/>
+            <text class="s3a" x="360" y="66" text-anchor="middle">승격 = alias 스왑</text>
+
+            <polyline class="s3fl" points="545,112 545,150 175,150 175,114" marker-end="url(#sa)"/>
+            <text class="s3k" x="360" y="170" text-anchor="middle">모니터링: drift·성능 저하 → 재학습 (CT)</text>
+
+            <rect x="50" y="196" width="620" height="56" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="s3k" x="360" y="220" text-anchor="middle">재현성 = data · model · code 3중 버전 고정 + lineage</text>
+            <text class="s3k" x="360" y="240" text-anchor="middle">롤백 = 이전 model version을 champion으로 재승격 (코드 변경 없음)</text>
+          </svg>
+          <figcaption>MLOps 면접 필수 아키텍처 — 승격(alias)·모니터링→CT 귀환·3중 버전 재현성/롤백을 한 그림에.</figcaption>
+        </figure>
+
+        <h3>② 추가 설명 — 면접관이 파고드는 지점</h3>
+        <ul>
+          <li><strong>왜 배포가 끝이 아닌가</strong> — 모델은 배포 순간부터 drift로 열화한다. monitor가 성능·분포 변화를 잡아 <strong>CT로 재학습</strong>을 트리거하는 귀환 경로가 있어야 시스템이 유지된다.</li>
+          <li><strong>배포와 재학습은 다르다</strong> — 서빙 코드는 <code class="inline">@champion</code> alias만 본다. 새 모델 반영은 <strong>alias를 새 버전으로 스왑</strong>하는 것이지 코드 재배포가 아니다. 롤백도 alias 되돌리기라 무중단.</li>
+          <li><strong>data drift vs concept drift</strong> — 전자는 입력 분포만, 후자는 입력→출력 관계가 변한다. 대응이 달라서(재학습 vs 재정의) 구분이 중요하다.</li>
+          <li><strong>training-serving skew</strong> — 학습·서빙에서 feature를 따로 계산하면 소리 없이 성능이 무너진다. feature store로 <strong>같은 정의를 공유</strong>해 막는다.</li>
+        </ul>
+
+        <h3>③ 반드시 정의할 핵심 용어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>면접용 한 줄 정의</th></tr></thead>
+          <tbody>
+            <tr><td>model registry</td><td>모델 버전 중앙 저장소. alias로 champion/challenger 승격·롤백을 관리(구 stages 대체).</td></tr>
+            <tr><td>feature store</td><td>학습/서빙 공통 feature를 online/offline로 서빙. training-serving skew 방지.</td></tr>
+            <tr><td>CI/CD/CT</td><td>코드+데이터+모델 검증(CI) · 파이프라인/서비스 배포(CD) · <strong>drift 트리거 재학습(CT)</strong>.</td></tr>
+            <tr><td>data / concept drift</td><td>입력 분포 변화 / 입력→출력 관계 변화. 전자는 재학습, 후자는 문제 재정의가 필요.</td></tr>
+            <tr><td>배포 전략</td><td>shadow(무영향 검증) · canary(점진 확대) · blue-green(즉시 전환/롤백).</td></tr>
+            <tr><td>reproducibility</td><td>data+model+code 3중 버전 + lineage로 특정 모델을 그대로 재현.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 반드시 아는 개념 체크리스트</h3>
+        <ol>
+          <li><strong>MLOps vs DevOps</strong> — 코드뿐 아니라 <strong>data·model도 버전·테스트·배포</strong>, CI/CD에 <strong>CT</strong>가 추가.</li>
+          <li><strong>폐루프 라이프사이클</strong> — data→train→eval→registry→deploy→monitor→(drift)→retrain.</li>
+          <li><strong>model registry + alias</strong> — 승격=alias 스왑, 롤백=이전 버전 재승격. MLflow stages는 2.9부터 deprecated.</li>
+          <li><strong>배포 전략</strong> — shadow / canary / blue-green의 사용자 영향·인프라·용도 구분.</li>
+          <li><strong>data drift vs concept drift</strong> — 정의·예시·탐지 방법과 대응 차이.</li>
+          <li><strong>feature store</strong> — online/offline, training-serving skew, point-in-time 누수 차단.</li>
+          <li><strong>재현성 3중 버전</strong> — code(Git)·data(DVC)·model(registry) + lineage.</li>
+          <li><strong>online vs batch serving</strong> — 실시간 저지연 vs 대량 오프라인 예측.</li>
+          <li><strong>성숙도 L0~L2</strong> — 수동 → 파이프라인 자동화(CT) → CI/CD 자동화.</li>
+          <li><strong>대표 도구</strong> — MLflow(추적·registry) · Kubeflow(파이프라인·K8s) · Feast(feature store) · Evidently(drift).</li>
+        </ol>
+      </section>
+
+      <!-- 6 : 예상 질문 & 답변 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+
+        <div class="qa">
+          <div class="q">data drift와 concept drift의 차이는?</div>
+          <div class="a"><strong>data drift</strong>는 <strong>입력 분포</strong>가 학습 때와 달라지는 것으로, 입력→출력 관계는 그대로다(예: 신규 지역 유입으로 특성 분포 이동).
+             <strong>concept drift</strong>는 <strong>입력→출력 관계 자체</strong>가 변하는 것으로, 입력 분포는 같아도 정답이 달라진다(예: 트렌드 변화로 "선호"의 정의가 바뀜).
+             전자는 재학습으로 대응하고, 후자는 문제 재정의·레이블 재수집까지 필요해 대응이 다르다. 탐지도 data drift는 입력 분포 통계, concept drift는 성능/오류율 감시가 중심이다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">운영 모델에 문제가 생겼을 때 어떻게 롤백하나?</div>
+          <div class="a">서빙 코드가 <strong>alias(예: <code class="inline">@champion</code>)만 참조</strong>하도록 설계돼 있으면, <strong>champion alias를 직전 정상 버전으로 되돌리기만</strong> 하면 된다.
+             모델 아티팩트는 registry에 버전으로 남아 있으므로 재배포·코드 변경 없이 무중단으로 복구된다. blue-green이라면 스위치를 blue로 되돌리는 것도 동일한 즉시 롤백이다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">shadow와 canary 배포는 어떻게 다르고 언제 쓰나?</div>
+          <div class="a"><strong>shadow</strong>는 새 모델이 <strong>동일 입력을 처리하되 응답을 사용자에게 주지 않고 로깅·비교만</strong> 한다 — 사용자 영향 0이라 고위험 변경의 실전 검증에 쓴다.
+             <strong>canary</strong>는 새 모델에 <strong>소량(예: 1~10%) 실트래픽</strong>을 실제로 태우고 지표를 보며 점진 확대한다 — 실제 응답을 주므로 강한 모니터링이 전제다.
+             실무에선 <strong>shadow로 무영향 검증 → canary로 점진 확대</strong> 순으로 조합한다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">model registry의 역할은? stages는 왜 없어졌나?</div>
+          <div class="a">registry는 <strong>모델 버전의 중앙 저장소</strong>로 버전·배포 상태·승격·롤백을 관리하고, 서빙이 이름으로 모델을 당겨 쓰게 한다.
+             MLflow는 과거 <code class="inline">Staging/Production/Archived</code> 고정 stage를 썼지만 경직성·환경 표현 한계로 <strong>2.9에서 deprecated</strong>됐고, <strong>alias + tag</strong>로 대체됐다.
+             alias는 한 버전에 여러 개를 붙일 수 있어 champion/challenger·A/B·점진 롤아웃이 유연하다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">모델의 재현성은 어떻게 보장하나?</div>
+          <div class="a"><strong>code·data·model 3중 버전</strong>을 함께 고정한다 — 코드는 Git 커밋, 데이터는 DVC 등으로 스냅샷, 모델은 registry 버전.
+             experiment tracking으로 파라미터·메트릭·환경을 자동 로깅하고, 이들을 <strong>lineage</strong>로 연결해 운영 모델에서 학습 데이터·코드까지 역추적되게 한다.
+             환경은 컨테이너로 고정하고 랜덤 시드·의존성을 pin해 "같은 입력 → 같은 산출물"을 만든다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">online serving과 batch serving은 어떻게 다르고 언제 쓰나?</div>
+          <div class="a"><strong>online</strong>은 요청마다 <strong>실시간 저지연 응답</strong>(REST/gRPC)이 필요할 때 — 사기 탐지, 추천 등. feature도 online store에서 밀리초로 조회한다.
+             <strong>batch</strong>는 대량 데이터를 <strong>주기적으로 오프라인 예측</strong>해 저장할 때 — 야간 스코어링, 리포트 등. 지연 여유가 크고 처리량이 우선이다.
+             선택 기준은 <strong>지연 요구와 신선도</strong> — 즉답이 필요하면 online, 아니면 비용 효율적인 batch.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">training-serving skew는 무엇이고 어떻게 막나?</div>
+          <div class="a">학습 때 계산한 feature와 서빙 때 계산한 feature가 <strong>미묘하게 달라</strong> 오프라인 성능은 좋은데 운영에서 무너지는 현상이다.
+             원인은 보통 학습 배치 파이프라인과 서빙 실시간 경로가 <strong>다른 코드로 같은 feature를 계산</strong>하기 때문이다.
+             <strong>feature store</strong>로 학습·서빙이 같은 feature 정의를 공유하고, offline store의 <strong>point-in-time</strong> 조회로 미래 정보 누수까지 막는 것이 표준 대응이다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">CT는 무엇이고 언제 트리거되나? 일반 CI/CD와 뭐가 다른가?</div>
+          <div class="a"><strong>CT(Continuous Training)</strong>는 ML 고유의 축으로, <strong>파이프라인이 스스로 재학습·재배포</strong>하는 것이다.
+             트리거는 <strong>신규 데이터 도착 · 스케줄 · drift 감지 · 성능 저하</strong>다. 일반 CI/CD는 <strong>코드</strong> 변경에 반응하지만, ML CI/CD는
+             CI가 데이터·모델 검증까지 포함하고 CD가 <strong>학습 파이프라인 자체</strong>를 배포하며, 여기에 CT가 더해져 데이터 변화에도 반응한다는 점이 다르다.</div>
+        </div>
+      </section>
+
+      <!-- 7 : 참고자료 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <ul>
+          <li><a class="link" href="https://ml-ops.org/content/mlops-principles" target="_blank" rel="noopener">MLOps Principles (ml-ops.org) — versioning·testing·automation·reproducibility·monitoring</a></li>
+          <li><a class="link" href="https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning" target="_blank" rel="noopener">Google Cloud — MLOps: CI/CD/CT 자동화와 성숙도 L0~L2</a></li>
+          <li><a class="link" href="https://mlflow.org/docs/latest/ml/model-registry/" target="_blank" rel="noopener">MLflow Model Registry — alias·champion/challenger 워크플로</a> · <a class="link" href="https://github.com/mlflow/mlflow/issues/10336" target="_blank" rel="noopener">RFC: model registry stages deprecation</a></li>
+          <li><a class="link" href="https://docs.feast.dev/" target="_blank" rel="noopener">Feast — feature store(online/offline, point-in-time)</a></li>
+          <li><a class="link" href="https://www.kubeflow.org/docs/started/introduction/" target="_blank" rel="noopener">Kubeflow — ML 파이프라인·Katib·KServe(K8s)</a></li>
+          <li><a class="link" href="https://docs.evidentlyai.com/" target="_blank" rel="noopener">Evidently — 데이터 품질·data/concept drift 모니터링</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        MLOps 학습 자료 (모델 배포·버전관리·모니터링) · ML 엔지니어 면접 대비 시리즈 · 출처는 각 섹션의 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 목차 스크롤스파이 — 현재 화면의 섹션을 TOC에서 강조
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+
+  // 코드블록 복사 버튼
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>

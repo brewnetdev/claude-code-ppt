@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>FastAPI / Spring Boot — 아키텍처와 동시성 모델 (면접 대비 단계별 학습)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="FastAPI와 Spring Boot 아키텍처를 정의·용어 사전·계층 구조·동시성 모델(async event loop vs thread-per-request)·동작 원리·베스트 프랙티스·면접 필수 개념·예상 질답까지 쉬움→필수 순으로 정리한 백엔드 엔지니어 면접 대비 학습 자료.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  /* 용어 사전 표 — 약어/풀네임을 고정폭으로 강조 */
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Backend Interview · FastAPI / Spring Boot</div>
+    <h1>FastAPI / Spring Boot — 아키텍처와 동시성 모델</h1>
+    <p class="lead">"두 프레임워크가 뭐가 다르냐"는 정의부터 <strong>용어 사전</strong>, 계층 아키텍처,
+       <strong>동시성 모델</strong>(async event loop vs thread-per-request), 요청 처리 원리, 베스트 프랙티스,
+       면접 필수 개념, 예상 질답까지 <strong>쉬움 → 필수</strong> 순으로 쌓아 올린다.
+       백엔드 면접에서 실제로 찔리는 지점(GIL·이벤트 루프·스레드 풀·virtual threads)을 중심으로 정리했다.</p>
+    <p class="meta">기준: FastAPI 0.139+ · Starlette 1.x · Pydantic v2 · Spring Boot 3.2+/4.x(JDK 17 baseline) · virtual threads = JDK 21(JEP 444) · 버전 의존 항목은 본문에 표시</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">정의 &amp; 왜 — 두 프레임워크의 정체</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">아키텍처 — 계층 + 동시성 모델</a></li>
+        <li><a href="#s3">동작 원리 — 요청 한 건의 여정</a></li>
+        <li><a href="#s4">베스트 프랙티스 — do / don't</a></li>
+        <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
+        <li><a href="#s6">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s7">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p>섹션마다 난이도 태그가 붙어 있다. <strong>00~01</strong>은 개념·용어 잡기(쉬움), <strong>02~04</strong>는 아키텍처·원리·실무(중간),
+           <strong>05~06</strong>은 면접 직전 정리(필수)다. 모르는 약어가 나오면 <strong>01 용어 사전</strong>으로 돌아가면 된다.
+           두 프레임워크의 근본 차이는 언어가 아니라 <strong>동시성 모델</strong>이니 그 축을 기준으로 읽으면 나머지가 정리된다.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>정의 &amp; 왜 — 두 프레임워크의 정체<span class="lvl">난이도 쉬움</span></h2>
+
+        <p><strong>FastAPI</strong>는 파이썬 웹 프레임워크다. 자체 웹 서버가 아니라 <strong>Starlette</strong>(ASGI 웹 툴킷)와
+           <strong>Pydantic v2</strong>(데이터 검증) 위에 얹은 얇은 계층으로, <strong>타입 힌트</strong>를 기반으로 라우팅·검증·직렬화·문서를 자동화한다.
+           <code class="inline">async/await</code>를 1급 시민으로 다루며, 실제 구동은 <strong>uvicorn</strong> 같은 ASGI 서버가 맡는다.
+           존재 이유는 "파이썬에서 <strong>비동기 I/O 처리량 + 타입 안전 + OpenAPI 문서 자동화</strong>를 한 번에" 얻는 것이다.</p>
+
+        <p><strong>Spring Boot</strong>는 JVM(Java/Kotlin) 프레임워크다. 방대한 <strong>Spring Framework</strong> 위에
+           <strong>auto-configuration</strong> + <strong>starter 의존성</strong> + <strong>내장 서버(기본 Tomcat)</strong>를 얹어
+           "설정보다 관례(convention over configuration)"로 프로덕션 앱을 즉시 기동시키는 계층이다. 핵심 엔진은
+           <strong>IoC 컨테이너</strong>(Bean 생성·주입)와 그 위의 보안·트랜잭션·데이터 스택이다.
+           존재 이유는 "성숙한 Spring 생태계를 <strong>최소 설정</strong>으로, 검증된 기본값과 함께" 쓰는 것이다.</p>
+
+        <table>
+          <thead><tr><th>축</th><th>FastAPI</th><th>Spring Boot (MVC)</th></tr></thead>
+          <tbody>
+            <tr><td>언어 · 런타임</td><td>Python 3.10+ (3.12/3.13 권장)</td><td>Java 17 baseline (LTS 17·21·25)</td></tr>
+            <tr><td>웹 표준</td><td><strong>ASGI</strong> (비동기)</td><td><strong>Servlet</strong> (동기) / WebFlux는 리액티브</td></tr>
+            <tr><td>기본 서버</td><td>uvicorn 등 ASGI 서버</td><td>내장 Tomcat</td></tr>
+            <tr><td><strong>동시성 모델</strong></td><td><strong>단일 스레드 event loop</strong> + async I/O</td><td><strong>thread-per-request</strong> 블로킹 (풀 max 200)</td></tr>
+            <tr><td>데이터 검증</td><td>Pydantic v2 (Rust 코어)</td><td>Bean Validation (Hibernate Validator)</td></tr>
+            <tr><td>영속성(ORM)</td><td>SQLAlchemy 등 (프레임워크 비내장)</td><td>Spring Data JPA / Hibernate</td></tr>
+            <tr><td>API 문서</td><td>OpenAPI 3.1 자동(Swagger UI·ReDoc)</td><td>springdoc-openapi 등 별도 추가</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>FastAPI = "<strong>ASGI event loop</strong> 위에서 async로 I/O를 겹쳐 처리하는 타입 기반 파이썬 API 프레임워크" ·
+             Spring Boot = "<strong>IoC 컨테이너 + Servlet thread-per-request</strong> 위에 관례로 조립된 JVM 프로덕션 프레임워크(virtual threads로 진화 중)."</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <p>두 진영 모두 약어가 쏟아진다. 아래 표는 <strong>약어 → 풀 네이밍 → 한 줄 의미</strong>로 정리했다.
+           나머지 섹션을 읽다 막히면 여기로 돌아오면 된다.</p>
+
+        <h3>웹 표준 · 서버 · 실행</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>ASGI</td><td>Asynchronous Server Gateway Interface</td><td>비동기 지원 파이썬 서버↔앱 표준. WebSocket·long-lived 연결 가능. FastAPI의 토대.</td></tr>
+            <tr><td>WSGI</td><td>Web Server Gateway Interface</td><td>동기 파이썬 웹 표준(Flask·전통 Django). 요청당 블로킹, async·WebSocket 미지원.</td></tr>
+            <tr><td>Starlette</td><td>(약어 아님)</td><td>FastAPI 하부의 경량 ASGI 툴킷. 라우팅·미들웨어·WebSocket·백그라운드 태스크 제공. 1.x 안정화.</td></tr>
+            <tr><td>uvicorn</td><td>(약어 아님)</td><td>ASGI 서버 구현(uvloop·httptools 기반). FastAPI 앱을 실제로 구동하는 프로세스.</td></tr>
+            <tr><td>Servlet</td><td>(약어 아님)</td><td>HTTP 요청을 처리하는 Java 표준 컴포넌트. 서블릿 컨테이너 안에서 실행. Spring MVC의 토대.</td></tr>
+            <tr><td>Tomcat</td><td>(약어 아님)</td><td>Spring Boot 내장 기본 서블릿 컨테이너. 스레드 풀로 요청 처리(기본 <code>max-threads=200</code>).</td></tr>
+            <tr><td>event loop</td><td>(약어 아님)</td><td>단일 스레드에서 코루틴을 스케줄링하는 루프(asyncio). I/O 대기 시 다른 코루틴으로 전환.</td></tr>
+            <tr><td>coroutine</td><td>(약어 아님)</td><td><code>async def</code>가 반환하는 일시중단 가능 객체. <code>await</code> 지점에서 멈췄다 재개.</td></tr>
+            <tr><td>async / await</td><td>(약어 아님)</td><td>비동기 코루틴 정의(<code>async def</code>)·중단(<code>await</code>) 문법.</td></tr>
+            <tr><td>OpenAPI</td><td>(구 Swagger)</td><td>REST API 기술 표준. FastAPI가 타입 힌트로 OpenAPI 3.1 문서를 자동 생성.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Spring 코어 — DI · IoC · Bean</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>IoC</td><td>Inversion of Control</td><td>객체 생성·생명주기 제어권을 프레임워크(컨테이너)에 위임. DI는 IoC를 구현하는 방식.</td></tr>
+            <tr><td>DI</td><td>Dependency Injection</td><td>의존 객체를 외부에서 주입. 결합도↓·테스트↑. Spring은 컨테이너가, FastAPI는 <code>Depends()</code>가 수행.</td></tr>
+            <tr><td>Bean</td><td>(약어 아님)</td><td>Spring IoC 컨테이너가 생성·관리하는 객체. <code>@Component</code>/<code>@Service</code> 등으로 등록.</td></tr>
+            <tr><td>ApplicationContext</td><td>(약어 아님)</td><td>Spring IoC 컨테이너 본체. Bean 정의를 읽어 인스턴스화·주입·생명주기 관리.</td></tr>
+            <tr><td>AOP</td><td>Aspect-Oriented Programming</td><td>횡단 관심사(트랜잭션·로깅·보안)를 비즈니스 코드와 분리. <code>@Transactional</code>이 대표.</td></tr>
+            <tr><td>starter</td><td>(약어 아님)</td><td>관련 의존성을 묶은 메타 패키지(<code>spring-boot-starter-web</code> 등). 버전 정합까지 포함.</td></tr>
+            <tr><td>auto-config</td><td>auto-configuration</td><td>클래스패스·프로퍼티를 보고 Bean을 자동 구성하는 Spring Boot 핵심. starter와 결합.</td></tr>
+            <tr><td>DTO</td><td>Data Transfer Object</td><td>계층·경계 간 데이터 전달용 객체. 도메인 엔티티를 그대로 노출하지 않기 위한 방패.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>데이터 · 동시성 · 리액티브</h3>
+        <table class="glossary">
+          <thead><tr><th>약어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>ORM</td><td>Object-Relational Mapping</td><td>객체↔관계형 테이블 매핑. SQL을 객체 조작으로 추상화.</td></tr>
+            <tr><td>JPA</td><td>Jakarta Persistence API</td><td>Java 표준 ORM <strong>스펙</strong>(구 Java Persistence API, <code>javax→jakarta</code>). 인터페이스일 뿐 구현은 별도.</td></tr>
+            <tr><td>Hibernate</td><td>(약어 아님)</td><td>가장 널리 쓰이는 JPA <strong>구현체</strong>. 실제 SQL 생성·실행·1차 캐시·dirty checking.</td></tr>
+            <tr><td>Pydantic</td><td>(약어 아님)</td><td>타입 힌트 기반 데이터 검증·직렬화 라이브러리. v2는 Rust 코어(<code>pydantic-core</code>). FastAPI 요청/응답 모델.</td></tr>
+            <tr><td>GIL</td><td>Global Interpreter Lock</td><td>CPython이 한 번에 한 스레드만 바이트코드를 실행하게 하는 락. async는 이를 우회하지 않음(동시성≠병렬).</td></tr>
+            <tr><td>thread-per-request</td><td>(약어 아님)</td><td>요청 하나당 스레드 하나 배정. Spring MVC/Servlet 기본. I/O 대기 중 스레드가 블록됨.</td></tr>
+            <tr><td>virtual thread</td><td>(Project Loom)</td><td>JVM이 관리하는 경량 스레드. JDK 21 정식(JEP 444). I/O 시 캐리어(플랫폼) 스레드에서 unmount.</td></tr>
+            <tr><td>WebFlux</td><td>(약어 아님)</td><td>Spring의 리액티브·논블로킹 웹 스택(Project Reactor의 <code>Mono</code>/<code>Flux</code>). MVC의 대안, 기본 서버 Netty.</td></tr>
+            <tr><td>Netty</td><td>(약어 아님)</td><td>비동기 이벤트 기반 네트워크 프레임워크. WebFlux의 기본 런타임(event loop 방식).</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 아키텍처 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>아키텍처 — 계층 + 동시성 모델<span class="lvl">난이도 중간</span></h2>
+        <p>아키텍처는 두 층위로 본다. <strong>(1) 정적 계층 구조</strong>는 두 프레임워크가 거의 같다 —
+           진입(Router/Controller) → 비즈니스(Service) → 영속성(Repository) → DB. 차이가 나는 지점은
+           <strong>(2) 런타임 동시성 모델</strong> — FastAPI는 <strong>단일 event loop + ASGI</strong>, Spring MVC는 <strong>thread-per-request + Servlet</strong>이다.</p>
+
+        <h3>정적 계층 — 모양은 거의 같다</h3>
+        <figure>
+          <svg viewBox="0 0 720 340" role="img" aria-label="FastAPI와 Spring Boot 계층 아키텍처 대비">
+            <style>
+              .l2b{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .l2s{fill:#F8F7F4;stroke:#9CA3AF;stroke-width:1.2}
+              .l2db{fill:#F3F4F6;stroke:#9CA3AF;stroke-width:1.2}
+              .l2h{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111;font-weight:600}
+              .l2t{font-family:'JetBrains Mono',monospace;font-size:12.5px;fill:#111}
+              .l2r{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .l2f{stroke:#B45309;stroke-width:1.6;fill:none}
+            </style>
+            <defs><marker id="l2a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <text class="l2r" x="20" y="28">역할</text>
+            <text class="l2h" x="300" y="28" text-anchor="middle">FastAPI · ASGI (async)</text>
+            <text class="l2h" x="585" y="28" text-anchor="middle">Spring Boot · Servlet (MVC)</text>
+
+            <text class="l2r" x="20" y="73">라우팅</text>
+            <rect class="l2s" x="150" y="44" width="300" height="48" rx="4"/><text class="l2t" x="300" y="73" text-anchor="middle">path operation · APIRouter</text>
+            <rect class="l2s" x="470" y="44" width="230" height="48" rx="4"/><text class="l2t" x="585" y="73" text-anchor="middle">@RestController</text>
+
+            <text class="l2r" x="20" y="133">비즈니스</text>
+            <rect class="l2b" x="150" y="104" width="300" height="48" rx="4"/><text class="l2t" x="300" y="133" text-anchor="middle">Service (async def)</text>
+            <rect class="l2b" x="470" y="104" width="230" height="48" rx="4"/><text class="l2t" x="585" y="133" text-anchor="middle">@Service (Bean)</text>
+
+            <text class="l2r" x="20" y="193">영속성</text>
+            <rect class="l2b" x="150" y="164" width="300" height="48" rx="4"/><text class="l2t" x="300" y="193" text-anchor="middle">Repository · SQLAlchemy</text>
+            <rect class="l2b" x="470" y="164" width="230" height="48" rx="4"/><text class="l2t" x="585" y="193" text-anchor="middle">Spring Data JPA · Hibernate</text>
+
+            <text class="l2r" x="20" y="253">DB</text>
+            <rect class="l2db" x="150" y="224" width="550" height="48" rx="4"/><text class="l2t" x="425" y="253" text-anchor="middle">Database (PostgreSQL · MySQL · …)</text>
+
+            <line class="l2f" x1="300" y1="92" x2="300" y2="104" marker-end="url(#l2a)"/>
+            <line class="l2f" x1="300" y1="152" x2="300" y2="164" marker-end="url(#l2a)"/>
+            <line class="l2f" x1="300" y1="212" x2="300" y2="224" marker-end="url(#l2a)"/>
+            <line class="l2f" x1="585" y1="92" x2="585" y2="104" marker-end="url(#l2a)"/>
+            <line class="l2f" x1="585" y1="152" x2="585" y2="164" marker-end="url(#l2a)"/>
+            <line class="l2f" x1="585" y1="212" x2="585" y2="224" marker-end="url(#l2a)"/>
+
+            <text class="l2r" x="150" y="302">요청은 위 → 아래로, 응답은 역순으로 각 계층을 통과한다. DB는 공유된다.</text>
+          </svg>
+          <figcaption>정적 계층은 사실상 동일 — Router/Controller → Service → Repository → DB. 차이는 각 박스가 도는 "방식"에 있다.</figcaption>
+        </figure>
+
+        <ul>
+          <li><strong>라우팅</strong> — FastAPI는 데코레이터가 붙은 <em>path operation</em> 함수, Spring은 <code class="inline">@RestController</code>의 핸들러 메서드. 둘 다 HTTP를 함수 호출로 매핑한다.</li>
+          <li><strong>비즈니스</strong> — 도메인 로직. FastAPI는 평범한 함수/클래스, Spring은 <code class="inline">@Service</code> Bean으로 컨테이너가 주입한다.</li>
+          <li><strong>영속성</strong> — FastAPI는 프레임워크에 ORM이 없어 SQLAlchemy 등을 조합, Spring은 <strong>Spring Data JPA + Hibernate</strong>가 표준 세트다.</li>
+        </ul>
+
+        <h3>런타임 동시성 — 여기서 갈린다</h3>
+        <figure>
+          <svg viewBox="0 0 720 380" role="img" aria-label="FastAPI 이벤트 루프와 Spring thread-per-request 동시성 모델 대비">
+            <style>
+              .c2p{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .c2c{fill:#F8F7F4;stroke:#9CA3AF;stroke-width:1.2}
+              .c2x{fill:#F3F4F6;stroke:#9CA3AF;stroke-width:1}
+              .c2run{fill:#FFFFFF;stroke:#B45309;stroke-width:1.6}
+              .c2ttl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111;font-weight:600}
+              .c2m{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .c2k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .c2s{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .c2a{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+            </style>
+
+            <text class="c2ttl" x="185" y="26" text-anchor="middle">FastAPI · async event loop</text>
+            <text class="c2ttl" x="535" y="26" text-anchor="middle">Spring MVC · thread-per-request</text>
+
+            <rect class="c2p" x="20" y="40" width="330" height="250" rx="6"/>
+            <rect class="c2c" x="40" y="58" width="290" height="38" rx="4"/><text class="c2m" x="185" y="82" text-anchor="middle">Event Loop · 단일 스레드</text>
+            <rect class="c2run" x="60" y="116" width="250" height="30" rx="4"/><text class="c2m" x="185" y="136" text-anchor="middle">coroutine A — 실행 중</text>
+            <rect class="c2x" x="60" y="154" width="250" height="30" rx="4"/><text class="c2m" x="185" y="174" text-anchor="middle">coroutine B — await I/O</text>
+            <rect class="c2x" x="60" y="192" width="250" height="30" rx="4"/><text class="c2m" x="185" y="212" text-anchor="middle">coroutine C — await I/O</text>
+            <rect class="c2x" x="60" y="230" width="250" height="30" rx="4"/><text class="c2m" x="185" y="250" text-anchor="middle">coroutine D — 대기</text>
+            <text class="c2s" x="185" y="279" text-anchor="middle">I/O 대기 중 다른 코루틴 실행 · 병렬 아님(GIL)</text>
+
+            <rect class="c2p" x="370" y="40" width="330" height="250" rx="6"/>
+            <rect class="c2c" x="390" y="58" width="290" height="38" rx="4"/><text class="c2m" x="535" y="82" text-anchor="middle">Tomcat 스레드 풀 · max 200</text>
+            <rect class="c2x" x="410" y="116" width="250" height="30" rx="4"/><text class="c2m" x="535" y="136" text-anchor="middle">thread 1 → 요청 (DB 블록)</text>
+            <rect class="c2x" x="410" y="154" width="250" height="30" rx="4"/><text class="c2m" x="535" y="174" text-anchor="middle">thread 2 → 요청 (DB 블록)</text>
+            <rect class="c2x" x="410" y="192" width="250" height="30" rx="4"/><text class="c2m" x="535" y="212" text-anchor="middle">thread 3 → 요청 (블록)</text>
+            <rect class="c2x" x="410" y="230" width="250" height="30" rx="4"/><text class="c2m" x="535" y="250" text-anchor="middle">thread N → 요청</text>
+            <text class="c2s" x="535" y="279" text-anchor="middle">요청당 1스레드 점유 · 풀 고갈 시 503</text>
+
+            <rect class="c2c" x="20" y="308" width="680" height="52" rx="6"/>
+            <text class="c2a" x="40" y="330">JDK 21 virtual threads</text>
+            <text class="c2k" x="40" y="350">블로킹 코드 유지 · I/O 시 JVM이 캐리어 스레드에서 unmount → 적은 플랫폼 스레드로 대량 요청 처리</text>
+          </svg>
+          <figcaption>왼쪽은 한 스레드가 여러 코루틴을 번갈아 돌리는 event loop, 오른쪽은 요청마다 스레드를 물고 블록되는 풀. virtual threads는 오른쪽 모델을 값싸게 만든다.</figcaption>
+        </figure>
+
+        <div class="note">
+          <div class="t">면접 포인트 — 왜 모델이 다른가</div>
+          <p>FastAPI(ASGI)는 <strong>한 스레드</strong>가 I/O 대기 시간을 겹쳐 여러 요청을 처리한다(비동기 동시성).
+             Spring MVC(Servlet)는 <strong>요청마다 스레드</strong>를 배정하고, 그 스레드는 I/O가 끝날 때까지 블록된다.
+             전자는 async 드라이버가 필수고 CPU 바운드에 약하며, 후자는 코드가 단순하지만 스레드 풀이 상한이다.
+             JVM 진영의 답이 <strong>virtual threads</strong>와 리액티브(<strong>WebFlux</strong>)다.</p>
+        </div>
+      </section>
+
+      <!-- 3 : 동작 원리 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>동작 원리 — 요청 한 건의 여정<span class="lvl">난이도 중간</span></h2>
+
+        <h3>FastAPI — ASGI 파이프라인</h3>
+        <ol>
+          <li><strong>uvicorn(ASGI 서버)</strong>이 소켓에서 HTTP를 받아 ASGI <em>scope/receive/send</em>로 변환한다.</li>
+          <li><strong>Starlette</strong>가 라우팅으로 path operation을 찾고, 미들웨어 체인을 통과시킨다.</li>
+          <li><strong>Depends()</strong> 의존성이 순서대로 해석된다(DB 세션·인증 등). 이것이 FastAPI의 DI다.</li>
+          <li><strong>Pydantic v2</strong>가 요청 본문·쿼리·경로를 타입에 맞춰 검증·파싱한다(실패 시 자동 422).</li>
+          <li>path operation이 <strong><code>async def</code>면 event loop에서 직접</strong> 실행되고, 함수가 <code>await</code>로 I/O를 넘길 때 루프는 다른 요청의 코루틴을 돌린다.
+              반대로 <strong>평범한 <code>def</code>면 외부 스레드풀(AnyIO worker)에서</strong> 실행해 <strong>루프를 막지 않는다</strong>.</li>
+          <li>반환값을 <code class="inline">response_model</code> 기준으로 직렬화하고, 스키마는 OpenAPI 3.1로 자동 노출된다.</li>
+        </ol>
+        <div class="note">
+          <div class="t">핵심 함정 — async def 안의 블로킹 호출</div>
+          <p><code class="inline">async def</code> 안에서 동기 블로킹 I/O(예: 동기 DB 드라이버, <code class="inline">requests.get</code>, <code class="inline">time.sleep</code>)를 호출하면
+             <strong>event loop 스레드 전체가 그 시간 동안 정지</strong>한다. 그 순간 다른 모든 요청도 멈춘다.
+             해결: async 드라이버(<code class="inline">asyncpg</code>·<code class="inline">httpx</code>)로 <code>await</code>하거나, 정 안 되면 그 함수를 <code>def</code>로 두어 스레드풀에 위임한다.</p>
+        </div>
+
+        <h3>Spring MVC — Servlet 파이프라인</h3>
+        <ol>
+          <li><strong>Tomcat</strong>이 커넥션을 받아 스레드 풀(기본 <code class="inline">max-threads=200</code>)에서 스레드 하나를 꺼내 요청에 배정한다.</li>
+          <li><strong>DispatcherServlet</strong>이 HandlerMapping으로 컨트롤러 메서드를 찾는다(Front Controller 패턴).</li>
+          <li>필요한 Bean(<code class="inline">@Service</code>·<code class="inline">@Repository</code>)은 <strong>기동 시점에 IoC 컨테이너가 이미 생성·주입</strong>해 둔 것을 쓴다.</li>
+          <li>Service가 트랜잭션(<code class="inline">@Transactional</code>, AOP 프록시) 경계 안에서 로직을 수행한다.</li>
+          <li>Repository가 JPA/Hibernate로 <strong>블로킹 JDBC</strong> 호출을 한다. 이 동안 <strong>배정된 스레드는 결과가 올 때까지 대기(블록)</strong>한다.</li>
+          <li>응답을 직렬화(Jackson)해 반환하면 스레드는 풀로 반납된다.</li>
+        </ol>
+        <div class="note">
+          <div class="t">핵심 함정 — 풀 고갈과 503</div>
+          <p>느린 I/O가 스레드를 오래 물면, 200개가 모두 대기 상태가 되고 이후 요청은 큐(기본 <code class="inline">accept-count=100</code>)에 쌓이다
+             넘치면 <strong>HTTP 503</strong>으로 거절된다. 스레드를 무작정 늘려도 코어 수만큼만 실제 병렬이고, 컨텍스트 스위칭·메모리(스레드당 스택)만 커진다.
+             그래서 나온 게 <strong>virtual threads</strong>(블로킹 유지 + 값싼 확장)와 <strong>WebFlux</strong>(논블로킹)다.</p>
+        </div>
+
+        <h3>virtual threads — 블로킹 모델을 값싸게</h3>
+        <p>JDK 21에서 정식이 된 virtual thread는 <strong>JVM이 스케줄링하는 경량 스레드</strong>다.
+           Spring Boot 3.2+에서 <code class="inline">spring.threads.virtual.enabled=true</code> 한 줄이면, Spring Boot가 Tomcat을
+           <code class="inline">Executors.newVirtualThreadPerTaskExecutor()</code>로 바꿔 <strong>요청마다 virtual thread</strong>를 만든다.
+           블로킹 코드는 그대로인데, I/O로 블록되는 순간 JVM이 그 virtual thread를 캐리어(플랫폼) 스레드에서 <strong>unmount</strong>해
+           같은 플랫폼 스레드로 다른 요청을 처리한다. 적은 수의 OS 스레드로 수천 동시 요청을 감당한다.</p>
+        <pre><code><span class="c"># application.properties — Spring Boot 3.2+ / JDK 21</span>
+spring.threads.virtual.enabled=<span class="p">true</span></code></pre>
+        <div class="note">
+          <div class="t">virtual threads 두 가지 주의</div>
+          <p>① <strong>pinning</strong> — <code class="inline">synchronized</code> 블록/네이티브 안에서는 virtual thread가 캐리어에 고정(pin)돼 unmount되지 않는다.
+             해결은 <code class="inline">ReentrantLock</code>으로 교체(라이브러리가 <code>synchronized</code>를 쓰면 그 라이브러리를 갱신).
+             ② <strong>병목 이동</strong> — 스레드 상한이 사라지면 <strong>DB 커넥션 풀</strong>이 새 병목이 된다. 커넥션 풀 크기를 함께 설계해야 한다.</p>
+        </div>
+      </section>
+
+      <!-- 4 : 베스트 프랙티스 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>베스트 프랙티스 — do / don't<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>FastAPI 동시성</td><td>I/O는 async 드라이버로 <code>await</code> · 동기 블로킹이 불가피하면 그 함수를 <code>def</code>로 두어 스레드풀 위임</td><td><code>async def</code> 안에서 동기 블로킹 I/O·<code>time.sleep</code> 호출(loop 전체 정지)</td></tr>
+            <tr><td>FastAPI CPU 바운드</td><td>무거운 연산은 프로세스풀/워커로 오프로딩 · uvicorn 다중 워커로 스케일</td><td>event loop에서 CPU 집약 루프 실행(GIL·단일 루프라 전체 지연)</td></tr>
+            <tr><td>Pydantic · DTO</td><td>요청/응답 모델을 분리하고 <code>response_model</code>로 노출 필드를 통제</td><td>DB 모델을 그대로 응답으로 반환(내부 필드·비밀 노출)</td></tr>
+            <tr><td>Spring DI</td><td><strong>생성자 주입</strong>(불변·테스트 용이) · 인터페이스 기준 의존</td><td>필드 <code>@Autowired</code> 남용 · 순환 의존 방치</td></tr>
+            <tr><td>Spring 트랜잭션</td><td><code>@Transactional</code> 경계를 Service에 명확히 · 엔티티를 DTO로 변환해 계층 밖으로</td><td>컨트롤러/뷰까지 엔티티 노출(LazyInitializationException·결합)</td></tr>
+            <tr><td>virtual threads</td><td>I/O 바운드에 적용 · <code>synchronized</code>→<code>ReentrantLock</code> · 커넥션 풀 동반 튜닝</td><td>CPU 바운드에 기대 · pinning 라이브러리 방치 · 커넥션 풀 그대로 두고 확장</td></tr>
+            <tr><td>계층 분리(공통)</td><td>라우터/컨트롤러는 얇게, 로직은 Service, 쿼리는 Repository</td><td>컨트롤러/path operation에 비즈니스·SQL 몰아넣기</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5 : 면접 핵심 정리 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong>, 반드시 그릴 그림 · 파고드는 추가 설명 · 정의할 핵심 용어 · 아는지 확인하는 체크리스트를 한 곳에 모았다.</p>
+
+        <h3>① 반드시 그리는 그림</h3>
+        <p>"FastAPI가 왜 동시성에 유리하냐"거나 "Spring이 요청을 어떻게 처리하냐"고 하면 이 그림이다. 세 가지가 핵심 —
+           <strong>한 event loop가 여러 코루틴</strong>을 겹치는 쪽 vs <strong>요청마다 스레드</strong>가 블록되는 쪽, 그리고 그 한계를 푸는 <strong>virtual threads</strong>.</p>
+        <figure>
+          <svg viewBox="0 0 720 300" role="img" aria-label="면접 요약 — 동시성 모델과 선택 기준">
+            <style>
+              .s5b{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .s5c{fill:#F8F7F4;stroke:#9CA3AF;stroke-width:1.2}
+              .s5acc{fill:#FFFFFF;stroke:#B45309;stroke-width:1.8}
+              .s5ttl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111;font-weight:600}
+              .s5m{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .s5k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .s5s{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .s5a{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+            </style>
+
+            <rect class="s5acc" x="30" y="40" width="300" height="40" rx="4"/><text class="s5m" x="180" y="65" text-anchor="middle">1 event-loop thread</text>
+            <rect class="s5c" x="60" y="96" width="240" height="26" rx="4"/><text class="s5m" x="180" y="114" text-anchor="middle">coroutine ×N (await I/O)</text>
+            <text class="s5ttl" x="180" y="150" text-anchor="middle">FastAPI · ASGI · async</text>
+            <text class="s5s" x="180" y="170" text-anchor="middle">I/O 바운드 · 논블로킹 드라이버</text>
+
+            <rect class="s5b" x="390" y="40" width="300" height="40" rx="4"/><text class="s5m" x="540" y="65" text-anchor="middle">thread pool (max ~200)</text>
+            <rect class="s5c" x="420" y="96" width="240" height="26" rx="4"/><text class="s5m" x="540" y="114" text-anchor="middle">thread = 요청 1개 (blocked)</text>
+            <text class="s5ttl" x="540" y="150" text-anchor="middle">Spring MVC · Servlet</text>
+            <text class="s5s" x="540" y="170" text-anchor="middle">블로킹 스택 · thread-per-request</text>
+
+            <rect class="s5c" x="30" y="196" width="660" height="80" rx="6"/>
+            <text class="s5a" x="50" y="222">면접에서 반드시 말할 축</text>
+            <text class="s5k" x="50" y="244">① 동시성 ≠ 병렬(GIL) · async는 I/O 대기 겹치기   ② async def에 블로킹 호출 금지(loop 정지)</text>
+            <text class="s5k" x="50" y="264">③ 200 풀 고갈 → 503   ④ JDK 21 virtual threads = 블로킹 코드로 대량 동시성(pinning · 커넥션 풀 주의)</text>
+          </svg>
+          <figcaption>면접 필수 그림 — event loop vs thread pool, 그리고 virtual threads라는 JVM의 답.</figcaption>
+        </figure>
+
+        <h3>② 추가 설명 — 면접관이 파고드는 지점</h3>
+        <ul>
+          <li><strong>GIL이 있는데 어떻게 동시성이 되나</strong> — async는 <em>병렬</em>이 아니라 <em>동시성</em>이다. 한 스레드가 A의 I/O 대기 시간에 B를 실행할 뿐, 파이썬 바이트코드를 동시에 두 개 돌리지 않는다. 그래서 <strong>I/O 바운드엔 강하고 CPU 바운드엔 무익</strong>하다.</li>
+          <li><strong><code class="inline">async def</code>에 블로킹 호출을 넣으면</strong> — 그 시간 동안 <em>event loop 전체</em>가 멈춰 모든 요청이 지연된다. async 드라이버로 <code>await</code>하거나 <code>def</code>로 내려 스레드풀에 맡긴다. 면접 단골 함정.</li>
+          <li><strong>thread-per-request의 한계와 virtual threads</strong> — 200 풀이 느린 I/O로 고갈되면 503. virtual threads는 블로킹 코드를 유지한 채 I/O 시 unmount로 확장한다. 단 <code class="inline">synchronized</code> pinning과 커넥션 풀 병목을 반드시 언급해야 깊이가 산다.</li>
+          <li><strong>Pydantic v2가 v1보다 빠른 이유</strong> — 검증 코어를 <strong>Rust(<code>pydantic-core</code>)</strong>로 재작성해 순수 파이썬 대비 큰 폭으로 빨라졌다. FastAPI의 요청 검증·직렬화가 여기에 얹힌다.</li>
+        </ul>
+
+        <h3>③ 반드시 정의할 핵심 용어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>면접용 한 줄 정의</th></tr></thead>
+          <tbody>
+            <tr><td>ASGI vs WSGI</td><td>ASGI = 비동기·WebSocket 지원 파이썬 웹 표준 / WSGI = 동기 전통 표준. FastAPI는 ASGI.</td></tr>
+            <tr><td>event loop</td><td>단일 스레드에서 코루틴을 스케줄링 · I/O 대기 시 전환해 처리량을 낸다(병렬 아님).</td></tr>
+            <tr><td>thread-per-request</td><td>요청당 스레드 1개 · I/O 대기 중 블록 · 풀(기본 200) 고갈 시 503. Spring MVC 기본.</td></tr>
+            <tr><td>DI / IoC</td><td>제어 역전 = 객체 생성·주입을 컨테이너가 담당. Spring은 컨테이너, FastAPI는 <code>Depends()</code>.</td></tr>
+            <tr><td>JPA / Hibernate</td><td>JPA = 표준 ORM 스펙(인터페이스) · Hibernate = 그 구현체(실제 SQL).</td></tr>
+            <tr><td>virtual thread</td><td>JVM 경량 스레드(JDK 21) · 블로킹 코드로 대량 동시성 · pinning·커넥션 풀 주의.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 반드시 아는 개념 체크리스트</h3>
+        <ol>
+          <li><strong>ASGI vs WSGI</strong> — 비동기/WebSocket 지원 여부, FastAPI가 ASGI를 쓰는 이유.</li>
+          <li><strong>event loop + coroutine</strong> — 단일 스레드 동시성, <code>await</code> 지점에서 전환.</li>
+          <li><strong>동시성 ≠ 병렬 + GIL</strong> — async는 I/O 바운드용, CPU 바운드는 프로세스로 오프로딩.</li>
+          <li><strong>async def vs def</strong> — 전자는 루프, 후자는 스레드풀. 블로킹 호출은 def로.</li>
+          <li><strong>thread-per-request + Tomcat 풀</strong> — max 200 · accept-count 100 · 고갈 시 503.</li>
+          <li><strong>virtual threads(Loom, JDK 21)</strong> — <code>spring.threads.virtual.enabled=true</code>, unmount, pinning.</li>
+          <li><strong>WebFlux(리액티브)</strong> — Netty event loop, <code>Mono</code>/<code>Flux</code>, virtual threads와의 트레이드오프.</li>
+          <li><strong>IoC 컨테이너 / Bean / DI</strong> — 기동 시 조립, 생성자 주입, AOP(<code>@Transactional</code>).</li>
+          <li><strong>JPA vs Hibernate</strong> — 스펙과 구현, <code>javax→jakarta</code> 네임스페이스 전환.</li>
+          <li><strong>Pydantic v2</strong> — Rust 코어, 요청/응답 DTO 분리, 자동 422·OpenAPI.</li>
+        </ol>
+      </section>
+
+      <!-- 6 : 예상 질문 & 답변 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+
+        <div class="qa">
+          <div class="q">FastAPI가 Spring MVC보다 동시성에서 유리하다는 말은 정확히 무슨 뜻인가?</div>
+          <div class="a">FastAPI는 <strong>단일 event loop</strong>가 한 요청의 I/O 대기 시간에 다른 요청의 코루틴을 실행한다. 스레드를 늘리지 않고 <strong>대기 시간을 겹쳐</strong> I/O 바운드 처리량을 낸다.
+             Spring MVC는 <strong>요청당 스레드</strong>를 배정하고 I/O 동안 그 스레드가 블록되므로, 동시 처리량이 <strong>스레드 풀 크기(기본 200)</strong>에 묶인다.
+             단 FastAPI의 이점은 <strong>async 드라이버로 실제 <code>await</code>할 때만</strong> 성립하고, CPU 바운드에는 오히려 불리하다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q"><code class="inline">async def</code> 핸들러 안에서 동기 블로킹 DB 드라이버를 쓰면 어떻게 되나?</div>
+          <div class="a">그 호출이 끝날 때까지 <strong>event loop 스레드 전체가 정지</strong>해 <strong>모든 동시 요청이 함께 멈춘다</strong>. FastAPI의 장점이 사라지는 대표 실수다.
+             해결은 두 가지 — ① async 드라이버(<code class="inline">asyncpg</code>·<code class="inline">httpx</code>)로 바꿔 <code>await</code>하거나, ② 그 핸들러를 <strong>평범한 <code>def</code></strong>로 선언해 FastAPI가 외부 스레드풀에서 돌리게 한다(루프 비차단).</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">GIL이 있는데 파이썬 async가 어떻게 여러 요청을 동시에 처리하나?</div>
+          <div class="a">async는 <strong>병렬이 아니라 동시성</strong>이다. GIL은 한 번에 한 스레드만 바이트코드를 실행하게 하지만, 코루틴은 <strong>I/O에서 <code>await</code>로 제어를 양보</strong>하고 그 틈에 루프가 다른 코루틴을 돌린다.
+             즉 계산을 병렬로 하는 게 아니라 <strong>기다리는 시간을 공유</strong>하는 것이라, I/O 바운드에 강하고 CPU 바운드에는 도움이 안 된다(그건 멀티프로세스로 푼다).</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Spring의 DI/IoC가 무엇이고 왜 쓰나?</div>
+          <div class="a"><strong>IoC(제어 역전)</strong>는 객체 생성·생명주기 제어를 개발자가 아니라 <strong>컨테이너(ApplicationContext)</strong>가 갖는 것이고, <strong>DI(의존성 주입)</strong>는 그 구현으로 필요한 Bean을 외부에서 넣어 주는 것이다.
+             효과는 <strong>결합도 감소·교체 용이·테스트 용이</strong>(목 주입)다. 실무 권장은 <strong>생성자 주입</strong> — 불변이 보장되고 필수 의존성이 명시된다. FastAPI에도 <code class="inline">Depends()</code>라는 경량 DI가 있다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">JPA와 Hibernate의 차이는?</div>
+          <div class="a"><strong>JPA(Jakarta Persistence API)</strong>는 Java 표준 ORM <strong>스펙(인터페이스 모음)</strong>이고, <strong>Hibernate</strong>는 그 스펙을 구현한 <strong>구현체</strong>다.
+             코드는 JPA 인터페이스(<code class="inline">EntityManager</code>·<code class="inline">@Entity</code>)에 의존하고 런타임에 Hibernate가 실제 SQL을 생성·실행한다. Spring Boot 3부터 패키지가 <code class="inline">javax.persistence</code> → <code class="inline">jakarta.persistence</code>로 바뀐 점도 자주 묻는다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">virtual threads가 나오면서 이제 리액티브(WebFlux)는 필요 없나?</div>
+          <div class="a">둘은 <strong>목표는 같고 방식이 다르다</strong>. virtual threads는 <strong>기존 블로킹 코드(명령형)를 그대로 두고</strong> 스레드를 값싸게 만들어 확장한다 — 학습·디버깅 비용이 낮다.
+             WebFlux는 <strong>논블로킹·백프레셔(backpressure)</strong>를 스트림으로 다루어 스트리밍·역압 제어에 강하지만 <code class="inline">Mono</code>/<code class="inline">Flux</code> 패러다임 학습 비용이 크다.
+             대부분의 요청/응답 서비스는 <strong>virtual threads</strong>로 충분하고, 이벤트 스트리밍·정교한 배압이 필요하면 WebFlux를 고른다. 다만 virtual threads는 <code class="inline">synchronized</code> pinning과 커넥션 풀 병목을 챙겨야 한다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Pydantic v2가 v1보다 빠른 이유는? FastAPI와는 어떤 관계인가?</div>
+          <div class="a">Pydantic v2는 검증·직렬화 코어를 <strong>Rust(<code>pydantic-core</code>)</strong>로 재작성해 순수 파이썬이던 v1보다 크게 빨라졌다.
+             FastAPI는 요청 본문·쿼리·경로 파라미터를 <strong>Pydantic 모델로 검증</strong>하고 응답을 <code class="inline">response_model</code>로 직렬화하며, 그 스키마로 <strong>OpenAPI 문서를 자동 생성</strong>한다.
+             최신 FastAPI는 <strong>Pydantic v1 지원을 제거</strong>했으므로 v2 API(<code class="inline">model_validate</code>·<code class="inline">model_dump</code>) 기준으로 답하면 된다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">ASGI와 WSGI는 뭐가 다른가?</div>
+          <div class="a"><strong>WSGI</strong>는 동기 요청/응답 한 쌍만 다루는 전통 표준(Flask 등)이라 요청 처리 중 블로킹되고 WebSocket·long-lived 연결을 못 한다.
+             <strong>ASGI</strong>는 <code class="inline">async</code> 핸들러, WebSocket, 서버-보낸 스트림 같은 <strong>장수명·양방향</strong> 연결을 <em>scope/receive/send</em> 모델로 지원한다.
+             FastAPI/Starlette가 ASGI 위에 서고, uvicorn이 그 ASGI 앱을 구동한다.</div>
+        </div>
+      </section>
+
+      <!-- 7 : 참고자료 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <ul>
+          <li><a class="link" href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener">FastAPI 공식 문서</a> · <a class="link" href="https://fastapi.tiangolo.com/async/" target="_blank" rel="noopener">Concurrency and async / await</a></li>
+          <li><a class="link" href="https://www.starlette.io/" target="_blank" rel="noopener">Starlette (ASGI 툴킷)</a> · <a class="link" href="https://asgi.readthedocs.io/en/latest/" target="_blank" rel="noopener">ASGI 명세</a> · <a class="link" href="https://github.com/encode/uvicorn" target="_blank" rel="noopener">Uvicorn (ASGI 서버)</a></li>
+          <li><a class="link" href="https://docs.pydantic.dev/latest/" target="_blank" rel="noopener">Pydantic v2 문서</a> (Rust <code>pydantic-core</code>)</li>
+          <li><a class="link" href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener">Spring Boot 프로젝트</a> · <a class="link" href="https://docs.spring.io/spring-boot/reference/features/task-execution-and-scheduling.html" target="_blank" rel="noopener">Task Execution & virtual threads</a></li>
+          <li><a class="link" href="https://docs.spring.io/spring-framework/reference/core/beans.html" target="_blank" rel="noopener">Spring IoC 컨테이너 · Bean</a></li>
+          <li><a class="link" href="https://docs.spring.io/spring-framework/reference/web/webmvc.html" target="_blank" rel="noopener">Spring MVC (Servlet 스택)</a> · <a class="link" href="https://docs.spring.io/spring-framework/reference/web/webflux.html" target="_blank" rel="noopener">Spring WebFlux (리액티브)</a></li>
+          <li><a class="link" href="https://openjdk.org/jeps/444" target="_blank" rel="noopener">JEP 444 — Virtual Threads (JDK 21)</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        FastAPI / Spring Boot 아키텍처 학습 자료 · 백엔드 엔지니어 면접 대비 시리즈 · 출처는 각 섹션의 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 목차 스크롤스파이 — 현재 화면의 섹션을 TOC에서 강조
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+
+  // 코드블록 복사 버튼
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>
