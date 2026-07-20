@@ -10,8 +10,6 @@ try {
   await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
   await page.waitForTimeout(400);
   const figs = await page.$$('figure');
-  const last = figs[figs.length - 1];
-  await last.scrollIntoViewIfNeeded(); await page.waitForTimeout(200);
-  await last.screenshot({ path: '/tmp/n8-fig.png' });
-  console.log('figures:', figs.length, '| errors:', errs.length ? errs.join(' | ') : 'none');
+  for (let i=0;i<figs.length;i++){ await figs[i].scrollIntoViewIfNeeded(); await page.waitForTimeout(150); await figs[i].screenshot({path:`/tmp/${process.argv[3]}-f${i}.png`}); }
+  console.log(process.argv[3], '→ figures:', figs.length, '| errors:', errs.length?errs.join(' | '):'none');
 } finally { await browser.close(); }
