@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="자동차 측면 라인 드로잉 개념도: 엔진은 모델(LLM), 핸들·브레이크·변속기·계기판·연료계가 하네스 구성요소(제약·가드레일·도구호출·관찰·상태)로 매핑되고 하단에 에이전트 = 모델(엔진) + 하네스(나머지 전부) 등식">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <style>
+      .ttl{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+      .h{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:700;fill:#282a36}
+      .b{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:500;fill:#59617a}
+      .eng{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#644ac9}
+      .engs{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#644ac9}
+      .eq{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#282a36}
+      .eqa{fill:#644ac9}
+      .car{fill:none;stroke:#282a36;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+      .det{fill:none;stroke:#282a36;stroke-width:1.5;stroke-linecap:round}
+      .con{stroke:#59617a;stroke-width:2;fill:none}
+    </style>
+  </defs>
+
+  <text class="ttl" x="40" y="46">자동차 비유 — 에이전트 = 모델 + 하네스</text>
+
+  <!-- ===== car ===== -->
+  <line x1="300" y1="448" x2="720" y2="448" stroke="#282a36" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="385" cy="410" r="38" fill="#ffffff" stroke="#282a36" stroke-width="2.5"/>
+  <circle cx="628" cy="410" r="38" fill="#ffffff" stroke="#282a36" stroke-width="2.5"/>
+  <path class="car" fill="#ffffff" d="M 320,398 L 320,356 L 398,346 L 442,292 L 558,292 L 598,346 L 700,349 L 700,398 Z"/>
+  <!-- cabin detail -->
+  <line class="det" x1="428" y1="318" x2="580" y2="318"/>
+  <line class="det" x1="500" y1="292" x2="500" y2="318"/>
+  <line class="det" x1="500" y1="346" x2="500" y2="398"/>
+  <line class="det" x1="516" y1="366" x2="536" y2="366"/>
+  <!-- hubs -->
+  <circle cx="385" cy="410" r="13" fill="#59617a"/>
+  <circle cx="385" cy="410" r="4" fill="#ffffff"/>
+  <circle cx="628" cy="410" r="13" fill="#59617a"/>
+  <circle cx="628" cy="410" r="4" fill="#ffffff"/>
+
+  <!-- engine block = model (accent emphasis) -->
+  <rect x="592" y="342" width="112" height="58" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="eng" x="648" y="372" text-anchor="middle">모델</text>
+  <text class="engs" x="648" y="393" text-anchor="middle">(LLM)</text>
+
+  <!-- ===== connectors (part -> label) ===== -->
+  <circle cx="340" cy="358" r="3.5" fill="#59617a"/>
+  <line class="con" x1="340" y1="358" x2="170" y2="141" marker-end="url(#ar)"/>
+  <circle cx="500" cy="292" r="3.5" fill="#59617a"/>
+  <line class="con" x1="500" y1="292" x2="490" y2="141" marker-end="url(#ar)"/>
+  <circle cx="578" cy="322" r="3.5" fill="#59617a"/>
+  <line class="con" x1="578" y1="322" x2="818" y2="141" marker-end="url(#ar)"/>
+  <circle cx="470" cy="396" r="3.5" fill="#59617a"/>
+  <line class="con" x1="470" y1="396" x2="300" y2="455" marker-end="url(#ar)"/>
+  <circle cx="628" cy="430" r="3.5" fill="#59617a"/>
+  <line class="con" x1="628" y1="430" x2="706" y2="455" marker-end="url(#ar)"/>
+
+  <!-- ===== labels ===== -->
+  <!-- top-left: fuel gauge -> state -->
+  <rect x="40" y="74" width="222" height="60" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="56" y="101">연료계</text>
+  <text class="b" x="56" y="125">→ 상태 · 컨텍스트</text>
+  <!-- top-center: steering -> constraint -->
+  <rect x="400" y="74" width="182" height="60" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="416" y="101">핸들</text>
+  <text class="b" x="416" y="125">→ 제약 · 방향</text>
+  <!-- top-right: dashboard -> observe -->
+  <rect x="738" y="74" width="222" height="60" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="754" y="101">계기판</text>
+  <text class="b" x="754" y="125">→ 관찰 · 로그</text>
+  <!-- bottom-left: transmission -> tool call -->
+  <rect x="150" y="462" width="186" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="166" y="489">변속기</text>
+  <text class="b" x="166" y="512">→ 도구 호출</text>
+  <!-- bottom-right: brake -> guardrail -->
+  <rect x="638" y="462" width="232" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="654" y="489">브레이크</text>
+  <text class="b" x="654" y="512">→ 가드레일 · 안전</text>
+
+  <!-- ===== equation ===== -->
+  <rect x="210" y="534" width="580" height="48" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="eq" x="500" y="565" text-anchor="middle">에이전트 = <tspan class="eqa">모델(엔진)</tspan> + 하네스(나머지 전부)</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- radial map: central model surrounded by 5 harness components. anti-slop: mono grey + single teal accent. -->
+
+  <!-- connectors (drawn first, behind cards) : model edge -> card, thin dashed grey -->
+  <g stroke="#6B6560" stroke-width="1.5" stroke-dasharray="5 4">
+    <line x1="566" y1="250" x2="420" y2="164"/>
+    <line x1="714" y1="250" x2="862" y2="164"/>
+    <line x1="576" y1="300" x2="360" y2="342"/>
+    <line x1="640" y1="322" x2="640" y2="342"/>
+    <line x1="704" y1="300" x2="922" y2="342"/>
+  </g>
+
+  <!-- central model -->
+  <rect x="540" y="240" width="200" height="86" fill="#1A1A18" stroke="#1A1A18" stroke-width="1" rx="8"/>
+  <text x="640" y="278" text-anchor="middle" font-size="20" font-weight="700" fill="#FFFFFF">모델</text>
+  <text x="640" y="303" text-anchor="middle" font-size="13" fill="#D4D0C8" font-family="JetBrains Mono, monospace">Claude</text>
+
+  <!-- top-left: (1) guide CLAUDE.md  [request] -->
+  <rect x="30" y="40" width="590" height="124" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="52" y="72" font-size="18" font-weight="700" fill="#1A1A18">① 가이드 · CLAUDE.md<tspan font-size="13" font-weight="400" fill="#0F766E" dx="10">요청</tspan></text>
+  <text x="52" y="100" font-size="14" fill="#6B6560">좌표계 1280×720 · 허용 data-slot 목록</text>
+  <text x="52" y="122" font-size="14" fill="#6B6560">변경 범위 규칙 · 완료의 정의</text>
+  <text x="52" y="150" font-size="13" fill="#0F766E">항상 로드되는 프로젝트 헌법</text>
+
+  <!-- top-right: (2) slash commands -->
+  <rect x="660" y="40" width="590" height="124" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="682" y="72" font-size="18" font-weight="700" fill="#1A1A18">② 슬래시 커맨드</text>
+  <text x="682" y="100" font-size="14" fill="#6B6560" font-family="JetBrains Mono, monospace">/new-slide · /check-deck · /export</text>
+  <text x="682" y="122" font-size="14" fill="#6B6560">반복 워크플로를 한 단어로 고정</text>
+  <text x="682" y="150" font-size="13" fill="#0F766E">사람이 부르는 매크로</text>
+
+  <!-- bottom-left: (3) skills -->
+  <rect x="30" y="342" width="396" height="150" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="52" y="374" font-size="18" font-weight="700" fill="#1A1A18">③ 스킬 (Skills)</text>
+  <text x="52" y="402" font-size="13.5" fill="#6B6560" font-family="JetBrains Mono, monospace">md-to-slidedeck</text>
+  <text x="52" y="424" font-size="13.5" fill="#6B6560" font-family="JetBrains Mono, monospace">export-html-deck · slide-to-image</text>
+  <text x="52" y="448" font-size="14" fill="#6B6560">모델이 필요할 때 스스로 로드</text>
+  <text x="52" y="476" font-size="13" fill="#0F766E">재사용 능력 단위</text>
+
+  <!-- bottom-center: (5) subagent / verify loop -->
+  <rect x="442" y="342" width="396" height="150" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="464" y="374" font-size="18" font-weight="700" fill="#0F766E">⑤ 서브에이전트 · 검증 루프</text>
+  <text x="464" y="402" font-size="14" fill="#1A1A18">만드는 에이전트 ≠ 채점 에이전트</text>
+  <text x="464" y="424" font-size="14" fill="#6B6560">신선한 컨텍스트가 결과를 반박</text>
+  <text x="464" y="448" font-size="14" fill="#6B6560">완료 판정 = 증거 (단언 금지)</text>
+  <text x="464" y="476" font-size="13" fill="#0F766E">격리 · 검증 (제2의 눈)</text>
+
+  <!-- bottom-right: (4) hooks / settings.json  [guarantee] -->
+  <rect x="854" y="342" width="396" height="150" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="876" y="374" font-size="18" font-weight="700" fill="#1A1A18">④ 훅 · settings.json<tspan font-size="13" font-weight="400" fill="#0F766E" dx="8">보증</tspan></text>
+  <text x="876" y="402" font-size="13.5" fill="#6B6560"><tspan font-family="JetBrains Mono, monospace" fill="#0F766E">PostToolUse</tspan> — 저장 시 tsc/eslint</text>
+  <text x="876" y="424" font-size="13.5" fill="#6B6560"><tspan font-family="JetBrains Mono, monospace" fill="#0F766E">PreToolUse</tspan> — 테마 파일 보호</text>
+  <text x="876" y="448" font-size="13.5" fill="#6B6560"><tspan font-family="JetBrains Mono, monospace" fill="#0F766E">Stop</tspan> — npm run build 검증</text>
+  <text x="876" y="476" font-size="13" fill="#0F766E">기계가 강제하는 층</text>
+
+  <!-- centered caption above model -->
+  <text x="640" y="222" text-anchor="middle" font-size="13" fill="#6B6560">↑ 다섯 구성요소가 모델을 둘러싼다 ↑</text>
+
+  <!-- bottom band: harness culture -->
+  <rect x="20" y="506" width="1240" height="72" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="536" font-size="16" font-weight="700" fill="#1A1A18">실수가 나면 에이전트를 탓하지 않는다 — 그 실수가 구조적으로 다시 발생할 수 없도록 하네스를 고친다.</text>
+  <text x="44" y="562" font-size="14" fill="#6B6560">.env를 건드렸으면 protect-paths 훅을, 같은 지시를 세 번 반복했으면 커맨드를 만든다. 실수 하나가 하네스를 한 층씩 두껍게 한다.</text>
+</svg>

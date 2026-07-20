@@ -1,0 +1,78 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <polygon points="0,0 9,5 0,10" fill="#6B6560"/>
+    </marker>
+  </defs>
+
+  <!-- Decision flow: two stacked decision diamonds on the left column, outcomes on the right. -->
+
+  <!-- Q1 diamond -->
+  <polygon points="200,70 380,120 200,170 20,120" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+  <text x="200" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">Q1. 사람이</text>
+  <text x="200" y="134" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">명시 호출?</text>
+
+  <!-- Q1 예 -> 커맨드 -->
+  <line x1="380" y1="120" x2="470" y2="120" stroke="#6B6560" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="410" y="110" text-anchor="middle" font-size="15" fill="#0F766E" font-weight="700">예</text>
+  <rect x="472" y="82" width="330" height="76" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="490" y="110" font-size="18" font-weight="700" fill="#0F766E">커맨드</text>
+  <text x="490" y="134" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">.claude/commands/*.md</text>
+  <text x="618" y="110" font-size="14" fill="#1A1A18">— 사람이 부르는 매크로</text>
+
+  <!-- Q1 아니오 -> Q2 -->
+  <line x1="200" y1="170" x2="200" y2="210" stroke="#6B6560" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="222" y="195" font-size="15" fill="#6B6560" font-weight="700">아니오</text>
+
+  <!-- Q2 diamond -->
+  <polygon points="200,212 380,262 200,312 20,262" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+  <text x="200" y="254" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">Q2. 조건부</text>
+  <text x="200" y="276" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">지식인가?</text>
+
+  <!-- Q2 예 -> 스킬 -->
+  <line x1="380" y1="262" x2="470" y2="262" stroke="#6B6560" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="410" y="252" text-anchor="middle" font-size="15" fill="#0F766E" font-weight="700">예</text>
+  <rect x="472" y="224" width="330" height="76" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="490" y="252" font-size="18" font-weight="700" fill="#0F766E">스킬</text>
+  <text x="490" y="276" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">skills/&lt;n&gt;/SKILL.md</text>
+  <text x="590" y="252" font-size="14" fill="#1A1A18">— 상황 맞으면 모델이 스스로 로드</text>
+
+  <!-- Q2 아니오 -> 서브에이전트 -->
+  <line x1="200" y1="312" x2="200" y2="360" stroke="#6B6560" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="222" y="342" font-size="15" fill="#6B6560" font-weight="700">아니오</text>
+
+  <rect x="20" y="362" width="360" height="84" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="392" font-size="18" font-weight="700" fill="#0F766E">서브에이전트</text>
+  <text x="40" y="416" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">.claude/agents/*.md</text>
+  <text x="40" y="438" font-size="14" fill="#1A1A18">— 독립 실행 + 자체 컨텍스트 (격리된 행위자, LV5)</text>
+
+  <!-- + MCP when external -->
+  <line x1="380" y1="404" x2="470" y2="404" stroke="#6B6560" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="425" y="394" text-anchor="middle" font-size="14" fill="#6B6560">외부 실행이면</text>
+  <rect x="472" y="366" width="330" height="76" fill="#FAF3E6" stroke="#0F766E" stroke-width="1" rx="6"/>
+  <text x="490" y="394" font-size="18" font-weight="700" fill="#0F766E">MCP</text>
+  <text x="558" y="394" font-size="14" fill="#1A1A18">— 지식이 아니라 행동</text>
+  <text x="490" y="420" font-size="15" fill="#6B6560" font-family="JetBrains Mono, monospace">MCP 서버 등록 · 외부 시스템 실행</text>
+
+  <!-- Right side note: macro card vs wiki -->
+  <rect x="838" y="82" width="422" height="360" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="860" y="118" font-size="18" font-weight="700" fill="#1A1A18">비유</text>
+  <line x1="860" y1="132" x2="1238" y2="132" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="860" y="164" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">커맨드</tspan> = 매크로 카드</text>
+  <text x="860" y="192" font-size="15" fill="#6B6560">사람이 이름을 부르면 그 절차가 펼쳐진다.</text>
+
+  <text x="860" y="234" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">스킬</tspan> = 사내 위키 절차서</text>
+  <text x="860" y="262" font-size="15" fill="#6B6560">신입이 "DB 마이그레이션"이라는 말을 듣는</text>
+  <text x="860" y="284" font-size="15" fill="#6B6560">순간 스스로 찾아 읽는다.</text>
+
+  <text x="860" y="326" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">스킬은 매칭될 때만 로드</tspan></text>
+  <text x="860" y="354" font-size="15" fill="#6B6560">지식 총량은 늘리면서 상시 비용은 안 늘리는</text>
+  <text x="860" y="376" font-size="15" fill="#6B6560">유일한 수단.</text>
+  <text x="860" y="416" font-size="15" fill="#6B6560">반복 프롬프트는 입력 비용 + 품질 편차 →</text>
+  <text x="860" y="438" font-size="15" fill="#6B6560">파일이 되는 순간 절차 품질이 파일 품질로 고정.</text>
+
+  <!-- Principle band -->
+  <rect x="20" y="500" width="1240" height="70" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="42" y="530" font-size="18" font-weight="700" fill="#0F766E">자산화 규칙 — "하루 1회 이상 하는 일은 커맨드나 스킬로."</text>
+  <text x="42" y="556" font-size="16" fill="#1A1A18">반복 프롬프트는 입력 비용과 품질 편차를 만든다. 개선이 곧 커밋이 되고, 절차 품질이 파일 품질로 고정된다.</text>
+</svg>

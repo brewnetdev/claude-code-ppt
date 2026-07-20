@@ -1,0 +1,78 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- TOP: 4 harness role cards. w=296, gap 16, x from 20. -->
+  <text x="20" y="30" font-size="16" font-weight="700" fill="#6B6560">하네스 = 에이전트에서 모델을 뺀 나머지 전부 — 네 가지 역할</text>
+
+  <g>
+    <rect x="20" y="42" width="296" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="40" y="72" font-size="19" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">①</tspan> 컨텍스트 큐레이션</text>
+    <text x="40" y="98" font-size="15" fill="#6B6560">매 세션 무엇을 알게 할지 —</text>
+    <text x="40" y="118" font-size="15" fill="#6B6560">System Prompt · CLAUDE.md</text>
+  </g>
+  <g>
+    <rect x="332" y="42" width="296" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="352" y="72" font-size="19" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">②</tspan> 도구 관리</text>
+    <text x="352" y="98" font-size="15" fill="#6B6560">어떤 도구를 언제 —</text>
+    <text x="352" y="118" font-size="15" fill="#6B6560">커맨드 · 스킬 · MCP</text>
+  </g>
+  <g>
+    <rect x="644" y="42" width="296" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="664" y="72" font-size="19" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">③</tspan> 권한 제어</text>
+    <text x="664" y="98" font-size="15" fill="#6B6560">해도 되는 일의 경계 —</text>
+    <text x="664" y="118" font-size="15" fill="#6B6560">settings.json allow/ask/deny</text>
+  </g>
+  <g>
+    <rect x="956" y="42" width="304" height="86" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="976" y="72" font-size="19" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">④</tspan> 에러 복구</text>
+    <text x="976" y="98" font-size="15" fill="#6B6560">실패를 어떻게 잡을지 —</text>
+    <text x="976" y="118" font-size="15" fill="#6B6560">훅 · 검증 루프 · 재시도</text>
+  </g>
+
+  <!-- BOTTOM: 4-quadrant matrix. Grid area x 200..1260, y 178..520. Two columns, two rows. -->
+  <!-- Axis label: column headers -->
+  <text x="530" y="168" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">Computational</text>
+  <text x="530" y="188" text-anchor="middle" font-size="14" fill="#6B6560">결정론 · CPU · 저렴</text>
+  <text x="930" y="168" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18">Inferential</text>
+  <text x="930" y="188" text-anchor="middle" font-size="14" fill="#6B6560">비결정론 · LLM · GPU · 고비용</text>
+
+  <!-- horizontal axis arrow -->
+  <line x1="200" y1="200" x2="1258" y2="200" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- Row axis labels (rotated) -->
+  <text x="42" y="290" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18" transform="rotate(-90 42 290)">피드포워드</text>
+  <text x="62" y="290" text-anchor="middle" font-size="14" fill="#6B6560" transform="rotate(-90 62 290)">행동 전 차단</text>
+  <text x="42" y="450" text-anchor="middle" font-size="17" font-weight="700" fill="#1A1A18" transform="rotate(-90 42 450)">피드백</text>
+  <text x="62" y="450" text-anchor="middle" font-size="14" fill="#6B6560" transform="rotate(-90 62 450)">사후 교정</text>
+
+  <!-- Q: feedforward x Computational (top-left) — TEAL highlight (훅 위치) -->
+  <rect x="90" y="210" width="430" height="146" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="110" y="238" font-size="16" font-weight="700" fill="#0F766E">피드포워드 × Computational</text>
+  <text x="110" y="264" font-size="16" fill="#1A1A18">프로젝트 스캐폴드</text>
+  <text x="110" y="288" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" fill="#0F766E">settings.json</tspan> · <tspan font-family="JetBrains Mono, monospace" fill="#0F766E">PreToolUse Hook</tspan></text>
+  <text x="110" y="330" font-size="14" fill="#B91C1C" font-weight="700">⚠ 훅 = Computational × 피드포워드 위치</text>
+  <text x="110" y="349" font-size="13" fill="#6B6560">결정적으로 처리 가능한 것은 여기에</text>
+
+  <!-- Q: feedforward x Inferential (top-right) -->
+  <rect x="530" y="210" width="730" height="146" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="550" y="238" font-size="16" font-weight="700" fill="#0F766E">피드포워드 × Inferential</text>
+  <text x="550" y="266" font-size="16" fill="#1A1A18">System Prompt — 역할 정의 · 행동 제약 · few-shot</text>
+  <text x="550" y="294" font-size="16" fill="#1A1A18">CLAUDE.md · AGENTS.md · Skills · 컨벤션</text>
+  <text x="550" y="330" font-size="14" fill="#6B6560">의미적 판단이 필요한 것 → 여기에 맡긴다</text>
+
+  <!-- Q: feedback x Computational (bottom-left) -->
+  <rect x="90" y="366" width="430" height="146" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="110" y="394" font-size="16" font-weight="700" fill="#0F766E">피드백 × Computational</text>
+  <text x="110" y="422" font-size="16" fill="#1A1A18">타입 체커 · ESLint · 컴파일러</text>
+  <text x="110" y="450" font-size="16" fill="#1A1A18">단위 테스트</text>
+  <text x="110" y="486" font-size="14" fill="#6B6560">기계적으로 옳고 그름을 판정</text>
+
+  <!-- Q: feedback x Inferential (bottom-right) -->
+  <rect x="530" y="366" width="730" height="146" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="550" y="394" font-size="16" font-weight="700" fill="#0F766E">피드백 × Inferential</text>
+  <text x="550" y="422" font-size="16" fill="#1A1A18">LLM-as-judge — 의미 코드 리뷰</text>
+  <text x="550" y="450" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace">/simplify</tspan> · 서브에이전트 검수 · PR 리뷰 · 회귀 검증</text>
+  <text x="550" y="486" font-size="14" fill="#6B6560">의미 판단은 사후에도 Inferential에 맡긴다</text>
+
+  <!-- Attribution band -->
+  <rect x="90" y="524" width="1170" height="46" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="110" y="553" font-size="15" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">멘탈 모델</tspan> — Birgitta Böckeler (ThoughtWorks), Harness Engineering. 결정적인 것은 Computational에, 의미 판단은 Inferential에 배치하라.</text>
+</svg>

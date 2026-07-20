@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 240" width="330" height="240">
+  <!-- LEVEL 4 강의 섬네일 배너 — Command · Skill · Hook · MCP -->
+  <rect x="0" y="0" width="330" height="240" fill="#F0EDE8"/>
+  <rect x="8" y="8" width="314" height="224" fill="none" stroke="#1a1a1a" stroke-width="1.5" rx="6"/>
+
+  <g id="header">
+    <text x="20" y="34" font-family="JetBrains Mono, monospace" font-size="16" font-weight="700" fill="#B45309" letter-spacing="1">LEVEL 04</text>
+    <text x="310" y="33" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" font-weight="500" fill="#6b6b6b" letter-spacing="2">CLAUDE CODE</text>
+    <line x1="20" y1="46" x2="310" y2="46" stroke="#d0d0d0" stroke-width="1"/>
+  </g>
+
+  <g id="grid">
+    <!-- 01 Command -->
+    <g id="cell-command">
+      <rect x="20" y="56" width="140" height="67" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+      <text x="30" y="74" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B45309">01</text>
+      <text x="90" y="97" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" font-weight="700" fill="#1a1a1a">Command</text>
+      <text x="90" y="113" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="10.5" fill="#6b6b6b">단축키</text>
+    </g>
+    <!-- 02 Skill -->
+    <g id="cell-skill">
+      <rect x="170" y="56" width="140" height="67" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+      <text x="180" y="74" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B45309">02</text>
+      <text x="240" y="97" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" font-weight="700" fill="#1a1a1a">Skill</text>
+      <text x="240" y="113" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="10.5" fill="#6b6b6b">매뉴얼</text>
+    </g>
+    <!-- 03 Hook -->
+    <g id="cell-hook">
+      <rect x="20" y="133" width="140" height="67" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+      <text x="30" y="151" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B45309">03</text>
+      <text x="90" y="174" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" font-weight="700" fill="#1a1a1a">Hook</text>
+      <text x="90" y="190" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="10.5" fill="#6b6b6b">방지턱</text>
+    </g>
+    <!-- 04 MCP -->
+    <g id="cell-mcp">
+      <rect x="170" y="133" width="140" height="67" fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" rx="4"/>
+      <text x="180" y="151" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B45309">04</text>
+      <text x="240" y="174" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" font-weight="700" fill="#1a1a1a">MCP</text>
+      <text x="240" y="190" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="10.5" fill="#6b6b6b">USB-C 포트</text>
+    </g>
+  </g>
+
+  <text id="footer" x="165" y="220" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-size="9.5" fill="#6b6b6b">반복은 커맨드·스킬로, 안전은 훅으로, 연결은 MCP로</text>
+</svg>

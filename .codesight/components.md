@@ -19,7 +19,6 @@
 - **HelpModal** — props: open, onClose — `src/editor/HelpModal.tsx`
 - **IconPicker** — props: className, onPick — `src/editor/IconPicker.tsx`
 - **ImportFromDeckModal** — props: open, onClose, activeDeckId — `src/editor/ImportFromDeckModal.tsx`
-- **PresentationAnnotator** — `src/editor/PresentationAnnotator.tsx`
 - **PresentationView** — props: onExit — `src/editor/PresentationView.tsx`
 - **PropertiesPanel** — props: editorKind — `src/editor/PropertiesPanel.tsx`
 - **SlideBackgroundSection** — `src/editor/SlideBackgroundSection.tsx`

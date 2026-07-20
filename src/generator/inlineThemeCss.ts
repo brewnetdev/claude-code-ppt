@@ -16,11 +16,16 @@ import { fileURLToPath } from 'node:url';
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 // Order matters: brewnet-dark base first, then the per-template overrides.
+// Every theme under src/canvas/themes MUST be listed here (and in
+// src/exporter/htmlBundle.ts) — a theme missing from this list renders its
+// decks with only the brewnet-dark base (dark chrome leak). harness.css was
+// the recurrence: added to SlideRenderer but forgotten here.
 export const THEME_CSS_PATHS = [
   'src/canvas/themes/brewnet-dark.css',
   'src/canvas/themes/code-blocks.css',
   'src/canvas/themes/portfolio.css',
   'src/canvas/themes/report.css',
+  'src/canvas/themes/harness.css',
 ];
 
 // brewnet-dark.css ends with an editor-iframe override block (`body { margin: 0

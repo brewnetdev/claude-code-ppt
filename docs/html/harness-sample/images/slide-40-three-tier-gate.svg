@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="결정론 → LLM-as-Judge → 사람 3계층 게이트 깔때기와 유형별 허용 실패율 3칩">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+  </defs>
+  <style>
+    .title{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;fill:#282a36;}
+    .h{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;fill:#282a36;}
+    .b{font-family:"IBM Plex Sans KR",sans-serif;font-weight:500;fill:#282a36;}
+    .cap{font-family:"IBM Plex Sans KR",sans-serif;font-weight:400;fill:#59617a;}
+    .mono{font-family:"JetBrains Mono",monospace;}
+    .tier{fill:#ffffff;stroke:#d8dae5;stroke-width:1.5;}
+    .tier-emph{fill:#ffffff;stroke:#644ac9;stroke-width:2;}
+    .chip{fill:#ffffff;stroke:#d8dae5;stroke-width:1.5;}
+    .chip-d{fill:#ffffff;stroke:#c93030;stroke-width:2;}
+    .danger{fill:#c93030;}
+  </style>
+
+  <text class="title" x="40" y="46" font-size="30">3계층 게이트 — 결정론 → LLM-as-Judge → 사람</text>
+
+  <!-- Tier 1: deterministic (emphasis) -->
+  <polygon class="tier-emph" points="45,95 615,95 565,215 95,215"/>
+  <text class="h" x="330" y="138" font-size="26" text-anchor="middle">1 · 결정론적 게이트</text>
+  <text class="b" x="330" y="170" font-size="22" text-anchor="middle">규칙화 가능한 것 전부 (하드 게이트)</text>
+  <text class="cap mono" x="330" y="198" font-size="18" text-anchor="middle">컴파일 · 테스트 · Checkstyle · ArchUnit · grep</text>
+
+  <line x1="330" y1="216" x2="330" y2="238" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Tier 2: LLM judge -->
+  <polygon class="tier" points="115,240 545,240 495,360 165,360"/>
+  <text class="h" x="330" y="283" font-size="26" text-anchor="middle">2 · LLM-as-Judge</text>
+  <text class="b" x="330" y="315" font-size="22" text-anchor="middle">주관 품질 (루브릭 G-Eval ≥ 7.0)</text>
+  <text class="cap mono" x="330" y="343" font-size="18" text-anchor="middle">로컬 vLLM · guided_json · temperature 0</text>
+
+  <line x1="330" y1="361" x2="330" y2="383" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Tier 3: human -->
+  <polygon class="tier" points="180,385 480,385 435,505 225,505"/>
+  <text class="h" x="330" y="428" font-size="26" text-anchor="middle">3 · 사람</text>
+  <text class="b" x="330" y="460" font-size="22" text-anchor="middle">교정 · 엣지케이스만</text>
+  <text class="cap" x="330" y="488" font-size="18" text-anchor="middle">수동 라벨 — 좁은 출구</text>
+
+  <!-- Right column: allowed failure rate chips -->
+  <text class="h" x="682" y="82" font-size="20">유형별 허용 실패율</text>
+
+  <rect class="chip" x="680" y="95" width="304" height="120" rx="8"/>
+  <text class="h mono" x="700" y="140" font-size="22">convention</text>
+  <text class="cap" x="700" y="168" font-size="18">스타일 규약 위반</text>
+  <text class="h mono" x="962" y="167" font-size="34" text-anchor="end">5%</text>
+
+  <rect class="chip" x="680" y="240" width="304" height="120" rx="8"/>
+  <text class="h mono" x="700" y="285" font-size="22">correctness</text>
+  <text class="cap" x="700" y="313" font-size="18">정합성 오류</text>
+  <text class="h mono" x="962" y="312" font-size="34" text-anchor="end">3%</text>
+
+  <rect class="chip-d" x="680" y="385" width="304" height="120" rx="8"/>
+  <text class="h mono danger" x="700" y="430" font-size="22">domain_safety</text>
+  <text class="cap danger" x="700" y="458" font-size="18">불변식 위반 — 무조건 차단</text>
+  <text class="h mono danger" x="962" y="457" font-size="34" text-anchor="end">0%</text>
+
+  <text class="cap" x="40" y="550" font-size="18">결정론으로 막을 수 있는 것은 전부 결정론으로 — Judge·사람은 그 다음 층.</text>
+</svg>

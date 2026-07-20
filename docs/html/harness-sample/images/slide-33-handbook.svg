@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Harness Handbook 구조와 결과 — 좌측 L1 시스템 개요에서 L2 컴포넌트 스테이지, L3 유닛 딥다이브로 이어지는 3단 점진 공개 피라미드와 상태 레지스터 사이드 뷰, 행동에서 소스로 연결되는 링크 화살표. 우측 결과 미니 막대 3개: 플랜 승률 플러스 10.0에서 18.9 퍼센트포인트, 플래너 토큰 마이너스 12.7에서 8.6 퍼센트, 완전 실패 마이너스 25.9 퍼센트포인트.">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/>
+    </marker>
+  </defs>
+  <style>
+    .t30{font:700 30px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+    .h24{font:700 24px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+    .h22{font:700 22px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+    .b22{font:700 22px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+    .cap{font:400 18px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+    .cap19{font:500 19px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+    .subm{font:500 19px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+    .tag{font:500 18px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+    .mono{font:400 18px "JetBrains Mono",monospace;fill:#59617a}
+    .vac{font:700 21px "JetBrains Mono",monospace;fill:#644ac9}
+    .vink{font:700 21px "JetBrains Mono",monospace;fill:#282a36}
+    .vok{font:700 21px "JetBrains Mono",monospace;fill:#1d8a45}
+  </style>
+
+  <!-- Title band -->
+  <text x="30" y="44" class="t30">Harness Handbook — 행동 중심 표현</text>
+  <text x="30" y="92" class="cap19">BGPD 점진 공개 · L1 → L2 → L3</text>
+
+  <!-- Panel divider -->
+  <line x1="575" y1="70" x2="575" y2="562" stroke="#d8dae5" stroke-width="1.5"/>
+
+  <!-- ============ LEFT PANEL ============ -->
+
+  <!-- L1 (emphasis / entry) -->
+  <rect x="80" y="110" width="200" height="50" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text x="180" y="142" text-anchor="middle" class="h24">L1 시스템 개요</text>
+
+  <line x1="180" y1="160" x2="180" y2="176" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- L2 -->
+  <rect x="45" y="176" width="270" height="50" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="180" y="208" text-anchor="middle" class="h24">L2 컴포넌트/스테이지</text>
+
+  <line x1="180" y1="226" x2="180" y2="242" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- L3 -->
+  <rect x="25" y="242" width="310" height="66" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="180" y="274" text-anchor="middle" class="h24">L3 유닛 딥다이브</text>
+  <text x="180" y="298" text-anchor="middle" class="cap">(소스 위치 링크)</text>
+
+  <!-- Behavior -> source link arrow -->
+  <line x1="180" y1="308" x2="180" y2="340" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="194" y="329" class="cap">행동 → 소스 링크</text>
+
+  <!-- Source node -->
+  <rect x="25" y="340" width="310" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="180" y="367" text-anchor="middle" class="b22">소스 파일 위치</text>
+  <text x="180" y="389" text-anchor="middle" class="mono">component.py : L42</text>
+
+  <!-- BGPD note -->
+  <text x="30" y="428" class="cap">L1→L2→L3 점진 공개로 후보 탐색 후,</text>
+  <text x="30" y="450" class="cap">반드시 현재 소스와 대조 검증한다.</text>
+
+  <!-- Connector: pyramid -> status register -->
+  <line x1="315" y1="200" x2="356" y2="200" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Status register (side view) -->
+  <rect x="360" y="110" width="190" height="198" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="370" y="138" class="h24">상태 레지스터</text>
+  <text x="370" y="160" class="cap">(사이드 뷰)</text>
+  <line x1="360" y1="172" x2="550" y2="172" stroke="#d8dae5" stroke-width="1"/>
+  <text x="370" y="198" class="mono">state = PLANNING</text>
+  <text x="370" y="226" class="mono">phase = L2 -&gt; L3</text>
+  <text x="370" y="254" class="mono">queue = 3 cands</text>
+  <text x="370" y="282" class="mono">verify = source</text>
+
+  <!-- ============ RIGHT PANEL ============ -->
+
+  <text x="600" y="100" class="h24">결과 · 3Judge 실험</text>
+  <text x="600" y="124" class="cap">Codex · Terminus-2 · 각 30건</text>
+
+  <!-- Block 1: plan win-rate (accent) -->
+  <text x="600" y="168" class="h22">플랜 품질 승률</text>
+  <text x="600" y="202" class="tag">Codex</text>
+  <rect x="690" y="186" width="79" height="22" rx="3" fill="#644ac9"/>
+  <text x="776" y="204" class="vac">+10.0pp</text>
+  <text x="600" y="230" class="tag">Term-2</text>
+  <rect x="690" y="214" width="150" height="22" rx="3" fill="#644ac9"/>
+  <text x="847" y="232" class="vac">+18.9pp</text>
+  <text x="600" y="256" class="cap">3Judge 전원 일관 · pp = 퍼센트포인트</text>
+
+  <!-- Block 2: planner tokens (neutral) -->
+  <text x="600" y="292" class="h22">플래너 토큰</text>
+  <text x="600" y="324" class="tag">Codex</text>
+  <rect x="690" y="308" width="150" height="22" rx="3" fill="#59617a"/>
+  <text x="847" y="326" class="vink">−12.7%</text>
+  <text x="600" y="352" class="tag">Term-2</text>
+  <rect x="690" y="336" width="101" height="22" rx="3" fill="#59617a"/>
+  <text x="798" y="354" class="vink">−8.6%</text>
+  <text x="600" y="378" class="cap">품질↑ + 비용↓ 동시</text>
+
+  <!-- Block 3: complete failure Wrong (ok) -->
+  <text x="600" y="414" class="h22">완전 실패 (Wrong)</text>
+  <text x="600" y="448" class="tag">약플래너</text>
+  <rect x="690" y="430" width="150" height="24" rx="3" fill="#1d8a45"/>
+  <text x="847" y="449" class="vok">−25.9pp</text>
+  <text x="600" y="478" class="cap">DeepSeek-V4-Pro · 완전 실패 최대 감소</text>
+
+  <!-- Footnote -->
+  <text x="30" y="582" class="cap">출처: Harness Handbook (arXiv:2607.13285, Tencent HY, 2026)</text>
+</svg>

@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Intro -->
+  <text x="20" y="32" font-size="17" font-weight="700" fill="#1A1A18">측정의 이론 — 노이즈 속에서 점수를 읽는 네 가지 규율</text>
+
+  <!-- 2x2 grid of discipline cards. w=616, gap 8, from x=20. rows y=48 (h=168) and y=224 (h=168) -->
+  <!-- D1 -->
+  <rect x="20" y="48" width="616" height="168" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="84" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#0F766E" font-family="JetBrains Mono, monospace">①</tspan> 오차 범위 없는 델타는 판정 근거가 아니다</text>
+  <line x1="44" y1="98" x2="612" y2="98" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="132" font-size="16" fill="#1A1A18">"85% → 87%"에서 50개 케이스의 2%p =</text>
+  <text x="44" y="156" font-size="16" font-weight="700" fill="#0F766E">1개 케이스 차이.</text>
+  <text x="44" y="192" font-size="15" fill="#6B6560">게이트 임계값은 표본 크기를 고려해 정한다.</text>
+
+  <!-- D2 -->
+  <rect x="644" y="48" width="616" height="168" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="668" y="84" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#0F766E" font-family="JetBrains Mono, monospace">②</tspan> 능력과 일관성을 분리 측정</text>
+  <line x1="668" y1="98" x2="1236" y2="98" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="668" y="128" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">pass@k</tspan> (한 번이라도 성공 = 상한)와</text>
+  <text x="668" y="152" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">pass^k</tspan> (전부 성공 = 하한)를 함께 —</text>
+  <text x="668" y="176" font-size="16" fill="#1A1A18">간극이 크면 "가끔 되는 시스템".</text>
+  <text x="668" y="204" font-size="15" fill="#6B6560">프로덕션 판정 기준은 <tspan font-weight="700" fill="#0F766E">pass^k</tspan>.</text>
+
+  <!-- D3 -->
+  <rect x="20" y="224" width="616" height="168" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="260" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#0F766E" font-family="JetBrains Mono, monospace">③</tspan> 0%와 100%는 문항의 문제일 수 있다</text>
+  <line x1="44" y1="274" x2="612" y2="274" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="304" font-size="16" fill="#1A1A18">일괄 <tspan font-weight="700" fill="#B91C1C">0%</tspan> = 과제 명세 · 환경 결함,</text>
+  <text x="44" y="328" font-size="16" fill="#1A1A18">일괄 <tspan font-weight="700" fill="#B91C1C">100%</tspan> = 포화 신호.</text>
+  <text x="44" y="368" font-size="15" fill="#6B6560">문제는 모델이 틀릴 수 있을 만큼 어려워야 한다.</text>
+
+  <!-- D4 -->
+  <rect x="644" y="224" width="616" height="168" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="668" y="260" font-size="18" font-weight="700" fill="#1A1A18"><tspan fill="#0F766E" font-family="JetBrains Mono, monospace">④</tspan> 채점자 명세의 모호함 = 지표의 노이즈</text>
+  <line x1="668" y1="274" x2="1236" y2="274" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="668" y="304" font-size="16" fill="#1A1A18">두 전문가가 동일하게 채점할 수 없는 과제는</text>
+  <text x="668" y="328" font-size="16" fill="#1A1A18">어떤 grader로도 신뢰 불가.</text>
+  <text x="668" y="368" font-size="15" fill="#6B6560">명세를 먼저 고친다.</text>
+
+  <!-- Bottom band: 6 key metrics -->
+  <rect x="20" y="404" width="1240" height="170" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+  <text x="44" y="434" font-size="17" font-weight="700" fill="#0F766E">핵심 지표 6종</text>
+  <!-- 6 metric chips in 3 columns x 2 rows -->
+  <rect x="44" y="446" width="386" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="60" y="474" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">pass rate / pass@k / pass^k</tspan></text>
+  <rect x="446" y="446" width="386" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="462" y="474" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">schema validity rate</tspan></text>
+  <rect x="848" y="446" width="388" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="864" y="474" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">judge–human agreement</tspan></text>
+  <rect x="44" y="498" width="386" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="60" y="526" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">guardrail recall / block rate</tspan></text>
+  <rect x="446" y="498" width="386" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="462" y="526" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">regression delta ± 오차범위</tspan></text>
+  <rect x="848" y="498" width="388" height="44" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="864" y="526" font-size="15" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">escalation rate</tspan></text>
+  <text x="44" y="564" font-size="15" fill="#1A1A18">점수는 표본이지 실력이 아니다 — <tspan font-weight="700" fill="#0F766E">관찰 평균이 아닌 이론적 평균(운을 배제한 실력)을 오차와 함께 보고.</tspan></text>
+</svg>

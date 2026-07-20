@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="하네스 진화 다이어그램: 상단 Anthropic 메타 원칙 인용, 아래 좌에서 우로 6단계 여정 — 챗봇 버리기, 자기 작업 재현, 퇴근 전 에이전트, 확실한 작업 위임, 하네스 엔지니어링(강조), 항상 에이전트 실행">
+<defs>
+<marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+</defs>
+<style>
+.title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36;}
+.cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:500;fill:#59617a;}
+.quote{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:500;fill:#282a36;}
+.attrib{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a;}
+.num{font-family:"JetBrains Mono",monospace;font-size:26px;font-weight:700;fill:#282a36;}
+.num-acc{font-family:"JetBrains Mono",monospace;font-size:26px;font-weight:700;fill:#644ac9;}
+.head{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#282a36;}
+.head-acc{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#644ac9;}
+.body{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:500;fill:#59617a;}
+</style>
+
+<text class="title" x="16" y="40">하네스는 진화한다 — 그리고 은퇴한다</text>
+
+<rect x="16" y="58" width="968" height="118" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="quote" x="36" y="96">“하네스의 모든 컴포넌트는 ‘모델이 스스로 할 수 없는 것’에 대한</text>
+<text class="quote" x="36" y="126">가정을 인코딩한다. 그 가정들은 스트레스 테스트할 가치가 있다.”</text>
+<text class="attrib" x="964" y="158" text-anchor="end">— Anthropic 메타 원칙</text>
+
+<text class="cap" x="16" y="200">Hashimoto의 6단계 여정 — 지금 이 발표는 ⑤ 하네스 엔지니어링 단계</text>
+
+<line x1="165" y1="248" x2="179" y2="248" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="329" y1="248" x2="343" y2="248" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="493" y1="248" x2="507" y2="248" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="657" y1="248" x2="671" y2="248" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+<line x1="821" y1="248" x2="835" y2="248" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+<rect x="16" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="90" cy="248" r="20" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="num" x="90" y="257" text-anchor="middle">1</text>
+<text class="head" x="90" y="322" text-anchor="middle">챗봇</text>
+<text class="head" x="90" y="352" text-anchor="middle">버리기</text>
+
+<rect x="180" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="254" cy="248" r="20" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="num" x="254" y="257" text-anchor="middle">2</text>
+<text class="head" x="254" y="322" text-anchor="middle">자기 작업</text>
+<text class="head" x="254" y="352" text-anchor="middle">재현</text>
+<text class="body" x="254" y="406" text-anchor="middle">실패 패턴</text>
+<text class="body" x="254" y="432" text-anchor="middle">학습</text>
+
+<rect x="344" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="418" cy="248" r="20" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="num" x="418" y="257" text-anchor="middle">3</text>
+<text class="head" x="418" y="322" text-anchor="middle">퇴근 전</text>
+<text class="head" x="418" y="352" text-anchor="middle">에이전트</text>
+<text class="body" x="418" y="406" text-anchor="middle">자율 실행</text>
+<text class="body" x="418" y="432" text-anchor="middle">가치 발견</text>
+
+<rect x="508" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="582" cy="248" r="20" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="num" x="582" y="257" text-anchor="middle">4</text>
+<text class="head" x="582" y="322" text-anchor="middle">확실한</text>
+<text class="head" x="582" y="352" text-anchor="middle">작업 위임</text>
+<text class="body" x="582" y="406" text-anchor="middle">작업 분류</text>
+<text class="body" x="582" y="432" text-anchor="middle">능력</text>
+
+<rect x="672" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<circle cx="746" cy="248" r="20" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<text class="num-acc" x="746" y="257" text-anchor="middle">5</text>
+<text class="head-acc" x="746" y="322" text-anchor="middle">하네스</text>
+<text class="head-acc" x="746" y="352" text-anchor="middle">엔지니어링</text>
+<text class="body" x="746" y="406" text-anchor="middle">일회성</text>
+<text class="body" x="746" y="432" text-anchor="middle">수정이 아닌</text>
+<text class="body" x="746" y="458" text-anchor="middle">구조적 개선</text>
+
+<rect x="836" y="210" width="148" height="352" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="910" cy="248" r="20" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="num" x="910" y="257" text-anchor="middle">6</text>
+<text class="head" x="910" y="314" text-anchor="middle">항상</text>
+<text class="head" x="910" y="344" text-anchor="middle">에이전트</text>
+<text class="head" x="910" y="374" text-anchor="middle">실행</text>
+<text class="body" x="910" y="424" text-anchor="middle">하네스가</text>
+<text class="body" x="910" y="450" text-anchor="middle">충분히</text>
+<text class="body" x="910" y="476" text-anchor="middle">성숙하면</text>
+</svg>

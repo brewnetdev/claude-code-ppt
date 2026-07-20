@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Evaluator Driven 평가 게이트 루프 흐름: Spec 분해부터 게이트 95점까지 좌우 5단계 파이프라인, 게이트에서 deficiencies 피드백이 개발/빌드로 크게 되먹임, 예면 DONE으로 종료, 하단 무한 루프 가드 띠(MAX_ITER=8, 동일 오류 3회 ESCALATION, Generator≠Evaluator)">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <marker id="arD" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#c93030"/></marker>
+    <marker id="arOk" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1d8a45"/></marker>
+  </defs>
+  <style>
+    .title{fill:#282a36;font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700}
+    .h{fill:#282a36;font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700}
+    .b{fill:#282a36;font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:500}
+    .m{fill:#59617a;font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:400}
+    .cap{fill:#59617a;font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:400}
+    .flow{stroke:#59617a;stroke-width:2;fill:none}
+  </style>
+
+  <text x="24" y="44" class="title">Evaluator Driven 평가 게이트 루프 흐름</text>
+  <text x="976" y="44" text-anchor="end" class="cap">종료 = 선언이 아니라 게이트 해제 · 전 항목 ≥95까지 반복</text>
+
+  <!-- feedback loop-back arrow (danger = deficiencies path) -->
+  <text x="593" y="82" text-anchor="middle" fill="#c93030" font-family="IBM Plex Sans KR,sans-serif" font-size="22" font-weight="700">deficiencies 피드백</text>
+  <text x="593" y="106" text-anchor="middle" fill="#c93030" font-family="IBM Plex Sans KR,sans-serif" font-size="19" font-weight="400">아니오 · 전 항목 &lt; 95  →  개발/빌드 복귀</text>
+  <path d="M 884 220 L 884 122 L 302 122 L 302 220" stroke="#c93030" stroke-width="2.5" fill="none" marker-end="url(#arD)"/>
+
+  <!-- pipeline boxes -->
+  <rect x="24" y="220" width="168" height="140" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="108" y="282" text-anchor="middle" class="h">Spec 분해</text>
+  <text x="108" y="316" text-anchor="middle" class="m">/plan · SC</text>
+
+  <rect x="218" y="220" width="168" height="140" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text x="302" y="278" text-anchor="middle" class="h">개발 / 빌드</text>
+  <text x="302" y="314" text-anchor="middle" fill="#644ac9" font-family="IBM Plex Sans KR,sans-serif" font-size="22" font-weight="700">Generator</text>
+
+  <rect x="412" y="220" width="168" height="140" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="496" y="270" text-anchor="middle" class="h">체크리스트</text>
+  <text x="496" y="302" text-anchor="middle" class="b">전수 열거</text>
+  <text x="496" y="334" text-anchor="middle" class="m">CHECKLIST.json</text>
+
+  <rect x="606" y="220" width="168" height="140" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="690" y="262" text-anchor="middle" class="h">2렌즈 채점</text>
+  <text x="690" y="294" text-anchor="middle" class="m">code-match ×</text>
+  <text x="690" y="318" text-anchor="middle" class="m">test-pass</text>
+  <text x="690" y="348" text-anchor="middle" fill="#282a36" font-family="IBM Plex Sans KR,sans-serif" font-size="22" font-weight="700">→ min</text>
+
+  <rect x="800" y="220" width="168" height="140" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text x="884" y="278" text-anchor="middle" class="h">게이트</text>
+  <text x="884" y="314" text-anchor="middle" fill="#282a36" font-family="IBM Plex Sans KR,sans-serif" font-size="21" font-weight="700">전 항목 ≥95?</text>
+
+  <!-- forward flow arrows -->
+  <line x1="192" y1="290" x2="216" y2="290" class="flow" marker-end="url(#ar)"/>
+  <line x1="386" y1="290" x2="410" y2="290" class="flow" marker-end="url(#ar)"/>
+  <line x1="580" y1="290" x2="604" y2="290" class="flow" marker-end="url(#ar)"/>
+  <line x1="774" y1="290" x2="798" y2="290" class="flow" marker-end="url(#ar)"/>
+
+  <!-- gate → DONE (ok = pass path) -->
+  <line x1="884" y1="360" x2="884" y2="413" stroke="#1d8a45" stroke-width="2.5" marker-end="url(#arOk)"/>
+  <text x="874" y="393" text-anchor="end" fill="#1d8a45" font-family="IBM Plex Sans KR,sans-serif" font-size="19" font-weight="700">예 · ≥95</text>
+
+  <rect x="800" y="415" width="168" height="72" rx="8" fill="#ffffff" stroke="#1d8a45" stroke-width="2"/>
+  <text x="884" y="447" text-anchor="middle" fill="#1d8a45" font-family="IBM Plex Sans KR,sans-serif" font-size="26" font-weight="700">DONE</text>
+  <text x="884" y="474" text-anchor="middle" fill="#1d8a45" font-family="IBM Plex Sans KR,sans-serif" font-size="19" font-weight="400">게이트 해제 · active=false</text>
+
+  <!-- guard band -->
+  <text x="24" y="492" fill="#b26214" font-family="IBM Plex Sans KR,sans-serif" font-size="20" font-weight="700">무한 루프 가드</text>
+  <rect x="24" y="500" width="744" height="56" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <line x1="272" y1="510" x2="272" y2="546" stroke="#d8dae5" stroke-width="1.5"/>
+  <line x1="520" y1="510" x2="520" y2="546" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="148" y="535" text-anchor="middle" fill="#282a36" font-family="JetBrains Mono,monospace" font-size="20" font-weight="500">MAX_ITER = 8</text>
+  <text x="396" y="535" text-anchor="middle" font-family="IBM Plex Sans KR,sans-serif" font-size="19" font-weight="500"><tspan fill="#282a36">동일 오류 3회 → </tspan><tspan fill="#c93030" font-family="JetBrains Mono,monospace" font-weight="700">[ESCALATION]</tspan></text>
+  <text x="644" y="535" text-anchor="middle" fill="#282a36" font-family="IBM Plex Sans KR,sans-serif" font-size="20" font-weight="700">Generator ≠ Evaluator</text>
+</svg>

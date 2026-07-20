@@ -1,0 +1,59 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+    <polygon points="0,0 9,5 0,10" fill="#0F766E"/>
+  </marker>
+
+  <!-- Intro -->
+  <text x="20" y="30" font-size="16" fill="#1A1A18">매 세션 자동 로드되는 영속 메모리 — 레포에서 가장 레버리지 높으면서 가장 흔히 망가지는 파일.</text>
+
+  <!-- Two panel headers -->
+  <text x="40" y="70" font-size="19" font-weight="700" fill="#B91C1C">CLAUDE.md 없이 (또는 비대한 채)</text>
+  <text x="700" y="70" font-size="19" font-weight="700" fill="#0F766E">간결한 CLAUDE.md 정착 후</text>
+  <line x1="20" y1="82" x2="1260" y2="82" stroke="#D4D0C8" stroke-width="1"/>
+
+  <!-- forward arrows between panels (per row) -->
+  <line x1="628" y1="118" x2="676" y2="118" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="628" y1="214" x2="676" y2="214" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="628" y1="310" x2="676" y2="310" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="628" y1="406" x2="676" y2="406" stroke="#0F766E" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Row 1 -->
+  <rect x="20" y="92" width="600" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="122" font-size="17" font-weight="700" fill="#1A1A18">반복 설명</text>
+  <text x="40" y="148" font-size="15" fill="#6B6560">세션마다 "우리는 pnpm 씁니다" 반복 —</text>
+  <text x="40" y="166" font-size="15" fill="#6B6560">새 세션 = 신입 재온보딩</text>
+  <rect x="684" y="92" width="576" height="80" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="704" y="122" font-size="17" font-weight="700" fill="#0F766E">즉시 본론</text>
+  <text x="704" y="150" font-size="15" fill="#1A1A18">세션 시작 즉시 프로젝트 문법으로 대화 시작</text>
+
+  <!-- Row 2 -->
+  <rect x="20" y="188" width="600" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="218" font-size="17" font-weight="700" fill="#1A1A18">실수 재발</text>
+  <text x="40" y="244" font-size="15" fill="#6B6560">같은 실수(마이그레이션 수정, CJS import)가</text>
+  <text x="40" y="262" font-size="15" fill="#6B6560">세션을 바꿔가며 재발</text>
+  <rect x="684" y="188" width="576" height="80" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="704" y="218" font-size="17" font-weight="700" fill="#0F766E">실패가 자산으로</text>
+  <text x="704" y="246" font-size="15" fill="#1A1A18">실수 → 규칙 1줄 추가 → 전 세션 예방</text>
+
+  <!-- Row 3 -->
+  <rect x="20" y="284" width="600" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="314" font-size="17" font-weight="700" fill="#1A1A18">400줄인데 안 지켜짐</text>
+  <text x="40" y="342" font-size="15" fill="#6B6560">규칙이 400줄인데 안 지켜져 "모델이 멍청하다"</text>
+  <rect x="684" y="284" width="576" height="80" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="704" y="314" font-size="17" font-weight="700" fill="#0F766E">규칙↓ 준수율↑</text>
+  <text x="704" y="342" font-size="15" fill="#1A1A18">규칙 수가 줄었는데 준수율 상승 — 문제는 예산 배분</text>
+
+  <!-- Row 4 -->
+  <rect x="20" y="380" width="600" height="80" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="410" font-size="17" font-weight="700" fill="#1A1A18">완료 기준 불일치</text>
+  <text x="40" y="438" font-size="15" fill="#6B6560">"완료" 기준이 세션·사람마다 달라 품질이 널뜀</text>
+  <rect x="684" y="380" width="576" height="80" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="704" y="410" font-size="17" font-weight="700" fill="#0F766E">완료의 정의 고정</text>
+  <text x="704" y="438" font-size="15" fill="#1A1A18">"완료의 정의"가 파일에 있어 자기 판정 기준 고정</text>
+
+  <!-- Bottom band: 양날의 곱셈 -->
+  <rect x="20" y="476" width="1240" height="98" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="506" font-size="18" font-weight="700" fill="#0F766E">양날의 곱셈 — 이 파일의 모든 줄은 앞으로의 모든 세션에 곱해진다</text>
+  <text x="44" y="534" font-size="15" fill="#1A1A18">잘 쓴 한 줄은 수천 번의 반복 설명을 없애고, 넣은 만큼 매 세션 예산을 선점한다 — 길수록 오히려 덜 지켜지는 역설.</text>
+  <text x="44" y="562" font-size="15" fill="#6B6560">경험칙: <tspan font-weight="700" fill="#0F766E">~60줄(엄격) ~ 200줄(상한)</tspan>, "짧게, 안정적인 것만".</text>
+</svg>

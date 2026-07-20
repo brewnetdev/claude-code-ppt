@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3강 · 커맨드와 스킬 — 반복 워크플로의 자산화</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">LV3</span> · 3강</div>
+<header class="page">
+  <div class="kicker">Level 3 · Workflow as Asset</div>
+  <h1>커맨드와 스킬 — 반복 워크플로의 자산화</h1>
+  <p class="subtitle">"하루에 두 번 이상 하는 일"은 프롬프트가 아니라 파일이 되어야 한다. 커맨드·스킬·MCP·에이전트를 언제 무엇으로 만들지의 선택 기준과, 스킬 설계의 심화 원칙.</p>
+</header>
+
+<h2>3-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>커맨드 (Slash Command)</dt>
+  <dd><code>.claude/commands/*.md</code>에 사는, <strong>사람이 <code>/이름</code>으로 명시 호출하는</strong> 저장된 프롬프트. git에 체크인되어 팀이 공유한다.
+  <span class="easy">쉬운 비유: 자주 시키는 심부름을 적어둔 "매크로 카드". 카드만 건네면 매번 설명할 필요가 없다.</span></dd>
+  <dt>스킬 (Skill)</dt>
+  <dd><code>.claude/skills/&lt;name&gt;/SKILL.md</code>에 사는, YAML frontmatter(name, description)와 본문 지시로 구성된 <strong>모델 발동형(model-invoked) 지식</strong>. 슬래시 호출이 아니라, 작업이 description에 매칭될 때 모델이 스스로 로드한다.
+  <span class="easy">쉬운 비유: 사내 위키의 절차서. 신입이 "DB 마이그레이션"이라는 말을 듣는 순간 스스로 찾아 읽는다.</span></dd>
+  <dt>점진적 공개 (Progressive Disclosure)</dt>
+  <dd>필요할 때 필요한 만큼만 컨텍스트에 로드하는 설계. 스킬은 폴더로서 <code>references/</code>, <code>scripts/</code>, <code>examples/</code> 하위 구조를 갖고 단계적으로 열린다 — 1강 컨텍스트 예산 문제의 구조적 해법.</dd>
+  <dt>MCP (Model Context Protocol)</dt>
+  <dd>모델이 JSON-RPC로 호출하는 외부 실행 서버(DB 질의, Slack 발송 등). <strong>스킬은 지식, MCP는 행동</strong>이며 둘은 조합된다 — 스킬이 MCP 도구 호출을 지시할 수 있다.</dd>
+  <dt>서브에이전트 (참조)</dt>
+  <dd>자기 컨텍스트를 가진 행위자(<code>.claude/agents/*.md</code>) — 5강에서 다룬다. 이 강에서는 "선택지 중 하나"로만 등장.</dd>
+</dl>
+<p class="src">용어 근거: <a href="https://github.com/awattar/claude-code-best-practices">awattar</a>(스킬 구조·발동 방식·커맨드), <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a>(스킬=지식 vs MCP=행동, 프리미티브 용어집)</p>
+
+<h2>3-2. 이론 — 자산화는 컨텍스트 경제학이다</h2>
+<p>1강의 대전제(예산 유한)를 이 레벨에 적용하면 두 개의 설계 결정이 나온다:</p>
+<ul>
+  <li><strong>반복 비용의 제거</strong>: 매일 치는 프롬프트는 반복 입력 비용 + 세션마다 미묘하게 달라지는 품질 편차를 만든다. 커맨드는 이를 0으로 만든다 — "인너 루프 워크플로 전부를 슬래시 커맨드로", "하루 1회 이상 하는 일은 스킬이나 커맨드로"가 커뮤니티 공통 규칙이다. <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></li>
+  <li><strong>지식의 지연 로드</strong>: 긴 노하우를 CLAUDE.md에 넣으면 매 세션 예산을 잠식한다(1강 안티패턴). 스킬은 매칭될 때만 로드되므로, <strong>지식의 총량은 늘리면서 상시 비용은 늘리지 않는</strong> 유일한 수단이다.</li>
+  <li><strong>조합의 경제</strong>: 스킬에 스크립트·라이브러리를 동봉하면 모델이 보일러플레이트를 매번 <em>재구성</em>하는 대신 <em>조합</em>한다 — 토큰과 오류 둘 다 줄인다. <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></li>
+</ul>
+
+<h2>3-3. 선택 기준 — 커맨드 vs 스킬 vs 서브에이전트</h2>
+<figure class="diagram">
+<svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">"이 반복 작업을 무엇으로 만들까?" 판별 흐름</text>
+  <rect x="20" y="48" width="220" height="44" fill="#f6f6f6" stroke="#1a1a1a"/>
+  <text x="32" y="66" fill="#1a1a1a">Q1. 사람이 명시적으로 호출하는가?</text>
+  <text x="32" y="84" fill="#555555" font-size="11">(내가 /명령 으로 부른다)</text>
+  <line x1="240" y1="60" x2="300" y2="60" stroke="#555555"/>
+  <text x="252" y="52" fill="#555555" font-size="11">예</text>
+  <rect x="300" y="40" width="200" height="40" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="312" y="58" font-weight="600" fill="#0f4bd8">커맨드 (slash command)</text>
+  <text x="312" y="74" fill="#555555" font-size="11">.claude/commands/*.md</text>
+
+  <line x1="130" y1="92" x2="130" y2="128" stroke="#555555"/>
+  <text x="140" y="115" fill="#555555" font-size="11">아니오 (상황이 되면 모델이 스스로 써야 함)</text>
+  <rect x="20" y="128" width="220" height="44" fill="#f6f6f6" stroke="#1a1a1a"/>
+  <text x="32" y="146" fill="#1a1a1a">Q2. 조건부 '지식'인가?</text>
+  <text x="32" y="164" fill="#555555" font-size="11">(특정 작업 유형에서만 필요한 노하우)</text>
+  <line x1="240" y1="140" x2="300" y2="140" stroke="#555555"/>
+  <text x="252" y="132" fill="#555555" font-size="11">예</text>
+  <rect x="300" y="120" width="200" height="40" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="312" y="138" font-weight="600" fill="#0f4bd8">스킬 (model-invoked)</text>
+  <text x="312" y="154" fill="#555555" font-size="11">.claude/skills/&lt;name&gt;/SKILL.md</text>
+
+  <line x1="130" y1="172" x2="130" y2="200" stroke="#555555"/>
+  <text x="140" y="192" fill="#555555" font-size="11">아니오 (독립 실행 + 자체 컨텍스트가 필요)</text>
+  <rect x="20" y="200" width="220" height="34" fill="#f6f6f6" stroke="#1a1a1a"/>
+  <text x="32" y="221" fill="#1a1a1a">격리된 '행위자'가 필요하다</text>
+  <line x1="240" y1="215" x2="300" y2="215" stroke="#555555"/>
+  <rect x="300" y="196" width="200" height="40" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="312" y="214" font-weight="600" fill="#0f4bd8">서브에이전트 → 5강</text>
+  <text x="312" y="230" fill="#555555" font-size="11">.claude/agents/&lt;name&gt;.md</text>
+
+  <text x="530" y="58"  fill="#555555" font-size="11">예: /reviewpr, /techdebt, /issue</text>
+  <text x="530" y="138" fill="#555555" font-size="11">예: 커밋 포맷 강제, DB 마이그레이션 노하우</text>
+  <text x="530" y="214" fill="#555555" font-size="11">예: 코드 리뷰어, 조사 전담</text>
+</svg>
+<figcaption>구분의 본질 — 커맨드는 "사람이 부르는 매크로", 스킬은 "상황이 맞으면 모델이 스스로 로드하는 지식", 에이전트는 "자기 컨텍스트를 가진 행위자". 외부 시스템을 <em>실행</em>해야 하면 MCP가 추가된다(지식이 아니라 행동이므로). 근거: <a href="https://github.com/awattar/claude-code-best-practices">awattar</a>, <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a></figcaption>
+</figure>
+
+<h2>3-4. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">자산화 전</th><th>자산화 후</th></tr></thead>
+  <tbody>
+    <tr><td>같은 절차(배포 점검, 이슈 정리)를 세션마다 다시 설명. 사람마다·날마다 절차 품질이 다름.</td><td>인너 루프가 <code>/명령</code> 하나로 재현. 절차 품질이 파일 품질로 고정되고, 개선이 곧 커밋이 됨.</td></tr>
+    <tr><td>모델이 같은 함정(enum 마이그레이션, 특정 라이브러리 버그)에 반복적으로 빠짐.</td><td>실패가 스킬의 Gotchas 섹션에 축적 — <strong>조직의 노하우가 세션 수명과 분리</strong>되어 복리로 쌓임.</td></tr>
+    <tr><td>긴 노하우를 CLAUDE.md에 넣어 1강의 비대화 문제 재발.</td><td>노하우 총량은 늘었는데 상시 컨텍스트 비용은 그대로 — 지연 로드의 효과가 체감됨.</td></tr>
+    <tr><td>보일러플레이트를 모델이 매번 재작성 → 미묘한 변형과 버그.</td><td>스킬 동봉 스크립트를 조합 — 같은 작업의 출력 분산이 감소.</td></tr>
+  </tbody>
+</table>
+
+<h2>3-5. 실증 사례 — 공개 레포의 커맨드·스킬 생태계</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px"><strong>사례 1 — 커맨드가 에이전트를 조합한다</strong>: 공개 베스트 프랙티스 레포(awattar)는 <code>/issue</code>, <code>/reviewpr</code>, <code>/test</code> 같은 커맨드가 여러 전문 에이전트를 활용해 종합 결과를 내도록 구성했고, <code>/custom-init</code>은 프로젝트 구조·기술 스택·개발 패턴을 분석해 CLAUDE.md를 자동 생성한다 — 커맨드가 단순 매크로를 넘어 <strong>오케스트레이션 진입점</strong>이 되는 패턴.</p>
+  <p style="margin-bottom:8px"><strong>사례 2 — 스킬이 규율을 자동화한다</strong>: 같은 레포의 <code>conventional-commits</code> 스킬은 커밋 메시지를 작성하는 순간마다 — 아무 명령 없이 — 프로젝트 커밋 포맷을 자동 적용한다. "명령 없이도 상황이 맞으면 발동"하는 model-invoked의 전형.</p>
+  <p style="margin-bottom:8px"><strong>사례 3 — 격리 실행 옵션</strong>: 스킬에 <code>context: fork</code>를 지정하면 격리된 서브에이전트에서 실행되어 메인 컨텍스트는 중간 도구 호출 없이 <strong>최종 결과만</strong> 본다 — 3강(자산)과 5강(격리)의 접점.</p>
+  <p class="src" style="margin:0">근거: <a href="https://github.com/awattar/claude-code-best-practices">awattar/claude-code-best-practices</a>(사례 1·2), <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>(context: fork)</p>
+</div>
+
+<h2>3-6. 예제 A — 커맨드: 반복 프롬프트의 파일화</h2>
+<p><strong>사용 방법</strong>: 아래 파일을 만들면 <code>/pre-ship</code> 한 번으로 전체 점검이 실행된다. "내가 매일 치는 프롬프트"를 그대로 옮기면 된다.</p>
+<pre><code># .claude/commands/pre-ship.md
+배포 전 점검을 수행하라:
+1. `pnpm check` 와 `pnpm test` 를 실행하고 결과를 보고
+2. 이번 브랜치의 diff 를 main 과 비교해 CLAUDE.md 의
+   "완료의 정의"에 어긋나는 항목을 나열
+3. 스키마 변경이 있으면 마이그레이션 파일 존재 여부 확인
+4. 위 결과를 통과/실패 표로 요약. 실패 항목은 수정 제안 포함.
+</code></pre>
+
+<h2>3-7. 예제 B — 스킬: 조건부 지식의 점진적 공개</h2>
+<pre><code># .claude/skills/db-migration/SKILL.md
+---
+name: db-migration
+description: 데이터베이스 스키마를 변경하거나 prisma/migrations 를
+  다루는 모든 작업에서 이 스킬을 사용하라.
+---
+
+## 절차
+1. 기존 마이그레이션 파일은 절대 수정하지 않는다. 새 파일만 추가.
+2. `pnpm prisma migrate dev --name <설명>` 으로 생성.
+3. 롤백 절차를 PR 설명에 반드시 포함.
+
+## Gotchas (실패 이력 축적란)
+- enum 변경은 2단계 마이그레이션 필요 (추가 → 전환 → 제거)
+</code></pre>
+
+<h2>3-8. 스킬 설계 심화 — 4가지 원칙</h2>
+<ul>
+  <li><strong>description은 요약이 아니라 트리거다</strong>: "이 스킬은 마이그레이션을 다룬다"(요약)가 아니라 "스키마를 변경하는 모든 작업에서 사용하라"(발동 조건)로 — 모델의 관점("나는 언제 이걸 켜야 하지?")에서 쓴다.</li>
+  <li><strong>당연한 것은 쓰지 않는다</strong>: 스킬의 지면은 모델의 <em>기본 행동을 밀어내는</em> 내용에만 쓴다. 모델이 어차피 할 일을 적으면 진짜 중요한 지시의 밀도가 희석된다.</li>
+  <li><strong>레일을 깔지 말고 목표와 제약을 줘라</strong>: 단계별 프리스크립션(railroading)은 예외 상황에서 부서진다. 목표·제약·금지를 주고 경로는 모델에 맡긴다.</li>
+  <li><strong>Gotchas가 최고 신호다</strong>: 모델의 실패 지점을 발견할 때마다 축적한다 — 시간이 지날수록 이 섹션이 스킬 가치의 대부분이 된다. 동적 정보가 필요하면 <code>!command</code>를 SKILL.md에 심어 발동 시점의 셸 출력만 모델이 보게 할 수 있다.</li>
+</ul>
+<p class="src">4원칙 근거: <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> (description=트리거, 비자명 내용, no railroading, Gotchas, !command 주입)</p>
+
+<h2>3-9. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">범용 거대 에이전트("QA 담당", "백엔드 엔지니어")</td><td>컨텍스트가 넓어 발동·판단이 모두 흐릿해짐</td><td>기능별 전문 서브에이전트 + 스킬의 점진적 공개 조합 <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></td></tr>
+    <tr><td class="key">스킬에 단계별 레일 깔기</td><td>예외 상황에서 절차가 부서지고 모델이 경직됨</td><td>목표·제약만 명시, 경로는 위임</td></tr>
+    <tr><td class="key">description을 사람용 요약으로 작성</td><td>모델이 발동 시점을 못 잡아 스킬이 잠들어 있음</td><td>"언제 발동해야 하는가" 기준으로 재작성</td></tr>
+  </tbody>
+</table>
+
+<div class="box gate">
+  <div class="label">7강 예고 — 커맨드는 평가의 진입점이 된다</div>
+  <p style="margin:0"><code>/pre-ship</code> 같은 점검 커맨드는 사람이 부르는 정성 점검이다. 7강에서 이 커맨드의 점검 항목이 골든셋이 되고, 호출 주체가 사람에서 CI로 바뀌며, 판정이 통과/실패 점수로 바뀐다 — 그것이 평가 게이트다.</p>
+</div>
+
+<h2>3-10. 체크리스트</h2>
+<ul class="check">
+  <li>하루 1회 이상 반복하는 프롬프트가 커맨드 파일로 존재하는가</li>
+  <li>스킬 description이 "언제 발동해야 하는가" 기준으로 작성됐는가</li>
+  <li>긴 조건부 지식이 CLAUDE.md가 아니라 스킬에 있는가</li>
+  <li>스킬마다 Gotchas 섹션이 있고 실패 이력이 쌓이고 있는가</li>
+  <li>스킬에 재사용 스크립트가 동봉되어 "재구성 대신 조합"이 일어나는가</li>
+  <li>커맨드·스킬이 git에 체크인되어 팀이 공유하는가</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[커뮤니티] <a href="https://github.com/awattar/claude-code-best-practices">awattar/claude-code-best-practices</a> — 스킬 구조·model-invoked, /issue·/reviewpr·/custom-init·conventional-commits 사례</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan/claude-code-best-practice</a> — 하루 1회 규칙, description=트리거, Gotchas, no railroading, context: fork, !command</li>
+    <li>[커뮤니티] <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a> — 스킬=지식 vs MCP=행동, 프리미티브 용어집</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="02-safety.html"><span class="dir">이전 · 2강</span>← 권한 모델</a>
+  <a class="next" href="04-hooks.html"><span class="dir">다음 · 4강</span>훅 — 요청을 보증으로 →</a>
+</nav>
+
+</div></body></html>

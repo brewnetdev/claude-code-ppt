@@ -1,0 +1,79 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <defs>
+    <marker id="up" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="5,0 10,9 0,9" fill="#0F766E"/>
+    </marker>
+  </defs>
+
+  <!-- Ascending stair: 7 steps. box w=214, horizontal step 172 -> 42px overlap (behind next box, titles stay clear). vertical step 62. -->
+
+  <!-- rising arrow behind boxes -->
+  <line x1="80" y1="440" x2="1130" y2="80" stroke="#0F766E" stroke-width="2" marker-end="url(#up)" opacity="0.5"/>
+
+  <!-- LV1 -->
+  <g>
+    <rect x="30" y="428" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="46" y="458" font-size="18" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">LV1</tspan> · CLAUDE.md</text>
+    <text x="46" y="488" font-size="16" fill="#1A1A18">매 세션 무엇을</text>
+    <text x="46" y="510" font-size="16" fill="#1A1A18">자동으로 알게 하나</text>
+    <text x="46" y="531" font-size="14" fill="#6B6560">요청 (확률적)</text>
+  </g>
+
+  <!-- LV2 -->
+  <g>
+    <rect x="202" y="366" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="218" y="396" font-size="18" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">LV2</tspan> · 권한 모델</text>
+    <text x="218" y="426" font-size="16" fill="#1A1A18">무엇을 allow/ask/</text>
+    <text x="218" y="448" font-size="16" fill="#1A1A18">deny로 강제하나</text>
+    <text x="218" y="469" font-size="14" fill="#6B6560">보증 (결정적)</text>
+  </g>
+
+  <!-- LV3 -->
+  <g>
+    <rect x="374" y="304" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="390" y="334" font-size="18" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">LV3</tspan> · 커맨드·스킬</text>
+    <text x="390" y="364" font-size="16" fill="#1A1A18">반복 워크플로를</text>
+    <text x="390" y="386" font-size="16" fill="#1A1A18">어떻게 자산화하나</text>
+    <text x="390" y="407" font-size="14" fill="#6B6560">요청 (조건부 로드)</text>
+  </g>
+
+  <!-- LV4 -->
+  <g>
+    <rect x="546" y="242" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="562" y="272" font-size="18" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">LV4</tspan> · 훅</text>
+    <text x="562" y="302" font-size="16" fill="#1A1A18">반드시 일어나야</text>
+    <text x="562" y="324" font-size="16" fill="#1A1A18">하는 일은 무엇인가</text>
+    <text x="562" y="345" font-size="14" fill="#6B6560">보증 (결정적)</text>
+  </g>
+
+  <!-- LV5 -->
+  <g>
+    <rect x="718" y="180" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="734" y="210" font-size="18" font-weight="700" fill="#0F766E"><tspan font-family="JetBrains Mono, monospace">LV5</tspan> · 검증 루프</text>
+    <text x="734" y="240" font-size="16" fill="#1A1A18">누가 결과를 채점하나</text>
+    <text x="734" y="262" font-size="16" fill="#1A1A18">(자기 채점 금지)</text>
+    <text x="734" y="283" font-size="14" fill="#6B6560">격리 · 검증</text>
+  </g>
+
+  <!-- 완성형 -->
+  <g>
+    <rect x="890" y="118" width="214" height="112" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+    <text x="906" y="148" font-size="17" font-weight="700" fill="#0F766E">완성형 · 파이프라인</text>
+    <text x="906" y="178" font-size="16" fill="#1A1A18">게이트마다 통과</text>
+    <text x="906" y="200" font-size="16" fill="#1A1A18">조건이 명시됐나</text>
+    <text x="906" y="221" font-size="14" fill="#6B6560">조립 (5단계)</text>
+  </g>
+
+  <!-- EDD -->
+  <g>
+    <rect x="1062" y="56" width="214" height="112" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5" rx="6"/>
+    <text x="1078" y="86" font-size="18" font-weight="700" fill="#0F766E">그 이후 · EDD</text>
+    <text x="1078" y="116" font-size="16" fill="#1A1A18">얼마나 잘하는지</text>
+    <text x="1078" y="138" font-size="16" fill="#1A1A18">숫자로 아는가</text>
+    <text x="1078" y="159" font-size="14" fill="#6B6560">정량 평가</text>
+  </g>
+
+  <!-- Prerequisite band -->
+  <rect x="30" y="552" width="1246" height="32" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="4"/>
+  <text x="50" y="573" font-size="16" fill="#1A1A18"><tspan font-weight="700" fill="#0F766E">각 레벨은 아래 레벨을 전제로 한다.</tspan>  레벨을 건너뛴 EDD는 측정할 파이프라인이 없고, EDD 없는 완성형 하네스는 성장을 감에 맡긴다.</text>
+</svg>

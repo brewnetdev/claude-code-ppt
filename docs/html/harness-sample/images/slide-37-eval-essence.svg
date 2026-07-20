@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Eval의 3가지 본질 삼각형: 꼭짓점에 통계적 판정, 성공 정의, 시스템 수준, 중심에 Eval">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <style>
+      .title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+      .sub{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:400;fill:#59617a}
+      .head{font-family:"IBM Plex Sans KR",sans-serif;font-size:25px;font-weight:700;fill:#282a36}
+      .neg{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:500;fill:#c93030}
+      .eval{font-family:"JetBrains Mono",monospace;font-size:30px;font-weight:700;fill:#644ac9}
+      .evalsub{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a}
+      .note{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:500;fill:#59617a}
+      .notehi{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:700;fill:#c93030}
+      .box{fill:#ffffff;stroke:#d8dae5;stroke-width:1.5}
+      .emph{fill:#ffffff;stroke:#644ac9;stroke-width:2}
+      .edge{fill:none;stroke:#59617a;stroke-width:2}
+    </style>
+  </defs>
+
+  <text class="title" x="24" y="46">Eval의 3가지 본질</text>
+  <text class="sub" x="24" y="74">— 전통 테스트와 다른 세 축</text>
+
+  <!-- triangle structure (drawn under the node boxes) -->
+  <polygon class="edge" points="410,158 605,495 215,495"/>
+
+  <!-- center: Eval -->
+  <rect class="emph" x="335" y="347" width="150" height="72" rx="8"/>
+  <text class="eval" x="410" y="380" text-anchor="middle">Eval</text>
+  <text class="evalsub" x="410" y="403" text-anchor="middle">세 축의 교집합</text>
+
+  <!-- vertex: 통계적 판정 (top) -->
+  <rect class="box" x="300" y="120" width="220" height="76" rx="8"/>
+  <text class="head" x="410" y="152" text-anchor="middle">통계적 판정</text>
+  <text class="neg" x="410" y="180" text-anchor="middle">≠ assert</text>
+
+  <!-- vertex: 성공 정의 (bottom-left) -->
+  <rect class="box" x="105" y="457" width="220" height="76" rx="8"/>
+  <text class="head" x="215" y="489" text-anchor="middle">성공 정의</text>
+  <text class="neg" x="215" y="517" text-anchor="middle">≠ &#8220;좋은 성능&#8221;</text>
+
+  <!-- vertex: 시스템 수준 (bottom-right) -->
+  <rect class="box" x="495" y="457" width="220" height="76" rx="8"/>
+  <text class="head" x="605" y="489" text-anchor="middle">시스템 수준</text>
+  <text class="neg" x="605" y="517" text-anchor="middle">≠ 모델 점수만</text>
+
+  <!-- key message -->
+  <text x="410" y="580" text-anchor="middle"><tspan class="note">셋 중 하나라도 빠지면 전통 QA일 뿐, </tspan><tspan class="notehi">eval이 아니다</tspan></text>
+</svg>

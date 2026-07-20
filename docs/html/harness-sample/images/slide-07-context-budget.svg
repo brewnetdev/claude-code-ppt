@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="좌측 컨텍스트 예산 바 2개 비교와 우측 세션 길이 대비 규칙 준수율 하강 곡선, 약 40퍼센트 성능 저하 밴드">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <style>
+      .title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36;}
+      .head{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#282a36;}
+      .body{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:500;fill:#282a36;}
+      .binv{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:700;fill:#ffffff;}
+      .cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a;}
+      .mono{font-family:"JetBrains Mono",monospace;font-size:19px;font-weight:500;fill:#282a36;}
+      .monom{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#59617a;}
+      .dgr{fill:#c93030;}
+    </style>
+  </defs>
+
+  <text class="title" x="40" y="50">컨텍스트 예산과 규칙 준수율 하강</text>
+
+  <line x1="505" y1="88" x2="505" y2="520" stroke="#d8dae5" stroke-width="1.5"/>
+
+  <!-- ══ LEFT: 컨텍스트 예산 바 ══ -->
+  <text class="head" x="40" y="112">컨텍스트 윈도우 예산</text>
+
+  <!-- Bar 1: 간결 -->
+  <text class="body" x="60" y="158">간결 CLAUDE.md · <tspan class="mono">~60줄</tspan></text>
+  <rect x="60" y="170" width="410" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <rect x="61.5" y="171.5" width="60" height="55" rx="6" fill="#644ac9"/>
+  <text class="binv" x="91" y="207" text-anchor="middle">규칙</text>
+  <text class="body" x="296" y="207" text-anchor="middle">작업 예산 (넓음)</text>
+
+  <!-- Bar 2: 비대 -->
+  <text class="body" x="60" y="290">비대 CLAUDE.md · <tspan class="mono">400줄+</tspan></text>
+  <rect x="60" y="302" width="410" height="58" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <rect x="61.5" y="303.5" width="223" height="55" rx="6" fill="#644ac9"/>
+  <text class="binv" x="172" y="339" text-anchor="middle">규칙</text>
+  <text class="body" x="379" y="331" text-anchor="middle">작업 예산</text>
+  <text class="body" x="379" y="353" text-anchor="middle">(좁음)</text>
+
+  <!-- Legend -->
+  <rect x="60" y="402" width="22" height="22" rx="4" fill="#644ac9"/>
+  <text class="cap" x="92" y="419">규칙 — CLAUDE.md 고정 지침이 먹는 공간</text>
+  <rect x="60" y="436" width="22" height="22" rx="4" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="cap" x="92" y="453">작업 예산 — 실제 작업에 쓸 수 있는 공간</text>
+
+  <!-- ══ RIGHT: 준수율 하강 곡선 ══ -->
+  <text class="head" x="525" y="112">세션 길이 ↑ → 규칙 준수율 ↓</text>
+
+  <!-- degradation band -->
+  <rect x="712" y="175" width="228" height="255" fill="#f6e3e3"/>
+  <line x1="712" y1="175" x2="712" y2="430" stroke="#c93030" stroke-width="2" stroke-dasharray="6 5"/>
+  <text class="head dgr" x="826" y="208" text-anchor="middle" font-size="21">성능 저하</text>
+  <text class="head dgr" x="826" y="233" text-anchor="middle" font-size="21">밴드</text>
+
+  <!-- axes -->
+  <line x1="560" y1="175" x2="560" y2="430" stroke="#59617a" stroke-width="2"/>
+  <line x1="560" y1="430" x2="948" y2="430" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- descending curve -->
+  <path d="M560,188 C 640,200 690,216 712,231 C 790,273 862,322 940,360" fill="none" stroke="#282a36" stroke-width="3"/>
+  <circle cx="560" cy="188" r="5" fill="#282a36"/>
+  <circle cx="940" cy="360" r="5" fill="#282a36"/>
+
+  <!-- y ticks -->
+  <text class="monom" x="552" y="193" text-anchor="end">높음</text>
+  <text class="monom" x="552" y="426" text-anchor="end">낮음</text>
+
+  <!-- x ticks -->
+  <text class="monom" x="560" y="454" text-anchor="start">짧음</text>
+  <text class="mono dgr" x="712" y="454" text-anchor="middle">~40%</text>
+  <text class="monom" x="936" y="454" text-anchor="end">김</text>
+
+  <text class="cap" x="754" y="482" text-anchor="middle">세션 길이 · 컨텍스트 사용률</text>
+
+  <text class="cap" x="525" y="512">* ~40% 성능 저하 밴드 = 커뮤니티 관찰(공식 수치 아님)</text>
+</svg>

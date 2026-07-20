@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 1280 590" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans KR, sans-serif">
+  <!-- Premise line -->
+  <text x="20" y="34" font-size="18" font-weight="700" fill="#1A1A18">대전제 — 컨텍스트 윈도우는 유한하다.</text>
+  <text x="360" y="34" font-size="16" fill="#6B6560">책상 비유: 자료를 올릴수록 작업 공간이 줄어든다.</text>
+
+  <!-- Bar geometry: bars start x=200, full width to x=1200 (=1000px = 100% window). -->
+  <!-- lean bar -->
+  <text x="20" y="88" font-size="17" font-weight="700" fill="#0F766E">간결한 하네스</text>
+  <text x="20" y="110" font-size="14" fill="#6B6560">핵심 규칙만</text>
+  <rect x="200" y="70" width="150" height="52" fill="#FAF3E6" stroke="#0F766E" stroke-width="1.5"/>
+  <text x="275" y="102" text-anchor="middle" font-size="15" font-weight="700" fill="#0F766E">규칙</text>
+  <rect x="350" y="70" width="850" height="52" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="775" y="102" text-anchor="middle" font-size="16" font-weight="700" fill="#1A1A18">작업 예산 — 최대</text>
+
+  <!-- bloated bar -->
+  <text x="20" y="170" font-size="17" font-weight="700" fill="#B91C1C">비대한 하네스</text>
+  <text x="20" y="192" font-size="14" fill="#6B6560">400줄 규칙</text>
+  <rect x="200" y="152" width="560" height="52" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.5"/>
+  <text x="480" y="184" text-anchor="middle" font-size="16" font-weight="700" fill="#B91C1C">규칙이 예산 선점</text>
+  <rect x="760" y="152" width="440" height="52" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="980" y="184" text-anchor="middle" font-size="16" font-weight="700" fill="#6B6560">작업 예산 — 축소</text>
+
+  <!-- ~40% degradation band marker: vertical dashed line at x=200+0.40*1000=600, spanning both bars -->
+  <line x1="600" y1="58" x2="600" y2="216" stroke="#B91C1C" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="600" y="234" text-anchor="middle" font-size="14" fill="#B91C1C" font-weight="700">~40% 부근부터 성능 저하 밴드 시작 (공식 수치 아님)</text>
+
+  <!-- Comparison rows table -->
+  <rect x="20" y="252" width="1240" height="150" fill="#FFFFFF" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="40" y="278" font-size="15" font-weight="700" fill="#6B6560">구간</text>
+  <text x="230" y="278" font-size="15" font-weight="700" fill="#0F766E">간결한 하네스</text>
+  <text x="720" y="278" font-size="15" font-weight="700" fill="#B91C1C">비대한 하네스</text>
+  <line x1="40" y1="288" x2="1240" y2="288" stroke="#D4D0C8" stroke-width="1"/>
+  <line x1="210" y1="288" x2="210" y2="392" stroke="#D4D0C8" stroke-width="1"/>
+  <line x1="700" y1="288" x2="700" y2="392" stroke="#D4D0C8" stroke-width="1"/>
+
+  <text x="40" y="316" font-size="16" font-weight="700" fill="#1A1A18">세션 시작</text>
+  <text x="230" y="316" font-size="16" fill="#1A1A18">핵심 규칙만 로드 — 작업 예산 최대</text>
+  <text x="720" y="316" font-size="16" fill="#1A1A18">400줄 규칙이 예산 선점</text>
+
+  <text x="40" y="350" font-size="16" font-weight="700" fill="#1A1A18">긴 세션</text>
+  <text x="230" y="350" font-size="16" fill="#1A1A18">규칙이 끝까지 유지</text>
+  <text x="720" y="350" font-size="16" fill="#1A1A18">주의 경쟁에서 밀려 규칙 부분 무시</text>
+
+  <text x="40" y="384" font-size="16" font-weight="700" fill="#1A1A18">결과</text>
+  <text x="230" y="384" font-size="16" fill="#0F766E">규칙 수는 적은데 준수율은 높다</text>
+  <text x="720" y="384" font-size="16" fill="#B91C1C">"모델이 멍청하다"는 오진</text>
+
+  <!-- Bottom band: 하네스 구축의 정의 -->
+  <rect x="20" y="418" width="1240" height="152" fill="#FAF3E6" stroke="#D4D0C8" stroke-width="1" rx="6"/>
+  <text x="44" y="448" font-size="18" font-weight="700" fill="#0F766E">하네스 구축의 정의 — 유한한 예산 아래에서 계층적으로 설계하는 일</text>
+  <text x="44" y="476" font-size="15" fill="#6B6560">하네스의 모든 줄은 실제 프롬프트가 받을 주의(attention)와 경쟁한다. 1M 모델도 ~300–400k 토큰 이후 품질 하락이 보고된다.</text>
+  <line x1="44" y1="492" x2="1236" y2="492" stroke="#D4D0C8" stroke-width="1"/>
+  <text x="44" y="518" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">①</tspan> 매 세션 무엇을 <tspan font-weight="700">자동으로 알게</tspan> 하고</text>
+  <text x="44" y="546" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">②</tspan> 무엇을 <tspan font-weight="700">결정적으로 강제</tspan>하고</text>
+  <text x="480" y="546" font-size="16" fill="#1A1A18"><tspan font-family="JetBrains Mono, monospace" font-weight="700" fill="#0F766E">③</tspan> 무엇을 <tspan font-weight="700">격리 · 검증</tspan>할지 결정한다</text>
+</svg>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="card">
+  <div class="head">
+    <span class="kicker">01 · Model Routing</span>
+    <span class="index">02 / 05</span>
+  </div>
+
+  <h1 class="title">역할별로 모델을 라우팅한다</h1>
+  <div class="mark"></div>
+  <p class="subtitle">모든 태스크에 가장 비싼 모델을 쓰지 않는다. 역할이 모델을 정한다.</p>
+
+  <div class="body">
+    <table>
+      <thead>
+        <tr><th>역할</th><th>모델</th><th>effort</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="role">오케스트레이터 (메인 세션)</td><td class="model">Fable5</td><td class="effort">xhigh</td></tr>
+        <tr><td class="role">리서처</td><td class="model">Fable5</td><td class="effort">xhigh</td></tr>
+        <tr><td class="role">개발 · 테스트 · 디버깅</td><td class="model">sonnet-5</td><td class="effort">xhigh</td></tr>
+        <tr><td class="role">워커 (ultracode / workflow)</td><td class="model">sonnet-5</td><td class="effort">high</td></tr>
+        <tr><td class="role">읽기 전용 리뷰어</td><td class="model">sonnet-5</td><td class="effort">high</td></tr>
+        <tr><td class="role">포매팅 · 단순 변환</td><td class="model">haiku</td><td class="effort">low</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <div class="lab">Escalation — 워커는 멈추고 보고한다</div>
+      <div class="val">① 아키텍처·공유 계약 변경 &nbsp;·&nbsp; ② 동일 오류 3회 교착<br>③ 스펙과 코드 충돌 &nbsp;·&nbsp; ④ 삭제·마이그레이션 등 비가역 변경</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="repo">carve-harness</span>
+    <span>orchestration.md · §1</span>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="쿠폰 적용 API Evaluator Driven 평가 게이트 2회차 수렴 점수 차트: 회차1 C2 70·C3 92 미달, 회차2 96·97로 합격, 차단→피드백→DONE 타임라인">
+<defs>
+<marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+</defs>
+<style>
+.title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+.sub{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:400;fill:#59617a}
+.h{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700}
+.b{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:500;fill:#282a36}
+.cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a}
+.val{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:700;fill:#ffffff}
+.clab{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:700;fill:#282a36}
+.axis{font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:500;fill:#59617a}
+</style>
+
+<text class="title" x="40" y="46">Evaluator Driven 평가 게이트 워크스루 — 쿠폰 적용 API, 2회차 수렴</text>
+<text class="sub" x="40" y="74">C1~C4 점수 · 95 합격선 · 미달 항목만 재작업</text>
+
+<!-- chart axes -->
+<line x1="72" y1="400" x2="622" y2="400" stroke="#d8dae5" stroke-width="1.5"/>
+<line x1="72" y1="153" x2="622" y2="153" stroke="#59617a" stroke-width="2" stroke-dasharray="8 6"/>
+<text class="axis" x="64" y="405" text-anchor="end">0</text>
+<text class="axis" x="64" y="274" text-anchor="end">50</text>
+<text class="axis" x="64" y="158" text-anchor="end">95</text>
+
+<!-- C1 (single, round1 pass) -->
+<rect x="121.5" y="147.8" width="52" height="252.2" rx="4" fill="#59617a"/>
+<text class="val" x="147.5" y="174" text-anchor="middle">97</text>
+<text class="clab" x="147.5" y="426" text-anchor="middle">C1</text>
+<text class="cap" x="147.5" y="450" text-anchor="middle">적용</text>
+
+<!-- C2 (round1 fail / round2 pass) -->
+<rect x="234.5" y="218" width="44" height="182" rx="4" fill="#c93030"/>
+<text class="val" x="256.5" y="246" text-anchor="middle">70</text>
+<rect x="286.5" y="150.4" width="44" height="249.6" rx="4" fill="#1d8a45"/>
+<text class="val" x="308.5" y="176" text-anchor="middle">96</text>
+<text class="clab" x="282.5" y="426" text-anchor="middle">C2</text>
+<text class="cap" x="282.5" y="450" text-anchor="middle">중복불가</text>
+
+<!-- C3 (round1 fail / round2 pass) -->
+<rect x="369.5" y="160.8" width="44" height="239.2" rx="4" fill="#c93030"/>
+<text class="val" x="391.5" y="187" text-anchor="middle">92</text>
+<rect x="421.5" y="147.8" width="44" height="252.2" rx="4" fill="#1d8a45"/>
+<text class="val" x="443.5" y="174" text-anchor="middle">97</text>
+<text class="clab" x="417.5" y="426" text-anchor="middle">C3</text>
+<text class="cap" x="417.5" y="450" text-anchor="middle">만료검증</text>
+
+<!-- C4 (single, round1 pass) -->
+<rect x="526.5" y="120" width="52" height="280" rx="4" fill="#59617a"/>
+<text class="val" x="552.5" y="146" text-anchor="middle">100</text>
+<text class="clab" x="552.5" y="426" text-anchor="middle">C4</text>
+<text class="cap" x="552.5" y="450" text-anchor="middle">응답스키마</text>
+
+<!-- legend -->
+<text class="clab" x="665" y="142">범례</text>
+<rect x="665" y="156" width="22" height="22" rx="3" fill="#59617a"/>
+<text class="b" x="695" y="173">회차1 통과 (≥95)</text>
+<rect x="665" y="190" width="22" height="22" rx="3" fill="#c93030"/>
+<text class="b" x="695" y="207">회차1 미달 (&lt;95)</text>
+<rect x="665" y="224" width="22" height="22" rx="3" fill="#1d8a45"/>
+<text class="b" x="695" y="241">회차2 재채점 통과</text>
+<line x1="665" y1="269" x2="687" y2="269" stroke="#59617a" stroke-width="2" stroke-dasharray="6 4"/>
+<text class="b" x="695" y="275">95 합격선</text>
+
+<!-- feedback box -->
+<rect x="663" y="298" width="302" height="150" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<text class="h" x="679" y="326" fill="#644ac9">deficiencies 피드백</text>
+<text class="b" x="679" y="358">C2 · verify 테스트 추가,</text>
+<text class="b" x="700" y="384">중복 시 409 반환</text>
+<text class="b" x="679" y="418">C3 · 만료 경계 테스트 추가</text>
+
+<!-- timeline -->
+<text class="cap" x="40" y="482">타임라인</text>
+
+<rect x="72" y="488" width="250" height="86" rx="8" fill="#ffffff" stroke="#c93030" stroke-width="1.5"/>
+<text class="h" x="88" y="518" fill="#c93030">게이트 차단</text>
+<text class="cap" x="88" y="544">회차1 · C2·C3 &lt; 95</text>
+<text class="cap" x="88" y="566">exit 2 · fail-closed</text>
+
+<line x1="326" y1="531" x2="367" y2="531" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+<rect x="371" y="488" width="250" height="86" rx="8" fill="#ffffff" stroke="#b26214" stroke-width="1.5"/>
+<text class="h" x="387" y="518" fill="#b26214">피드백 하달</text>
+<text class="cap" x="387" y="544">미달 2건만 재작업</text>
+<text class="cap" x="387" y="566">구체 지시 (테스트·409)</text>
+
+<line x1="625" y1="531" x2="666" y2="531" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+<rect x="670" y="488" width="250" height="86" rx="8" fill="#ffffff" stroke="#1d8a45" stroke-width="1.5"/>
+<text class="h" x="686" y="518" fill="#1d8a45">DONE</text>
+<text class="cap" x="686" y="544">회차2 · 전 항목 ≥95</text>
+<text class="cap" x="686" y="566">게이트 해제</text>
+</svg>

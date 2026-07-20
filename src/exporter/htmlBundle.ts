@@ -2,6 +2,7 @@ import brewnetCss from '../canvas/themes/brewnet-dark.css?raw';
 import codeBlocksCss from '../canvas/themes/code-blocks.css?raw';
 import portfolioCss from '../canvas/themes/portfolio.css?raw';
 import reportCss from '../canvas/themes/report.css?raw';
+import harnessCss from '../canvas/themes/harness.css?raw';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { applyBackgroundToHtml } from '../scene/applySlideBackground';
@@ -9,13 +10,15 @@ import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../scene/constants';
 import { linkifyHtml } from './linkify';
 
 // The standalone bundle must ship the SAME theme CSS the live editor loads
-// (SlideRenderer.tsx imports all four) so per-template overrides win the
+// (SlideRenderer.tsx imports every theme) so per-template overrides win the
 // cascade — e.g. the report deck's light `[data-template="report"]` token
 // block in report.css. Shipping only brewnet-dark made every non-brewnet deck
-// (report / portfolio) fall back to the dark base, rendering light decks dark
-// and hiding dark-on-light overlay text. Order mirrors SlideRenderer +
-// generator/inlineThemeCss: brewnet-dark base first, then per-template overrides.
-const themeCss = [brewnetCss, codeBlocksCss, portfolioCss, reportCss].join('\n\n');
+// (report / portfolio / harness) fall back to the dark base, rendering light
+// decks dark and hiding dark-on-light overlay text. When a NEW theme is added
+// under canvas/themes, it MUST be appended here and in generator/inlineThemeCss
+// (THEME_CSS_PATHS) — the two standalone-export paths. Order mirrors
+// SlideRenderer: brewnet-dark base first, then per-template overrides.
+const themeCss = [brewnetCss, codeBlocksCss, portfolioCss, reportCss, harnessCss].join('\n\n');
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',

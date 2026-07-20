@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6강 · 완성형 하네스 — research → plan → execute → review → ship</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">완성형</span> · 6강</div>
+<header class="page">
+  <div class="kicker">Complete Harness · Converged Pattern</div>
+  <h1>완성형 하네스 — research → plan → execute → review → ship</h1>
+  <p class="subtitle">레벨 1~5의 부품이 갖춰지면 하나의 게이트 파이프라인으로 조립된다. 이 패턴은 누가 설계한 게 아니라 여러 방법론이 독립적으로 수렴한 결과이며, 그 수렴 자체가 가장 강한 실증이다.</p>
+</header>
+
+<h2>6-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>바이브 코딩 (Vibe Coding)</dt>
+  <dd>계획도 리뷰도 테스트도 없는 원샷 프롬프팅 — "설명하고 배포". 프로토타입에는 통하지만 프로덕션 규모에서 무너진다.
+  <span class="easy">쉬운 비유: 설계도 없이 감으로 짓는 창고. 헛간까지는 서지만 3층부터 기운다.</span></dd>
+  <dt>에이전틱 엔지니어링 (Agentic Engineering)</dt>
+  <dd>research→plan→execute→review→ship 루프로 에이전트를 오케스트레이션하고, 사람이 타이피스트가 아니라 <strong>각 게이트의 감독자</strong>로 서는 방식. Karpathy 등이 채택하며 시대를 명명한 용어.</dd>
+  <dt>게이트 (Gate)</dt>
+  <dd>단계 전환마다 명시된 통과 조건. 승인(plan), 훅 녹색(execute), 갭 0건(review), 증거 확인(ship)처럼 <strong>조건이 명시되어야</strong> 게이트다 — "대충 봤고 괜찮아 보임"은 게이트가 아니다.</dd>
+  <dt>수직 슬라이스 / Tracer Bullet</dt>
+  <dd>DB+서비스+UI 등 전 레이어를 관통하는 얇은 조각 단위로 단계를 자르는 방식. AI는 기본적으로 수평 페이징(DB 단계 → API 단계 → 프런트 단계)을 택해 엔드투엔드 피드백이 마지막까지 지연되는데, 수직 슬라이스가 이를 교정한다.</dd>
+</dl>
+<p class="src">용어 근거: <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a>(vibe coding·agentic engineering·게이트 프리미티브), <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>(수직 슬라이스와 AI의 수평 페이징 기본값)</p>
+
+<h2>6-2. 실증 — "수렴"이라는 증거</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px">이 5단계 패턴의 가장 강한 근거는 특정 회사의 주장이 아니라 <strong>독립 재발명의 수렴</strong>이다. Superpowers, gstack, BMAD-METHOD, OpenSpec, Spec Kit 등 서로 무관하게 만들어진 워크플로 방법론들이 각자 도달한 답이 동일했다: <strong>research → plan → execute → review → ship, 각 게이트에 사람의 감독.</strong> 2025년의 질문("AI가 동작하는 코드를 쓸 수 있는가")이 2026년의 질문("프로덕션 코드를 배포하도록 AI를 어떻게 오케스트레이션하는가")으로 바뀌면서, 답이 이 패턴으로 모인 것이다.</p>
+  <p style="margin-bottom:8px"><strong>거시 지표도 이 전환을 뒷받침한다</strong>: 코딩 에이전트 활동이 있는 GitHub 프로젝트 비중은 2025년 말 이후 2배 이상이 됐고, Claude Code 사용자는 주당 평균 20시간을 이 도구에 쓴다 — "가끔 쓰는 보조"가 아니라 상시 파이프라인이 된 규모이며, 상시 파이프라인에는 구조(게이트)가 필요해진다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a>(방법론 수렴 목록·시대 전환), <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic Research</a>(GitHub 2배·주당 20시간)</p>
+</div>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">완성형 하네스: 5단계 파이프라인과 각 단계를 받치는 레벨 1~5의 부품</text>
+  <g>
+    <rect x="20"  y="50" width="128" height="46" fill="#ffffff" stroke="#1a1a1a"/>
+    <text x="32" y="70" font-weight="600" fill="#1a1a1a">research</text>
+    <text x="32" y="88" fill="#555555" font-size="11">서브에이전트 조사</text>
+    <line x1="148" y1="73" x2="168" y2="73" stroke="#555555"/>
+    <rect x="168" y="50" width="128" height="46" fill="#ffffff" stroke="#1a1a1a"/>
+    <text x="180" y="70" font-weight="600" fill="#1a1a1a">plan</text>
+    <text x="180" y="88" fill="#555555" font-size="11">플랜 모드 → 승인</text>
+    <line x1="296" y1="73" x2="316" y2="73" stroke="#555555"/>
+    <rect x="316" y="50" width="128" height="46" fill="#ffffff" stroke="#1a1a1a"/>
+    <text x="328" y="70" font-weight="600" fill="#1a1a1a">execute</text>
+    <text x="328" y="88" fill="#555555" font-size="11">구현 + 훅 자동 보증</text>
+    <line x1="444" y1="73" x2="464" y2="73" stroke="#555555"/>
+    <rect x="464" y="50" width="128" height="46" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="476" y="70" font-weight="600" fill="#0f4bd8">review</text>
+    <text x="476" y="88" fill="#555555" font-size="11">검증 서브에이전트</text>
+    <line x1="592" y1="73" x2="612" y2="73" stroke="#555555"/>
+    <rect x="612" y="50" width="128" height="46" fill="#ffffff" stroke="#1a1a1a"/>
+    <text x="624" y="70" font-weight="600" fill="#1a1a1a">ship</text>
+    <text x="624" y="88" fill="#555555" font-size="11">증거 확인 → 반영</text>
+  </g>
+  <line x1="528" y1="96" x2="528" y2="120" stroke="#0f4bd8"/>
+  <line x1="528" y1="120" x2="380" y2="120" stroke="#0f4bd8"/>
+  <line x1="380" y1="120" x2="380" y2="96" stroke="#0f4bd8"/>
+  <text x="392" y="136" fill="#0f4bd8" font-size="11">갭 발견 시 수정–재검증 루프 (사람 개입 없이)</text>
+  <g font-size="11">
+    <rect x="20" y="170" width="720" height="110" fill="#f6f6f6" stroke="#d9d9d9"/>
+    <text x="34" y="192" font-weight="600" fill="#1a1a1a" font-size="12">전 단계를 받치는 상시 부품</text>
+    <text x="34" y="216" fill="#555555">LV1 CLAUDE.md — 모든 단계에 컨벤션·완료의 정의 공급</text>
+    <text x="34" y="236" fill="#555555">LV2 settings.json — 모든 도구 호출의 allow/ask/deny 경계</text>
+    <text x="34" y="256" fill="#555555">LV3 커맨드·스킬 — 각 단계의 절차를 재사용 자산으로</text>
+    <text x="400" y="216" fill="#555555">LV4 훅 — execute 중 포맷·테스트·차단 + Stop 훅 종료 조건</text>
+    <text x="400" y="236" fill="#555555">LV5 서브에이전트 — research 격리, review 의 제2의 눈</text>
+    <text x="400" y="256" fill="#0f4bd8">사람 — 각 게이트의 감독자 (what 결정, 증거 스팟 체크)</text>
+  </g>
+</svg>
+<figcaption>완성형의 정의: 5단계가 존재하고, 각 단계 전환이 게이트이며, 게이트마다 통과 조건(승인·훅·검증·증거)이 명시된 상태.</figcaption>
+</figure>
+
+<h2>6-3. 이론 — "셋업 ↔ 주의"의 거래</h2>
+<p>공식 문서의 표현: <strong>"각 단계는 셋업을 지불하고 주의(attention)를 되사는 거래다."</strong> 프롬프트로 매번 지시하는 검증은 오늘 아무 과제에나 통하지만 사람의 주의를 계속 소비하고, /goal과 Stop 훅으로 구축한 검증은 셋업 비용이 들지만 <strong>무인 실행이 사람 없이 올바르게 끝나게</strong> 해준다. 완성형 하네스란 이 거래를 5단계 전부에서 완료한 상태다 — 매 단계의 감독이 "상시 주시"에서 "게이트 순간의 확인"으로 압축된다. <span class="src">근거: <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a></span></p>
+<p class="note">주의 예산의 물리적 근거(참고): 커뮤니티 관찰로 컨텍스트 사용 ~40%부터 성능 저하 밴드가 시작되고, 1M 컨텍스트 모델도 ~300–400k 토큰 이후 품질이 떨어진다는 보고가 있다(공식 수치 아님). 단계 분리는 각 단계의 컨텍스트를 이 밴드 아래로 유지하는 효과도 갖는다. <span class="src">(<a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory 용어집</a>)</span></p>
+
+<h2>6-4. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">바이브 코딩 (파이프라인 없음)</th><th>완성형 하네스</th></tr></thead>
+  <tbody>
+    <tr><td>수백 줄 구현 후 "이게 아닌데" — 잘못된 문제를 푼 코드가 주기적으로 발생.</td><td>plan 게이트에서 방향 오류가 코드 0줄 시점에 걸러짐.</td></tr>
+    <tr><td>수평 페이징(DB→API→UI)으로 진행 — 엔드투엔드 동작 확인이 마지막 단계까지 지연.</td><td>수직 슬라이스로 매 단계 끝에 관통 동작 확인 — 통합 리스크가 앞당겨 소진됨.</td></tr>
+    <tr><td>사람이 에이전트를 상시 주시 — "지켜보는 자동화"라는 모순.</td><td>감독이 게이트 순간으로 압축 — 무인 실행 + 스팟 체크 체제.</td></tr>
+    <tr><td>완료 선언이 단언 기반 — 프로덕션에서 미구현 발견.</td><td>review 갭 0건 + ship 증거 확인의 이중 게이트 통과분만 반영.</td></tr>
+  </tbody>
+</table>
+
+<h2>6-5. 단계별 통과 조건 — 완성형의 명세</h2>
+<table>
+  <thead><tr><th>단계</th><th>산출물</th><th>게이트 통과 조건</th><th>동원 부품</th></tr></thead>
+  <tbody>
+    <tr><td class="key">research</td><td>조사 요약 (한 문단~한 페이지)</td><td>메인 컨텍스트가 원자료로 오염되지 않았는가</td><td>서브에이전트(5강)</td></tr>
+    <tr><td class="key">plan</td><td>PLAN.md — 요구사항·엣지 케이스·범위</td><td>사람 승인. 계획이 검증 가능한 문장인가</td><td>플랜 모드(2강)</td></tr>
+    <tr><td class="key">execute</td><td>diff + 통과하는 테스트</td><td>훅 전부 녹색 (포맷·빠른 테스트·차단기)</td><td>훅(4강), 커맨드(3강)</td></tr>
+    <tr><td class="key">review</td><td>갭 목록 (또는 "갭 없음")</td><td>정확성 갭 0건. 취향 지적은 게이트 아님</td><td>검증 서브에이전트(5강)</td></tr>
+    <tr><td class="key">ship</td><td>증거 묶음 (테스트 출력·명령 반환값)</td><td>사람이 증거를 확인. 단언만으로 통과 불가</td><td>증거 원칙(5강), ask 권한(2강)</td></tr>
+  </tbody>
+</table>
+
+<h2>6-6. 예제 — 계획을 검증 가능한 문장으로 쓰는 법</h2>
+<p><strong>사용 방법</strong>: plan의 산출물이 아래 형태여야 review가 기계적으로 대조할 수 있다 — 모호한 계획은 모호한 검증을 낳는다. 실무 보조 패턴 두 가지: (1) 최소 스펙에서 시작해 모델이 <strong>나를 인터뷰</strong>하게 만들어 모호성을 표면화한 뒤 새 세션에서 스펙을 실행시키기, (2) "불명확한 것은 시작 전에 무엇이든 물어라"를 비자명 과제의 기본 지시로 삼기 — 좋은 에이전트는 200줄을 잘못된 길로 쓰기 전에 모호성(어떤 토큰 라이브러리? 리프레시 토큰은?)을 먼저 드러낸다. <span class="src">근거: <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>(인터뷰 패턴), <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(사전 질문 지시)</span></p>
+<pre><code># PLAN.md (요구사항이 곧 검증 항목이 되도록 쓴다)
+
+## 목표
+API 레이트 리미터 추가 (IP당 분당 60회)
+
+## 요구사항 (review 단계가 이 목록과 diff 를 대조한다)
+- [ ] 60회 초과 시 429 + Retry-After 헤더 반환
+- [ ] 한도는 env RATE_LIMIT_PER_MIN 으로 설정 가능 (기본 60)
+- [ ] 화이트리스트 IP(설정값)는 제한 제외
+
+## 엣지 케이스 (각각 테스트 필수)
+- [ ] 정확히 60번째 요청은 통과, 61번째는 429
+- [ ] 윈도우 경계(59초→61초)에서 카운터 리셋
+- [ ] X-Forwarded-For 스푸핑 시 신뢰 프록시만 인정
+
+## 범위 밖 (review 가 "범위 밖 변경"으로 잡아야 할 것)
+- 인증 로직, 로깅 포맷, 기존 미들웨어 순서
+</code></pre>
+
+<h2>6-7. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">게이트 없는 5단계</td><td>단계 이름만 있고 통과 조건이 없으면 바이브 코딩의 5막 연극일 뿐</td><td>단계마다 조건을 문장으로 명시 (6-5 표)</td></tr>
+    <tr><td class="key">수평 페이징 방치</td><td>AI의 기본값 — 통합 리스크가 마지막 단계에 몰림</td><td>plan에서 수직 슬라이스로 단계 재단</td></tr>
+    <tr><td class="key">모호한 PLAN.md</td><td>review가 대조할 기준이 없어 게이트가 형식화</td><td>요구사항을 체크박스 문장으로, 범위 밖을 명시</td></tr>
+  </tbody>
+</table>
+
+<div class="box gate">
+  <div class="label">완성형의 남은 구멍 — 7강의 존재 이유</div>
+  <p style="margin:0">이 파이프라인이 돌면 "지켜보지 않아도 올바르게 끝나는" 상태에 도달한다. 그러나 구멍이 하나 남는다: <strong>review의 판정이 여전히 정성적(갭 있음/없음)이고, 시간에 따른 품질 추이를 아무도 측정하지 않는다.</strong> "지난달보다 나아졌는가?"에 숫자로 답할 수 없는 하네스는, 완성형이어도 성장은 감에 의존한다. 이 구멍을 메우는 것이 7강 — EDD다.</p>
+</div>
+
+<h2>6-8. 체크리스트</h2>
+<ul class="check">
+  <li>5단계가 모두 존재하고, 단계 전환마다 명시적 통과 조건이 있는가</li>
+  <li>PLAN.md의 요구사항이 review가 기계적으로 대조 가능한 문장인가</li>
+  <li>단계가 수직 슬라이스로 잘려 매 단계 끝에 관통 동작을 확인하는가</li>
+  <li>review→execute 되돌림 루프가 사람 개입 없이 도는가</li>
+  <li>ship이 단언이 아니라 증거로만 통과되는가</li>
+  <li>"지난달보다 나아졌는가"에 숫자로 답할 수 있는가 (없다면 → 7강)</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 플랜 모드, 검증 루프, 증거, 셋업↔주의 거래, 무인 실행</li>
+    <li>[공식·연구] <a href="https://www.anthropic.com/research/claude-code-expertise">Anthropic Research</a> — GitHub 에이전트 활동 2배, 주당 20시간</li>
+    <li>[커뮤니티] <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a> — 방법론 수렴(Superpowers·BMAD-METHOD·OpenSpec·Spec Kit 등), vibe coding vs agentic engineering, 저하 밴드 관찰</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> — 인터뷰 패턴, 수직 슬라이스 / <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a> — 사전 질문 지시</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="05-subagents.html"><span class="dir">이전 · 5강</span>← 서브에이전트</a>
+  <a class="next" href="07-to-edd.html"><span class="dir">다음 · 7강</span>하네스 이후 — EDD →</a>
+</nav>
+
+</div></body></html>
