@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="패러다임의 진화: 좌측 3단 타임라인(프롬프트·컨텍스트·하네스 엔지니어링)과 우측 동심원 포함 관계 프롬프트 ⊂ 컨텍스트 ⊂ 하네스">
+<defs>
+<marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+</defs>
+<style>
+.title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36}
+.yr{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;fill:#59617a}
+.hd{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#282a36}
+.hda{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#644ac9}
+.q{font-family:"IBM Plex Sans KR",sans-serif;font-size:22px;font-weight:500;fill:#282a36}
+.cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a}
+.ring{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#282a36}
+.ringa{font-family:"IBM Plex Sans KR",sans-serif;font-size:24px;font-weight:700;fill:#644ac9}
+.sub{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;fill:#59617a}
+</style>
+
+<text class="title" x="24" y="46">패러다임의 진화 — 프롬프트 → 컨텍스트 → 하네스</text>
+
+<!-- Card 1: 2022–2024 프롬프트 -->
+<rect x="24" y="80" width="560" height="144" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="yr" x="44" y="112">2022–2024</text>
+<text class="hd" x="44" y="146">프롬프트 엔지니어링</text>
+<text class="q" x="44" y="178">어떻게 말해야 하는가?</text>
+<text class="cap" x="44" y="206">Few-shot · CoT · 역할 부여</text>
+
+<line x1="304" y1="226" x2="304" y2="250" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+<!-- Card 2: 2025 컨텍스트 -->
+<rect x="24" y="252" width="560" height="144" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="yr" x="44" y="284">2025</text>
+<text class="hd" x="44" y="318">컨텍스트 엔지니어링</text>
+<text class="q" x="44" y="350">무엇을 알아야 하는가?</text>
+<text class="cap" x="44" y="378">RAG · MCP · 도구 정의</text>
+
+<line x1="304" y1="398" x2="304" y2="422" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+<!-- Card 3: 2026 하네스 (accent) -->
+<rect x="24" y="424" width="560" height="144" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<text class="yr" x="44" y="456">2026</text>
+<text class="hda" x="44" y="490">하네스 엔지니어링</text>
+<text class="q" x="44" y="522">시스템을 어떻게 설계?</text>
+<text class="cap" x="44" y="550">제약 · 피드백 루프 · 상태 관리</text>
+
+<!-- Concentric containment: 프롬프트 ⊂ 컨텍스트 ⊂ 하네스 -->
+<circle cx="792" cy="330" r="178" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+<circle cx="792" cy="330" r="120" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<circle cx="792" cy="330" r="60" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+<text class="ringa" x="792" y="186" text-anchor="middle">하네스</text>
+<text class="ring" x="792" y="248" text-anchor="middle">컨텍스트</text>
+<text class="ring" x="792" y="338" text-anchor="middle">프롬프트</text>
+
+<text class="sub" x="792" y="546" text-anchor="middle">프롬프트 ⊂ 컨텍스트 ⊂ 하네스</text>
+</svg>

@@ -50,6 +50,10 @@ describe('standalone HTML — inlined theme CSS', () => {
     expect(css).toMatch(/\.code-block/);
     expect(css).toMatch(/\.terminal/);
   });
+
+  it('inlines harness.css selectors (LV.9 harness/evaluator deck theme)', () => {
+    expect(css).toMatch(/\[data-template="harness"\]\s*\{/);
+  });
 });
 
 describe('standalone HTML — report template tagging', () => {

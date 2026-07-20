@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="PR에서 승격까지의 CI 게이트 흐름: 골든셋 실행 후 delta 3퍼센트 초과 하락이면 빌드 실패, 아니면 머지 후 카나리 5퍼센트를 거쳐 승격. 부트스트랩 90퍼센트 신뢰구간이 0을 포함하면 배포 보류.">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/>
+    </marker>
+  </defs>
+  <style>
+    .t-title{font-family:"IBM Plex Sans KR",sans-serif;font-size:30px;font-weight:700;fill:#282a36;}
+    .h{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#282a36;}
+    .h-danger{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#c93030;}
+    .h-ok{font-family:"IBM Plex Sans KR",sans-serif;font-size:26px;font-weight:700;fill:#1d8a45;}
+    .b{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:500;fill:#59617a;}
+    .mono{font-family:"JetBrains Mono",monospace;}
+    .dt{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:700;fill:#282a36;}
+    .cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;font-weight:400;fill:#59617a;}
+    .foot{font-family:"IBM Plex Sans KR",sans-serif;font-size:20px;font-weight:400;fill:#282a36;}
+    .by{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:700;fill:#c93030;}
+    .bn{font-family:"IBM Plex Sans KR",sans-serif;font-size:19px;font-weight:700;fill:#644ac9;}
+  </style>
+
+  <text class="t-title" x="30" y="46">CI 게이트 흐름 — PR에서 승격까지</text>
+
+  <!-- spine flow arrows -->
+  <line x1="165" y1="175" x2="193" y2="175" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="355" y1="175" x2="376" y2="175" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="503" y1="175" x2="546" y2="175" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="648" y1="175" x2="673" y2="175" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="825" y1="175" x2="850" y2="175" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <!-- yes branch down -->
+  <line x1="440" y1="240" x2="440" y2="318" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- node 1: PR -->
+  <rect x="30" y="120" width="135" height="110" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h mono" x="97.5" y="168" text-anchor="middle">PR</text>
+  <text class="b" x="97.5" y="197" text-anchor="middle">프롬프트/코드</text>
+
+  <!-- node 2: golden set run -->
+  <rect x="195" y="120" width="160" height="110" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="275" y="168" text-anchor="middle">골든셋 실행</text>
+  <text class="b" x="275" y="197" text-anchor="middle">핵심 지표 측정</text>
+
+  <!-- decision diamond (emphasis) -->
+  <polygon points="440,110 502,175 440,240 378,175" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="dt" x="440" y="170" text-anchor="middle">delta</text>
+  <text class="dt" x="440" y="197" text-anchor="middle">≤-3%?</text>
+
+  <!-- branch labels -->
+  <text class="bn" x="525" y="163" text-anchor="middle">아니오</text>
+  <text class="by" x="462" y="288" text-anchor="middle">예</text>
+
+  <!-- node 3: merge -->
+  <rect x="548" y="120" width="100" height="110" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="598" y="168" text-anchor="middle">머지</text>
+  <text class="b mono" x="598" y="197" text-anchor="middle">merge</text>
+
+  <!-- node 4: canary -->
+  <rect x="675" y="120" width="150" height="110" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="h" x="750" y="168" text-anchor="middle">카나리 5%</text>
+  <text class="b" x="750" y="197" text-anchor="middle">트래픽 대조</text>
+
+  <!-- node 5: promote (accent emphasis / positive terminal) -->
+  <rect x="852" y="120" width="116" height="110" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text class="h-ok" x="910" y="168" text-anchor="middle">승격</text>
+  <text class="b" x="910" y="197" text-anchor="middle">배포 확정</text>
+
+  <!-- node 6: build fail (danger) -->
+  <rect x="362" y="320" width="156" height="92" rx="8" fill="#ffffff" stroke="#c93030" stroke-width="2"/>
+  <text class="h-danger" x="440" y="360" text-anchor="middle">빌드 실패</text>
+  <text class="b mono" x="440" y="390" text-anchor="middle">exit 1</text>
+
+  <!-- per-stage criterion captions -->
+  <text class="cap" x="275" y="264" text-anchor="middle">핵심 지표 ±3% 게이트</text>
+
+  <text class="cap" x="690" y="260" text-anchor="middle">부트스트랩 10,000회 재표집</text>
+  <text class="cap" x="690" y="284" text-anchor="middle">→ 평균차 90% CI</text>
+
+  <text class="cap" x="890" y="260" text-anchor="middle">대조군 대비</text>
+  <text class="cap" x="890" y="284" text-anchor="middle">안정·개선 시 승격</text>
+
+  <!-- footnote -->
+  <rect x="30" y="500" width="938" height="62" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text class="foot" x="499" y="537" text-anchor="middle">부트스트랩 90% CI가 0을 포함하면 <tspan fill="#c93030" font-weight="700">배포 보류</tspan> — 오차 범위 없는 델타는 판정 근거가 아니다.</text>
+</svg>

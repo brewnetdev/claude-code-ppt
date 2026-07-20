@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="완성형 하네스 파이프라인에 남는 3개의 구멍(정성 판정·추이 없음·배포 후 무방비)을 우측 Evaluator 층 패널이 루브릭 점수·점수 시계열·런타임 eval로 덮는 구도">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/>
+    </marker>
+    <style>
+      .ttl{font:700 30px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+      .plabel{font:400 18px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+      .stage{font:500 20px "JetBrains Mono",monospace;fill:#59617a}
+      .gaphint{font:600 20px "IBM Plex Sans KR",sans-serif;fill:#c93030}
+      .gh{font:700 24px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+      .gb{font:500 20px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+      .eh{font:700 26px "IBM Plex Sans KR",sans-serif;fill:#644ac9}
+      .esub{font:400 18px "IBM Plex Sans KR",sans-serif;fill:#59617a}
+      .rh{font:700 24px "IBM Plex Sans KR",sans-serif;fill:#644ac9}
+      .rb{font:500 20px "IBM Plex Sans KR",sans-serif;fill:#282a36}
+    </style>
+  </defs>
+
+  <text x="24" y="46" class="ttl">완성형 하네스에도 남는 구멍</text>
+
+  <!-- background pipeline (muted) -->
+  <text x="24" y="82" class="plabel">3장 하네스 파이프라인 (배경)</text>
+  <rect x="24" y="94" width="160" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="104" y="126" text-anchor="middle" class="stage">research</text>
+  <line x1="188" y1="120" x2="218" y2="120" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="222" y="94" width="160" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="302" y="126" text-anchor="middle" class="stage">plan</text>
+  <line x1="386" y1="120" x2="416" y2="120" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="420" y="94" width="160" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="500" y="126" text-anchor="middle" class="stage">implement</text>
+  <line x1="584" y1="120" x2="614" y2="120" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="618" y="94" width="160" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="698" y="126" text-anchor="middle" class="stage">review</text>
+  <line x1="782" y1="120" x2="812" y2="120" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="816" y="94" width="160" height="52" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="896" y="126" text-anchor="middle" class="stage">ship</text>
+
+  <text x="24" y="208" class="gaphint">파이프라인이 못 메우는 3개의 구멍</text>
+
+  <!-- gap 1 (danger) -->
+  <rect x="24" y="252" width="440" height="100" rx="8" fill="#ffffff" stroke="#c93030" stroke-width="2"/>
+  <text x="44" y="288" class="gh">① 정성 판정</text>
+  <text x="44" y="316" class="gb">review는 갭 유무만 판정</text>
+  <text x="44" y="342" class="gb">개선·회귀의 정도를 못 말함</text>
+
+  <!-- gap 2 (danger) -->
+  <rect x="24" y="366" width="440" height="100" rx="8" fill="#ffffff" stroke="#c93030" stroke-width="2"/>
+  <text x="44" y="402" class="gh">② 추이 없음</text>
+  <text x="44" y="430" class="gb">게이트는 이번 변경만 본다</text>
+  <text x="44" y="456" class="gb">점수 이력·시계열이 없다</text>
+
+  <!-- gap 3 (danger) -->
+  <rect x="24" y="480" width="440" height="100" rx="8" fill="#ffffff" stroke="#c93030" stroke-width="2"/>
+  <text x="44" y="516" class="gh">③ 배포 후 무방비</text>
+  <text x="44" y="544" class="gb">드리프트를 아무도 안 잰다</text>
+  <text x="44" y="570" class="gb">런타임 실패가 방치된다</text>
+
+  <!-- arrows gap -> remedy -->
+  <line x1="466" y1="302" x2="534" y2="302" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="466" y1="416" x2="534" y2="416" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="466" y1="530" x2="534" y2="530" stroke="#59617a" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Evaluator layer panel (accent) covering the three gaps -->
+  <rect x="520" y="180" width="456" height="404" rx="8" fill="#ffffff" stroke="#644ac9" stroke-width="2"/>
+  <text x="540" y="216" class="eh">Evaluator 층</text>
+  <text x="540" y="240" class="esub">세 구멍을 숫자로 덮는다</text>
+
+  <rect x="536" y="252" width="424" height="100" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="556" y="294" class="rh">루브릭 점수 + 임계값</text>
+  <text x="556" y="326" class="rb">Judge–인간 일치율로 교정</text>
+
+  <rect x="536" y="366" width="424" height="100" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="556" y="408" class="rh">점수 시계열</text>
+  <text x="556" y="440" class="rb">골든셋 고정 + 매 변경 재채점</text>
+
+  <rect x="536" y="480" width="424" height="100" rx="8" fill="#ffffff" stroke="#d8dae5" stroke-width="1.5"/>
+  <text x="556" y="522" class="rh">런타임 eval</text>
+  <text x="556" y="554" class="rb">온라인 모니터링 + blocking eval</text>
+</svg>

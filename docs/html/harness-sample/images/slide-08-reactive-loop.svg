@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="반응적 루프와 복리 루프 비교 다이어그램: 좌측은 불만 대기에서 새 실패로 되돌아오는 원형 순환, 우측은 실패가 테스트 케이스로 축적되며 상승하는 복리 계단">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#59617a"/></marker>
+    <marker id="ara" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#644ac9"/></marker>
+  </defs>
+  <style>
+    text{font-family:"IBM Plex Sans KR",sans-serif;}
+    .title-t{font-size:30px;font-weight:700;fill:#282a36;}
+    .head{font-size:26px;font-weight:700;fill:#282a36;}
+    .node{font-size:22px;font-weight:500;fill:#282a36;}
+    .node-d{font-size:22px;font-weight:500;fill:#c93030;}
+    .cap{font-size:19px;font-weight:400;fill:#59617a;}
+    .mono{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;}
+    .flow{stroke:#59617a;stroke-width:2;fill:none;}
+    .flow-a{stroke:#644ac9;stroke-width:2.5;fill:none;}
+    .box{fill:#ffffff;stroke:#d8dae5;stroke-width:1.5;}
+    .box-d{fill:#ffffff;stroke:#c93030;stroke-width:2;}
+    .box-a{fill:#ffffff;stroke:#644ac9;stroke-width:2;}
+  </style>
+
+  <!-- title -->
+  <text class="title-t" x="16" y="42">반응적 루프 vs 복리 루프</text>
+
+  <!-- panel headings -->
+  <text class="head" x="40" y="98">반응적 루프</text>
+  <text class="mono" x="215" y="98" fill="#c93030">돌수록 제자리</text>
+  <text class="head" x="520" y="98">복리 루프</text>
+  <text class="mono" x="678" y="98" fill="#644ac9">돌수록 자산</text>
+
+  <!-- divider -->
+  <line x1="500" y1="74" x2="500" y2="562" stroke="#d8dae5" stroke-width="1.5"/>
+
+  <!-- ===== LEFT: reactive circular loop ===== -->
+  <!-- arrows (clockwise: top->right->bottom->left->top) -->
+  <path class="flow" d="M290,220 A135,135 0 0 1 385,315" marker-end="url(#ar)"/>
+  <path class="flow" d="M385,385 A135,135 0 0 1 290,480" marker-end="url(#ar)"/>
+  <path class="flow" d="M220,480 A135,135 0 0 1 125,385" marker-end="url(#ar)"/>
+  <path class="flow" d="M125,315 A135,135 0 0 1 220,220" marker-end="url(#ar)"/>
+
+  <!-- nodes -->
+  <rect class="box" x="190" y="188" width="130" height="54" rx="8"/>
+  <text class="node" x="255" y="215" text-anchor="middle" dominant-baseline="central">불만 대기</text>
+
+  <rect class="box" x="325" y="323" width="130" height="54" rx="8"/>
+  <text class="node" x="390" y="350" text-anchor="middle" dominant-baseline="central">수동 재현</text>
+
+  <rect class="box" x="190" y="458" width="130" height="54" rx="8"/>
+  <text class="node" x="255" y="485" text-anchor="middle" dominant-baseline="central">수정</text>
+
+  <rect class="box-d" x="55" y="323" width="130" height="54" rx="8"/>
+  <text class="node-d" x="120" y="350" text-anchor="middle" dominant-baseline="central">새 실패</text>
+
+  <text class="cap" x="255" y="556" text-anchor="middle">실패가 소모된다 — 회귀인지 노이즈인지 모른 채</text>
+
+  <!-- ===== RIGHT: compounding staircase ===== -->
+  <!-- ascending arrows -->
+  <line class="flow-a" x1="591" y1="460" x2="676" y2="434" marker-end="url(#ara)"/>
+  <line class="flow-a" x1="683" y1="376" x2="768" y2="350" marker-end="url(#ara)"/>
+  <line class="flow-a" x1="775" y1="292" x2="860" y2="266" marker-end="url(#ara)"/>
+
+  <!-- steps (low->high) -->
+  <rect class="box-a" x="516" y="460" width="150" height="56" rx="8"/>
+  <text class="node" x="591" y="488" text-anchor="middle" dominant-baseline="central">실패</text>
+
+  <rect class="box-a" x="608" y="376" width="150" height="56" rx="8"/>
+  <text class="node" x="683" y="404" text-anchor="middle" dominant-baseline="central">테스트 케이스</text>
+
+  <rect class="box-a" x="700" y="292" width="150" height="56" rx="8"/>
+  <text class="node" x="775" y="320" text-anchor="middle" dominant-baseline="central">회귀 방지</text>
+
+  <rect class="box-a" x="792" y="208" width="150" height="56" rx="8"/>
+  <text class="node" x="867" y="236" text-anchor="middle" dominant-baseline="central">지표 축적</text>
+
+  <text class="cap" x="730" y="556" text-anchor="middle">실패가 테스트로 남는다 — 돌수록 자산이 쌓인다</text>
+</svg>
