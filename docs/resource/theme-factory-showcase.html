@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>theme-factory — 10 Preset Themes (검증판)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif;
+    background:#f2f1ee; color:#232323;
+    padding:48px 24px;
+  }
+  .wrap { max-width:1080px; margin:0 auto; }
+  header.page { margin-bottom:36px; border-bottom:1px solid #d8d6d0; padding-bottom:24px; }
+  header.page h1 { font-size:26px; font-weight:700; letter-spacing:-0.01em; }
+  header.page .sub { margin-top:8px; font-size:14px; color:#5a5852; line-height:1.6; }
+  header.page .sub a { color:#33506e; }
+  header.page .note { margin-top:10px; font-size:12.5px; color:#5a5852; line-height:1.7;
+    border:1px solid #d8d6d0; background:#faf9f7; padding:10px 14px; border-radius:6px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(440px, 1fr)); gap:20px; }
+  @media (max-width:520px) { .grid { grid-template-columns:1fr; } }
+  .card { border:1px solid rgba(0,0,0,.28); border-radius:8px; padding:26px 28px 20px; }
+  .cardtop { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .num { font-size:13px; font-weight:700; letter-spacing:.08em; }
+  .ratios { font-size:11px; opacity:1; font-family:'SF Mono', Consolas, 'DejaVu Sans Mono', monospace; }
+  .card h2 { font-size:30px; font-weight:700; line-height:1.15; }
+  .desc { font-size:13.5px; margin-top:6px; }
+  .swrow { display:flex; gap:12px; margin:18px 0 4px; }
+  .sw { flex:1; min-width:0; }
+  .chip { height:52px; border-radius:4px; }
+  .swname { font-size:11.5px; margin-top:6px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .swhex { font-size:11px; font-family:'SF Mono', Consolas, 'DejaVu Sans Mono', monospace; }
+  .typo { margin-top:16px; }
+  .typolabel { font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-top:10px; }
+  .typosample-h { font-size:24px; font-weight:700; margin-top:2px; }
+  .typosample-b { font-size:13.5px; line-height:1.55; margin-top:2px; }
+  .bestfor { margin-top:18px; padding-top:12px; font-size:12.5px; line-height:1.6; }
+  .bestfor .kr { font-size:12px; }
+  footer.page { margin-top:32px; font-size:12px; color:#5a5852; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>theme-factory — 10가지 사전 정의 테마</h1>
+    <div class="sub">
+      출처: <a href="https://github.com/anthropics/skills/tree/main/skills/theme-factory">anthropics/skills · skills/theme-factory</a>
+      (Apache-2.0) — 팔레트 hex·폰트 스펙은 공식 <code>themes/*.md</code> 원본 그대로.
+    </div>
+    <div class="note">
+      원본 theme-showcase.pdf는 일부 페이지의 텍스트 배색이 WCAG 대비 기준에 미달합니다
+      (예: Arctic Frost 제목 1.24:1, Tech Innovation 부제 1.25:1, Botanical 본문 1.80:1, Golden Hour 본문 2.58:1).
+      이 문서는 <strong>팔레트와 폰트는 그대로 두고 텍스트 배색만</strong> WCAG AA(본문 4.5:1, 제목 3.0:1 이상)로
+      재배치한 검증판입니다. 각 카드 우상단에 실측 대비율을 표기했습니다.
+    </div>
+  </header>
+  <div class="grid">
+<section class="card" style="background:#f1faee">
+  <div class="cardtop">
+    <span class="num" style="color:#2d8b8b;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">01</span>
+    <span class="ratios" style="color:#1a2332">제목 14.8:1 · 본문 14.8:1 — AA</span>
+  </div>
+  <h2 style="color:#1a2332;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Ocean Depths</h2>
+  <p class="desc" style="color:#1a2332;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">A professional and calming maritime theme</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#1a2332;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#1a2332">Deep Navy</div>
+  <div class="swhex" style="color:#1a2332">#1a2332</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#2d8b8b;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#1a2332">Teal</div>
+  <div class="swhex" style="color:#1a2332">#2d8b8b</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#a8dadc;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#1a2332">Seafoam</div>
+  <div class="swhex" style="color:#1a2332">#a8dadc</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#f1faee;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#1a2332">Cream</div>
+  <div class="swhex" style="color:#1a2332">#f1faee</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#1a2332">Headers — DejaVu Sans Bold</div>
+    <div class="typosample-h" style="color:#1a2332;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#1a2332">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#1a2332;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#1a2332;border-top:1px solid #1a233233">
+    <strong>Best for</strong>&nbsp; Corporate presentations, financial reports, professional consulting<br><span class="kr">기업 프레젠테이션 · 재무 보고서 · 컨설팅</span>
+  </div>
+</section>
+<section class="card" style="background:#264653">
+  <div class="cardtop">
+    <span class="num" style="color:#e76f51;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">02</span>
+    <span class="ratios" style="color:#e9c46a">제목 4.9:1 · 본문 6.0:1 — AA</span>
+  </div>
+  <h2 style="color:#f4a261;font-family:'DejaVu Serif', Georgia, 'Times New Roman', serif">Sunset Boulevard</h2>
+  <p class="desc" style="color:#e9c46a;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Warm and vibrant sunset colors</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#e76f51;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e9c46a">Burnt Orange</div>
+  <div class="swhex" style="color:#e9c46a">#e76f51</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#f4a261;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e9c46a">Coral</div>
+  <div class="swhex" style="color:#e9c46a">#f4a261</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#e9c46a;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e9c46a">Warm Sand</div>
+  <div class="swhex" style="color:#e9c46a">#e9c46a</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#264653;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e9c46a">Deep Purple</div>
+  <div class="swhex" style="color:#e9c46a">#264653</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#e9c46a">Headers — DejaVu Serif Bold</div>
+    <div class="typosample-h" style="color:#f4a261;font-family:'DejaVu Serif', Georgia, 'Times New Roman', serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#e9c46a">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#e9c46a;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#e9c46a;border-top:1px solid #e9c46a33">
+    <strong>Best for</strong>&nbsp; Creative pitches, marketing presentations, lifestyle brands<br><span class="kr">크리에이티브 피칭 · 마케팅 · 라이프스타일</span>
+  </div>
+</section>
+<section class="card" style="background:#faf9f6">
+  <div class="cardtop">
+    <span class="num" style="color:#7d8471;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">03</span>
+    <span class="ratios" style="color:#2d4a2b">제목 9.4:1 · 본문 9.4:1 — AA</span>
+  </div>
+  <h2 style="color:#2d4a2b;font-family:'FreeSerif', 'Times New Roman', Georgia, serif">Forest Canopy</h2>
+  <p class="desc" style="color:#2d4a2b;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Natural and grounded earth tones</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#2d4a2b;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#2d4a2b">Forest Green</div>
+  <div class="swhex" style="color:#2d4a2b">#2d4a2b</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#7d8471;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#2d4a2b">Sage</div>
+  <div class="swhex" style="color:#2d4a2b">#7d8471</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#a4ac86;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#2d4a2b">Olive</div>
+  <div class="swhex" style="color:#2d4a2b">#a4ac86</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#faf9f6;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#2d4a2b">Ivory</div>
+  <div class="swhex" style="color:#2d4a2b">#faf9f6</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#2d4a2b">Headers — FreeSerif Bold</div>
+    <div class="typosample-h" style="color:#2d4a2b;font-family:'FreeSerif', 'Times New Roman', Georgia, serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#2d4a2b">Body — FreeSans</div>
+    <p class="typosample-b" style="color:#2d4a2b;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#2d4a2b;border-top:1px solid #2d4a2b33">
+    <strong>Best for</strong>&nbsp; Environmental presentations, sustainability reports, wellness content<br><span class="kr">환경 · 지속가능성 · 웰니스</span>
+  </div>
+</section>
+<section class="card" style="background:#ffffff">
+  <div class="cardtop">
+    <span class="num" style="color:#708090;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">04</span>
+    <span class="ratios" style="color:#36454f">제목 9.9:1 · 본문 9.9:1 — AA</span>
+  </div>
+  <h2 style="color:#36454f;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Modern Minimalist</h2>
+  <p class="desc" style="color:#36454f;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Clean and contemporary grayscale</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#36454f;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#36454f">Charcoal</div>
+  <div class="swhex" style="color:#36454f">#36454f</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#708090;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#36454f">Slate Gray</div>
+  <div class="swhex" style="color:#36454f">#708090</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#d3d3d3;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#36454f">Light Gray</div>
+  <div class="swhex" style="color:#36454f">#d3d3d3</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#ffffff;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#36454f">White</div>
+  <div class="swhex" style="color:#36454f">#ffffff</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#36454f">Headers — DejaVu Sans Bold</div>
+    <div class="typosample-h" style="color:#36454f;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#36454f">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#36454f;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#36454f;border-top:1px solid #36454f33">
+    <strong>Best for</strong>&nbsp; Tech presentations, architecture portfolios, design showcases<br><span class="kr">테크 · 아키텍처 포트폴리오 · 데이터 시각화</span>
+  </div>
+</section>
+<section class="card" style="background:#4a403a">
+  <div class="cardtop">
+    <span class="num" style="color:#f4a900;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">05</span>
+    <span class="ratios" style="color:#d4b896">제목 5.0:1 · 본문 5.3:1 — AA</span>
+  </div>
+  <h2 style="color:#f4a900;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Golden Hour</h2>
+  <p class="desc" style="color:#d4b896;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Rich and warm autumnal palette</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#f4a900;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#d4b896">Mustard Yellow</div>
+  <div class="swhex" style="color:#d4b896">#f4a900</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#c1666b;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#d4b896">Terracotta</div>
+  <div class="swhex" style="color:#d4b896">#c1666b</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#d4b896;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#d4b896">Warm Beige</div>
+  <div class="swhex" style="color:#d4b896">#d4b896</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#4a403a;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#d4b896">Chocolate Brown</div>
+  <div class="swhex" style="color:#d4b896">#4a403a</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#d4b896">Headers — FreeSans Bold</div>
+    <div class="typosample-h" style="color:#f4a900;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#d4b896">Body — FreeSans</div>
+    <p class="typosample-b" style="color:#d4b896;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#d4b896;border-top:1px solid #d4b89633">
+    <strong>Best for</strong>&nbsp; Restaurant presentations, hospitality brands, artisan products<br><span class="kr">레스토랑 · 호스피탈리티 · 아티잔 브랜드</span>
+  </div>
+</section>
+<section class="card" style="background:#fafafa">
+  <div class="cardtop">
+    <span class="num" style="color:#4a6fa5;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">06</span>
+    <span class="ratios" style="color:#4a6fa5">제목 4.9:1 · 본문 4.9:1 — AA</span>
+  </div>
+  <h2 style="color:#4a6fa5;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Arctic Frost</h2>
+  <p class="desc" style="color:#4a6fa5;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Cool and crisp winter-inspired theme</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#d4e4f7;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#4a6fa5">Ice Blue</div>
+  <div class="swhex" style="color:#4a6fa5">#d4e4f7</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#4a6fa5;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#4a6fa5">Steel Blue</div>
+  <div class="swhex" style="color:#4a6fa5">#4a6fa5</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#c0c0c0;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#4a6fa5">Silver</div>
+  <div class="swhex" style="color:#4a6fa5">#c0c0c0</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#fafafa;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#4a6fa5">Crisp White</div>
+  <div class="swhex" style="color:#4a6fa5">#fafafa</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#4a6fa5">Headers — DejaVu Sans Bold</div>
+    <div class="typosample-h" style="color:#4a6fa5;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#4a6fa5">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#4a6fa5;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#4a6fa5;border-top:1px solid #4a6fa533">
+    <strong>Best for</strong>&nbsp; Healthcare presentations, technology solutions, clean tech<br><span class="kr">헬스케어 · 클린테크 · 제약</span>
+  </div>
+</section>
+<section class="card" style="background:#5d2e46">
+  <div class="cardtop">
+    <span class="num" style="color:#d4a5a5;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">07</span>
+    <span class="ratios" style="color:#e8d5c4">제목 5.0:1 · 본문 7.6:1 — AA</span>
+  </div>
+  <h2 style="color:#d4a5a5;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Desert Rose</h2>
+  <p class="desc" style="color:#e8d5c4;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Soft and sophisticated dusty tones</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#d4a5a5;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e8d5c4">Dusty Rose</div>
+  <div class="swhex" style="color:#e8d5c4">#d4a5a5</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#b87d6d;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e8d5c4">Clay</div>
+  <div class="swhex" style="color:#e8d5c4">#b87d6d</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#e8d5c4;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e8d5c4">Sand</div>
+  <div class="swhex" style="color:#e8d5c4">#e8d5c4</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#5d2e46;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e8d5c4">Deep Burgundy</div>
+  <div class="swhex" style="color:#e8d5c4">#5d2e46</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#e8d5c4">Headers — FreeSans Bold</div>
+    <div class="typosample-h" style="color:#d4a5a5;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#e8d5c4">Body — FreeSans</div>
+    <p class="typosample-b" style="color:#e8d5c4;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#e8d5c4;border-top:1px solid #e8d5c433">
+    <strong>Best for</strong>&nbsp; Fashion presentations, beauty brands, interior design<br><span class="kr">패션 · 뷰티 · 인테리어</span>
+  </div>
+</section>
+<section class="card" style="background:#1e1e1e">
+  <div class="cardtop">
+    <span class="num" style="color:#00ffff;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">08</span>
+    <span class="ratios" style="color:#ffffff">제목 16.7:1 · 본문 16.7:1 — AA</span>
+  </div>
+  <h2 style="color:#ffffff;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Tech Innovation</h2>
+  <p class="desc" style="color:#ffffff;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Bold and modern tech aesthetic</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#0066ff;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#ffffff">Electric Blue</div>
+  <div class="swhex" style="color:#ffffff">#0066ff</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#00ffff;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#ffffff">Neon Cyan</div>
+  <div class="swhex" style="color:#ffffff">#00ffff</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#1e1e1e;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#ffffff">Dark Gray</div>
+  <div class="swhex" style="color:#ffffff">#1e1e1e</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#ffffff;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#ffffff">White</div>
+  <div class="swhex" style="color:#ffffff">#ffffff</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#ffffff">Headers — DejaVu Sans Bold</div>
+    <div class="typosample-h" style="color:#ffffff;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#ffffff">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#ffffff;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#ffffff;border-top:1px solid #ffffff33">
+    <strong>Best for</strong>&nbsp; Tech startups, software launches, AI/ML presentations<br><span class="kr">스타트업 · AI/ML · 소프트웨어 런칭</span>
+  </div>
+</section>
+<section class="card" style="background:#f5f3ed">
+  <div class="cardtop">
+    <span class="num" style="color:#4a7c59;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">09</span>
+    <span class="ratios" style="color:#b7472a">제목 4.4:1 · 본문 4.8:1 — AA</span>
+  </div>
+  <h2 style="color:#4a7c59;font-family:'DejaVu Serif', Georgia, 'Times New Roman', serif">Botanical Garden</h2>
+  <p class="desc" style="color:#b7472a;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">Fresh and organic garden colors</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#4a7c59;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#b7472a">Fern Green</div>
+  <div class="swhex" style="color:#b7472a">#4a7c59</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#f9a620;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#b7472a">Marigold</div>
+  <div class="swhex" style="color:#b7472a">#f9a620</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#b7472a;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#b7472a">Terracotta</div>
+  <div class="swhex" style="color:#b7472a">#b7472a</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#f5f3ed;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#b7472a">Cream</div>
+  <div class="swhex" style="color:#b7472a">#f5f3ed</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#b7472a">Headers — DejaVu Serif Bold</div>
+    <div class="typosample-h" style="color:#4a7c59;font-family:'DejaVu Serif', Georgia, 'Times New Roman', serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#b7472a">Body — DejaVu Sans</div>
+    <p class="typosample-b" style="color:#b7472a;font-family:'DejaVu Sans', Verdana, 'Helvetica Neue', sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#b7472a;border-top:1px solid #b7472a33">
+    <strong>Best for</strong>&nbsp; Garden centers, food presentations, natural products<br><span class="kr">식음료 · 팜투테이블 · 내추럴 브랜드</span>
+  </div>
+</section>
+<section class="card" style="background:#2b1e3e">
+  <div class="cardtop">
+    <span class="num" style="color:#a490c2;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">10</span>
+    <span class="ratios" style="color:#e6e6fa">제목 12.6:1 · 본문 12.6:1 — AA</span>
+  </div>
+  <h2 style="color:#e6e6fa;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Midnight Galaxy</h2>
+  <p class="desc" style="color:#e6e6fa;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Dramatic and cosmic deep tones</p>
+  <div class="swrow">
+<div class="sw">
+  <div class="chip" style="background:#2b1e3e;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e6e6fa">Deep Purple</div>
+  <div class="swhex" style="color:#e6e6fa">#2b1e3e</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#4a4e8f;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e6e6fa">Cosmic Blue</div>
+  <div class="swhex" style="color:#e6e6fa">#4a4e8f</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#a490c2;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e6e6fa">Lavender</div>
+  <div class="swhex" style="color:#e6e6fa">#a490c2</div>
+</div>
+<div class="sw">
+  <div class="chip" style="background:#e6e6fa;border:1px solid rgba(0,0,0,.25)"></div>
+  <div class="swname" style="color:#e6e6fa">Silver</div>
+  <div class="swhex" style="color:#e6e6fa">#e6e6fa</div>
+</div>
+  </div>
+  <div class="typo">
+    <div class="typolabel" style="color:#e6e6fa">Headers — FreeSans Bold</div>
+    <div class="typosample-h" style="color:#e6e6fa;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">Sample Header Text</div>
+    <div class="typolabel" style="color:#e6e6fa">Body — FreeSans</div>
+    <p class="typosample-b" style="color:#e6e6fa;font-family:'FreeSans', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+      This is sample body text showing how your content will appear in presentations.
+    </p>
+  </div>
+  <div class="bestfor" style="color:#e6e6fa;border-top:1px solid #e6e6fa33">
+    <strong>Best for</strong>&nbsp; Entertainment industry, gaming presentations, luxury brands<br><span class="kr">엔터테인먼트 · 게임 · 럭셔리</span>
+  </div>
+</section>
+  </div>
+  <footer class="page">
+    폰트 표기: 테마 스펙의 DejaVu/Free 계열은 리눅스(PDF 생성 환경) 기본 폰트로, macOS·Windows에서는
+    Verdana·Georgia·Helvetica Neue·Times New Roman 등 유사 계열로 폴백됩니다.
+    대비율은 WCAG 2.1 상대 휘도 공식으로 산출.
+  </footer>
+</div>
+</body>
+</html>
