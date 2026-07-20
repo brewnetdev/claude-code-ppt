@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>Physical AI (Vision + Robot 제어) — 면접 대비 단계별 학습</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Physical AI(물리 세계를 인지·행동하는 embodied AI)를 정의·용어사전·인지-계획-제어 아키텍처·동작 원리(센서퓨전·imitation vs RL·VLA·sim2real)·베스트 프랙티스·면접 필수 개념·예상 질답까지 쉬움→필수 순으로 정리한 로보틱스/AI 엔지니어 면접 대비 학습 자료. π0·OpenVLA·RT-2·Open X-Embodiment·LeRobot 근거.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, 기술 용어·명령·다이어그램 라벨은 고정폭
+     JetBrains Mono로 분리해 "읽는 글"과 "코드/식별자"를 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:760px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 프롬프트/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  .qa { border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin:14px 0; }
+  .qa .q { font-weight:700; }
+  .qa .q::before { content:"Q. "; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; }
+  .qa .a { margin-top:8px; }
+  .qa .a::before { content:"A. "; font-family:'JetBrains Mono',monospace; color:var(--muted); font-weight:700; }
+
+  /* 용어 사전 표 — 약어/풀네임을 고정폭으로 강조 */
+  table.glossary td:first-child { font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap; }
+  table.glossary td:nth-child(2) { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  figure { margin:22px 0; border:1px solid var(--border); border-radius:8px; padding:20px; }
+  figure svg { display:block; width:100%; height:auto; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:12px; text-align:center; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table, figure { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Robotics Interview · Physical AI</div>
+    <h1>Physical AI — Perception · Planning · Control + VLA</h1>
+    <p class="lead">"Physical AI가 뭐냐"는 정의부터 <strong>용어 사전</strong>, 인지–계획–제어 아키텍처,
+       동작 원리(센서퓨전 · imitation vs RL · <strong>VLA</strong> · sim2real), 베스트 프랙티스,
+       면접 필수 개념, 예상 질답까지 <strong>쉬움 → 필수</strong> 순으로 쌓아 올린다.
+       로보틱스/AI 엔지니어 면접에서 실제로 찔리는 지점을 중심으로 정리했다.</p>
+    <p class="meta">기준: 2024~2026 embodied AI · VLA(π0 · OpenVLA · RT-2) · Open X-Embodiment · LeRobot · 불확실 항목은 본문에 표시</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>난이도순 목차</h2>
+      <ol>
+        <li><a href="#s0">Physical AI란? · 왜 지금인가</a></li>
+        <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
+        <li><a href="#s2">아키텍처 — Perception·Planning·Control 폐루프</a></li>
+        <li><a href="#s3">동작 원리 — 센서퓨전·학습·VLA·sim2real</a></li>
+        <li><a href="#s4">베스트 프랙티스</a></li>
+        <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
+        <li><a href="#s6">예상 질문 &amp; 답변</a></li>
+        <li><a href="#s7">참고자료</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">이 문서를 읽는 법</div>
+        <p>섹션마다 난이도 태그가 붙어 있다. <strong>00~01</strong>은 개념·용어 잡기(쉬움), <strong>02~04</strong>는 실무 원리(중간),
+           <strong>05~06</strong>은 면접 직전 정리(필수)다. 모르는 용어가 나오면 <strong>01 용어 사전</strong>으로 돌아가면 된다.
+           연구가 빠르게 움직이는 분야라, 수치·모델 세부는 <strong>2024~2026 공개 자료</strong> 기준이며 불확실한 값은 그 자리에 표시했다.</p>
+      </div>
+
+      <!-- 0 : 정의 & 왜 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>Physical AI란? · 왜 지금인가<span class="lvl">난이도 쉬움</span></h2>
+        <p><strong>Physical AI(피지컬 AI)</strong>는 <strong>embodied AI(체화 AI)</strong>와 같은 말로, 화면 속 텍스트·이미지에 머무는 AI가 아니라
+           <strong>카메라·센서로 물리 세계를 인지(perception)하고, 로봇 몸체(actuator)로 행동(action)해 세계의 상태를 바꾸는 AI</strong>를 가리킨다.
+           핵심은 <strong>인지 → 계획(planning) → 제어(control)</strong>가 실제 물체·중력·마찰·센서 노이즈·불확실성 위에서 <strong>폐루프(closed loop)</strong>로 도는 것이다.</p>
+
+        <p>왜 지금 뜨는가? <strong>LLM/VLM이 웹 스케일로 언어·시각의 상식과 의미를 학습</strong>했고, 이 사전학습 지식을 로봇 행동으로 잇는
+           <strong>VLA(Vision-Language-Action)</strong> 접근이 2023~2025에 등장했다(RT-2 · OpenVLA · π0). 여기에
+           <strong>대규모 로봇 데이터 공개(Open X-Embodiment)</strong>, <strong>오픈 스택(LeRobot)</strong>, 저가 하드웨어가 겹치며
+           "언어의 foundation model"을 "로봇의 foundation model"로 옮기려는 흐름이 만들어졌다.</p>
+
+        <table>
+          <thead><tr><th>기존 로봇 SW의 한계</th><th>Physical AI(foundation-model) 접근</th></tr></thead>
+          <tbody>
+            <tr><td>작업마다 규칙·모델을 따로 짬 → 물체·환경 하나 바뀌면 처음부터</td><td><strong>대규모·다양 데이터로 사전학습 후 적응</strong> — 범용 정책(policy)</td></tr>
+            <tr><td>상태기계·수작업 인지·플래닝 파이프라인을 손으로 조립</td><td><strong>end-to-end 학습 정책</strong> — 관측에서 행동까지 신경망이 사상</td></tr>
+            <tr><td>단일 로봇·단일 환경 전용 → 다른 로봇에 재사용 불가</td><td><strong>cross-embodiment 전이</strong> — 여러 로봇 데이터가 서로를 밀어줌</td></tr>
+            <tr><td>시각·언어 상식 없음 → "행주로 닦아"의 의미를 모름</td><td><strong>VLM 상식 상속</strong> — 물체 affordance·자연어 지시 이해</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">한 줄 정리</div>
+          <p>Physical AI = "웹에서 배운 <strong>VLM의 상식</strong>을, 로봇 데이터로 이어 붙여 <strong>물리 세계에서 인지·계획·제어를 폐루프로 수행</strong>하는 embodied AI."</p>
+        </div>
+      </section>
+
+      <!-- 1 : 용어 사전 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>용어 사전 — 풀네임과 의미<span class="lvl">난이도 쉬움</span></h2>
+        <p>이 분야는 로보틱스·제어·딥러닝 용어가 뒤섞인다. 아래 표는 <strong>용어 → 풀 네이밍 → 한 줄 의미</strong>로 정리했다.
+           나머지 섹션을 읽다 막히면 여기로 돌아오면 된다.</p>
+
+        <h3>개념 축 — 인지·계획·제어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>Physical AI</td><td>(= Embodied AI)</td><td>물리 세계를 인지하고 몸체로 행동해 상태를 바꾸는 AI. 화면 밖에서 동작.</td></tr>
+            <tr><td>Perception</td><td>인지</td><td>센서 raw 데이터 → 유의미한 상태(물체 위치·자세·장면)로 추정하는 단계.</td></tr>
+            <tr><td>Planning</td><td>계획</td><td>목표와 현재 상태로부터 <strong>행동 시퀀스·궤적</strong>을 결정. 학습 정책이 여기 위치.</td></tr>
+            <tr><td>Control</td><td>제어</td><td>계획된 행동을 actuator 명령으로 변환. 보통 고빈도 폐루프(PID·MPC 등).</td></tr>
+            <tr><td>Closed-loop</td><td>폐루프 (feedback control)</td><td>행동 결과를 다시 센싱해 보정하는 순환. 오차·외란에 강함(open-loop 반대).</td></tr>
+            <tr><td>DoF</td><td>Degrees of Freedom</td><td>자유도. 로봇팔 말단은 보통 6-DoF(위치 3 + 자세 3) + 그리퍼 1.</td></tr>
+            <tr><td>Manipulation</td><td>조작</td><td>물체를 집고 옮기고 조립하는 과제군. Physical AI 벤치마크의 중심.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>학습 · 정책 · 모델</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>Policy</td><td>정책 (π)</td><td>관측 → 행동으로 사상하는 함수 <code>π(a|o)</code>. 학습의 산출물.</td></tr>
+            <tr><td>Imitation Learning</td><td>모방 학습</td><td>전문가 <strong>시연 데이터</strong>로 정책을 지도학습. 대표 형태가 BC.</td></tr>
+            <tr><td>BC</td><td>Behavioral Cloning</td><td>관측→행동을 지도학습으로 직접 복제. 분포 밖에서 오차 누적에 취약.</td></tr>
+            <tr><td>RL</td><td>Reinforcement Learning</td><td>보상으로 시행착오 최적화. 시연 없이도 가능하나 표본 비효율·탐색 위험.</td></tr>
+            <tr><td>VLA</td><td>Vision-Language-Action</td><td>이미지 + 언어 지시 → <strong>로봇 행동을 직접 출력</strong>하는 모델(RT-2·OpenVLA·π0).</td></tr>
+            <tr><td>VLM</td><td>Vision-Language Model</td><td>이미지 + 텍스트 → 텍스트. VLA의 <strong>backbone</strong>(PaLI-X·PaliGemma·Llama+ViT).</td></tr>
+            <tr><td>Foundation model</td><td>(파운데이션 모델)</td><td>대규모 사전학습 후 다양한 하위 작업에 적응하는 범용 모델. "로봇 GPT"의 목표.</td></tr>
+            <tr><td>Action chunking</td><td>행동 청킹</td><td>한 스텝이 아니라 여러 미래 스텝을 <strong>한 번에</strong> 예측(ACT). 끊김·오차 누적 완화.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>물리 · 센싱 · 시뮬 이전</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>풀 네이밍</th><th>개념 · 의미</th></tr></thead>
+          <tbody>
+            <tr><td>Proprioception</td><td>고유수용감각</td><td>관절각·속도·토크 등 <strong>로봇 자신의 상태</strong> 센싱(외부 카메라와 별개).</td></tr>
+            <tr><td>End-effector</td><td>말단장치</td><td>로봇팔 끝의 그리퍼·손·툴. 제어·행동의 기준 프레임이 되는 지점.</td></tr>
+            <tr><td>Teleoperation</td><td>원격조작</td><td>사람이 로봇을 직접 조종. imitation용 <strong>시연 데이터</strong>를 모으는 주 수단.</td></tr>
+            <tr><td>Affordance</td><td>행동가능성</td><td>물체가 허용하는 행동(손잡이는 "잡기", 버튼은 "누르기"). VLM이 상속.</td></tr>
+            <tr><td>Sim2Real</td><td>Simulation-to-Real</td><td>시뮬레이션에서 학습한 정책을 실물로 이전. 그 격차가 <strong>reality gap</strong>.</td></tr>
+            <tr><td>Domain Randomization</td><td>도메인 랜덤화</td><td>시뮬의 텍스처·조명·물리 파라미터를 무작위화해 실물 일반화. sim2real 대표 기법.</td></tr>
+            <tr><td>Digital Twin</td><td>디지털 트윈</td><td>실물 로봇·환경의 물리 시뮬 복제본. 안전한 사전 학습·검증 공간.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2 : 아키텍처 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>아키텍처 — Perception · Planning · Control 폐루프<span class="lvl">난이도 중간</span></h2>
+        <p>Physical AI의 뼈대는 <strong>감지 → 인지 → 계획 → 제어 → 세계 → (피드백) → 감지</strong>로 도는 <strong>폐루프</strong>다.
+           고전 로보틱스는 이 세 단계를 <strong>분리된 모듈</strong>로 손수 조립했고, 최근 학습 정책은 여러 단계를 하나의 신경망으로 합친다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 300" role="img" aria-label="Physical AI perception-planning-control 폐루프 다이어그램">
+            <style>
+              .st{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .st-acc{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .tl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111}
+              .sub{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .lb{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .fl{stroke:#B45309;stroke-width:1.8;fill:none}
+            </style>
+            <defs><marker id="pa" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <rect class="st" x="15" y="46" width="150" height="58" rx="4"/>
+            <text class="tl" x="90" y="72" text-anchor="middle">센서 Sensing</text>
+            <text class="sub" x="90" y="92" text-anchor="middle">카메라·깊이·IMU·관절</text>
+
+            <rect class="st" x="195" y="46" width="150" height="58" rx="4"/>
+            <text class="tl" x="270" y="72" text-anchor="middle">인지 Perception</text>
+            <text class="sub" x="270" y="92" text-anchor="middle">물체·자세·상태 추정</text>
+
+            <rect class="st-acc" x="375" y="46" width="150" height="58" rx="4"/>
+            <text class="tl" x="450" y="72" text-anchor="middle" fill="#B45309">계획 Planning</text>
+            <text class="sub" x="450" y="92" text-anchor="middle">정책 π · 플래너</text>
+
+            <rect class="st" x="555" y="46" width="150" height="58" rx="4"/>
+            <text class="tl" x="630" y="72" text-anchor="middle">제어 Control</text>
+            <text class="sub" x="630" y="92" text-anchor="middle">actuator 명령·고빈도</text>
+
+            <line class="fl" x1="165" y1="75" x2="193" y2="75" marker-end="url(#pa)"/>
+            <line class="fl" x1="345" y1="75" x2="373" y2="75" marker-end="url(#pa)"/>
+            <line class="fl" x1="525" y1="75" x2="553" y2="75" marker-end="url(#pa)"/>
+
+            <line class="fl" x1="630" y1="104" x2="630" y2="196" marker-end="url(#pa)"/>
+
+            <rect x="15" y="200" width="690" height="46" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="lb" x="360" y="228" text-anchor="middle">로봇 · 액추에이터 → 물리 세계 (상태 변화)</text>
+
+            <line class="fl" x1="90" y1="200" x2="90" y2="106" marker-end="url(#pa)"/>
+            <text class="sub" x="100" y="150" fill="#B45309" font-size="12">피드백</text>
+            <text class="sub" x="100" y="168" fill="#B45309" font-size="12">새 관측</text>
+
+            <text class="sub" x="470" y="272" text-anchor="middle">학습 정책/VLA는 인지~계획을 하나로 합칠 수 있다 · 저수준 제어는 보통 별도</text>
+          </svg>
+          <figcaption>Physical AI 폐루프 — 감지·인지·계획·제어가 물리 세계를 돌며 피드백으로 보정한다.</figcaption>
+        </figure>
+
+        <ul>
+          <li><strong>Sensing(감지)</strong> — RGB 카메라·깊이(depth)·LiDAR·IMU·힘/토크 센서 + <strong>proprioception</strong>(관절 상태). raw 신호 계층.</li>
+          <li><strong>Perception(인지)</strong> — raw → 상태 추정. 물체 6-DoF pose, 자기 위치(localization), 장면 이해. 센서 퓨전이 여기서 일어난다.</li>
+          <li><strong>Planning(계획)</strong> — 목표 + 현재 상태 → 행동 시퀀스·궤적. 고전은 모션 플래너, 최근은 <strong>학습 정책 π / VLA</strong>가 담당.</li>
+          <li><strong>Control(제어)</strong> — 계획을 actuator 명령으로. 안정성·안전을 위해 보통 <strong>수백 Hz~kHz 저수준 제어기</strong>가 따로 돈다.</li>
+        </ul>
+
+        <div class="note">
+          <div class="t">면접 포인트 — 모듈러 vs end-to-end</div>
+          <p>고전 스택은 인지·플래너·제어기가 <strong>분리 모듈</strong>이라 디버깅·검증이 쉽지만 손수 조립·튜닝해야 한다.
+             <strong>end-to-end 학습 정책/VLA</strong>는 관측에서 행동까지 하나의 망으로 합쳐 상식·일반화를 얻지만, 내부가 불투명하고 데이터가 많이 든다.
+             현실은 <strong>혼합</strong>이다 — 상위(인지~계획)는 학습, 하위(안전·저수준 제어)는 결정적 제어기.</p>
+        </div>
+      </section>
+
+      <!-- 3 : 동작 원리 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>동작 원리 — 센서퓨전 · 학습 · VLA · sim2real<span class="lvl">난이도 중간</span></h2>
+
+        <h3>① 센서 퓨전과 인지</h3>
+        <p>단일 센서로는 세계를 다 못 본다. 카메라는 색·질감, 깊이/LiDAR는 거리, IMU는 자세·가속, proprioception은 자기 관절 상태를 준다.
+           <strong>센서 퓨전</strong>은 이들을 시간·좌표 정합해 하나의 상태 추정(물체 pose, 자기 위치)으로 묶는다. 학습형 인지는 이 융합을 신경망 인코더가 담당하기도 한다.</p>
+
+        <h3>② Imitation Learning vs RL</h3>
+        <p>정책을 학습하는 두 큰 길이다. 실무는 둘을 섞는 경우가 많다.</p>
+        <table>
+          <thead><tr><th>축</th><th>Imitation Learning (BC)</th><th>Reinforcement Learning</th></tr></thead>
+          <tbody>
+            <tr><td>학습 신호</td><td>전문가 <strong>시연</strong>(teleoperation)의 관측→행동</td><td><strong>보상</strong>과 시행착오</td></tr>
+            <tr><td>장점</td><td>안정·빠름 · 시연만 있으면 즉시 · 안전</td><td>시연 없이 최적화 · 시연을 넘어서는 행동 발견 가능</td></tr>
+            <tr><td>약점</td><td><strong>covariate shift</strong> — 분포 밖에서 오차가 누적(compounding error)</td><td>표본 비효율 · 보상 설계 난이도 · 실물 탐색 위험</td></tr>
+            <tr><td>주 무대</td><td>실물 데이터(ACT · Diffusion Policy · 대부분의 VLA)</td><td>주로 <strong>시뮬레이션</strong>, 실물은 미세조정에 제한적</td></tr>
+          </tbody>
+        </table>
+        <p>대표 조합은 <strong>imitation으로 사전학습 → 소량 RL/실물 미세조정</strong>이다. VLA 계열도 기본은 대규모 시연을 imitation으로 학습한다(불확실: 최신 모델은 RL 요소를 일부 섞기도 하며 세부는 모델마다 다르다).</p>
+
+        <h3>③ VLA — 멀티모달 입력에서 행동으로</h3>
+        <p><strong>VLA(Vision-Language-Action)</strong>는 웹에서 학습한 <strong>VLM backbone</strong> 위에 <strong>action head</strong>를 얹어,
+           이미지 + 자연어 지시(+ proprioception)를 받아 <strong>로봇 행동을 직접 출력</strong>한다. 행동을 표현하는 방식이 두 계열로 갈린다.</p>
+
+        <figure>
+          <svg viewBox="0 0 720 300" role="img" aria-label="VLA 모델 처리 파이프라인 다이어그램">
+            <style>
+              .ib{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .vb{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .sb{fill:#FFFFFF;stroke:#9CA3AF;stroke-width:1.2}
+              .ob{fill:#F3F4F6;stroke:#9CA3AF;stroke-width:1.2}
+              .t{font-family:'JetBrains Mono',monospace;font-size:12.5px;fill:#111}
+              .k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .s{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .a{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .fl{stroke:#B45309;stroke-width:1.6;fill:none}
+            </style>
+            <defs><marker id="va" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <text class="s" x="20" y="30">입력 (멀티모달)</text>
+            <rect class="ib" x="20" y="40" width="180" height="42" rx="4"/><text class="k" x="110" y="66" text-anchor="middle">카메라 이미지 RGB·Depth</text>
+            <rect class="ib" x="20" y="96" width="180" height="42" rx="4"/><text class="k" x="110" y="122" text-anchor="middle">언어 지시 (자연어)</text>
+            <rect class="ib" x="20" y="152" width="180" height="42" rx="4"/><text class="k" x="110" y="178" text-anchor="middle">관절 상태 proprioception</text>
+
+            <line class="fl" x1="200" y1="61" x2="240" y2="61"/>
+            <line class="fl" x1="200" y1="117" x2="240" y2="117"/>
+            <line class="fl" x1="200" y1="173" x2="240" y2="173"/>
+            <line class="fl" x1="240" y1="61" x2="240" y2="173"/>
+            <line class="fl" x1="240" y1="117" x2="268" y2="117" marker-end="url(#va)"/>
+
+            <rect class="vb" x="270" y="34" width="190" height="166" rx="5"/>
+            <text class="a" x="365" y="56" text-anchor="middle">VLA 모델</text>
+            <rect class="sb" x="286" y="70" width="158" height="52" rx="4"/><text class="t" x="365" y="90" text-anchor="middle">VLM backbone</text><text class="s" x="365" y="108" text-anchor="middle">vision + language 융합</text>
+            <rect class="sb" x="286" y="132" width="158" height="52" rx="4"/><text class="t" x="365" y="152" text-anchor="middle">action head</text><text class="s" x="365" y="170" text-anchor="middle">이산 토큰 | flow matching</text>
+
+            <rect class="ob" x="510" y="70" width="195" height="58" rx="4"/><text class="k" x="607" y="94" text-anchor="middle">행동 청크 action chunk</text><text class="s" x="607" y="114" text-anchor="middle">7-DoF × H스텝 (Δpose·grip)</text>
+            <line class="fl" x1="460" y1="99" x2="508" y2="99" marker-end="url(#va)"/>
+
+            <rect class="ib" x="510" y="150" width="195" height="42" rx="4"/><text class="k" x="607" y="176" text-anchor="middle">로봇 실행 → 폐루프</text>
+            <line class="fl" x1="607" y1="128" x2="607" y2="148" marker-end="url(#va)"/>
+
+            <rect x="20" y="216" width="685" height="66" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="s" x="32" y="238">모델 예 (backbone → 행동 표현)</text>
+            <text class="t" x="32" y="258">RT-2: PaLI-X 55B → 이산 토큰   ·   OpenVLA: Llama2-7B + DINOv2/SigLIP → 이산 토큰</text>
+            <text class="t" x="32" y="276">π0: PaliGemma 3B + action expert → flow matching (모터 명령 최대 50Hz)</text>
+          </svg>
+          <figcaption>VLA 파이프라인 — VLM이 멀티모달 입력을 인코딩하고, action head가 행동 청크를 출력한다.</figcaption>
+        </figure>
+
+        <ul>
+          <li><strong>이산 토큰(discrete token)</strong> — 행동을 텍스트 토큰처럼 이산화(예: 7-DoF를 각 256구간). VLM 어휘·구조를 그대로 재사용. <strong>RT-2</strong>(PaLI-X 55B)·<strong>OpenVLA</strong>(7B)가 이 계열. 큰 모델은 추론이 느릴 수 있다(RT-2-55B는 약 1~3Hz).</li>
+          <li><strong>연속 생성(flow matching / diffusion)</strong> — 노이즈에서 연속 행동 청크를 정제. <strong>π0</strong>는 PaliGemma VLM에 action expert를 붙여 flow matching으로 <strong>고빈도(최대 50Hz)·정교한(dexterous)</strong> 행동을 낸다.</li>
+          <li><strong>action chunking</strong> — 한 스텝이 아니라 여러 미래 스텝을 한 번에 예측해 끊김·오차 누적을 줄인다(ACT에서 대중화).</li>
+        </ul>
+
+        <h3>④ Sim2Real gap</h3>
+        <p>시뮬레이션은 값싸고 안전하며 데이터가 무한하지만, <strong>물리·렌더링·센서 노이즈가 실물과 달라</strong> 시뮬에서 잘 되던 정책이 실물에서 실패한다.
+           이 격차가 <strong>reality gap</strong>이다. 완화 기법:</p>
+        <ul>
+          <li><strong>Domain randomization</strong> — 텍스처·조명·마찰·질량 등 시뮬 파라미터를 무작위화해, 실물을 "또 하나의 변형"으로 보게 만든다.</li>
+          <li><strong>System identification</strong> — 실물 물리 파라미터를 측정해 시뮬을 실물에 맞춘다.</li>
+          <li><strong>Digital twin</strong> — 실물 환경의 정밀 복제본에서 사전 학습·검증.</li>
+          <li><strong>실물 미세조정</strong> — 시뮬 사전학습 정책을 소량의 실물 시연으로 보정.</li>
+        </ul>
+      </section>
+
+      <!-- 4 : 베스트 프랙티스 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <table>
+          <thead><tr><th>영역</th><th>Do</th><th>Don't</th></tr></thead>
+          <tbody>
+            <tr><td>데이터</td><td>다양·균형 잡힌 시연 수집 · teleop 품질 관리 · cross-embodiment 데이터 활용 · action chunking</td><td>단일 환경 소량 시연으로 일반화 기대 · 편향된 데모만 반복</td></tr>
+            <tr><td>학습</td><td>imitation으로 사전학습 → 소량 실물 미세조정 · 사전학습 VLM/VLA를 backbone으로 재사용</td><td>처음부터 실물 RL 탐색(느리고 위험) · 매번 밑바닥부터 학습</td></tr>
+            <tr><td>Sim2Real</td><td>domain randomization + 센서 노이즈 모델링 · 실물에서 최종 검증</td><td>시뮬 성공률만 믿고 실물 배포 · reality gap 무시</td></tr>
+            <tr><td>평가</td><td>실물 <strong>성공률</strong>과 분포 밖(OOD) 테스트 · 폐루프로 평가</td><td>오프라인 loss·시연 재현율만 보고 성능 단정</td></tr>
+            <tr><td>안전</td><td>속도·힘 제한과 비상정지를 <strong>저수준 결정적 제어기</strong>로 분리 · 안전 감시 별도</td><td>안전까지 학습 정책에 통째로 위임 · 힘 한계 없는 실물 실행</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5 : 면접 핵심 정리 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong>, 반드시 그릴 아키텍처 · 파고드는 추가 설명 · 정의할 핵심 용어 · 아는지 확인하는 체크리스트를 한 곳에 모았다.</p>
+
+        <h3>① 반드시 그리는 아키텍처</h3>
+        <p>"Physical AI 시스템을 그려봐"라고 하면 이 그림이다. 세 축이 핵심 — <strong>인지–정책(VLA)–제어 폐루프</strong>, 정책을 만드는 <strong>학습 방식(imitation vs RL)</strong>,
+           그 정책을 떠받치는 <strong>대규모 데이터·sim2real</strong>.</p>
+        <figure>
+          <svg viewBox="0 0 720 270" role="img" aria-label="Physical AI 면접 필수 아키텍처 요약">
+            <style>
+              .st{fill:#F8F7F4;stroke:#111;stroke-width:1.4}
+              .st-acc{fill:#FFFFFF;stroke:#B45309;stroke-width:2}
+              .tl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111}
+              .sub{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}
+              .k{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#111}
+              .t{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}
+              .a{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#B45309;font-weight:600}
+              .fl{stroke:#B45309;stroke-width:1.8;fill:none}
+            </style>
+            <defs><marker id="ma" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+
+            <line class="fl" x1="610" y1="40" x2="610" y2="22"/>
+            <line class="fl" x1="610" y1="22" x2="110" y2="22"/>
+            <line class="fl" x1="110" y1="22" x2="110" y2="38" marker-end="url(#ma)"/>
+            <text class="a" x="360" y="17" text-anchor="middle">피드백 폐루프 (closed loop)</text>
+
+            <rect class="st" x="30" y="40" width="160" height="54" rx="4"/>
+            <text class="tl" x="110" y="64" text-anchor="middle">인지 Perception</text>
+            <text class="sub" x="110" y="83" text-anchor="middle">상태 추정</text>
+
+            <rect class="st-acc" x="280" y="40" width="160" height="54" rx="4"/>
+            <text class="tl" x="360" y="64" text-anchor="middle" fill="#B45309">정책 π (VLA)</text>
+            <text class="sub" x="360" y="83" text-anchor="middle">관측 → 행동</text>
+
+            <rect class="st" x="530" y="40" width="160" height="54" rx="4"/>
+            <text class="tl" x="610" y="64" text-anchor="middle">제어 Control</text>
+            <text class="sub" x="610" y="83" text-anchor="middle">actuator</text>
+
+            <line class="fl" x1="190" y1="67" x2="278" y2="67" marker-end="url(#ma)"/>
+            <line class="fl" x1="440" y1="67" x2="528" y2="67" marker-end="url(#ma)"/>
+
+            <rect x="30" y="118" width="660" height="50" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/>
+            <text class="k" x="42" y="138">정책 학습 방식</text>
+            <text class="t" x="42" y="159">Imitation Learning: 전문가 시연 지도학습(BC)   |   RL: 보상 기반 시행착오</text>
+
+            <rect x="30" y="180" width="660" height="70" rx="4" fill="#F3F4F6" stroke="#E5E7EB"/>
+            <text class="k" x="42" y="200">데이터 · 이전 · 모델</text>
+            <text class="t" x="42" y="221">데이터: Open X-Embodiment (22 robots · 1M+ trajectories)   ·   sim2real: 도메인 랜덤화</text>
+            <text class="t" x="42" y="240">VLA 예: RT-2(55B·토큰) · OpenVLA(7B·오픈) · π0(flow matching·최대 50Hz)</text>
+          </svg>
+          <figcaption>면접 필수 요약 — 인지·정책·제어 폐루프 + 학습 방식 + 데이터/sim2real을 한 그림에.</figcaption>
+        </figure>
+
+        <h3>② 추가 설명 — 면접관이 파고드는 지점</h3>
+        <ul>
+          <li><strong>학습이 폐루프의 어디에 들어가나</strong> — 저수준 제어(모터 루프)는 결정적 제어기가 맡고, 학습 정책/VLA는 주로 <strong>인지~계획</strong>을 담당한다. end-to-end 정책은 인지~행동을 하나로 합치기도 한다.</li>
+          <li><strong>imitation은 왜 실패하나</strong> — 시연 분포를 벗어나면 오차가 다음 관측을 왜곡하고 다시 더 큰 오차를 부른다(covariate shift · compounding error). 그래서 데이터 다양성과 action chunking·소량 실물 보정이 중요하다.</li>
+          <li><strong>VLA의 두 행동 표현</strong> — 이산 토큰(RT-2·OpenVLA)은 VLM 구조를 그대로 재사용하나 큰 모델은 느릴 수 있고, flow matching/diffusion(π0)은 <strong>연속·고빈도·정교한</strong> 행동에 유리하다.</li>
+          <li><strong>왜 여러 로봇 데이터를 섞나</strong> — Open X-Embodiment처럼 22개 로봇·1M+ 궤적을 모으면 한 로봇의 경험이 다른 로봇을 밀어주는 <strong>positive transfer</strong>가 생긴다(RT-X가 실증).</li>
+          <li><strong>sim2real</strong> — reality gap의 원인(물리·렌더·노이즈 불일치)과 완화(domain randomization·system id·digital twin·실물 미세조정)를 한 문장으로 말할 수 있어야 한다.</li>
+        </ul>
+
+        <h3>③ 반드시 정의할 핵심 용어</h3>
+        <table class="glossary">
+          <thead><tr><th>용어</th><th>면접용 한 줄 정의</th></tr></thead>
+          <tbody>
+            <tr><td>Physical / Embodied AI</td><td>물리 세계를 인지하고 몸체로 행동해 상태를 바꾸는 AI.</td></tr>
+            <tr><td>Perception / Planning / Control</td><td>상태 추정 / 행동 결정 / actuator 명령. 폐루프로 순환.</td></tr>
+            <tr><td>Policy (π)</td><td>관측→행동 사상 함수. 학습의 산출물.</td></tr>
+            <tr><td>Imitation vs RL</td><td>시연 지도학습(BC) vs 보상 시행착오. 트레이드오프: covariate shift vs 표본 비효율.</td></tr>
+            <tr><td>VLA / VLM</td><td>이미지+언어→행동 모델 / 그 backbone(이미지+텍스트→텍스트).</td></tr>
+            <tr><td>Sim2Real</td><td>시뮬→실물 이전과 reality gap. 완화는 domain randomization.</td></tr>
+            <tr><td>proprioception / end-effector</td><td>로봇 자기 관절 상태 센싱 / 로봇팔 끝 그리퍼·툴.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>④ 반드시 아는 개념 체크리스트</h3>
+        <ol>
+          <li><strong>Physical AI 정의</strong> — 물리 세계를 인지·행동하는 embodied AI, 폐루프.</li>
+          <li><strong>Perception–Planning–Control</strong> — 세 단계와 피드백 순환, 학습이 어디에 들어가는지.</li>
+          <li><strong>Imitation vs RL</strong> — 시연 vs 보상, covariate shift vs 표본 비효율, 혼합 전략.</li>
+          <li><strong>VLA 개념</strong> — VLM backbone + action head, 이산 토큰 vs flow matching.</li>
+          <li><strong>VLM이 로봇에 주는 것</strong> — 시각·언어 상식, affordance, 자연어 지시 이해.</li>
+          <li><strong>Open X-Embodiment</strong> — 22 robots · 1M+ trajectories, cross-embodiment positive transfer.</li>
+          <li><strong>대표 모델</strong> — RT-2(55B·토큰) · OpenVLA(7B·오픈) · π0(flow matching·50Hz).</li>
+          <li><strong>Sim2Real</strong> — reality gap과 domain randomization·digital twin.</li>
+          <li><strong>핵심 물리 용어</strong> — action chunking · proprioception · end-effector · DoF.</li>
+          <li><strong>LeRobot</strong> — 오픈 스택(표준 데이터셋·사전학습 정책·저가 하드웨어 SO-100).</li>
+        </ol>
+      </section>
+
+      <!-- 6 : 예상 질문 & 답변 -->
+      <section id="s6">
+        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+
+        <div class="qa">
+          <div class="q">Physical AI는 기존 LLM/VLM과 무엇이 다른가?</div>
+          <div class="a">LLM/VLM은 텍스트·이미지라는 <strong>디지털 공간</strong>에서 입출력이 끝난다. Physical AI는 그 지식을 <strong>물리 세계의 행동</strong>으로 잇는다.
+             즉 카메라·센서로 인지하고, 정책이 행동을 계획하고, actuator로 제어해 <strong>세계의 상태를 실제로 바꾸며 그 결과를 피드백으로 다시 받는다</strong>(폐루프).
+             VLA가 그 다리로, 웹에서 배운 VLM의 상식을 로봇 행동 출력에 연결한다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Perception–Planning–Control 폐루프를 설명하고, 학습은 어디에 들어가나?</div>
+          <div class="a">감지 → 인지(상태 추정) → 계획(행동 결정) → 제어(actuator 명령) → 세계 변화 → 새 관측으로 돌아오는 순환이다.
+             <strong>저수준 제어</strong>는 안정성·안전 때문에 수백 Hz~kHz의 결정적 제어기가 맡고, <strong>학습 정책/VLA는 인지~계획</strong>을 담당한다.
+             end-to-end 정책은 인지~행동을 하나의 신경망으로 합칠 수도 있지만, 현실은 상위=학습·하위=제어의 혼합이 흔하다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Imitation Learning과 RL의 차이, 언제 무엇을 쓰나?</div>
+          <div class="a">Imitation(BC)은 <strong>전문가 시연</strong>을 관측→행동으로 지도학습한다. 안정·빠르지만 시연 분포를 벗어나면 오차가 누적된다(covariate shift · compounding error).
+             RL은 <strong>보상</strong>으로 시행착오해 시연 없이도, 때로는 시연을 넘어서는 행동을 찾지만 표본 비효율·보상 설계·실물 탐색 위험이 크다.
+             그래서 실물에선 <strong>imitation 사전학습 + 소량 RL/실물 미세조정</strong>이 흔하고, 순수 RL은 주로 시뮬에서 돌린다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">VLA 모델이 무엇이고, RT-2 · OpenVLA · π0는 어떻게 다른가?</div>
+          <div class="a">VLA는 이미지 + 언어 지시를 받아 <strong>로봇 행동을 직접 출력</strong>하는 모델이다.
+             <strong>RT-2</strong>(Google DeepMind, 2023)는 PaLI-X 55B VLM에서 행동을 <strong>이산 토큰</strong>으로 내며, 미학습 상황 성공률을 RT-1 대비 32%→62%로 올렸다(비공개 가중치).
+             <strong>OpenVLA</strong>(2024)는 7B 오픈 모델로 Llama2 + DINOv2/SigLIP을 쓰고, Open X-Embodiment 970k 궤적으로 학습해 <strong>7배 작은 크기로 RT-2-X(55B)를 능가</strong>했다.
+             <strong>π0</strong>(Physical Intelligence, 2024)는 PaliGemma에 action expert를 붙여 <strong>flow matching</strong>으로 최대 50Hz의 정교한 행동을 낸다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">π0가 이산 토큰 대신 flow matching을 쓰는 이유는?</div>
+          <div class="a">이산 토큰은 행동을 구간으로 쪼개 표현력이 제한되고, 큰 VLM에서 토큰을 하나씩 자기회귀로 뽑으면 느려 <strong>고빈도 정교한 제어</strong>에 불리하다(RT-2-55B는 약 1~3Hz).
+             π0는 diffusion 계열인 <strong>flow matching</strong>으로 노이즈에서 <strong>연속 행동 청크</strong>를 정제해, 접기·정리 같은 dexterous 작업을 <strong>최대 50Hz</strong>로 낸다.
+             한마디로 "연속·고빈도·정교함"을 위해 이산 토큰의 한계를 피한 설계다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">Sim2Real gap이 무엇이고 어떻게 줄이나?</div>
+          <div class="a">시뮬의 물리·렌더링·센서 노이즈가 실물과 달라, 시뮬에서 되던 정책이 실물에서 실패하는 격차가 <strong>reality gap</strong>이다.
+             완화는 <strong>domain randomization</strong>(텍스처·조명·마찰·질량 무작위화로 실물을 또 하나의 변형처럼 보게 함), <strong>system identification</strong>(실물 파라미터로 시뮬 보정),
+             <strong>digital twin</strong>(정밀 복제본에서 사전 검증), 그리고 <strong>소량 실물 미세조정</strong>이다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">여러 로봇의 데이터를 함께 쓰는 게 왜 중요한가(cross-embodiment)?</div>
+          <div class="a">로봇마다 데이터를 새로 모으는 비용이 크고, 한 로봇·환경 전용 정책은 재사용이 안 된다. <strong>Open X-Embodiment</strong>는 22개 로봇 · 1M+ 궤적 · 527 skills를
+             하나의 표준 형식으로 모아, 한 로봇의 경험이 다른 로봇 성능을 끌어올리는 <strong>positive transfer</strong>를 보였다(RT-1-X · RT-2-X).
+             이는 웹 스케일 데이터가 언어·비전 foundation model을 가능케 한 것과 같은 논리를 로봇에 적용한 것이다.</div>
+        </div>
+
+        <div class="qa">
+          <div class="q">저가 하드웨어로 Physical AI를 실습하려면? LeRobot은 무엇인가?</div>
+          <div class="a"><strong>LeRobot</strong>(Hugging Face)은 PyTorch 기반 오픈 로보틱스 스택이다. 표준 데이터셋 형식(LeRobotDataset),
+             사전학습 정책(ACT · Diffusion Policy · TD-MPC 등 imitation/RL 계열과 π0 · SmolVLA 등 VLA), 그리고 <strong>저가 로봇 하드웨어(SO-100/SO-101)</strong> 지원을 묶어
+             데이터 수집 → 학습 → 실물 배포를 한 파이프라인으로 낮춘다. 개인·소규모 팀의 실습 진입 장벽을 크게 낮춘 스택이다.</div>
+        </div>
+      </section>
+
+      <!-- 7 : 참고자료 -->
+      <section id="s7">
+        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식/권위</span></h2>
+        <ul>
+          <li><a class="link" href="https://www.pi.website/blog/pi0" target="_blank" rel="noopener">π0 — Our First Generalist Policy (Physical Intelligence)</a> · <a class="link" href="https://arxiv.org/abs/2410.24164" target="_blank" rel="noopener">논문 arXiv:2410.24164 (VLA Flow Model)</a></li>
+          <li><a class="link" href="https://openvla.github.io/" target="_blank" rel="noopener">OpenVLA — 7B 오픈 VLA (project page)</a> · <a class="link" href="https://arxiv.org/abs/2406.09246" target="_blank" rel="noopener">논문 arXiv:2406.09246</a></li>
+          <li><a class="link" href="https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/" target="_blank" rel="noopener">RT-2 — Google DeepMind 블로그</a> · <a class="link" href="https://arxiv.org/abs/2307.15818" target="_blank" rel="noopener">논문 arXiv:2307.15818</a></li>
+          <li><a class="link" href="https://robotics-transformer-x.github.io/" target="_blank" rel="noopener">Open X-Embodiment — 22 robots · 1M+ (project page)</a> · <a class="link" href="https://arxiv.org/abs/2310.08864" target="_blank" rel="noopener">논문 arXiv:2310.08864</a></li>
+          <li><a class="link" href="https://github.com/huggingface/lerobot" target="_blank" rel="noopener">LeRobot — Hugging Face 오픈 로보틱스 스택 (GitHub)</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        Physical AI (Vision + Robot 제어) 학습 자료 · 로보틱스/AI 엔지니어 면접 대비 시리즈 · 수치·모델 세부는 2024~2026 공개 자료 기준이며 출처는 07 참고자료 참조.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 목차 스크롤스파이 — 현재 화면의 섹션을 TOC에서 강조
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+
+  // 코드블록 복사 버튼
+  (function () {
+    document.querySelectorAll('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = '복사';
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+          btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+</script>
+
+</body>
+</html>
