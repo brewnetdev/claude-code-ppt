@@ -364,6 +364,124 @@
           <p>세 프로토콜을 "무엇이 더 낫냐"로 비교하면 함정이다. <strong>edge(디바이스) → backbone(서비스 간) → edge(브라우저)</strong>로 역할이 다르다고 답하고,
              실제 파이프라인에서 <strong>MQTT → Kafka → WebSocket</strong>으로 이어 붙는 예를 드는 것이 안전하다.</p>
         </div>
+
+        <h3>파이프라인 실측 — 샘플 메시지가 끝까지 갈 때 포맷·용량</h3>
+        <p>현장 압력 센서 텔레메트리 <strong>한 건</strong>이 브라우저까지 도달하는 경로를 실제 바이트로 추적한다.
+           애플리케이션 <strong>payload는 69 B JSON으로 고정</strong>이고, 각 프로토콜이 얹는 <strong>프레이밍 오버헤드만</strong> 달라진다.</p>
+        <pre><code>topic    sensors/factory-1/press-07/telemetry            <span class="c"># 36 B</span>
+QoS      1   (MQTT 5.0)
+payload  {"dev":"press-07","ts":1721563200000,"t":47.8,"vib":0.021,"st":"run"}   <span class="c"># 69 B</span></code></pre>
+
+        <figure>
+          <svg viewBox="0 0 720 336" role="img" aria-label="MQTT 샘플 메시지가 broker·Kafka·WebSocket을 거쳐 브라우저에 도달할 때 홉별 포맷과 바이트 용량">
+            <defs>
+              <marker id="pfArr" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+                <path d="M0,0 L9,4 L0,8 Z" fill="#6B7280"/>
+              </marker>
+            </defs>
+
+            <!-- 4 stage boxes -->
+            <!-- ① app -->
+            <rect x="12" y="44" width="150" height="78" rx="8" fill="#F8F7F4" stroke="#111" stroke-width="1.3"/>
+            <text x="87" y="66" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-size="13" font-weight="700" fill="#111">① 센서 앱</text>
+            <text x="87" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">JSON payload</text>
+            <text x="87" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="18" font-weight="700" fill="#B45309">69 B</text>
+            <!-- ② MQTT -->
+            <rect x="190" y="44" width="150" height="78" rx="8" fill="#FFFFFF" stroke="#111" stroke-width="1.3"/>
+            <text x="265" y="66" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-size="13" font-weight="700" fill="#111">② MQTT PUBLISH</text>
+            <text x="265" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">→ broker · QoS 1</text>
+            <text x="265" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="18" font-weight="700" fill="#B45309">112 B</text>
+            <!-- ③ Kafka -->
+            <rect x="368" y="44" width="150" height="78" rx="8" fill="#FFFFFF" stroke="#111" stroke-width="1.3"/>
+            <text x="443" y="66" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-size="13" font-weight="700" fill="#111">③ Kafka record</text>
+            <text x="443" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">broker → topic</text>
+            <text x="443" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="18" font-weight="700" fill="#B45309">95 B</text>
+            <!-- ④ WS -->
+            <rect x="546" y="44" width="162" height="78" rx="8" fill="#F8F7F4" stroke="#111" stroke-width="1.3"/>
+            <text x="627" y="66" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-size="13" font-weight="700" fill="#111">④ WebSocket</text>
+            <text x="627" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">→ 브라우저</text>
+            <text x="627" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="18" font-weight="700" fill="#B45309">71 B</text>
+
+            <!-- arrows -->
+            <line x1="162" y1="83" x2="188" y2="83" stroke="#6B7280" stroke-width="1.5" marker-end="url(#pfArr)"/>
+            <text x="175" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6B7280">pub</text>
+            <line x1="340" y1="83" x2="366" y2="83" stroke="#6B7280" stroke-width="1.5" marker-end="url(#pfArr)"/>
+            <text x="353" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6B7280">bridge</text>
+            <line x1="518" y1="83" x2="544" y2="83" stroke="#6B7280" stroke-width="1.5" marker-end="url(#pfArr)"/>
+            <text x="531" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6B7280">push</text>
+
+            <!-- byte bars: payload (fixed) + framing -->
+            <text x="12" y="156" font-family="'Noto Sans KR',sans-serif" font-size="12" font-weight="700" fill="#111">홉별 용량 — payload 69 B(고정) + 프로토콜 프레이밍</text>
+
+            <!-- ① 69 -->
+            <text x="12" y="185" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">① 앱</text>
+            <rect x="120" y="170" width="235" height="22" fill="#B45309"/>
+            <text x="363" y="185" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#111">69 B</text>
+            <!-- ② 112 = 69 + 43 -->
+            <text x="12" y="219" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">② MQTT</text>
+            <rect x="120" y="204" width="235" height="22" fill="#B45309"/>
+            <rect x="355" y="204" width="146" height="22" fill="#9CA3AF"/>
+            <text x="509" y="219" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#111">112 B</text>
+            <!-- ③ 95 = 69 + 26 -->
+            <text x="12" y="253" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">③ Kafka</text>
+            <rect x="120" y="238" width="235" height="22" fill="#B45309"/>
+            <rect x="355" y="238" width="88" height="22" fill="#9CA3AF"/>
+            <text x="451" y="253" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#111">95 B <tspan fill="#6B7280">(+배치헤더 61 B 공유)</tspan></text>
+            <!-- ④ 71 = 69 + 2 -->
+            <text x="12" y="287" font-family="'JetBrains Mono',monospace" font-size="11" fill="#6B7280">④ WS</text>
+            <rect x="120" y="272" width="235" height="22" fill="#B45309"/>
+            <rect x="355" y="272" width="7" height="22" fill="#9CA3AF"/>
+            <text x="370" y="287" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="600" fill="#111">71 B</text>
+
+            <!-- legend -->
+            <rect x="120" y="312" width="13" height="13" fill="#B45309"/>
+            <text x="139" y="323" font-family="'Noto Sans KR',sans-serif" font-size="11" fill="#374151">payload 69 B (고정)</text>
+            <rect x="290" y="312" width="13" height="13" fill="#9CA3AF"/>
+            <text x="309" y="323" font-family="'Noto Sans KR',sans-serif" font-size="11" fill="#374151">프로토콜 프레이밍 오버헤드</text>
+          </svg>
+          <figcaption>같은 69 B payload가 홉마다 다른 프레이밍을 입는다 — MQTT는 topic이 오버헤드를 지배(+43 B), Kafka record는 +26 B(배치헤더 61 B는 배치가 공유), WebSocket 서버→클라이언트 프레임은 +2 B.</figcaption>
+        </figure>
+
+        <table>
+          <thead>
+            <tr><th>홉</th><th>표현 형식 (구성 바이트)</th><th>프레이밍</th><th>총 바이트</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>① 센서 앱</td>
+              <td>JSON UTF-8 payload</td>
+              <td>—</td>
+              <td><code>69 B</code></td>
+            </tr>
+            <tr>
+              <td>② MQTT 5.0 PUBLISH · QoS 1</td>
+              <td>고정헤더 1 + Remaining Length 1 + Topic(2+36) + Packet ID 2 + Properties 1 + payload 69</td>
+              <td>+43 B</td>
+              <td><code>112 B</code></td>
+            </tr>
+            <tr>
+              <td>③ Kafka record v2</td>
+              <td>레코드길이 2 + attr 1 + ts/off delta 2 + key(1+8) + value(2+69) + header(1+9)</td>
+              <td>+26 B</td>
+              <td><code>95 B</code><br><span style="color:var(--muted)">+ RecordBatch 헤더 61 B(배치 공유) → 단건 배치 156 B</span></td>
+            </tr>
+            <tr>
+              <td>④ WebSocket 프레임<br>(서버→브라우저)</td>
+              <td>FIN/opcode 1 + MASK/len 1 + payload 69 <span style="color:var(--muted)">(서버→클라이언트는 마스킹 없음)</span></td>
+              <td>+2 B</td>
+              <td><code>71 B</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="t">용량 산정 주의 — L7 프레이밍만 vs 실제 회선</div>
+          <p>위 수치는 <strong>애플리케이션·프로토콜(L7) 프레이밍</strong>만 센 값이다. 실제 회선에는 세그먼트마다 전송계층이 더 붙는다:
+             <strong>IPv4 20 + TCP 20 = 40 B</strong>, TLS 1.3 AES-GCM 레코드 <strong>≈ 21 B</strong>(5 헤더 + 16 인증태그).</p>
+          <p>최적화 포인트: <strong>MQTT 오버헤드는 topic 길이가 지배</strong>(38/112 B) → topic을 짧게 하거나 <strong>MQTT 5 Topic Alias</strong>로 후속 PUBLISH에서 topic을 생략하면 급감한다.
+             <strong>Kafka 61 B 배치헤더는 배치 전체가 공유</strong> → 100건 배치면 레코드당 ≈ 95.6 B로 수렴(단건 전송이 156 B로 최악).
+             WebSocket은 <strong>서버→클라이언트가 언마스크(+2 B)</strong>, 반대 방향(클라이언트→서버)은 마스킹 키 +4 B.</p>
+        </div>
       </section>
 
       <!-- 3 : 동작 원리 -->
