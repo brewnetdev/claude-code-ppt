@@ -177,6 +177,13 @@
             <tr><td>replication</td><td>(복제)</td><td>데이터를 여러 노드에 복사(읽기 확장·가용성).</td></tr>
             <tr><td>sharding</td><td>partitioning</td><td>데이터를 키로 나눠 여러 노드에 분산.</td></tr>
             <tr><td>CDN</td><td>Content Delivery Network</td><td>엣지에 정적 자원을 캐시해 지연↓.</td></tr>
+            <tr><td>stateless</td><td>(무상태)</td><td>요청 간 서버에 상태를 두지 않음 → 어느 인스턴스로 보내도 동일 처리. 수평 확장의 전제.</td></tr>
+            <tr><td>primary / replica</td><td>(주/복제 노드)</td><td>쓰기는 primary, 읽기는 replica로 분산. primary 장애 시 replica를 승격(failover).</td></tr>
+            <tr><td>L4 / L7</td><td>Transport / Application Layer (OSI 4·7)</td><td>L4=TCP/IP 기반 분산, L7=HTTP 헤더·경로 기반의 더 정교한 분산.</td></tr>
+            <tr><td>hotspot</td><td>(핫스팟)</td><td>특정 샤드·키에 부하가 몰리는 현상. 샤딩 키를 고르게 잡아 방지.</td></tr>
+            <tr><td>resharding</td><td>(리샤딩)</td><td>샤드 수·키 전략을 바꿔 데이터를 재분배. 비용이 커 초기 키 선택이 중요.</td></tr>
+            <tr><td>CP / AP</td><td>Consistency+Partition / Availability+Partition</td><td>CAP 분류. 분할 시 CP=일관성 우선(결제), AP=가용성 우선(피드).</td></tr>
+            <tr><td>saga</td><td>(사가 패턴)</td><td>분산 트랜잭션을 로컬 트랜잭션+보상 트랜잭션의 연쇄로 처리해 정합성을 유지.</td></tr>
           </tbody>
         </table>
         <h3>회복탄력성 · 운영</h3>
@@ -192,6 +199,15 @@
             <tr><td>SLA / SLO / SLI</td><td>Agreement / Objective / Indicator</td><td>약속 / 목표치 / 실제 측정 지표.</td></tr>
             <tr><td>SPOF</td><td>Single Point Of Failure</td><td>하나 죽으면 전체가 죽는 지점. 설계로 제거 대상.</td></tr>
             <tr><td>MSA</td><td>Microservice Architecture</td><td>독립 배포 가능한 작은 서비스들로 분해.</td></tr>
+            <tr><td>AZ</td><td>Availability Zone</td><td>클라우드 리전 내 물리적으로 격리된 데이터센터 구획. 다중 AZ로 단일 시설 장애를 견딤.</td></tr>
+            <tr><td>health check</td><td>(헬스체크)</td><td>인스턴스 정상 여부를 주기적으로 점검. LB가 비정상 노드를 자동으로 제외.</td></tr>
+            <tr><td>jitter</td><td>(지터)</td><td>백오프 대기에 무작위 편차를 더해 재시도가 한 시점에 몰리지 않게 분산.</td></tr>
+            <tr><td>thundering herd</td><td>(재시도 폭풍)</td><td>다수 클라이언트가 동시에 재시도해 대상을 다시 무너뜨리는 현상. 백오프+지터로 완화.</td></tr>
+            <tr><td>token bucket</td><td>(토큰 버킷)</td><td>일정 속도로 채워지는 토큰만큼만 요청을 허용하는 rate limiting 알고리즘.</td></tr>
+            <tr><td>fallback</td><td>(대체 응답)</td><td>의존성 실패 시 캐시·기본값 등으로 대체 응답을 반환해 사용성을 유지.</td></tr>
+            <tr><td>graceful degradation</td><td>(점진적 기능 저하)</td><td>일부 장애 시 전체 중단 대신 핵심 기능만 유지하며 부드럽게 축소.</td></tr>
+            <tr><td>observability</td><td>(관측성)</td><td>로그·메트릭·트레이스로 시스템 내부 상태를 밖에서 추론 가능하게 함.</td></tr>
+            <tr><td>distributed monolith</td><td>(분산 모놀리스)</td><td>서비스로 쪼갰으나 강결합돼 독립 배포가 안 되는 안티패턴. MSA의 최악 실패.</td></tr>
           </tbody>
         </table>
       </section>

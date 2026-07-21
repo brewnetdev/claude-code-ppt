@@ -197,6 +197,10 @@
             <tr><td>lineage</td><td>(계보 · provenance)</td><td>운영 모델 → 학습에 쓴 <strong>코드 커밋·데이터 버전·하이퍼파라미터</strong>로 역추적하는 연결. 감사·재현의 근거.</td></tr>
             <tr><td>versioning</td><td>data / model / code</td><td><strong>3중 버전</strong> — 코드=Git, 데이터=DVC 등, 모델=registry. 셋을 묶어야 특정 모델을 재현할 수 있다.</td></tr>
             <tr><td>reproducibility</td><td>(재현성)</td><td>같은 입력(데이터·코드·환경) → <strong>같은 산출물</strong>. 컨테이너·시드 고정·의존성 pin으로 확보.</td></tr>
+            <tr><td>DVC</td><td>Data Version Control</td><td>데이터·모델 파일을 Git처럼 버전 관리하는 오픈소스 도구. 대용량 파일은 원격 스토리지에 두고 Git에는 포인터만 커밋해 <strong>데이터 버전</strong>을 코드 커밋과 묶는다.</td></tr>
+            <tr><td>point-in-time</td><td>(시점 기준 조회)</td><td>학습 레이블 시각 <strong>이전</strong>의 feature 값만 조인해 미래 정보가 새는 것(label leakage)을 막는 feature store 조회 방식.</td></tr>
+            <tr><td>MLflow</td><td>(ML 라이프사이클 플랫폼)</td><td>experiment tracking + model registry를 제공하는 오픈소스 도구. 파라미터·메트릭·아티팩트 로깅과 alias 기반 승격을 담당.</td></tr>
+            <tr><td>Feast</td><td>Feature Store</td><td>오픈소스 feature store. online/offline 저장을 통일하고 point-in-time 조회로 training-serving skew를 완화.</td></tr>
           </tbody>
         </table>
 
@@ -209,6 +213,11 @@
             <tr><td>CT</td><td>Continuous Training</td><td><strong>ML 고유</strong>. 신규 데이터·drift·성능 저하·스케줄을 트리거로 <strong>자동 재학습·재배포</strong>. DevOps엔 없는 축.</td></tr>
             <tr><td>pipeline</td><td>(ML 파이프라인)</td><td>데이터 준비 → 학습 → 평가 → 등록 → 배포를 잇는 자동 실행 그래프(예: Kubeflow Pipelines).</td></tr>
             <tr><td>maturity level</td><td>MLOps L0 / L1 / L2</td><td>Google 기준 — L0 수동, L1 학습 파이프라인 자동화(CT), L2 CI/CD 파이프라인 자동화.</td></tr>
+            <tr><td>MLOps</td><td>Machine Learning Operations</td><td><strong>ML + DevOps + Data Engineering</strong>을 합친 실무 규율. 코드·데이터·모델을 함께 버전·테스트·배포하고 배포 후 drift를 감지해 재학습(CT)하는 닫힌 루프로 운영.</td></tr>
+            <tr><td>CI/CD</td><td>Continuous Integration / Continuous Delivery</td><td>변경을 자동 검증·통합(CI)하고 자동 배포(CD)하는 DevOps 관행. MLOps에선 데이터·모델 검증과 파이프라인 배포까지 확장되고 CT가 더해진다.</td></tr>
+            <tr><td>Kubeflow</td><td>(Kubernetes 기반 ML 플랫폼)</td><td>Kubernetes 위에서 ML 파이프라인·하이퍼파라미터 튜닝(Katib)·서빙(KServe)을 실행하는 오픈소스 도구.</td></tr>
+            <tr><td>K8s</td><td>Kubernetes</td><td>컨테이너 오케스트레이션 플랫폼. ML 파이프라인·서빙 워크로드의 배포·스케일링·복구를 자동화한다(K + 8글자 + s 축약).</td></tr>
+            <tr><td>RFC</td><td>Request for Comments</td><td>변경·설계 제안을 공개 논의하는 문서 형식. 예: MLflow의 model registry stages deprecation RFC.</td></tr>
           </tbody>
         </table>
 
@@ -226,6 +235,15 @@
             <tr><td>concept drift</td><td>(개념 드리프트)</td><td><strong>입력→출력 관계 자체</strong>가 변함. 입력 분포는 같아도 정답이 달라짐. 예: 소비 트렌드 변화로 선호 매핑이 바뀜.</td></tr>
             <tr><td>training-serving skew</td><td>(학습-서빙 편향)</td><td>학습 때 feature와 서빙 때 feature가 <strong>다르게 계산</strong>돼 생기는 성능 저하. feature store가 완화.</td></tr>
             <tr><td>rollback</td><td>(롤백)</td><td>문제 발생 시 <strong>이전 model version을 다시 champion으로 재승격</strong>. registry 덕에 코드 변경 없이 무중단.</td></tr>
+            <tr><td>A/B test</td><td>(A/B 테스트 · split test)</td><td>트래픽을 두 변형으로 나눠 <strong>비즈니스 지표를 통계 검정</strong>으로 비교. 어느 모델이 실제 성과가 나은지 판정.</td></tr>
+            <tr><td>REST</td><td>Representational State Transfer</td><td>HTTP 기반 API 스타일. online serving에서 요청/응답으로 실시간 예측을 주고받는 대표 인터페이스.</td></tr>
+            <tr><td>gRPC</td><td>gRPC Remote Procedure Call</td><td>HTTP/2 + Protocol Buffers 기반의 고성능 RPC 프레임워크. 저지연·고처리량 online serving에 REST 대안으로 쓰인다.</td></tr>
+            <tr><td>blast radius</td><td>(영향 반경)</td><td>배포 사고가 번지는 범위. canary·shadow는 신규 버전 노출을 좁혀 이 반경을 최소화한다.</td></tr>
+            <tr><td>PSI</td><td>Population Stability Index</td><td>학습 분포 대비 현재 입력 분포의 이동량을 하나의 수치로 요약. data drift 탐지 임계값으로 흔히 쓴다(예: 0.2↑ 경고).</td></tr>
+            <tr><td>KS test</td><td>Kolmogorov–Smirnov test</td><td>두 표본의 누적분포 최대 격차로 분포 차이를 검정. 연속형 feature의 data drift 탐지에 사용.</td></tr>
+            <tr><td>DDM</td><td>Drift Detection Method</td><td>스트림의 <strong>오류율 증가</strong>를 감시해 concept drift를 경보하는 온라인 탐지 알고리즘.</td></tr>
+            <tr><td>ADWIN</td><td>ADaptive WINdowing</td><td>가변 크기 윈도의 통계가 달라지면 오래된 데이터를 잘라내 concept drift를 감지하는 알고리즘.</td></tr>
+            <tr><td>Evidently</td><td>(오픈소스 ML 모니터링)</td><td>데이터 품질·data/concept drift 리포트와 대시보드를 생성하는 오픈소스 도구.</td></tr>
           </tbody>
         </table>
       </section>
