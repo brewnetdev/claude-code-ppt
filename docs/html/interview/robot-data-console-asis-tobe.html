@@ -358,6 +358,20 @@
             <tr><td>multimodal</td><td>multi-modal</td><td>이미지·포인트클라우드·시계열·관절각 등 이종(異種) 데이터의 혼합.</td></tr>
             <tr><td>teleop</td><td>teleoperation</td><td>원격 조작. 사람이 로봇을 직접 조종해 imitation 학습용 <strong>시연 데이터</strong>를 모으는 주 수단.</td></tr>
             <tr><td>VLA</td><td>Vision-Language-Action model</td><td>관측(비전+언어)에서 행동까지 신경망이 사상하는 end-to-end 정책 모델(예: π0 · OpenVLA · RT-2).</td></tr>
+            <tr><td>imitation</td><td>imitation learning (모방 학습)</td><td>사람의 시연(teleop 데이터)을 그대로 따라 하도록 정책을 학습시키는 방식. VLA 학습의 주된 데이터 원천이다.</td></tr>
+            <tr><td>실시간 제어 루프</td><td>real-time control loop</td><td>센서 입력 → 계산 → 액추에이터 출력을 정해진 주기 안에 반복하는 저지연 루프. 마감시간을 놓치면 제어가 깨지므로 C++로 유지한다.</td></tr>
+            <tr><td>토폴로지</td><td>topology</td><td>노드·링크가 연결된 망의 구조. DDS는 완전 P2P, Zenoh는 router 경유 — 같은 pub/sub라도 노드 연결 방식(토폴로지)이 달라 장애·확장 특성이 갈린다.</td></tr>
+            <tr><td>discovery</td><td>node discovery</td><td>분산 노드가 서로의 존재·주소를 자동으로 찾는 과정. DDS는 UDP 멀티캐스트 P2P, Zenoh는 router의 gossip으로 발견 — 이 방식이 네트워크 부하(오버헤드)를 좌우한다.</td></tr>
+            <tr><td>WAN · NAT</td><td>Wide Area Network / NAT</td><td>WAN=원거리 광역망, NAT=사설 IP를 공인 IP로 변환하는 것. 방화벽·NAT 뒤의 로봇과 통신하려면 전송 계층이 이를 통과해야 하며, Zenoh가 강점을 갖는 지점이다.</td></tr>
+            <tr><td>직렬화</td><td>serialization</td><td>메모리 상의 객체를 바이트열로 바꿔 파일·네트워크로 옮기는 것. MCAP는 특정 직렬화(Protobuf·ROS·JSON)에 얽매이지 않는 "직렬화 불가지론"이라 포맷을 가리지 않는다.</td></tr>
+            <tr><td>스키마</td><td>schema</td><td>메시지·데이터의 필드 구조·타입 정의. 기록에 스키마가 함께 저장돼야 나중에 커스텀 타입을 원형대로 되살릴 수 있다(.db3는 이를 안 담아 재생이 어렵다).</td></tr>
+            <tr><td>데이터레이크</td><td>data lake</td><td>정형·비정형 데이터를 원본 그대로 대량 축적하는 저장 아키텍처. 범용 데이터레이크는 "이 시간구간 카메라 프레임만" 같은 선택적 조회에 최적화돼 있지 않다.</td></tr>
+            <tr><td>선택적 슬라이스</td><td>selective slicing</td><td>전체를 읽지 않고 특정 센서·시간 구간만 잘라 읽는 접근. 인덱스·컬럼 청크가 있어야 저렴하며, MCAP·RRD가 이를 위해 진화했다.</td></tr>
+            <tr><td>파티션</td><td>partition</td><td>데이터를 키·범위로 나눈 조각. Kafka는 파티션으로 수평 확장하고, RRD는 entity별 파티션으로 부분 읽기를 빠르게 한다.</td></tr>
+            <tr><td>락인</td><td>lock-in</td><td>특정 포맷·벤더에 묶여 이탈 비용이 커지는 상태. MCAP·RRD·LeRobot은 서로 읽고 상호 변환돼 락인 위험이 낮다.</td></tr>
+            <tr><td>롱테일 I/O</td><td>long-tail I/O</td><td>대부분 빠르지만 드물게 크게 지연되는 파일 입출력의 꼬리 지연. 제어 루프가 이 지연에 물리지 않게 기록 write를 별도 스레드로 분리한다.</td></tr>
+            <tr><td>이벤트 백본</td><td>event backbone</td><td>여러 시스템이 이벤트를 주고받는 중앙 스트리밍 축. Kafka·Redpanda·NATS가 담당하나, 단순 아카이브면 MCAP+오브젝트 스토리지 직행이 더 간단하다.</td></tr>
+            <tr><td>PoC</td><td>Proof of Concept</td><td>도입 전 핵심 가정(레이턴시·discovery 부하 등)을 소규모로 실측 검증하는 것. Zenoh처럼 되돌리기 어려운 결정 전에 필수다.</td></tr>
           </tbody>
         </table>
 
@@ -398,6 +412,10 @@
             <tr><td>zstd / lz4</td><td>Zstandard / LZ4</td><td>무손실 압축 알고리즘. zstd=높은 압축률, lz4=초고속. MCAP가 per-chunk로 내장.</td></tr>
             <tr><td>Redpanda</td><td>Redpanda</td><td>Kafka 프로토콜 호환 스트리밍 플랫폼. C++ 구현·JVM 없음 → Kafka 드롭인 경량 대안.</td></tr>
             <tr><td>NATS JetStream</td><td>NATS JetStream</td><td>단일 바이너리 경량 메시징 + 영속 스트림. Kafka보다 운영이 단순.</td></tr>
+            <tr><td>오브젝트 스토리지</td><td>object storage</td><td>파일을 폴더 계층 대신 키-값 객체로 저장하는 방식(평면 네임스페이스). S3·MinIO가 대표이며 TB급 로봇 데이터의 사실상 표준 저장 계층.</td></tr>
+            <tr><td>컬럼형 저장</td><td>columnar storage</td><td>행이 아니라 열 단위로 데이터를 저장하는 방식. 필요한 컬럼(관절각 등)만 골라 읽어 배치 로딩·부분조회가 빠르다. Parquet·Lance가 이 방식.</td></tr>
+            <tr><td>append-only</td><td>append-only</td><td>기존 데이터를 고치지 않고 뒤에 덧붙이기만 하는 기록 방식. 순차 쓰기가 빠르고 기록 중 손상 위험이 낮아 MCAP가 채택했다.</td></tr>
+            <tr><td>큐레이션</td><td>curation</td><td>수집된 대량 데이터에서 학습에 쓸 부분을 골라내고 정리·검색하는 작업. LanceDB가 SQL로 frames·episodes를 큐레이션한다.</td></tr>
           </tbody>
         </table>
       </section>

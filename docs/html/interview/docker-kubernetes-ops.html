@@ -182,6 +182,8 @@
             <tr><td>VM</td><td>Virtual Machine</td><td>하이퍼바이저 위에 게스트 OS 전체를 띄우는 가상머신. 컨테이너보다 격리는 강하나 무겁다.</td></tr>
             <tr><td>namespace(Linux)</td><td>Linux Namespace</td><td>PID·네트워크·마운트 등 프로세스가 보는 범위를 격리하는 커널 기능(컨테이너 격리의 근간). K8s Namespace와 별개.</td></tr>
             <tr><td>cgroup</td><td>Control Groups</td><td>CPU·메모리 등 자원 사용량을 제한·계량하는 커널 기능.</td></tr>
+            <tr><td>하이퍼바이저</td><td>Hypervisor</td><td>물리 하드웨어 위에서 여러 게스트 OS(가상머신)를 만들고 격리·실행하는 가상화 계층. VM은 그 위에 OS 전체를 올리므로 컨테이너보다 무겁다.</td></tr>
+            <tr><td>공격면</td><td>Attack Surface</td><td>공격자가 침투를 시도할 수 있는 진입점(설치된 패키지·셸·열린 포트 등)의 총합. 슬림 베이스·멀티스테이지로 불필요한 구성요소를 줄이면 공격면이 작아진다.</td></tr>
           </tbody>
         </table>
         <h3>Kubernetes 오브젝트</h3>
@@ -211,6 +213,12 @@
             <tr><td>affinity / taint</td><td>(스케줄 제약)</td><td>affinity=선호 배치 규칙, taint/toleration=특정 노드 배제·허용.</td></tr>
             <tr><td>maxSurge / maxUnavailable</td><td>(롤링 파라미터)</td><td>롤링 업데이트 중 초과 생성 허용치 / 동시 불가용 허용치.</td></tr>
             <tr><td>RBAC</td><td>Role-Based Access Control</td><td>역할 기반 접근제어. 최소 권한으로 API 작업 권한을 부여.</td></tr>
+            <tr><td>롤링 업데이트</td><td>Rolling Update</td><td>옛 버전 Pod를 조금씩 줄이고 새 버전을 조금씩 늘려 무중단으로 교체하는 배포 방식. 문제 시 이전 리비전으로 롤백할 수 있다.</td></tr>
+            <tr><td>무중단 배포</td><td>Zero-downtime Deployment</td><td>서비스 중단 없이 새 버전으로 교체하는 배포. K8s는 롤링 업데이트와 readiness 프로브로 이를 기본 제공한다.</td></tr>
+            <tr><td>오토스케일링</td><td>Autoscaling</td><td>부하 지표(CPU·메모리 등)에 따라 Pod 수(또는 노드 수)를 자동으로 늘리고 줄이는 것. Pod 수 조절은 HPA가 담당한다.</td></tr>
+            <tr><td>무상태 / 상태</td><td>Stateless / Stateful</td><td>무상태=요청 간 로컬 데이터를 보관하지 않아 아무 복제본이나 교체 가능(Deployment). 상태=고유 식별자·순서·영속 볼륨이 필요(StatefulSet, DB 등).</td></tr>
+            <tr><td>노이지 네이버</td><td>Noisy Neighbor</td><td>한 컨테이너가 자원(CPU·메모리)을 과점해 같은 노드의 다른 컨테이너 성능을 떨어뜨리는 현상. requests/limits로 방지한다.</td></tr>
+            <tr><td>네트워크 정책</td><td>Network Policy</td><td>Pod 간·네임스페이스 간 트래픽을 허용/차단하는 K8s 방화벽 규칙. 기본은 전체 허용이라 명시적으로 제한해 격리한다.</td></tr>
           </tbody>
         </table>
         <h3>컨트롤 플레인 구성요소</h3>
@@ -230,6 +238,10 @@
             <tr><td>KV</td><td>Key-Value</td><td>키-값 저장 방식. etcd가 분산 KV 저장소로 클러스터 상태를 보관.</td></tr>
             <tr><td>desired / actual state</td><td>(선언 / 실제 상태)</td><td>사용자가 선언한 목표 상태 / 클러스터의 현재 상태. 둘의 차이를 컨트롤러가 조정.</td></tr>
             <tr><td>reconcile loop</td><td>(조정 루프)</td><td>desired와 actual을 계속 비교·수렴시키는 컨트롤러 동작 = 자가 치유의 핵심.</td></tr>
+            <tr><td>오케스트레이션</td><td>Orchestration</td><td>다수 컨테이너의 배치·확장·네트워킹·복구를 자동으로 조율·관리하는 것. Kubernetes가 대표적인 컨테이너 오케스트레이터다.</td></tr>
+            <tr><td>선언형 / 명령형</td><td>Declarative / Imperative</td><td>선언형=원하는 최종 상태를 기술하면 시스템이 알아서 맞춘다(K8s 매니페스트). 명령형=수행할 절차를 하나씩 지시한다. 선언형은 조정 루프 덕에 장애에 강하다.</td></tr>
+            <tr><td>자가 치유</td><td>Self-healing</td><td>노드·Pod 장애로 실제 상태가 원하는 상태에서 벗어나면 조정 루프가 자동으로 재생성·복구하는 성질.</td></tr>
+            <tr><td>스케줄링</td><td>Scheduling</td><td>새 Pod를 어느 노드에서 실행할지 리소스 여유·affinity·taint 등 제약을 따져 결정하는 과정. scheduler가 수행한다.</td></tr>
           </tbody>
         </table>
       </section>

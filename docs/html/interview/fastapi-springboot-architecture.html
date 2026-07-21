@@ -213,6 +213,11 @@
             <tr><td>Jackson</td><td>(약어 아님)</td><td>Spring이 기본으로 쓰는 Java JSON 직렬화·역직렬화 라이브러리. 응답 객체를 JSON으로 변환한다.</td></tr>
             <tr><td>path operation</td><td>(약어 아님)</td><td>FastAPI에서 HTTP 메서드+경로에 함수를 매핑한 라우트 단위(데코레이터). Spring의 <code>@RestController</code> 핸들러에 대응.</td></tr>
             <tr><td>Depends()</td><td>(약어 아님)</td><td>FastAPI의 의존성 주입 장치. DB 세션·인증 등을 함수 시그니처로 주입한다. Spring 컨테이너 DI의 경량판.</td></tr>
+            <tr><td>라우팅</td><td>routing</td><td>HTTP 메서드+URL 경로를 실행할 핸들러 함수에 연결하는 과정. FastAPI는 데코레이터, Spring은 HandlerMapping이 담당한다.</td></tr>
+            <tr><td>미들웨어</td><td>middleware</td><td>요청·응답이 핸들러에 닿기 전후로 통과하는 공통 처리 계층(인증·로깅·CORS 등). FastAPI/Starlette는 미들웨어 체인으로, Spring은 필터·인터셉터로 구현.</td></tr>
+            <tr><td>Front Controller</td><td>(디자인 패턴)</td><td>모든 요청을 단일 진입점이 먼저 받아 알맞은 핸들러로 분배하는 패턴. Spring MVC의 DispatcherServlet이 대표 구현이다.</td></tr>
+            <tr><td>직렬화</td><td>serialization</td><td>메모리 상의 객체를 JSON 등 전송 가능한 형태로 바꾸는 변환(반대는 역직렬화). 응답 생성은 직렬화, 요청 본문 파싱은 역직렬화다.</td></tr>
+            <tr><td>타입 힌트</td><td>type hint</td><td>파이썬 변수·인자·반환값에 예상 타입을 명시하는 문법(PEP 484). FastAPI는 이 힌트를 읽어 검증·직렬화·문서를 자동화한다.</td></tr>
           </tbody>
         </table>
 
@@ -232,6 +237,8 @@
             <tr><td>JDK</td><td>Java Development Kit</td><td>컴파일러·JVM·표준 라이브러리를 묶은 Java 개발 키트. virtual threads는 JDK 21부터 정식.</td></tr>
             <tr><td>JEP</td><td>JDK Enhancement Proposal</td><td>JDK에 기능을 도입하기 위한 공식 제안 문서. virtual threads는 JEP 444.</td></tr>
             <tr><td>LTS</td><td>Long-Term Support</td><td>장기 지원 릴리스. Java는 17·21·25가 LTS로 프로덕션 기준선이 된다.</td></tr>
+            <tr><td>어노테이션</td><td>annotation</td><td>클래스·메서드·필드에 메타데이터를 붙이는 <code>@</code> 표기. Spring은 이를 읽어 Bean 등록·주입·트랜잭션 경계를 결정한다.</td></tr>
+            <tr><td>프록시</td><td>proxy</td><td>원본 객체를 감싸 호출 전후에 부가 동작(트랜잭션·보안 등)을 끼워 넣는 대리 객체. Spring AOP가 <code>@Transactional</code>을 프록시로 구현한다.</td></tr>
           </tbody>
         </table>
 
@@ -259,6 +266,12 @@
             <tr><td>I/O</td><td>Input/Output</td><td>네트워크·디스크·DB 등 입출력 작업. 대기 시간이 길어 동시성 모델의 핵심 변수가 된다.</td></tr>
             <tr><td>CPU 바운드</td><td>CPU-bound (Central Processing Unit)</td><td>연산이 병목인 작업. async·virtual thread로는 못 풀고 멀티프로세스(병렬)로 오프로딩한다.</td></tr>
             <tr><td>DB</td><td>Database</td><td>데이터베이스. 두 스택 모두 최종 계층에서 공유하는 영속 저장소(PostgreSQL·MySQL 등).</td></tr>
+            <tr><td>블로킹 / 논블로킹</td><td>blocking / non-blocking</td><td>블로킹=I/O가 끝날 때까지 호출 스레드가 멈춰 대기, 논블로킹=대기 없이 제어를 돌려받아 그 사이 다른 일을 처리. 두 프레임워크 동시성 모델을 가르는 핵심 축.</td></tr>
+            <tr><td>동시성 / 병렬성</td><td>concurrency / parallelism</td><td>동시성=여러 작업을 번갈아 진행(대기 시간 겹치기), 병렬성=여러 작업을 물리적으로 동시에 실행(멀티코어). async·GIL은 동시성이지 병렬성이 아니다.</td></tr>
+            <tr><td>스레드 풀</td><td>thread pool</td><td>미리 만들어 둔 스레드 집합을 재사용해 요청을 처리하는 구조. Tomcat 기본 200개로, 모두 블록되면 이후 요청은 큐에 쌓이거나 거절된다.</td></tr>
+            <tr><td>커넥션 풀</td><td>connection pool</td><td>DB 연결을 미리 열어 두고 재사용하는 풀. virtual threads로 스레드 상한이 사라지면 이 풀 크기가 새 병목이 된다.</td></tr>
+            <tr><td>캐리어 스레드</td><td>carrier thread</td><td>virtual thread를 실제로 실행하는 OS 플랫폼 스레드. virtual thread가 I/O로 블록되면 캐리어에서 unmount돼 다른 virtual thread가 올라탄다.</td></tr>
+            <tr><td>리액티브</td><td>reactive</td><td>데이터를 스트림으로 보고 논블로킹·이벤트 기반으로 처리하며 backpressure로 흐름을 조절하는 프로그래밍 패러다임. Spring WebFlux가 대표.</td></tr>
           </tbody>
         </table>
       </section>

@@ -201,6 +201,11 @@
             <tr><td>point-in-time</td><td>(시점 기준 조회)</td><td>학습 레이블 시각 <strong>이전</strong>의 feature 값만 조인해 미래 정보가 새는 것(label leakage)을 막는 feature store 조회 방식.</td></tr>
             <tr><td>MLflow</td><td>(ML 라이프사이클 플랫폼)</td><td>experiment tracking + model registry를 제공하는 오픈소스 도구. 파라미터·메트릭·아티팩트 로깅과 alias 기반 승격을 담당.</td></tr>
             <tr><td>Feast</td><td>Feature Store</td><td>오픈소스 feature store. online/offline 저장을 통일하고 point-in-time 조회로 training-serving skew를 완화.</td></tr>
+            <tr><td>feature</td><td>(피처 · 특성)</td><td>모델 입력으로 쓰는 개별 변수·속성. 원시 데이터에서 계산·가공해 만든다. 학습·서빙이 <strong>같은 정의를 공유</strong>해야 skew가 안 생긴다.</td></tr>
+            <tr><td>labeling</td><td>(레이블링 · 데이터 주석)</td><td>학습에 필요한 <strong>정답(label)</strong>을 데이터에 붙이는 작업. concept drift로 정답 정의가 바뀌면 레이블 재수집이 필요하다.</td></tr>
+            <tr><td>hyperparameter</td><td>(하이퍼파라미터)</td><td>학습 <strong>전에 사람이 정하는 설정값</strong>(학습률·트리 깊이 등). 재현하려면 코드·데이터와 함께 기록해야 한다.</td></tr>
+            <tr><td>holdout</td><td>(홀드아웃 · 검증셋)</td><td>학습에 쓰지 않고 떼어 둔 <strong>평가용 데이터</strong>. 이 데이터의 오프라인 지표로 승격 게이트를 판정한다.</td></tr>
+            <tr><td>label leakage</td><td>(레이블 누수 · target leakage)</td><td>학습 때 <strong>미래·정답 정보가 feature에 섞여</strong> 오프라인 성능만 부풀려지는 현상. point-in-time 조회로 막는다.</td></tr>
           </tbody>
         </table>
 
@@ -244,6 +249,7 @@
             <tr><td>DDM</td><td>Drift Detection Method</td><td>스트림의 <strong>오류율 증가</strong>를 감시해 concept drift를 경보하는 온라인 탐지 알고리즘.</td></tr>
             <tr><td>ADWIN</td><td>ADaptive WINdowing</td><td>가변 크기 윈도의 통계가 달라지면 오래된 데이터를 잘라내 concept drift를 감지하는 알고리즘.</td></tr>
             <tr><td>Evidently</td><td>(오픈소스 ML 모니터링)</td><td>데이터 품질·data/concept drift 리포트와 대시보드를 생성하는 오픈소스 도구.</td></tr>
+            <tr><td>proxy metric</td><td>(대리 지표)</td><td>진짜 정답(label)이 <strong>지연 도착</strong>할 때 대신 보는 근사 지표. 정답을 즉시 못 얻는 상황에서 실시간 성능 감시에 쓴다.</td></tr>
           </tbody>
         </table>
       </section>

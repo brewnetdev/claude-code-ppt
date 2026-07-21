@@ -188,6 +188,14 @@
             <tr><td>connection pool</td><td>(커넥션 풀)</td><td>DB 연결 재사용(PgBouncer 등). 연결 폭주 방지.</td></tr>
             <tr><td>PgBouncer</td><td>(경량 커넥션 풀러)</td><td>PostgreSQL 앞단의 커넥션 풀 프록시. 연결 수립 비용과 연결 수 폭주를 줄임.</td></tr>
             <tr><td>N+1</td><td>(N+1 쿼리)</td><td>목록 1 + 항목마다 1 쿼리 → 조인/일괄로 제거.</td></tr>
+            <tr><td>atomicity</td><td>Atomicity (원자성)</td><td>트랜잭션이 전부 반영되거나 전부 취소되는(all-or-nothing) 성질. 중간 상태로 남지 않음. ACID의 A.</td></tr>
+            <tr><td>snapshot</td><td>(스냅샷)</td><td>특정 시점의 일관된 데이터 뷰. MVCC에서 각 트랜잭션은 자기 스냅샷을 읽어 진행 중인 다른 변경을 보지 않는다.</td></tr>
+            <tr><td>dead tuple</td><td>(죽은 튜플)</td><td>갱신·삭제로 더 이상 보이지 않지만 물리적으로 남은 옛 행 버전. VACUUM이 회수하지 않으면 bloat의 원인.</td></tr>
+            <tr><td>bloat</td><td>(테이블/인덱스 부풂)</td><td>죽은 튜플이 회수되지 않아 실제 데이터보다 파일이 부푸는 현상. 조회 성능·용량에 악영향.</td></tr>
+            <tr><td>selectivity</td><td>(선택도)</td><td>조건이 전체 행 중 얼마나 좁은 비율만 남기는지의 척도. 낮으면(저선택도) 인덱스 효과가 떨어진다.</td></tr>
+            <tr><td>covering index</td><td>(커버링 인덱스)</td><td>쿼리에 필요한 컬럼을 인덱스만으로 모두 제공해 테이블 본체 접근(heap fetch)을 생략하는 인덱스.</td></tr>
+            <tr><td>정규화 / 역정규화</td><td>normalization / denormalization</td><td>중복을 제거해 정합성을 높이는 설계(정규화) vs 조회 성능을 위해 의도적으로 중복을 허용하는 설계(역정규화).</td></tr>
+            <tr><td>source of truth</td><td>(단일 진실 소스)</td><td>어떤 데이터의 정본이 되는 유일한 저장소. 값이 갈릴 때 기준으로 삼는다(여기선 PostgreSQL).</td></tr>
           </tbody>
         </table>
         <h3>Redis · 캐시</h3>
@@ -211,6 +219,12 @@
             <tr><td>Sentinel</td><td>(센티널)</td><td>Redis 마스터 장애를 감지해 자동 failover(승격)를 수행하는 고가용성 관리 프로세스.</td></tr>
             <tr><td>Cluster</td><td>(클러스터)</td><td>키를 여러 노드에 해시 슬롯으로 분산하는 Redis 내장 샤딩·수평 확장 방식.</td></tr>
             <tr><td>sharding</td><td>(샤딩)</td><td>데이터를 키 기준으로 여러 노드에 분할 저장해 용량·처리량을 수평 확장.</td></tr>
+            <tr><td>cache invalidation</td><td>(캐시 무효화)</td><td>원본이 바뀌었을 때 캐시의 낡은 값을 지우거나 갱신하는 일. 순서·실패 처리가 까다로워 대표적 난제로 꼽힌다.</td></tr>
+            <tr><td>hot key</td><td>(핫키 · 인기 키)</td><td>트래픽이 유난히 몰리는 소수의 키. 동시 만료·노드 쏠림 시 스탬피드·부하 집중의 원인.</td></tr>
+            <tr><td>stale</td><td>(스테일 · 낡은 값)</td><td>원본이 이미 바뀌어 더 이상 최신이 아닌 캐시 값. 무효화 지연·실패로 남는다.</td></tr>
+            <tr><td>mutex</td><td>mutual exclusion (뮤텍스)</td><td>한 번에 하나의 작업만 임계 구역에 들이는 잠금. 스탬피드 방지에서 재계산을 한 요청만 하도록 제한.</td></tr>
+            <tr><td>jitter</td><td>(지터)</td><td>TTL에 무작위 편차를 더해 여러 키가 동시에 만료되지 않게 흩뜨리는 기법. 스탬피드 완화.</td></tr>
+            <tr><td>failover</td><td>(페일오버)</td><td>마스터 장애 시 복제본을 자동 승격해 서비스를 이어가는 전환. Sentinel/Cluster가 수행.</td></tr>
           </tbody>
         </table>
       </section>

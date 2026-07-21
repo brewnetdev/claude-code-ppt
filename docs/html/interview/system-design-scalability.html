@@ -184,6 +184,10 @@
             <tr><td>resharding</td><td>(리샤딩)</td><td>샤드 수·키 전략을 바꿔 데이터를 재분배. 비용이 커 초기 키 선택이 중요.</td></tr>
             <tr><td>CP / AP</td><td>Consistency+Partition / Availability+Partition</td><td>CAP 분류. 분할 시 CP=일관성 우선(결제), AP=가용성 우선(피드).</td></tr>
             <tr><td>saga</td><td>(사가 패턴)</td><td>분산 트랜잭션을 로컬 트랜잭션+보상 트랜잭션의 연쇄로 처리해 정합성을 유지.</td></tr>
+            <tr><td>정합성</td><td>(data integrity)</td><td>여러 데이터·복제본이 서로 모순 없이 맞아떨어지는 상태. 일관성(consistency)이 복제본 간 최신성이라면, 정합성은 데이터 규칙·관계가 깨지지 않음에 방점을 둔다.</td></tr>
+            <tr><td>분산 트랜잭션</td><td>distributed transaction</td><td>여러 서비스·DB에 걸친 작업을 하나의 원자적 단위로 처리하는 것. 2PC는 느리고 취약해 MSA에선 saga(보상 트랜잭션)로 대체하는 경우가 많다.</td></tr>
+            <tr><td>크로스 샤드 조인</td><td>cross-shard join</td><td>서로 다른 샤드에 흩어진 데이터를 조인하는 것. 네트워크 왕복이 늘어 느리므로 샤딩 키를 조회 패턴에 맞춰 피하는 게 좋다.</td></tr>
+            <tr><td>엣지</td><td>edge (location)</td><td>사용자와 지리적으로 가까운 말단 서버 위치. CDN이 여기에 콘텐츠를 캐시해 왕복 거리를 줄여 지연을 낮춘다.</td></tr>
           </tbody>
         </table>
         <h3>회복탄력성 · 운영</h3>
@@ -208,6 +212,8 @@
             <tr><td>graceful degradation</td><td>(점진적 기능 저하)</td><td>일부 장애 시 전체 중단 대신 핵심 기능만 유지하며 부드럽게 축소.</td></tr>
             <tr><td>observability</td><td>(관측성)</td><td>로그·메트릭·트레이스로 시스템 내부 상태를 밖에서 추론 가능하게 함.</td></tr>
             <tr><td>distributed monolith</td><td>(분산 모놀리스)</td><td>서비스로 쪼갰으나 강결합돼 독립 배포가 안 되는 안티패턴. MSA의 최악 실패.</td></tr>
+            <tr><td>연쇄 장애</td><td>cascading failure</td><td>한 구성요소의 장애가 호출 사슬을 타고 다른 부분까지 연쇄적으로 무너뜨리는 현상. circuit breaker·bulkhead로 격리해 막는다.</td></tr>
+            <tr><td>도메인 경계</td><td>bounded context</td><td>서비스를 나누는 기준이 되는 업무 도메인의 경계. 경계가 모호하면 서비스가 강결합돼 분산 모놀리스가 된다.</td></tr>
           </tbody>
         </table>
       </section>

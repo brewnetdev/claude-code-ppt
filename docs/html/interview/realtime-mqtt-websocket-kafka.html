@@ -194,6 +194,13 @@
             <tr><td>TLS</td><td>Transport Layer Security</td><td>전송 구간 암호화·인증 표준. MQTT 8883, WebSocket <code>wss://</code>, Kafka 보안 연결의 토대.</td></tr>
             <tr><td>HTTP</td><td>HyperText Transfer Protocol</td><td>웹 요청/응답 프로토콜. WebSocket은 이 위에서 Upgrade 핸드셰이크로 시작하고, 폴링·SSE도 HTTP 기반.</td></tr>
             <tr><td>API</td><td>Application Programming Interface</td><td>소프트웨어 구성요소 간 호출 규약. 본문의 "topic을 API처럼 설계", "브라우저 WebSocket API" 등에서 지칭.</td></tr>
+            <tr><td>topology</td><td>(토폴로지)</td><td>노드들이 어떻게 연결·배치되는지의 구조. broker 스타형·점대점 지속 연결·분산 로그처럼 세 프로토콜의 연결 형태를 가르는 축.</td></tr>
+            <tr><td>fan-out</td><td>(팬아웃)</td><td>하나의 메시지가 여러 구독자·소비자에게 동시에 갈라져 퍼지는 것. broker가 topic 구독자 전원에게 복제 전달하는 동작.</td></tr>
+            <tr><td>payload</td><td>(페이로드)</td><td>프로토콜 헤더를 뺀, 실제로 실어 나르는 애플리케이션 데이터 본문. 위 파이프라인 예의 69 B JSON이 payload다.</td></tr>
+            <tr><td>framing</td><td>(프레이밍)</td><td>payload를 전송 단위로 감싸며 길이·플래그 등 헤더를 붙이는 것. 그만큼 붙는 여분 바이트가 프레이밍 오버헤드다.</td></tr>
+            <tr><td>star / point-to-point</td><td>(스타형 / 점대점)</td><td>중앙 broker에 모두 연결되는 성형(MQTT) vs 두 끝점만 직접 잇는 형태(WebSocket). 대표적 연결 토폴로지 구분.</td></tr>
+            <tr><td>idempotent</td><td>(멱등)</td><td>같은 연산을 여러 번 적용해도 결과가 한 번 한 것과 같은 성질. 재시도·중복 수신에도 상태가 어긋나지 않아 전달 보장 설계의 핵심.</td></tr>
+            <tr><td>edge / backbone</td><td>(엣지 / 백본)</td><td>시스템 가장자리(디바이스·브라우저 쪽)가 edge, 서비스와 서비스를 잇는 중심 간선이 backbone. 세 프로토콜의 역할 계층을 가르는 축.</td></tr>
           </tbody>
         </table>
 
@@ -212,6 +219,8 @@
             <tr><td>MQTT</td><td>MQ Telemetry Transport</td><td>경량 pub/sub 메시징 프로토콜. 원래 IBM MQSeries의 MQ에서 유래한 약어였으나 OASIS 5.0부터 공식적으로는 약어가 아닌 고유 명칭으로 정의됨.</td></tr>
             <tr><td>OASIS</td><td>Organization for the Advancement of Structured Information Standards</td><td>MQTT 5.0 명세를 관리·발행하는 국제 표준화 기구.</td></tr>
             <tr><td>IoT</td><td>Internet of Things</td><td>센서·액추에이터 등 다수 디바이스가 네트워크로 연결되는 사물인터넷. MQTT의 대표 적용 영역.</td></tr>
+            <tr><td>telemetry</td><td>(텔레메트리)</td><td>원격 디바이스가 센서 측정값·상태를 주기적으로 수집·전송하는 데이터. MQTT가 실어 나르는 대표 트래픽 유형.</td></tr>
+            <tr><td>Topic Alias</td><td>MQTT 5.0</td><td>긴 topic 문자열을 짧은 정수 별칭으로 대체하는 기능. 첫 PUBLISH에서 매핑한 뒤 후속 메시지는 topic을 생략해 오버헤드를 줄인다.</td></tr>
           </tbody>
         </table>
 
@@ -237,6 +246,9 @@
             <tr><td>SSE</td><td>Server-Sent Events</td><td>HTTP 위 서버→클라이언트 <strong>단방향</strong> 푸시. 양방향이 불필요하면 WebSocket보다 가벼운 대안.</td></tr>
             <tr><td>Origin</td><td>HTTP Origin header</td><td>요청 출처(scheme+host+port)를 알리는 헤더. 핸드셰이크 단계에서 교차 출처 접속 검증에 사용.</td></tr>
             <tr><td>NAT</td><td>Network Address Translation</td><td>사설↔공인 IP 주소 변환. 유휴 매핑 만료가 조용한 TCP 절단을 유발 → ping/pong으로 감지.</td></tr>
+            <tr><td>persistent connection</td><td>(지속 연결)</td><td>요청마다 새로 열지 않고 한 번 맺은 TCP 연결을 끊지 않은 채 계속 열어 양방향으로 재사용하는 방식.</td></tr>
+            <tr><td>polling</td><td>(폴링)</td><td>클라이언트가 주기적으로 반복 요청해 새 데이터가 있는지 확인하는 방식. 지연·오버헤드가 커 지속 연결과 대비된다.</td></tr>
+            <tr><td>backoff</td><td>exponential backoff</td><td>재연결 실패 시 대기 시간을 지수적으로 늘려 재시도하는 전략. 서버 복구 중 재접속 폭주를 막는다.</td></tr>
           </tbody>
         </table>
 
@@ -264,6 +276,10 @@
             <tr><td>EOS</td><td>Exactly-Once Semantics</td><td>멱등 producer + 트랜잭션 + <code>read_committed</code>로 read-process-write를 정확히 1회 처리하는 보장.</td></tr>
             <tr><td>tombstone</td><td>(툼스톤)</td><td>value가 null인 메시지. log compaction에서 해당 key를 삭제하라는 표식.</td></tr>
             <tr><td>ZooKeeper</td><td>Apache ZooKeeper</td><td>구버전 Kafka의 메타데이터·리더 선출을 담당하던 분산 코디네이션 서비스. Kafka 4.0에서 KRaft로 완전 대체.</td></tr>
+            <tr><td>commit log</td><td>(커밋 로그 · 이벤트 로그)</td><td>이벤트를 발생 순서대로 끝에만 계속 덧붙여 저장하는 로그. Kafka의 저장 모델이자 본문 "영속 이벤트 로그"의 실체.</td></tr>
+            <tr><td>rebalance</td><td>(리밸런스)</td><td>consumer group에 멤버가 늘거나 줄 때 파티션 배정을 그룹 내에서 다시 나누는 과정. 잦으면 소비가 잠깐 멈춘다.</td></tr>
+            <tr><td>event sourcing</td><td>(이벤트 소싱)</td><td>현재 상태를 직접 저장하지 않고 상태를 바꾼 이벤트들을 순서대로 쌓아, 재생해 상태를 복원하는 설계 패턴.</td></tr>
+            <tr><td>batch</td><td>RecordBatch</td><td>여러 레코드를 한 묶음으로 모아 전송·저장하는 단위. 배치 헤더를 레코드들이 공유해 레코드당 오버헤드가 줄어든다.</td></tr>
           </tbody>
         </table>
       </section>

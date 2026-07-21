@@ -206,6 +206,18 @@
             <tr><td>XHR</td><td>XMLHttpRequest</td><td>브라우저 HTTP 요청 API. HTTP/2 프레이밍 직접 제어 불가라 gRPC 직결 불가.</td></tr>
             <tr><td>Richardson Maturity Model</td><td>(리처드슨 성숙도 모델)</td><td>REST 성숙도 L0~L3 구분(단일 엔드포인트→자원→메서드/상태코드→HATEOAS).</td></tr>
             <tr><td>idempotency key</td><td>(멱등 키)</td><td>비멱등 POST 요청에 고유 키를 붙여 재시도 시 중복 생성 방지.</td></tr>
+            <tr><td>contract</td><td>(계약)</td><td>클라이언트와 서버가 합의한 요청·응답 구조 규약. gRPC는 <code>.proto</code>로 강제, REST는 OpenAPI로 느슨하게 문서화.</td></tr>
+            <tr><td>schema</td><td>(스키마)</td><td>데이터의 필드·타입·구조 정의. protobuf는 스키마를 코드로 강제해 클라·서버 형식을 일치시킨다.</td></tr>
+            <tr><td>serialization</td><td>(직렬화/역직렬화)</td><td>객체를 전송용 바이트로 바꾸고(직렬화) 되돌리는(역직렬화) 과정. JSON은 텍스트, protobuf는 바이너리로 처리.</td></tr>
+            <tr><td>streaming</td><td>(스트리밍 4형태)</td><td>호출 형태 구분: unary(1:1 단발)·server(1:N)·client(N:1)·bidirectional(N:N 양방향). gRPC가 HTTP/2 위에서 지원.</td></tr>
+            <tr><td>multiplexing</td><td>(멀티플렉싱/다중화)</td><td>하나의 TCP 연결에서 여러 요청·응답 스트림을 동시에 주고받는 것. HTTP/2의 핵심으로 HOL 블로킹 완화.</td></tr>
+            <tr><td>versioning</td><td>(버저닝)</td><td>API 변경 시 기존 클라이언트를 깨지 않도록 버전을 구분하는 것. REST는 URL/헤더, gRPC는 패키지 버전으로.</td></tr>
+            <tr><td>backward compatibility</td><td>(하위호환)</td><td>새 버전 서버가 옛 클라이언트 요청을 그대로 처리하는 성질. 필드 추가는 호환, 삭제·의미 변경은 파괴적.</td></tr>
+            <tr><td>resource</td><td>(리소스/자원)</td><td>REST가 URL로 지목하는 대상(사용자·주문 등). 명사로 표현하고 HTTP 메서드로 조작한다.</td></tr>
+            <tr><td>pagination</td><td>(페이지네이션)</td><td>대량 목록을 페이지 단위로 나눠 반환하는 기법. 커서 기반이 offset 기반보다 대량 데이터에 안정적.</td></tr>
+            <tr><td>over/under-fetching</td><td>(과다/과소 페칭)</td><td>필요보다 많은 필드를 받거나(과다) 모자라 추가 호출이 필요한(과소) 문제. GraphQL이 이를 완화.</td></tr>
+            <tr><td>tail latency</td><td>(꼬리 지연)</td><td>응답 시간 분포의 상위(느린) 구간 지연. 느린 소수 호출이 체감 성능을 좌우하며 deadline으로 억제.</td></tr>
+            <tr><td>horizontal scaling</td><td>(수평 확장)</td><td>서버 인스턴스 수를 늘려 부하를 분산하는 확장 방식. 상태를 안 들면(무상태) 쉬워진다.</td></tr>
           </tbody>
         </table>
       </section>

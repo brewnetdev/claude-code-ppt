@@ -192,6 +192,7 @@
             <tr><td>Planning</td><td>계획</td><td>목표와 현재 상태로부터 <strong>행동 시퀀스·궤적</strong>을 결정. 학습 정책이 여기 위치.</td></tr>
             <tr><td>Control</td><td>제어</td><td>계획된 행동을 actuator 명령으로 변환. 보통 고빈도 폐루프(PID·MPC 등).</td></tr>
             <tr><td>Closed-loop</td><td>폐루프 (feedback control)</td><td>행동 결과를 다시 센싱해 보정하는 순환. 오차·외란에 강함(open-loop 반대).</td></tr>
+            <tr><td>Open-loop</td><td>개루프 (open-loop control)</td><td>결과를 되먹임하지 않고 미리 정한 명령을 그대로 내보내는 제어. 단순하지만 외란·오차 보정이 안 됨(폐루프 반대).</td></tr>
             <tr><td>DoF</td><td>Degrees of Freedom</td><td>자유도. 로봇팔 말단은 보통 6-DoF(위치 3 + 자세 3) + 그리퍼 1.</td></tr>
             <tr><td>Manipulation</td><td>조작</td><td>물체를 집고 옮기고 조립하는 과제군. Physical AI 벤치마크의 중심.</td></tr>
             <tr><td>IMU</td><td>Inertial Measurement Unit</td><td>관성측정장치. 가속도계·자이로로 자세·각속도·가속을 재는 센서. 센서퓨전의 자기운동 입력.</td></tr>
@@ -238,6 +239,20 @@
             <tr><td>SigLIP</td><td>Sigmoid Loss for Language-Image Pre-training</td><td>시그모이드 손실로 학습한 이미지-텍스트 인코더. OpenVLA 시각 backbone 중 하나.</td></tr>
             <tr><td>PaLI-X</td><td>Pathways Language and Image (X, 55B)</td><td>Google의 대형 VLM. RT-2의 backbone.</td></tr>
             <tr><td>PaliGemma</td><td>(PaLI + Gemma)</td><td>Google의 경량 오픈 VLM. π0의 backbone.</td></tr>
+            <tr><td>Observation</td><td>관측 (observation, o)</td><td>정책이 매 스텝 입력으로 받는 현재 상태 정보(카메라 이미지·관절값 등). <code>π(a|o)</code>의 o.</td></tr>
+            <tr><td>Action</td><td>행동 (action, a)</td><td>정책이 출력하는 로봇 명령(관절 변위·말단 pose·그리퍼 개폐 등). <code>π(a|o)</code>의 a.</td></tr>
+            <tr><td>Trajectory</td><td>궤적 (trajectory)</td><td>시간에 따른 관측·행동의 연속 시퀀스. 한 번의 시연·실행이 하나의 궤적. 데이터 규모의 단위.</td></tr>
+            <tr><td>Demonstration</td><td>시연 (demonstration)</td><td>사람이 수행해 보여준 관측→행동 예시. 모방 학습의 학습 데이터로, 주로 teleoperation으로 수집.</td></tr>
+            <tr><td>Reward</td><td>보상 (reward)</td><td>강화 학습에서 행동의 좋고 나쁨을 알려주는 스칼라 신호. 보상 설계가 RL의 핵심 난관.</td></tr>
+            <tr><td>Embodiment</td><td>체화 · 몸체 (embodiment)</td><td>AI가 깃든 물리적 로봇 몸체(관절·센서·형태). 몸체가 다르면 관측·행동 공간도 달라진다.</td></tr>
+            <tr><td>Generalization</td><td>일반화 (generalization)</td><td>학습 때 못 본 물체·환경·배치에서도 동작이 유지되는 능력. 보통 OOD 성능으로 측정.</td></tr>
+            <tr><td>End-to-end</td><td>엔드투엔드 (end-to-end)</td><td>인지·계획·제어를 나누지 않고 관측에서 행동까지 하나의 신경망으로 직접 학습하는 방식.</td></tr>
+            <tr><td>Backbone</td><td>백본 (backbone)</td><td>모델의 토대가 되는 사전학습 인코더(VLM·ViT 등). 그 위에 head를 얹어 특정 작업에 맞춘다.</td></tr>
+            <tr><td>Multimodal</td><td>멀티모달 (multimodal)</td><td>이미지·언어·관절 상태 등 서로 다른 종류의 입력을 함께 받아 처리하는 것.</td></tr>
+            <tr><td>Pre-training</td><td>사전학습 (pre-training)</td><td>대규모 범용 데이터로 먼저 폭넓게 학습하는 단계. 이후 소량 데이터로 미세조정한다.</td></tr>
+            <tr><td>Fine-tuning</td><td>미세조정 (fine-tuning)</td><td>사전학습 모델을 소량의 목표 도메인 데이터로 추가 학습해 맞추는 것.</td></tr>
+            <tr><td>Dexterous manipulation</td><td>정교한 조작 (dexterous)</td><td>접기·정리처럼 섬세한 힘·자세 제어가 필요한 손재주 수준의 조작.</td></tr>
+            <tr><td>Autoregressive</td><td>자기회귀 (autoregressive)</td><td>토큰을 한 개씩 순차적으로 생성하는 방식. 행동 토큰이 많으면 추론이 느려진다(이산 토큰 VLA의 약점).</td></tr>
           </tbody>
         </table>
 
