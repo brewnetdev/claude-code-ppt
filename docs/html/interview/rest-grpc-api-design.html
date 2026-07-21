@@ -192,6 +192,20 @@
             <tr><td>grpc-web</td><td>(브라우저용 gRPC)</td><td>브라우저 제약 우회를 위한 프록시 기반 gRPC 클라이언트.</td></tr>
             <tr><td>SSE</td><td>Server-Sent Events</td><td>HTTP로 서버→클라 단방향 스트리밍(REST 보조).</td></tr>
             <tr><td>TLS / mTLS</td><td>Transport Layer Security / mutual TLS</td><td>전송 암호화 / 양방향 인증(내부 gRPC에 흔함).</td></tr>
+            <tr><td>API</td><td>Application Programming Interface</td><td>소프트웨어 간 기능·데이터 교환 규약. REST·gRPC는 그 설계 스타일.</td></tr>
+            <tr><td>JSON</td><td>JavaScript Object Notation</td><td>텍스트 기반 데이터 교환 포맷. REST 응답의 사실상 표준.</td></tr>
+            <tr><td>URL / URI</td><td>Uniform Resource Locator / Uniform Resource Identifier</td><td>자원의 위치/식별자. REST가 자원을 지목하는 주소.</td></tr>
+            <tr><td>HTTP methods</td><td>GET · POST · PUT · PATCH · DELETE</td><td>자원 조작 동사. GET 조회·POST 생성·PUT 전체교체·PATCH 부분·DELETE 삭제.</td></tr>
+            <tr><td>HTTP/1.1</td><td>(버전 1.1)</td><td>연결당 요청 순차 처리(head-of-line 블로킹 존재). REST 기본 전송.</td></tr>
+            <tr><td>TCP</td><td>Transmission Control Protocol</td><td>신뢰성 있는 연결형 전송 계층. HTTP/2가 한 연결을 멀티플렉싱.</td></tr>
+            <tr><td>HPACK</td><td>(HTTP/2 헤더 압축 방식, RFC 7541)</td><td>HTTP/2 헤더를 압축해 오버헤드 감소. 정식 약어 확장이 아닌 고유 명칭.</td></tr>
+            <tr><td>HOL blocking</td><td>Head-of-Line blocking</td><td>앞 요청이 막히면 뒤 요청도 대기하는 현상. HTTP/2 멀티플렉싱이 완화.</td></tr>
+            <tr><td>CDN</td><td>Content Delivery Network</td><td>엣지 서버 캐시로 콘텐츠 배포. HTTP 캐시 친화적인 REST의 이점.</td></tr>
+            <tr><td>ETag</td><td>Entity Tag</td><td>자원 버전 식별자. 조건부 요청·캐시 유효성 검증에 사용.</td></tr>
+            <tr><td>GraphQL</td><td>Graph Query Language</td><td>클라이언트가 필요한 필드만 질의하는 API. 과다/과소 페칭 해결.</td></tr>
+            <tr><td>XHR</td><td>XMLHttpRequest</td><td>브라우저 HTTP 요청 API. HTTP/2 프레이밍 직접 제어 불가라 gRPC 직결 불가.</td></tr>
+            <tr><td>Richardson Maturity Model</td><td>(리처드슨 성숙도 모델)</td><td>REST 성숙도 L0~L3 구분(단일 엔드포인트→자원→메서드/상태코드→HATEOAS).</td></tr>
+            <tr><td>idempotency key</td><td>(멱등 키)</td><td>비멱등 POST 요청에 고유 키를 붙여 재시도 시 중복 생성 방지.</td></tr>
           </tbody>
         </table>
       </section>

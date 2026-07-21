@@ -174,6 +174,14 @@
             <tr><td>layer</td><td>(이미지 레이어)</td><td>Dockerfile 명령마다 쌓이는 캐시 가능한 차분. 공유·재사용.</td></tr>
             <tr><td>registry</td><td>(이미지 저장소)</td><td>이미지를 push/pull하는 곳(Docker Hub, ECR 등).</td></tr>
             <tr><td>BuildKit</td><td>(빌드 엔진)</td><td>병렬·캐시 최적화 빌드. 멀티스테이지에 유리.</td></tr>
+            <tr><td>Dockerfile</td><td>(빌드 명세)</td><td>이미지를 만드는 명령 스크립트. 각 명령이 하나의 레이어가 된다.</td></tr>
+            <tr><td>multi-stage build</td><td>Multi-stage Build</td><td>빌드용·런타임용 스테이지를 나눠 산출물만 최종 이미지에 복사 → 슬림·공격면 축소.</td></tr>
+            <tr><td>digest</td><td>(콘텐츠 해시)</td><td>이미지 내용을 가리키는 SHA-256 다이제스트. 태그와 달리 불변이라 재현성 확보.</td></tr>
+            <tr><td>distroless / alpine</td><td>(슬림 베이스)</td><td>셸·패키지 매니저를 뺀 최소 런타임 베이스 이미지. 크기·취약점 축소.</td></tr>
+            <tr><td>ECR</td><td>Elastic Container Registry</td><td>AWS의 관리형 컨테이너 이미지 레지스트리(Docker Hub 대안).</td></tr>
+            <tr><td>VM</td><td>Virtual Machine</td><td>하이퍼바이저 위에 게스트 OS 전체를 띄우는 가상머신. 컨테이너보다 격리는 강하나 무겁다.</td></tr>
+            <tr><td>namespace(Linux)</td><td>Linux Namespace</td><td>PID·네트워크·마운트 등 프로세스가 보는 범위를 격리하는 커널 기능(컨테이너 격리의 근간). K8s Namespace와 별개.</td></tr>
+            <tr><td>cgroup</td><td>Control Groups</td><td>CPU·메모리 등 자원 사용량을 제한·계량하는 커널 기능.</td></tr>
           </tbody>
         </table>
         <h3>Kubernetes 오브젝트</h3>
@@ -192,6 +200,17 @@
             <tr><td>Namespace</td><td>(논리 격리)</td><td>클러스터 내 리소스 그룹·격리 단위.</td></tr>
             <tr><td>CRD</td><td>Custom Resource Definition</td><td>K8s API를 확장하는 사용자 정의 리소스(오퍼레이터 기반).</td></tr>
             <tr><td>HPA</td><td>Horizontal Pod Autoscaler</td><td>지표(CPU 등) 기반으로 Pod 수 자동 조절.</td></tr>
+            <tr><td>K8s</td><td>Kubernetes</td><td>Kubernetes의 축약(K + 8글자 + s). 컨테이너 오케스트레이터.</td></tr>
+            <tr><td>Service 타입</td><td>ClusterIP / NodePort / LoadBalancer</td><td>클러스터 내부 전용 IP / 각 노드 포트로 노출 / 외부 로드밸런서 연결.</td></tr>
+            <tr><td>GA</td><td>General Availability</td><td>정식 출시(안정) 단계. Gateway API GA = 프로덕션 사용 권장 단계 도달.</td></tr>
+            <tr><td>L7</td><td>Layer 7 (Application)</td><td>OSI 7계층. HTTP(S) 등 애플리케이션 계층 — Ingress/Gateway가 L7 라우팅을 수행.</td></tr>
+            <tr><td>sidecar</td><td>(보조 컨테이너)</td><td>메인 컨테이너 옆에서 로깅·프록시 등을 담당하는 같은 Pod 내 컨테이너. v1.33에서 native sidecar 안정화.</td></tr>
+            <tr><td>probe</td><td>(헬스 프로브)</td><td>상태 점검. liveness=실패 시 재시작, readiness=실패 시 트래픽 제외, startup=초기화 구간 분리.</td></tr>
+            <tr><td>requests / limits</td><td>(리소스 요청 / 상한)</td><td>requests=스케줄링 보장치, limits=상한. CPU 초과는 throttle, 메모리 초과는 OOMKill.</td></tr>
+            <tr><td>OOM / OOMKill</td><td>Out Of Memory (Kill)</td><td>메모리 limit 초과 시 커널이 컨테이너 프로세스를 강제 종료.</td></tr>
+            <tr><td>affinity / taint</td><td>(스케줄 제약)</td><td>affinity=선호 배치 규칙, taint/toleration=특정 노드 배제·허용.</td></tr>
+            <tr><td>maxSurge / maxUnavailable</td><td>(롤링 파라미터)</td><td>롤링 업데이트 중 초과 생성 허용치 / 동시 불가용 허용치.</td></tr>
+            <tr><td>RBAC</td><td>Role-Based Access Control</td><td>역할 기반 접근제어. 최소 권한으로 API 작업 권한을 부여.</td></tr>
           </tbody>
         </table>
         <h3>컨트롤 플레인 구성요소</h3>
@@ -204,6 +223,13 @@
             <tr><td>controller-manager</td><td>(컨트롤러)</td><td>desired와 actual을 맞추는 조정 루프 실행.</td></tr>
             <tr><td>kubelet</td><td>(노드 에이전트)</td><td>각 노드에서 Pod를 실제로 실행·보고.</td></tr>
             <tr><td>kube-proxy / CNI</td><td>(네트워킹)</td><td>Service 트래픽 라우팅 / Pod 네트워크 플러그인.</td></tr>
+            <tr><td>CNI</td><td>Container Network Interface</td><td>Pod 네트워크를 구성하는 플러그인 표준(Calico·Cilium 등).</td></tr>
+            <tr><td>CRI</td><td>Container Runtime Interface</td><td>kubelet과 컨테이너 런타임(containerd 등) 사이의 표준 인터페이스.</td></tr>
+            <tr><td>containerd</td><td>(컨테이너 런타임)</td><td>이미지 pull·컨테이너 실행을 담당하는 CRI 런타임. dockershim 제거 후 기본.</td></tr>
+            <tr><td>dockershim</td><td>(Docker↔kubelet 어댑터)</td><td>kubelet이 Docker를 CRI 없이 쓰게 하던 심(shim). v1.24에서 제거.</td></tr>
+            <tr><td>KV</td><td>Key-Value</td><td>키-값 저장 방식. etcd가 분산 KV 저장소로 클러스터 상태를 보관.</td></tr>
+            <tr><td>desired / actual state</td><td>(선언 / 실제 상태)</td><td>사용자가 선언한 목표 상태 / 클러스터의 현재 상태. 둘의 차이를 컨트롤러가 조정.</td></tr>
+            <tr><td>reconcile loop</td><td>(조정 루프)</td><td>desired와 actual을 계속 비교·수렴시키는 컨트롤러 동작 = 자가 치유의 핵심.</td></tr>
           </tbody>
         </table>
       </section>

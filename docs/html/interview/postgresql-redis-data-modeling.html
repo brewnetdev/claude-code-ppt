@@ -169,13 +169,24 @@
         <table class="glossary">
           <thead><tr><th>용어</th><th>풀/유형</th><th>개념 · 의미</th></tr></thead>
           <tbody>
-            <tr><td>ACID</td><td>Atomicity·Consistency·Isolation·Durability</td><td>트랜잭션의 4대 보장. RDBMS 신뢰성의 근간.</td></tr>
-            <tr><td>MVCC</td><td>Multi-Version Concurrency Control</td><td>행의 여러 버전을 유지해 읽기가 쓰기를 막지 않게 함.</td></tr>
-            <tr><td>WAL</td><td>Write-Ahead Log</td><td>변경을 먼저 로그에 기록 → 내구성·복구·복제의 토대.</td></tr>
+            <tr><td>RDBMS</td><td>Relational Database Management System</td><td>관계형 데이터베이스 관리 시스템. 테이블·행·SQL·트랜잭션 기반. PostgreSQL이 여기 속함.</td></tr>
+            <tr><td>ACID</td><td>Atomicity·Consistency·Isolation·Durability</td><td>트랜잭션의 4대 보장(원자성·일관성·격리성·내구성). RDBMS 신뢰성의 근간.</td></tr>
+            <tr><td>MVCC</td><td>Multi-Version Concurrency Control</td><td>다중 버전 동시성 제어. 행의 여러 버전을 유지해 읽기가 쓰기를 막지 않게 함.</td></tr>
+            <tr><td>VACUUM</td><td>(정리 명령)</td><td>MVCC가 남긴 죽은 튜플(dead tuple)을 회수해 테이블 bloat를 막는 유지관리 작업.</td></tr>
+            <tr><td>WAL</td><td>Write-Ahead Log</td><td>선행 기록 로그. 변경을 먼저 로그에 기록 → 내구성·복구·복제의 토대.</td></tr>
             <tr><td>isolation level</td><td>(격리수준)</td><td>Read Committed(기본)·Repeatable Read·Serializable.</td></tr>
+            <tr><td>SSI</td><td>Serializable Snapshot Isolation</td><td>직렬화 스냅샷 격리. PostgreSQL이 Serializable을 구현하는 방식으로, 스냅샷 격리에 충돌 감지를 더해 직렬화 이상까지 차단.</td></tr>
+            <tr><td>dirty read</td><td>(오손 읽기)</td><td>커밋되지 않은 다른 트랜잭션의 변경을 읽는 이상현상. Read Committed 이상에서 차단.</td></tr>
+            <tr><td>non-repeatable read</td><td>(반복 불가능 읽기)</td><td>같은 행을 다시 읽었을 때 값이 바뀌는 이상현상. Repeatable Read에서 차단.</td></tr>
+            <tr><td>phantom read</td><td>(팬텀 읽기)</td><td>같은 조건으로 재조회 시 결과 행 집합이 달라지는 이상현상. PostgreSQL은 Repeatable Read에서 차단.</td></tr>
             <tr><td>index</td><td>B-tree/GIN/BRIN/Hash</td><td>조회 가속 구조. 기본 B-tree, jsonb·배열은 GIN, 거대 정렬 데이터는 BRIN.</td></tr>
-            <tr><td>EXPLAIN</td><td>(실행 계획)</td><td>쿼리 플랜·비용·인덱스 사용 여부 확인.</td></tr>
+            <tr><td>B-tree</td><td>Balanced Tree</td><td>균형 트리 인덱스. 등호·범위·정렬 조회에 두루 쓰이는 PostgreSQL 기본 인덱스.</td></tr>
+            <tr><td>GIN</td><td>Generalized Inverted Index</td><td>일반화 역색인. jsonb·배열·전문검색 등 한 컬럼에 여러 값이 든 데이터 조회에 적합.</td></tr>
+            <tr><td>BRIN</td><td>Block Range Index</td><td>블록 범위 인덱스. 물리적으로 정렬된 거대 테이블을 아주 작은 용량으로 커버.</td></tr>
+            <tr><td>jsonb</td><td>JSON Binary</td><td>이진으로 저장하는 JSON 타입. 인덱싱·연산이 가능(텍스트 json보다 빠름).</td></tr>
+            <tr><td>EXPLAIN</td><td>(실행 계획)</td><td>쿼리 플랜·비용·인덱스 사용 여부 확인. <code>ANALYZE</code> 옵션은 실제 실행 통계까지.</td></tr>
             <tr><td>connection pool</td><td>(커넥션 풀)</td><td>DB 연결 재사용(PgBouncer 등). 연결 폭주 방지.</td></tr>
+            <tr><td>PgBouncer</td><td>(경량 커넥션 풀러)</td><td>PostgreSQL 앞단의 커넥션 풀 프록시. 연결 수립 비용과 연결 수 폭주를 줄임.</td></tr>
             <tr><td>N+1</td><td>(N+1 쿼리)</td><td>목록 1 + 항목마다 1 쿼리 → 조인/일괄로 제거.</td></tr>
           </tbody>
         </table>
@@ -183,15 +194,23 @@
         <table class="glossary">
           <thead><tr><th>용어</th><th>풀/유형</th><th>개념 · 의미</th></tr></thead>
           <tbody>
-            <tr><td>TTL</td><td>Time To Live</td><td>키 만료 시간. 캐시 신선도·메모리 회수의 핵심.</td></tr>
+            <tr><td>TTL</td><td>Time To Live</td><td>키 만료 시간(생존 시간). 캐시 신선도·메모리 회수의 핵심.</td></tr>
             <tr><td>eviction</td><td>(축출 정책)</td><td>메모리 한계 시 제거 정책(noeviction·allkeys-lru·allkeys-lfu 등).</td></tr>
+            <tr><td>LRU</td><td>Least Recently Used</td><td>가장 오래 참조되지 않은 키부터 축출. 일반 캐시의 기본 정책.</td></tr>
+            <tr><td>LFU</td><td>Least Frequently Used</td><td>참조 빈도가 가장 낮은 키부터 축출. 접근이 특정 키에 편중된 캐시에 유리.</td></tr>
             <tr><td>RDB</td><td>Redis Database (snapshot)</td><td>특정 시점 스냅샷 저장(콤팩트·빠른 복구, 마지막 스냅 이후 유실 위험).</td></tr>
-            <tr><td>AOF</td><td>Append Only File</td><td>쓰기 명령 로그 추가(내구성↑, 파일 큼). fsync 정책 선택.</td></tr>
+            <tr><td>AOF</td><td>Append Only File</td><td>추가 전용 파일. 쓰기 명령 로그를 덧붙임(내구성↑, 파일 큼). fsync 정책 선택.</td></tr>
+            <tr><td>fsync</td><td>file synchronize (POSIX 시스템 콜)</td><td>버퍼를 디스크에 강제 기록. AOF 내구성 정책(always·everysec·no)의 기준.</td></tr>
             <tr><td>pipeline</td><td>(파이프라이닝)</td><td>여러 명령을 왕복 없이 일괄 전송 → RTT 절감.</td></tr>
-            <tr><td>sorted set</td><td>ZSET</td><td>점수 정렬 집합. 랭킹·리더보드·시간창에 최적.</td></tr>
+            <tr><td>RTT</td><td>Round-Trip Time</td><td>요청-응답 왕복 시간. pipeline이 이 왕복 횟수를 줄여 처리량을 높인다.</td></tr>
+            <tr><td>sorted set</td><td>ZSET (sorted set)</td><td>점수 정렬 집합. 랭킹·리더보드·시간창에 최적.</td></tr>
             <tr><td>cache-aside</td><td>(lazy loading)</td><td>앱이 캐시 확인 → miss면 DB 읽어 캐시 채움.</td></tr>
+            <tr><td>cache stampede</td><td>(캐시 스탬피드)</td><td>인기 키가 동시에 만료돼 다수 miss가 DB로 몰리는 현상. TTL 지터·뮤텍스로 방지.</td></tr>
             <tr><td>write-through</td><td>(쓰기 관통)</td><td>쓰기 시 캐시+DB 동시 갱신(정합↑, 쓰기 지연↑).</td></tr>
             <tr><td>replication</td><td>(복제)</td><td>primary→replica 비동기 복제. 읽기 확장·가용성.</td></tr>
+            <tr><td>Sentinel</td><td>(센티널)</td><td>Redis 마스터 장애를 감지해 자동 failover(승격)를 수행하는 고가용성 관리 프로세스.</td></tr>
+            <tr><td>Cluster</td><td>(클러스터)</td><td>키를 여러 노드에 해시 슬롯으로 분산하는 Redis 내장 샤딩·수평 확장 방식.</td></tr>
+            <tr><td>sharding</td><td>(샤딩)</td><td>데이터를 키 기준으로 여러 노드에 분할 저장해 용량·처리량을 수평 확장.</td></tr>
           </tbody>
         </table>
       </section>

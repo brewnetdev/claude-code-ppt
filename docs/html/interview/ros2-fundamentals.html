@@ -194,6 +194,14 @@
             <tr><td>RTPS</td><td>Real-Time Publish-Subscribe (DDSI-RTPS)</td><td>DDS의 와이어 프로토콜. UDP 위에서 실제 패킷을 주고받는 규약.</td></tr>
             <tr><td>CDR</td><td>Common Data Representation</td><td>메시지 직렬화 포맷(ROS2는 XCDR2). node 간에 바이트로 변환돼 전송됨.</td></tr>
             <tr><td>DataWriter / DataReader</td><td>(약어 아님)</td><td>DDS의 송신/수신 엔드포인트. ROS Publisher = DataWriter, Subscription = DataReader.</td></tr>
+            <tr><td>Fast DDS</td><td>eProsima Fast DDS (구 Fast RTPS)</td><td>ROS2의 기본 DDS 구현(<code>rmw_fastrtps_cpp</code>). RTPS 기반 pub/sub 엔진.</td></tr>
+            <tr><td>Cyclone DDS</td><td>Eclipse Cyclone DDS</td><td>경량 오픈소스 DDS 구현(<code>rmw_cyclonedds_cpp</code>). rmw로 Fast DDS와 교체 가능.</td></tr>
+            <tr><td>Zenoh</td><td>ZEro Network OverHead (Eclipse Zenoh)</td><td>저오버헤드 pub/sub·query 프로토콜. WAN·멀티로봇 브리지에 쓰임(zenoh-bridge-ros2dds).</td></tr>
+            <tr><td>OMG</td><td>Object Management Group</td><td>DDS 표준을 제정·관리하는 국제 표준화 단체.</td></tr>
+            <tr><td>DDS-Security</td><td>(약어 아님)</td><td>DDS 표준 보안 확장. node 간 인증·암호화·접근제어를 제공.</td></tr>
+            <tr><td>MCU</td><td>Microcontroller Unit</td><td>마이크로컨트롤러. 자원 제약 임베디드 칩으로 micro-ROS의 타깃 하드웨어.</td></tr>
+            <tr><td>rosmaster</td><td>(약어 아님)</td><td>ROS1의 중앙 discovery 중개 프로세스. 단일 장애점(SPOF)이라 ROS2가 제거.</td></tr>
+            <tr><td>roscpp / rospy</td><td>(약어 아님)</td><td>ROS1의 C++/Python 클라이언트 라이브러리. ROS2에선 rclcpp/rclpy로 대체.</td></tr>
           </tbody>
         </table>
 
@@ -207,6 +215,33 @@
             <tr><td>DomainID</td><td><code>ROS_DOMAIN_ID</code></td><td>발견 범위를 나누는 정수. 같은 domain끼리만 서로 본다(로봇·팀 격리).</td></tr>
             <tr><td>SPOF</td><td>Single Point Of Failure</td><td>단일 장애점. ROS1의 rosmaster가 이에 해당 → ROS2가 제거.</td></tr>
             <tr><td>RPC</td><td>Remote Procedure Call</td><td>원격 함수 호출. ROS2의 Service가 이 모델(request→reply).</td></tr>
+            <tr><td>Node</td><td>(약어 아님)</td><td>역할 하나를 담당하는 논리적 연산 단위(프로세스). topic/service/action으로 통신.</td></tr>
+            <tr><td>Topic</td><td>(약어 아님)</td><td>이름 붙은 비동기 pub/sub 채널(N:M). 연속 스트림 데이터에 사용.</td></tr>
+            <tr><td>Service</td><td>(약어 아님)</td><td>1:1 요청/응답(RPC) 통신. 짧고 즉시 끝나는 질의·명령.</td></tr>
+            <tr><td>Action</td><td>(약어 아님)</td><td>장시간·피드백·취소 통신. 내부는 3 service + 2 topic으로 구성.</td></tr>
+            <tr><td>Parameter</td><td>(약어 아님)</td><td>node가 소유한 타입 있는 설정값. launch YAML로 주입.</td></tr>
+            <tr><td>pub/sub</td><td>Publish / Subscribe</td><td>발행-구독 메시징 패턴. publisher가 topic에 발행하고 subscriber가 구독.</td></tr>
+            <tr><td>P2P</td><td>Peer-to-Peer</td><td>중앙 서버 없이 node끼리 직접 연결. DDS discovery의 결과 형태.</td></tr>
+            <tr><td>SensorDataQoS</td><td>(약어 아님)</td><td>best_effort·KEEP_LAST 프리셋 QoS. 고속 센서 데이터용 기본 프로파일.</td></tr>
+            <tr><td>UDP</td><td>User Datagram Protocol</td><td>비신뢰 데이터그램 전송. RTPS의 기본 하부 전송.</td></tr>
+            <tr><td>TCP</td><td>Transmission Control Protocol</td><td>신뢰·순서 보장 연결형 전송.</td></tr>
+            <tr><td>TCPROS / UDPROS</td><td>(약어 아님)</td><td>ROS1의 자체 TCP/UDP 전송 프로토콜. ROS2에선 DDS/RTPS로 대체.</td></tr>
+            <tr><td>rosbridge</td><td>rosbridge_suite / rosbridge_server</td><td>ROS ↔ WebSocket+JSON 브리지. 웹·모바일 UI가 roslibjs로 topic을 pub/sub.</td></tr>
+            <tr><td>foxglove_bridge</td><td>(약어 아님)</td><td>Foxglove 관측·시각화 툴과 연결하는 WebSocket 브리지.</td></tr>
+            <tr><td>DDS Router</td><td>eProsima DDS Router (ddsrouter)</td><td>DDS 도메인·네트워크 간 브리지(WAN-over-TCP/TLS). 방화벽 너머 연결.</td></tr>
+            <tr><td>MQTT</td><td>Message Queuing Telemetry Transport</td><td>경량 pub/sub 메시징 프로토콜. IoT·원격 텔레메트리·저대역 무선에 사용.</td></tr>
+            <tr><td>WebSocket / WS</td><td>(약어 아님)</td><td>브라우저-서버 양방향 상시 연결. rosbridge가 이 위에서 topic을 중계.</td></tr>
+            <tr><td>JSON</td><td>JavaScript Object Notation</td><td>텍스트 데이터 포맷. rosbridge가 ROS 메시지를 JSON으로 변환.</td></tr>
+            <tr><td>YAML</td><td>YAML Ain't Markup Language</td><td>사람이 읽기 쉬운 설정 포맷. launch에서 parameter 주입에 사용.</td></tr>
+            <tr><td>REST</td><td>Representational State Transfer</td><td>HTTP 기반 리소스 지향 API 스타일. 백엔드 게이트웨이가 ROS2를 노출.</td></tr>
+            <tr><td>gRPC</td><td>gRPC Remote Procedure Calls</td><td>HTTP/2 기반 고성능 RPC 프레임워크. 백엔드↔로봇 명령 게이트웨이에 사용.</td></tr>
+            <tr><td>TLS / mTLS</td><td>(mutual) Transport Layer Security</td><td>전송 계층 암호화. 브리지 밖 인터넷 구간 보안(양방향 인증=mTLS).</td></tr>
+            <tr><td>NTP</td><td>Network Time Protocol</td><td>네트워크 시간 동기 프로토콜. 로봇·백엔드 타임스탬프 정합에 사용.</td></tr>
+            <tr><td>PTP</td><td>Precision Time Protocol</td><td>마이크로초급 정밀 시간 동기(IEEE 1588). 정밀 제어용.</td></tr>
+            <tr><td>LAN / WAN</td><td>Local / Wide Area Network</td><td>근거리망 / 광역망. 로봇 온보드는 LAN, 클라우드 연동은 WAN.</td></tr>
+            <tr><td>API</td><td>Application Programming Interface</td><td>프로그램 간 인터페이스. 백엔드 API 서버가 로봇 상태·명령을 노출.</td></tr>
+            <tr><td>IoT</td><td>Internet of Things</td><td>사물인터넷. 저대역 원격 텔레메트리 시나리오.</td></tr>
+            <tr><td>DB</td><td>Database</td><td>데이터베이스. 텔레메트리·상태를 영속 저장하는 백엔드 저장소.</td></tr>
           </tbody>
         </table>
 
@@ -225,6 +260,15 @@
             <tr><td>AMCL</td><td>Adaptive Monte Carlo Localization</td><td>파티클 필터 기반 로봇 위치 추정(Nav2 구성요소).</td></tr>
             <tr><td>IK</td><td>Inverse Kinematics</td><td>역기구학 — 목표 말단 자세로부터 각 조인트 각도를 역산.</td></tr>
             <tr><td>micro-ROS</td><td>(약어 아님)</td><td>마이크로컨트롤러(MCU)용 ROS2. 자원 제약 하드웨어에 ROS2 통신 이식.</td></tr>
+            <tr><td>Callback Group</td><td>(약어 아님)</td><td>콜백의 병렬/직렬 실행을 제어하는 그룹. MutuallyExclusive(직렬·기본) / Reentrant(병렬).</td></tr>
+            <tr><td>Lifecycle Node</td><td>Managed Node</td><td>상태 머신(Unconfigured→Inactive→Active)으로 초기화·동작 시점을 통제. 결정적 순차 bring-up.</td></tr>
+            <tr><td>Composition</td><td>(약어 아님)</td><td>여러 node를 한 프로세스(container)에 컴포넌트로 올려 intra-process 제로카피 통신.</td></tr>
+            <tr><td>namespace</td><td>(약어 아님)</td><td>node·topic 이름 앞에 붙는 계층 접두사. 다중 로봇 인스턴스 격리에 사용.</td></tr>
+            <tr><td>SLAM</td><td>Simultaneous Localization And Mapping</td><td>동시적 위치추정·지도작성. 미지 환경에서 지도를 만들며 자기 위치를 추정.</td></tr>
+            <tr><td>LiDAR</td><td>Light Detection And Ranging</td><td>레이저 거리 센서. <code>/scan</code> 스트림으로 주변 형상을 측정.</td></tr>
+            <tr><td>PID</td><td>Proportional-Integral-Derivative</td><td>비례·적분·미분 제어기. 게인을 parameter로 튜닝.</td></tr>
+            <tr><td>Humble / Jazzy</td><td>(약어 아님)</td><td>ROS2 LTS 배포판(각각 2022 / 2024). 코드네임은 알파벳 순으로 붙음.</td></tr>
+            <tr><td>LTS</td><td>Long-Term Support</td><td>장기 지원 릴리스. 대략 5년간 유지보수·보안 패치 제공.</td></tr>
           </tbody>
         </table>
       </section>

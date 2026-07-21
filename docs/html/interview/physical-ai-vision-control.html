@@ -194,6 +194,13 @@
             <tr><td>Closed-loop</td><td>폐루프 (feedback control)</td><td>행동 결과를 다시 센싱해 보정하는 순환. 오차·외란에 강함(open-loop 반대).</td></tr>
             <tr><td>DoF</td><td>Degrees of Freedom</td><td>자유도. 로봇팔 말단은 보통 6-DoF(위치 3 + 자세 3) + 그리퍼 1.</td></tr>
             <tr><td>Manipulation</td><td>조작</td><td>물체를 집고 옮기고 조립하는 과제군. Physical AI 벤치마크의 중심.</td></tr>
+            <tr><td>IMU</td><td>Inertial Measurement Unit</td><td>관성측정장치. 가속도계·자이로로 자세·각속도·가속을 재는 센서. 센서퓨전의 자기운동 입력.</td></tr>
+            <tr><td>LiDAR</td><td>Light Detection and Ranging</td><td>라이다. 레이저 비행시간으로 거리·3D 형상을 측정하는 깊이 센서.</td></tr>
+            <tr><td>Localization</td><td>자기 위치 추정</td><td>로봇이 환경 좌표계에서 자기 위치·자세를 추정하는 것. 인지 단계의 핵심.</td></tr>
+            <tr><td>Pose</td><td>자세 (위치 + 방향)</td><td>물체·말단의 3D 위치(3) + 방향(3)을 합친 6-DoF 표현. "6-DoF pose".</td></tr>
+            <tr><td>Sensor fusion</td><td>센서 퓨전</td><td>여러 센서를 시간·좌표 정합해 하나의 상태 추정(pose·위치)으로 통합하는 것.</td></tr>
+            <tr><td>PID</td><td>Proportional-Integral-Derivative</td><td>오차의 비례·적분·미분 항으로 제어 입력을 만드는 고전 저수준 폐루프 제어기.</td></tr>
+            <tr><td>MPC</td><td>Model Predictive Control</td><td>모델 예측 제어. 시스템 모델로 미래를 내다보고 매 스텝 최적 제어 입력을 푸는 제어기.</td></tr>
           </tbody>
         </table>
 
@@ -209,6 +216,28 @@
             <tr><td>VLM</td><td>Vision-Language Model</td><td>이미지 + 텍스트 → 텍스트. VLA의 <strong>backbone</strong>(PaLI-X·PaliGemma·Llama+ViT).</td></tr>
             <tr><td>Foundation model</td><td>(파운데이션 모델)</td><td>대규모 사전학습 후 다양한 하위 작업에 적응하는 범용 모델. "로봇 GPT"의 목표.</td></tr>
             <tr><td>Action chunking</td><td>행동 청킹</td><td>한 스텝이 아니라 여러 미래 스텝을 <strong>한 번에</strong> 예측(ACT). 끊김·오차 누적 완화.</td></tr>
+            <tr><td>ACT</td><td>Action Chunking with Transformers</td><td>트랜스포머로 행동 청크를 예측하는 imitation 정책(ALOHA). action chunking을 대중화.</td></tr>
+            <tr><td>Diffusion Policy</td><td>(확산 정책)</td><td>확산(denoising) 모델로 연속 행동 시퀀스를 생성하는 정책. 다봉 행동 분포에 강함.</td></tr>
+            <tr><td>Flow matching</td><td>(플로 매칭)</td><td>노이즈 → 연속 행동으로 정제하는 확산 계열 생성 기법. π0의 action head 방식.</td></tr>
+            <tr><td>Action head</td><td>(행동 헤드)</td><td>VLM backbone 위에 얹어 특징을 로봇 행동으로 변환·출력하는 부분.</td></tr>
+            <tr><td>Discrete token</td><td>이산 토큰</td><td>연속 행동을 구간으로 나눠 텍스트 토큰처럼 이산화한 행동 표현(RT-2·OpenVLA).</td></tr>
+            <tr><td>Covariate shift</td><td>공변량 이동</td><td>학습 시 관측 분포와 실행 시 관측 분포가 어긋나는 현상. imitation 실패의 근본 원인.</td></tr>
+            <tr><td>Compounding error</td><td>누적 오차</td><td>작은 오차가 다음 관측을 왜곡해 더 큰 오차를 부르는 악순환. covariate shift의 결과.</td></tr>
+            <tr><td>OOD</td><td>Out-of-Distribution</td><td>학습 분포 밖의 입력·상황. 일반화·평가에서 반드시 확인하는 축.</td></tr>
+            <tr><td>Cross-embodiment</td><td>(교차 임바디먼트)</td><td>서로 다른 로봇 몸체의 데이터를 함께 학습해 전이하는 것. positive transfer의 전제.</td></tr>
+            <tr><td>Positive transfer</td><td>(양의 전이)</td><td>한 로봇·작업의 데이터가 다른 로봇·작업의 성능을 끌어올리는 효과.</td></tr>
+            <tr><td>RT-1</td><td>Robotic Transformer 1</td><td>Google의 트랜스포머 로봇 정책(2022). RT-2·RT-X 계열의 출발점.</td></tr>
+            <tr><td>RT-2</td><td>Robotic Transformer 2</td><td>Google DeepMind VLA(2023). PaLI-X 55B backbone, 행동을 이산 토큰으로 출력.</td></tr>
+            <tr><td>RT-X</td><td>Robotic Transformer-X (RT-1-X · RT-2-X)</td><td>Open X-Embodiment 데이터로 여러 로봇에 학습한 cross-embodiment 버전(X = 교차).</td></tr>
+            <tr><td>OpenVLA</td><td>Open Vision-Language-Action</td><td>7B 오픈 VLA(2024). Llama2 + DINOv2/SigLIP backbone, Open X-Embodiment로 학습.</td></tr>
+            <tr><td>π0 (pi-zero)</td><td>(파이-제로, 약어 아님)</td><td>Physical Intelligence의 generalist VLA(2024). PaliGemma + flow matching, 최대 50Hz.</td></tr>
+            <tr><td>SmolVLA</td><td>(small VLA)</td><td>Hugging Face의 경량 오픈 VLA. LeRobot 스택에 포함.</td></tr>
+            <tr><td>TD-MPC</td><td>Temporal Difference Model Predictive Control</td><td>학습된 모델 + TD 학습으로 계획하는 model-based RL 정책. LeRobot에 포함.</td></tr>
+            <tr><td>ViT</td><td>Vision Transformer</td><td>이미지를 패치 토큰으로 나눠 트랜스포머로 인코딩하는 비전 backbone.</td></tr>
+            <tr><td>DINOv2</td><td>self-DIstillation with NO labels v2</td><td>Meta의 자기지도 비전 인코더. OpenVLA의 시각 backbone 중 하나.</td></tr>
+            <tr><td>SigLIP</td><td>Sigmoid Loss for Language-Image Pre-training</td><td>시그모이드 손실로 학습한 이미지-텍스트 인코더. OpenVLA 시각 backbone 중 하나.</td></tr>
+            <tr><td>PaLI-X</td><td>Pathways Language and Image (X, 55B)</td><td>Google의 대형 VLM. RT-2의 backbone.</td></tr>
+            <tr><td>PaliGemma</td><td>(PaLI + Gemma)</td><td>Google의 경량 오픈 VLM. π0의 backbone.</td></tr>
           </tbody>
         </table>
 
@@ -223,6 +252,11 @@
             <tr><td>Sim2Real</td><td>Simulation-to-Real</td><td>시뮬레이션에서 학습한 정책을 실물로 이전. 그 격차가 <strong>reality gap</strong>.</td></tr>
             <tr><td>Domain Randomization</td><td>도메인 랜덤화</td><td>시뮬의 텍스처·조명·물리 파라미터를 무작위화해 실물 일반화. sim2real 대표 기법.</td></tr>
             <tr><td>Digital Twin</td><td>디지털 트윈</td><td>실물 로봇·환경의 물리 시뮬 복제본. 안전한 사전 학습·검증 공간.</td></tr>
+            <tr><td>Reality gap</td><td>(현실 격차)</td><td>시뮬과 실물의 물리·렌더링·센서 노이즈 불일치로 정책 성능이 떨어지는 격차. sim2real이 다루는 대상.</td></tr>
+            <tr><td>System identification</td><td>(시스템 식별)</td><td>실물의 물리 파라미터(마찰·질량·지연 등)를 측정해 시뮬을 실물에 맞추는 sim2real 기법.</td></tr>
+            <tr><td>Open X-Embodiment</td><td>(OXE)</td><td>22개 로봇·1M+ 궤적을 한 형식으로 모은 cross-embodiment 표준 데이터셋. RT-X가 실증.</td></tr>
+            <tr><td>LeRobot</td><td>(Hugging Face 오픈 스택)</td><td>표준 데이터셋·사전학습 정책(ACT·Diffusion·π0 등)·저가 하드웨어를 묶은 PyTorch 로보틱스 스택.</td></tr>
+            <tr><td>SO-100 / SO-101</td><td>Standard Open arm 100 / 101</td><td>LeRobot이 지원하는 저가 오픈소스 로봇팔 하드웨어. 개인 실습용 진입 장벽을 낮춤.</td></tr>
           </tbody>
         </table>
       </section>

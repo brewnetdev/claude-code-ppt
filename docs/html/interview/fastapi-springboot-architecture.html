@@ -204,6 +204,15 @@
             <tr><td>coroutine</td><td>(약어 아님)</td><td><code>async def</code>가 반환하는 일시중단 가능 객체. <code>await</code> 지점에서 멈췄다 재개.</td></tr>
             <tr><td>async / await</td><td>(약어 아님)</td><td>비동기 코루틴 정의(<code>async def</code>)·중단(<code>await</code>) 문법.</td></tr>
             <tr><td>OpenAPI</td><td>(구 Swagger)</td><td>REST API 기술 표준. FastAPI가 타입 힌트로 OpenAPI 3.1 문서를 자동 생성.</td></tr>
+            <tr><td>HTTP</td><td>HyperText Transfer Protocol</td><td>웹 요청/응답 프로토콜. 두 프레임워크 모두 HTTP 요청을 함수(핸들러) 호출로 매핑한다.</td></tr>
+            <tr><td>REST</td><td>Representational State Transfer</td><td>자원을 URL·HTTP 메서드로 다루는 API 설계 스타일. OpenAPI가 이 인터페이스를 기술한다.</td></tr>
+            <tr><td>API</td><td>Application Programming Interface</td><td>프로그램 간 호출 규약. 여기서는 주로 HTTP로 노출되는 백엔드 엔드포인트를 가리킨다.</td></tr>
+            <tr><td>WebSocket</td><td>(약어 아님)</td><td>단일 연결로 양방향·장수명 통신을 하는 프로토콜. WSGI는 불가, ASGI는 지원한다.</td></tr>
+            <tr><td>MVC</td><td>Model-View-Controller</td><td>모델·뷰·컨트롤러로 관심사를 나누는 웹 아키텍처 패턴. Spring의 동기 Servlet 스택 이름(Spring MVC).</td></tr>
+            <tr><td>DispatcherServlet</td><td>(약어 아님)</td><td>Spring MVC의 Front Controller. 모든 요청을 받아 HandlerMapping으로 알맞은 컨트롤러에 위임한다.</td></tr>
+            <tr><td>Jackson</td><td>(약어 아님)</td><td>Spring이 기본으로 쓰는 Java JSON 직렬화·역직렬화 라이브러리. 응답 객체를 JSON으로 변환한다.</td></tr>
+            <tr><td>path operation</td><td>(약어 아님)</td><td>FastAPI에서 HTTP 메서드+경로에 함수를 매핑한 라우트 단위(데코레이터). Spring의 <code>@RestController</code> 핸들러에 대응.</td></tr>
+            <tr><td>Depends()</td><td>(약어 아님)</td><td>FastAPI의 의존성 주입 장치. DB 세션·인증 등을 함수 시그니처로 주입한다. Spring 컨테이너 DI의 경량판.</td></tr>
           </tbody>
         </table>
 
@@ -219,6 +228,10 @@
             <tr><td>starter</td><td>(약어 아님)</td><td>관련 의존성을 묶은 메타 패키지(<code>spring-boot-starter-web</code> 등). 버전 정합까지 포함.</td></tr>
             <tr><td>auto-config</td><td>auto-configuration</td><td>클래스패스·프로퍼티를 보고 Bean을 자동 구성하는 Spring Boot 핵심. starter와 결합.</td></tr>
             <tr><td>DTO</td><td>Data Transfer Object</td><td>계층·경계 간 데이터 전달용 객체. 도메인 엔티티를 그대로 노출하지 않기 위한 방패.</td></tr>
+            <tr><td>JVM</td><td>Java Virtual Machine</td><td>Java·Kotlin 바이트코드를 실행하는 가상 머신. Spring Boot의 런타임 토대.</td></tr>
+            <tr><td>JDK</td><td>Java Development Kit</td><td>컴파일러·JVM·표준 라이브러리를 묶은 Java 개발 키트. virtual threads는 JDK 21부터 정식.</td></tr>
+            <tr><td>JEP</td><td>JDK Enhancement Proposal</td><td>JDK에 기능을 도입하기 위한 공식 제안 문서. virtual threads는 JEP 444.</td></tr>
+            <tr><td>LTS</td><td>Long-Term Support</td><td>장기 지원 릴리스. Java는 17·21·25가 LTS로 프로덕션 기준선이 된다.</td></tr>
           </tbody>
         </table>
 
@@ -235,6 +248,17 @@
             <tr><td>virtual thread</td><td>(Project Loom)</td><td>JVM이 관리하는 경량 스레드. JDK 21 정식(JEP 444). I/O 시 캐리어(플랫폼) 스레드에서 unmount.</td></tr>
             <tr><td>WebFlux</td><td>(약어 아님)</td><td>Spring의 리액티브·논블로킹 웹 스택(Project Reactor의 <code>Mono</code>/<code>Flux</code>). MVC의 대안, 기본 서버 Netty.</td></tr>
             <tr><td>Netty</td><td>(약어 아님)</td><td>비동기 이벤트 기반 네트워크 프레임워크. WebFlux의 기본 런타임(event loop 방식).</td></tr>
+            <tr><td>SQL</td><td>Structured Query Language</td><td>관계형 DB 질의 언어. ORM이 객체 조작을 SQL로 변환해 실행한다.</td></tr>
+            <tr><td>JDBC</td><td>Java Database Connectivity</td><td>Java의 표준 DB 접속 API. 블로킹 방식이라 호출 스레드가 결과가 올 때까지 대기한다.</td></tr>
+            <tr><td>SQLAlchemy</td><td>(약어 아님)</td><td>파이썬 대표 ORM·SQL 툴킷. FastAPI는 ORM을 내장하지 않아 이를 조합해 영속성을 구성한다.</td></tr>
+            <tr><td>Bean Validation</td><td>Jakarta Bean Validation</td><td>애너테이션 기반 Java 표준 검증 스펙. 구현체가 Hibernate Validator이며 FastAPI의 Pydantic에 대응.</td></tr>
+            <tr><td>Project Loom</td><td>(약어 아님)</td><td>virtual thread를 JDK에 도입한 OpenJDK 프로젝트. JDK 21(JEP 444)에서 정식화됐다.</td></tr>
+            <tr><td>Mono / Flux</td><td>(Project Reactor)</td><td>WebFlux의 리액티브 스트림 타입. Mono=0~1개, Flux=0~N개 값을 비동기로 방출한다.</td></tr>
+            <tr><td>backpressure</td><td>(백프레셔)</td><td>소비자가 감당 못 하는 생산 속도를 되밀어 조절하는 흐름 제어. 리액티브(WebFlux)의 강점.</td></tr>
+            <tr><td>pinning</td><td>(약어 아님)</td><td>virtual thread가 <code>synchronized</code>·네이티브 안에서 캐리어 스레드에 고정돼 unmount 못 하는 상태. <code>ReentrantLock</code>으로 회피.</td></tr>
+            <tr><td>I/O</td><td>Input/Output</td><td>네트워크·디스크·DB 등 입출력 작업. 대기 시간이 길어 동시성 모델의 핵심 변수가 된다.</td></tr>
+            <tr><td>CPU 바운드</td><td>CPU-bound (Central Processing Unit)</td><td>연산이 병목인 작업. async·virtual thread로는 못 풀고 멀티프로세스(병렬)로 오프로딩한다.</td></tr>
+            <tr><td>DB</td><td>Database</td><td>데이터베이스. 두 스택 모두 최종 계층에서 공유하는 영속 저장소(PostgreSQL·MySQL 등).</td></tr>
           </tbody>
         </table>
       </section>
