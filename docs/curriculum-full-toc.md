@@ -3,7 +3,7 @@
 > 출처: `docs/html/report/claude-code-levelN-*.html` 슬라이드 덱 전량 분석.
 > 레벨 순서·제목의 정본은 대시보드 레지스트리(`src/library/deckRegistry.ts`)를 따른다.
 > **파일명 주의**: 재편성 이력으로 파일명과 표시 레벨이 어긋나 있다 — Level 6 = `level7-chapter7.html`, Level 7 = `level7-subagent.html`.
-> "프론트엔드 고도화" 덱(`level6-chapter6.html`)은 레지스트리 밖 레거시이며, 내용은 **Level 5 §5.7에 통합**되어 있다. (구 §5.7 Plugin Marketplace 챕터는 2026-07-05 삭제 — 프론트엔드 고도화가 5.8→5.7로 승계)
+> "프론트엔드 고도화" 덱(`level6-chapter6.html`)은 레지스트리 밖 레거시이며, 내용은 **Level 5 §5.6에 통합**되어 있다. (구 §5.7 Plugin Marketplace 챕터는 2026-07-05 삭제, 구 §5.5 Handoff & Changelog 챕터는 2026-07-21 삭제 — 디버깅·리팩토링이 5.6→5.5, 프론트엔드 고도화가 5.7→5.6으로 승계)
 
 ---
 
@@ -191,13 +191,10 @@
 **PART 04 — 5.4 SDD 워크플로 — GSD**
 - 왜 AI와 SDD가 맞는가 / 적용 전후 비교 / **GSD(Get Shit Done)** — 메타프롬프팅+컨텍스트+SDD 통합 / Phase 단위 컨텍스트 분리
 
-**PART 05 — 5.5 Handoff & Changelog**
-- CHANGELOG.md 자동화 Skill / GSD HANDOFF.json — SessionStart 훅 자동 재개
-
-**PART 06 — 5.6 디버깅 & 리팩토링**
+**PART 05 — 5.5 디버깅 & 리팩토링**
 - 에러 메시지 첨부→근본 원인 분석 / File Checkpointing·회귀 방지 / 안전한 리팩토링(단위·순차) / 테스트 안전망(Vitest) / E2E 자동화(Playwright+CI)
 
-**PART 07 — 5.7 프론트엔드 고도화** *(구 "Level 7 프론트엔드 고도화" 덱이 여기 통합 · 구 5.7 Plugin Marketplace 챕터는 삭제됨)*
+**PART 06 — 5.6 프론트엔드 고도화** *(구 "Level 7 프론트엔드 고도화" 덱이 여기 통합 · 구 5.5 Handoff & Changelog, 구 5.7 Plugin Marketplace 챕터는 삭제됨)*
 - 컴포넌트 단위 구축(Vitest+Testing Library·TDD·3분할 레이아웃) / TDD Red-Green(Button)
 - 마크다운 에디터(CodeMirror 6·remark/rehype·**XSS 방어**·신택스 하이라이팅)
 - 지식관리 UI 5패턴(트리·검색·자동저장·단축키·명령 팔레트 — 키보드 우선·흐름 보존)
