@@ -132,6 +132,7 @@
         <li><a href="#s1">용어 사전 — 풀네임과 의미</a></li>
         <li><a href="#s2">아키텍처 — 세 패턴 비교</a></li>
         <li><a href="#s3">동작 원리 — QoS·핸드셰이크·파티션</a></li>
+        <li><a href="#scode">코드 연동 — 최소 통합 &amp; 기본 구조</a></li>
         <li><a href="#s4">베스트 프랙티스</a></li>
         <li><a href="#s5">면접 핵심 정리 — 반드시 아는 것</a></li>
         <li><a href="#s6">예상 질문 &amp; 답변</a></li>
@@ -637,8 +638,165 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</code></pre>
       </section>
 
       <!-- 4 : 베스트 프랙티스 -->
+      <!-- 4 : 코드 연동 -->
+      <section id="scode">
+        <h2 class="sec"><span class="n">04</span>코드 연동 — 프로토콜별 최소 통합 &amp; 기본 구조<span class="lvl">난이도 중간</span></h2>
+        <p>앞의 아키텍처를 실제로 붙일 때 필요한 <strong>최소 코드</strong>와 <strong>기본 연결 구조</strong>를 프로토콜별로 하나씩 정리한다.
+           예제는 <strong>백엔드 관점에서 모두 Java</strong>로 통일했다 — MQTT=Eclipse Paho, WebSocket=Jakarta WebSocket, Kafka=Kafka Clients. WebSocket 브라우저 client는 원래 JS지만, 여기선 서비스 간 연동에 쓰는 <strong>Java client</strong>로 보여준다.</p>
+
+        <h3>① MQTT — Java <code class="inline">Eclipse Paho</code></h3>
+        <figure>
+          <svg viewBox="0 0 720 168" role="img" aria-label="MQTT 기본 구조: 디바이스 publisher들이 broker를 거쳐 subscriber로 pub/sub">
+            <style>.mt{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}.mm{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#6B7280}.mk{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}</style>
+            <defs><marker id="mah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+            <rect x="20" y="20" width="130" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="mt" x="85" y="39" text-anchor="middle">sensor A</text>
+            <rect x="20" y="62" width="130" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="mt" x="85" y="81" text-anchor="middle">sensor B</text>
+            <rect x="20" y="104" width="130" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="mt" x="85" y="123" text-anchor="middle">actuator</text>
+            <rect x="290" y="47" width="150" height="66" rx="6" fill="#FFFFFF" stroke="#B45309" stroke-width="2"/><text x="365" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700" fill="#B45309">MQTT broker</text><text class="mm" x="365" y="96" text-anchor="middle">retain · LWT · QoS</text>
+            <rect x="580" y="42" width="120" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="mt" x="640" y="61" text-anchor="middle">backend</text>
+            <rect x="580" y="92" width="120" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="mt" x="640" y="111" text-anchor="middle">dashboard</text>
+            <line x1="150" y1="35" x2="288" y2="66" stroke="#B45309" stroke-width="1.5" marker-end="url(#mah)"/>
+            <line x1="150" y1="77" x2="288" y2="80" stroke="#B45309" stroke-width="1.5" marker-end="url(#mah)"/>
+            <line x1="150" y1="119" x2="288" y2="96" stroke="#B45309" stroke-width="1.5" marker-end="url(#mah)"/>
+            <line x1="440" y1="72" x2="578" y2="57" stroke="#B45309" stroke-width="1.5" marker-end="url(#mah)"/>
+            <line x1="440" y1="88" x2="578" y2="107" stroke="#B45309" stroke-width="1.5" marker-end="url(#mah)"/>
+            <text class="mk" x="215" y="150" text-anchor="middle">PUBLISH · topic</text>
+            <text class="mk" x="515" y="150" text-anchor="middle">SUBSCRIBE · topic/#</text>
+            <text class="mm" x="365" y="132" text-anchor="middle">TLS 8883 · N:M fan-out</text>
+          </svg>
+          <figcaption>MQTT — 모든 디바이스가 broker 하나에 붙는 스타형 pub/sub. publisher와 subscriber는 topic으로만 느슨히 연결된다.</figcaption>
+        </figure>
+        <pre><code><span class="c">// Eclipse Paho (MQTT client) · TLS 8883</span>
+var opts = new MqttConnectOptions();
+opts.setKeepAliveInterval(60);                       <span class="c">// keepalive</span>
+opts.setAutomaticReconnect(true);                    <span class="c">// 자동 재연결·재구독</span>
+
+var client = new MqttClient("ssl://broker.example.com:8883",
+                MqttClient.generateClientId(), new MemoryPersistence());
+client.connect(opts);                                <span class="c">// TLS(8883)</span>
+
+client.subscribe("sensors/factory-1/#", 1,           <span class="c">// 와일드카드 · QoS 1</span>
+    (topic, msg) -&gt; System.out.println(
+        topic + " " + new String(msg.getPayload()))); <span class="c">// 수신 처리</span>
+
+var m = new MqttMessage("{\"t\":47.8}".getBytes());
+m.setQos(1); m.setRetained(false);                   <span class="c">// 발행 QoS 1</span>
+client.publish("sensors/factory-1/press-07/telemetry", m);</code></pre>
+        <div class="note">
+          <div class="t">연동 포인트</div>
+          <p><code class="inline">subscribe()</code>에 <strong>메시지 리스너 람다</strong>를 건다. <code class="inline">setAutomaticReconnect(true)</code>로 끊겨도 자동 재연결·재구독. <code class="inline">QoS 1</code>은 최소 1회 → <strong>중복 수신 멱등 처리</strong> 필요.
+             Paho 내부 스레드가 keepalive·콜백을 돌린다.</p>
+        </div>
+
+        <h3>② WebSocket — Java client + Java 서버 <code class="inline">Jakarta WebSocket</code></h3>
+        <figure>
+          <svg viewBox="0 0 720 150" role="img" aria-label="WebSocket 기본 구조: 브라우저와 서버가 하나의 TCP로 양방향 연결">
+            <style>.wt{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#111;font-weight:700}.wm{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#6B7280}.wk{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}</style>
+            <defs><marker id="wah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+            <rect x="40" y="48" width="190" height="54" rx="6" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.3"/><text class="wt" x="135" y="72" text-anchor="middle">Browser</text><text class="wm" x="135" y="90" text-anchor="middle">WebSocket API</text>
+            <rect x="490" y="48" width="190" height="54" rx="6" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.3"/><text class="wt" x="585" y="72" text-anchor="middle">Server</text><text class="wm" x="585" y="90" text-anchor="middle">Jakarta / Spring</text>
+            <line x1="232" y1="67" x2="486" y2="67" stroke="#B45309" stroke-width="1.6" marker-start="url(#wah)" marker-end="url(#wah)"/>
+            <text class="wk" x="359" y="40" text-anchor="middle">① HTTP Upgrade → 101 Switching Protocols</text>
+            <text class="wm" x="359" y="61" text-anchor="middle" fill="#B45309">single TCP · full-duplex frames</text>
+            <text class="wk" x="359" y="126" text-anchor="middle">wss:// 443 · ping/pong keepalive · 양방향 push</text>
+          </svg>
+          <figcaption>WebSocket — HTTP Upgrade로 시작해 하나의 TCP를 양방향으로 계속 열어둔다. broker·topic 개념은 앱이 얹는다.</figcaption>
+        </figure>
+        <pre><code><span class="c">// Java client — Jakarta WebSocket (Tyrus) · wss 443</span>
+@ClientEndpoint
+public class LiveClient {
+    @OnOpen    public void onOpen(Session s) throws IOException {
+        s.getBasicRemote().sendText("{\"sub\":\"press-07\"}");
+    }
+    @OnMessage public void onMessage(String data) { render(data); }  <span class="c">// 서버 푸시 수신</span>
+    @OnClose   public void onClose(Session s) { reconnect(); }        <span class="c">// 지수 백오프 재연결</span>
+}
+<span class="c">// 연결</span>
+var container = ContainerProvider.getWebSocketContainer();
+container.connectToServer(LiveClient.class, URI.create("wss://api.example.com/live"));</code></pre>
+        <pre><code><span class="c">// 서버 — Jakarta WebSocket @ServerEndpoint</span>
+@ServerEndpoint("/live")
+public class LiveServer {
+    @OnOpen    public void onOpen(Session s) { register(s); }
+    @OnMessage public void onMessage(String msg, Session s) { route(s, msg); }
+
+    <span class="c">// 서버→클라 push</span>
+    void push(Session s, String data) throws IOException {
+        s.getBasicRemote().sendText(data);
+    }
+}</code></pre>
+        <div class="note">
+          <div class="t">연동 포인트</div>
+          <p>연결은 <strong>HTTP로 시작</strong>(Upgrade)해 <strong>101</strong> 이후 프레임 채널로 전환된다. <code class="inline">@OnClose</code>에서 <strong>지수 백오프 재연결</strong>은 필수(NAT 만료·서버 재시작 대비).
+             다중 구독·라우팅은 프로토콜에 없으므로 <strong>서버가 <code class="inline">Session</code>→구독 맵을 관리</strong>한다.</p>
+        </div>
+
+        <h3>③ Kafka — Java <code class="inline">Producer</code> / <code class="inline">Consumer</code></h3>
+        <figure>
+          <svg viewBox="0 0 720 186" role="img" aria-label="Kafka 기본 구조: producer가 파티션 로그에 쓰고 consumer group이 파티션을 나눠 읽음">
+            <style>.kt{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#111}.km{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#6B7280}.kk{font-family:'Noto Sans KR',sans-serif;font-size:12px;fill:#6B7280}</style>
+            <defs><marker id="kah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#B45309"/></marker></defs>
+            <rect x="20" y="40" width="120" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="kt" x="80" y="59" text-anchor="middle">producer 1</text>
+            <rect x="20" y="94" width="120" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="kt" x="80" y="113" text-anchor="middle">producer 2</text>
+            <rect x="270" y="26" width="200" height="120" rx="6" fill="#FFFFFF" stroke="#B45309" stroke-width="2"/><text class="km" x="370" y="44" text-anchor="middle">topic · 3 partitions</text>
+            <text class="kt" x="280" y="70">P0</text><rect x="308" y="58" width="150" height="15" rx="2" fill="#F8F7F4" stroke="#9CA3AF"/><text class="km" x="315" y="70">offset 0 1 2 →</text>
+            <text class="kt" x="280" y="94">P1</text><rect x="308" y="82" width="150" height="15" rx="2" fill="#F8F7F4" stroke="#9CA3AF"/><text class="km" x="315" y="94">offset 0 1 →</text>
+            <text class="kt" x="280" y="118">P2</text><rect x="308" y="106" width="150" height="15" rx="2" fill="#F8F7F4" stroke="#9CA3AF"/><text class="km" x="315" y="118">offset 0 1 2 3 →</text>
+            <rect x="560" y="34" width="140" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="kt" x="630" y="53" text-anchor="middle">consumer C1</text>
+            <rect x="560" y="104" width="140" height="30" rx="4" fill="#F8F7F4" stroke="#9CA3AF"/><text class="kt" x="630" y="123" text-anchor="middle">consumer C2</text>
+            <line x1="140" y1="55" x2="268" y2="70" stroke="#B45309" stroke-width="1.5" marker-end="url(#kah)"/>
+            <line x1="140" y1="109" x2="268" y2="104" stroke="#B45309" stroke-width="1.5" marker-end="url(#kah)"/>
+            <line x1="470" y1="66" x2="558" y2="50" stroke="#B45309" stroke-width="1.5" marker-end="url(#kah)"/>
+            <line x1="470" y1="106" x2="558" y2="118" stroke="#B45309" stroke-width="1.5" marker-end="url(#kah)"/>
+            <text class="km" x="200" y="150" text-anchor="middle">produce · key→partition</text>
+            <text class="km" x="565" y="86" text-anchor="middle" fill="#B45309">consumer group</text>
+            <text class="kk" x="370" y="166" text-anchor="middle">파티션당 그룹 내 소비자 1명 · offset으로 이어읽기 · replay 가능</text>
+          </svg>
+          <figcaption>Kafka — topic이 파티션 로그로 쪼개지고, consumer group이 파티션을 나눠 병렬 소비한다. 메시지는 소비 후에도 보존돼 재생 가능.</figcaption>
+        </figure>
+        <div class="note">
+          <div class="t">면접 포인트 — 파티션 = 분산 + 순서 경계</div>
+          <p>P0·P1·P2는 <strong>서로 다른 메시지</strong>가 담기는 독립 로그다(그래서 offset 개수가 제각각). 순서는 <strong>한 파티션 안에서만</strong> 보장되고, 파티션 간(P0 vs P1)에는 <strong>전역 순서가 없다</strong>. 즉 "Kafka가 순서를 보장한다"는 <strong>같은 파티션 안에서만</strong>이 정답 — 면접 단골 함정이다.</p>
+          <p><strong>순서를 보장하는 방법</strong> ①~④:</p>
+          <ul>
+            <li><strong>① key로 파티션 고정</strong> — 순서가 중요한 단위(주문 ID·디바이스 ID)를 메시지 key로 준다. <code class="inline">hash(key) % partitions</code>로 <strong>같은 key는 항상 같은 파티션</strong>에 시간순 적재된다(예: <code class="inline">key="press-07"</code>).</li>
+            <li><strong>② producer 재시도 순서 보호</strong> — <code class="inline">enable.idempotence=true</code>(기본 on) + <code class="inline">max.in.flight.requests.per.connection ≤ 5</code>로 재전송 시 순서가 뒤집히지 않게 한다.</li>
+            <li><strong>③ consumer 단일 배정</strong> — 파티션 하나는 그룹 내 <strong>소비자 1명</strong>에게만 배정되므로 offset 순서대로 읽혀 파티션 순서가 <strong>처리까지</strong> 유지된다.</li>
+            <li><strong>④ 전역 순서가 꼭 필요하면 파티션 1개</strong> — 대신 <strong>병렬성·처리량을 포기</strong>(소비자도 1명만). "부분 순서 + 수평 확장" 트레이드오프가 Kafka 설계의 핵심이다.</li>
+          </ul>
+        </div>
+        <pre><code><span class="c">// producer — acks=all + 멱등</span>
+var p = new Properties();
+p.put("bootstrap.servers", "broker:9092");
+p.put("key.serializer",   StringSerializer.class.getName());
+p.put("value.serializer", StringSerializer.class.getName());
+p.put("acks", "all");                       <span class="c">// ISR 전체 확인</span>
+p.put("enable.idempotence", "true");        <span class="c">// 중복 쓰기 방지</span>
+
+try (var producer = new KafkaProducer&lt;String, String&gt;(p)) {
+    producer.send(new ProducerRecord&lt;&gt;(
+        "telemetry", "press-07", "{\"t\":47.8}"));   <span class="c">// key로 파티션 결정</span>
+}</code></pre>
+        <pre><code><span class="c">// consumer — group 분담 + 수동 커밋</span>
+p.put("group.id", "dashboard");             <span class="c">// consumer group</span>
+p.put("enable.auto.commit", "false");
+var consumer = new KafkaConsumer&lt;String, String&gt;(p);
+consumer.subscribe(List.of("telemetry"));
+
+while (true) {
+    var records = consumer.poll(Duration.ofMillis(100));
+    for (var r : records) handle(r.value());   <span class="c">// offset 순서대로 처리</span>
+    consumer.commitSync();                     <span class="c">// 처리 후 커밋(at-least-once)</span>
+}</code></pre>
+        <div class="note">
+          <div class="t">연동 포인트</div>
+          <p><strong>key가 파티션을 결정</strong>(같은 key = 같은 파티션 = 순서 보장). <code class="inline">acks=all</code>+<code class="inline">idempotence</code>로 유실·중복을 막고,
+             <strong>처리 후 <code class="inline">commitSync()</code></strong>로 at-least-once를 만든다(먼저 커밋하면 유실 위험). 소비 확장은 <strong>파티션 수까지</strong> consumer를 늘린다.</p>
+        </div>
+      </section>
+
       <section id="s4">
-        <h2 class="sec"><span class="n">04</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
+        <h2 class="sec"><span class="n">05</span>베스트 프랙티스<span class="lvl">난이도 중간</span></h2>
         <table>
           <thead><tr><th>프로토콜</th><th>Do</th><th>Don't</th></tr></thead>
           <tbody>
@@ -656,7 +814,7 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</code></pre>
 
       <!-- 5 : 면접 핵심 정리 -->
       <section id="s5">
-        <h2 class="sec"><span class="n">05</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
+        <h2 class="sec"><span class="n">06</span>면접 핵심 정리 — 반드시 아는 것<span class="lvl">난이도 필수</span></h2>
         <p>면접 직전 <strong>이 섹션만 봐도 되도록</strong>, 반드시 그릴 비교 그림 · 파고드는 추가 설명 · 정의할 핵심 용어 · 아는지 확인하는 체크리스트를 한 곳에 모았다.</p>
 
         <h3>① 반드시 그리는 비교</h3>
@@ -743,7 +901,7 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</code></pre>
 
       <!-- 6 : 예상 질문 & 답변 -->
       <section id="s6">
-        <h2 class="sec"><span class="n">06</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
+        <h2 class="sec"><span class="n">07</span>예상 질문 &amp; 답변<span class="lvl">난이도 필수</span></h2>
 
         <div class="qa">
           <div class="q">MQTT QoS 0·1·2의 차이와 각각 언제 쓰나?</div>
@@ -803,7 +961,7 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</code></pre>
 
       <!-- 7 : 참고자료 -->
       <section id="s7">
-        <h2 class="sec"><span class="n">07</span>참고자료<span class="lvl">공식 문서</span></h2>
+        <h2 class="sec"><span class="n">08</span>참고자료<span class="lvl">공식 문서</span></h2>
         <ul>
           <li><strong>MQTT</strong> — <a class="link" href="https://mqtt.org/" target="_blank" rel="noopener">mqtt.org (OASIS 표준 소개)</a> · <a class="link" href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html" target="_blank" rel="noopener">OASIS MQTT 5.0 명세</a> · <a class="link" href="https://mosquitto.org/" target="_blank" rel="noopener">Eclipse Mosquitto broker</a></li>
           <li><strong>WebSocket</strong> — <a class="link" href="https://datatracker.ietf.org/doc/html/rfc6455" target="_blank" rel="noopener">RFC 6455 (IETF)</a> · <a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" target="_blank" rel="noopener">MDN WebSockets API</a> · <a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers" target="_blank" rel="noopener">MDN — WebSocket 서버 작성</a></li>
