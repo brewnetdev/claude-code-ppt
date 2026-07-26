@@ -5,7 +5,7 @@
 // table col-resize handles were added they were stripped in neither, baking
 // `.col-resize-handle` divs into persisted HTML that accumulated on remount.
 
-const CHROME_SELECTOR = '.block-drag-handle, .col-resize-handle';
+const CHROME_SELECTOR = '.block-drag-handle, .col-resize-handle, .img-resize-handle';
 const TRANSIENT_CLASSES = ['sortable-chosen', 'sortable-ghost', 'sortable-drag', 'selected-block'];
 const ZERO_WIDTH_SPACE = '​';
 

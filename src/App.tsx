@@ -92,8 +92,14 @@ export function App() {
           currentIndex: 0,
         });
         usePersistenceStore.getState().setSaved(persisted.savedAt);
+        // A cache written before decks carried a fingerprint has no recorded
+        // hash. Treating that as "up to date" is what let stale copies survive
+        // indefinitely — the cache always wins on load, so the editor and every
+        // export served an old revision with no warning. Unknown now counts as
+        // stale: the banner offers "keep my edits" or "reload the source", and
+        // either choice stamps the hash so it won't ask again.
         const stale = Boolean(
-          deck.sourceHash && persisted.sourceHash && deck.sourceHash !== persisted.sourceHash,
+          deck.sourceHash && (!persisted.sourceHash || deck.sourceHash !== persisted.sourceHash),
         );
         usePersistenceStore.getState().setSourceStale(stale);
       } else {

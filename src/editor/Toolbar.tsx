@@ -19,7 +19,8 @@ import { assembleHtmlDocument, splitHtmlDocument } from '../importer/detectResou
 import { parsePresentationHTML } from '../importer/parsePresentation';
 import type { DeckRegistryEntry } from '../library/deckRegistry';
 import type { ResourceEntry } from '../library/resourceRegistry';
-import { clearDeckFromLocalStorage } from '../persistence/localStore';
+import { extractSourceHash } from '../library/contentFingerprint';
+import { clearDeckFromLocalStorage, saveDeckToLocalStorage } from '../persistence/localStore';
 import { usePersistenceStore } from '../persistence/persistenceStore';
 import { flushPendingCommit } from '../scene/pendingCommit';
 import { useResourceStore } from '../scene/resourceStore';
@@ -184,6 +185,21 @@ export function Toolbar({
           if (!root) root = await pickExportRoot();
           if (root) {
             const path = await writeDeckHtml(root, activeDeck.template, activeDeck.id, html);
+            // The file we just wrote carries its own fingerprint. Record the
+            // same value on the cache so the next boot sees them as one
+            // revision — otherwise the cache still holds the pre-save hash and
+            // the stale banner fires on a deck the user just saved themselves.
+            const written = extractSourceHash(html);
+            if (written) {
+              const { slides, overlaysBySlide, currentIndex } = useDeckStore.getState();
+              await saveDeckToLocalStorage(activeDeck.id, {
+                slides,
+                overlaysBySlide,
+                currentIndex,
+                sourceHash: written,
+              });
+              usePersistenceStore.getState().setSourceStale(false);
+            }
             usePersistenceStore.getState().setSaved(Date.now());
             showToast({ message: `저장됨: ${path}`, tone: 'info' });
             return;
@@ -257,6 +273,10 @@ export function Toolbar({
         downloadBlob(html, sanitizeFilename(resource.title) + '.html');
         return;
       }
+      // Edits reach the store through a 300ms debounce. Save already flushes
+      // it; this path didn't, so exporting right after a keystroke shipped the
+      // previous revision of whatever block was being edited.
+      flushPendingCommit();
       const { slides: latestSlides, overlaysBySlide } = useDeckStore.getState();
       const html = await buildHtmlBundle({
         slides: latestSlides,

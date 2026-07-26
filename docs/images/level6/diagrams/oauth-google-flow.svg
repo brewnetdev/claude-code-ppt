@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136 420" width="1136" height="420" role="img" aria-label="구글 로그인은 실제로 무슨 일이 일어나는가 — OAuth 2.0 Authorization Code 흐름. 사용자 브라우저, markflow 앱, Google 인증 서버, markflow DB 4레인 시퀀스">
+  <style>
+    text { font-family: 'Noto Sans KR', sans-serif; fill: #0F172A; }
+    .m { font-family: 'JetBrains Mono', monospace; }
+    .sub { fill: #57564F; }
+    .dim { fill: #8A8880; }
+    .ac { fill: #0F766E; }
+    .wa { fill: #B45309; }
+    .n { fill: #FAF9F5; font-size: 13px; font-weight: 700; text-anchor: middle; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 8 6" refX="8" refY="3" markerWidth="8" markerHeight="6" orient="auto">
+      <path d="M0 0 L8 3 L0 6 Z" fill="#57564F"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1136" height="420" fill="#FAF9F5"/>
+
+  <!-- title -->
+  <text x="8" y="24" font-size="18" font-weight="700">구글 로그인은 실제로 무슨 일이 일어나는가 — OAuth 2.0 Authorization Code 흐름</text>
+
+  <!-- lane headers -->
+  <rect x="28" y="36" width="240" height="42" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1" rx="4"/>
+  <text x="148" y="56" font-size="15" font-weight="700" text-anchor="middle">사용자 브라우저</text>
+  <text x="148" y="72" font-size="13" class="sub" text-anchor="middle">클라이언트 (공개 영역)</text>
+
+  <rect x="308" y="36" width="240" height="42" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1" rx="4"/>
+  <text x="428" y="56" font-size="15" font-weight="700" text-anchor="middle">markflow 앱</text>
+  <text x="428" y="72" font-size="13" class="sub" text-anchor="middle">Next.js 서버 · Auth.js</text>
+
+  <rect x="588" y="36" width="240" height="42" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1" rx="4"/>
+  <text x="708" y="56" font-size="15" font-weight="700" text-anchor="middle">Google 인증 서버</text>
+  <text x="708" y="72" font-size="13" class="sub m" text-anchor="middle">accounts.google.com</text>
+
+  <rect x="868" y="36" width="240" height="42" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1" rx="4"/>
+  <text x="988" y="56" font-size="15" font-weight="700" text-anchor="middle">markflow DB</text>
+  <text x="988" y="72" font-size="13" class="sub" text-anchor="middle"><tspan class="m">users</tspan> · <tspan class="m">accounts</tspan> 테이블</text>
+
+  <!-- lifelines -->
+  <line x1="148" y1="78" x2="148" y2="340" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="428" y1="78" x2="428" y2="340" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="708" y1="78" x2="708" y2="340" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="988" y1="78" x2="988" y2="340" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- 1 -->
+  <circle cx="164" cy="93" r="10" fill="#0F766E"/>
+  <text x="164" y="98" class="n">1</text>
+  <text x="180" y="98" font-size="15">사용자가 [Google로 로그인] 버튼 클릭</text>
+  <line x1="148" y1="106" x2="428" y2="106" stroke="#57564F" stroke-width="1" marker-end="url(#a)"/>
+
+  <!-- 2 -->
+  <circle cx="444" cy="121" r="10" fill="#0F766E"/>
+  <text x="444" y="126" class="n">2</text>
+  <text x="460" y="126" font-size="15">앱이 구글 인증 URL로 리디렉트</text>
+  <text x="460" y="141" font-size="13" class="m sub">client_id · redirect_uri · scope=openid email profile · state</text>
+  <line x1="428" y1="150" x2="708" y2="150" stroke="#57564F" stroke-width="1" marker-end="url(#a)"/>
+
+  <!-- 3 -->
+  <rect x="528" y="156" width="360" height="50" fill="#FAF9F5" stroke="#0F766E" stroke-width="1.5" rx="4"/>
+  <circle cx="548" cy="173" r="10" fill="#0F766E"/>
+  <text x="548" y="178" class="n">3</text>
+  <text x="566" y="178" font-size="15">구글 로그인 + 동의(consent) 화면</text>
+  <text x="548" y="196" font-size="13" class="sub">콘솔의 Branding · Data Access 설정이 여기 나타난다</text>
+
+  <!-- 4 -->
+  <circle cx="444" cy="219" r="10" fill="#0F766E"/>
+  <text x="444" y="224" class="n">4</text>
+  <text x="460" y="224" font-size="15">구글 → 앱: <tspan class="m">redirect_uri</tspan> 로 authorization code 전달</text>
+  <text x="460" y="238" font-size="13" class="m ac">/api/auth/callback/google</text>
+  <line x1="708" y1="246" x2="428" y2="246" stroke="#57564F" stroke-width="1" marker-end="url(#a)"/>
+
+  <!-- 5 : server-to-server band -->
+  <rect x="250" y="252" width="660" height="60" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1" rx="4"/>
+  <text x="898" y="270" font-size="13" class="sub" text-anchor="end">서버 간 통신</text>
+  <circle cx="444" cy="267" r="10" fill="#0F766E"/>
+  <text x="444" y="272" class="n">5</text>
+  <text x="460" y="272" font-size="15">앱 → 구글: code + <tspan class="m">client_secret</tspan> 교환</text>
+  <line x1="428" y1="286" x2="708" y2="286" stroke="#57564F" stroke-width="1" marker-end="url(#a)"/>
+  <text x="262" y="306" font-size="13" class="sub">응답 = ID 토큰 · 액세스 토큰   |   <tspan class="m">client_secret</tspan> 은 브라우저에 전달되지 않는다</text>
+
+  <!-- 6 -->
+  <circle cx="444" cy="323" r="10" fill="#0F766E"/>
+  <text x="444" y="328" class="n">6</text>
+  <text x="460" y="328" font-size="15">사용자 조회·생성 → 세션 쿠키 발급 → <tspan class="m">users</tspan> / <tspan class="m">accounts</tspan> 저장</text>
+  <line x1="428" y1="336" x2="988" y2="336" stroke="#57564F" stroke-width="1" marker-end="url(#a)"/>
+
+  <!-- amber warning -->
+  <rect x="8" y="348" width="1120" height="34" fill="#FAF9F5" stroke="#B45309" stroke-width="1.5" rx="4"/>
+  <text x="24" y="369" font-size="13"><tspan class="wa" font-weight="700">주의 · </tspan><tspan class="m">redirect_uri</tspan> 는 콘솔에 등록한 값과 문자 단위로 정확히 일치해야 한다 — 대소문자 · 후행 슬래시 · 포트 포함, 와일드카드 불가. 불일치하면 <tspan class="m wa">redirect_uri_mismatch</tspan> 오류.</text>
+
+  <!-- footnote -->
+  <text x="8" y="404" font-size="12" class="dim">OAuth = Open Authorization (권한 위임 표준) · OIDC = OpenID Connect (OAuth 위에 신원 확인을 얹은 계층)</text>
+</svg>

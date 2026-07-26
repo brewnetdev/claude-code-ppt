@@ -222,6 +222,37 @@
   background: rgba(96, 165, 250, 0.65);
 }
 
+/* Media resize handles — injected by useSlideEditing on every in-flow <img>
+   and inline diagram <svg>. The wrapper becomes a positioning context and the
+   handle sits at its bottom-right corner. Hidden until the wrapper is hovered
+   so it doesn't clutter the canvas; full contrast while dragging. */
+.slide-canvas-host[data-canvas-role="main"] .img-resize-handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  user-select: none;
+  background: #ffffff;
+  border: 1px solid #60a5fa;
+  border-radius: 2px;
+  opacity: 0;
+  z-index: 30;
+  pointer-events: auto;
+  transition: opacity 120ms ease;
+}
+
+.slide-canvas-host[data-canvas-role="main"] *:hover > .img-resize-handle,
+.slide-canvas-host[data-canvas-role="main"] .img-resize-handle:hover,
+.slide-canvas-host[data-canvas-role="main"] .img-resize-handle.dragging {
+  opacity: 1;
+}
+
+.slide-canvas-host[data-canvas-role="main"] .img-resize-handle.dragging {
+  background: #60a5fa;
+}
+
 /* While a column resize is in progress, freeze the cursor globally so the
    col-resize affordance doesn't flicker back to text/I-beam when the mouse
    strays off the handle into the table cell during fast drags. */

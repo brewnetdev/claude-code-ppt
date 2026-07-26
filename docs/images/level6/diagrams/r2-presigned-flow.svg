@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136 430" width="1136" height="430" role="img" aria-label="Cloudflare R2 이미지 업로드 presigned URL 시퀀스 — 브라우저, markflow 서버, R2 3레인 6단계 흐름과 PUT 전용 · 커스텀 도메인 미지원 함정, CORS preflight 각주">
+  <style>
+    text { font-family: 'Noto Sans KR', sans-serif; fill: #0F172A; }
+    .m { font-family: 'JetBrains Mono', monospace; }
+    .mut { fill: #57564F; }
+    .dim { fill: #8A8880; }
+    .ac  { fill: #0F766E; }
+    .ac2 { fill: #115E59; }
+    .warn { fill: #B45309; }
+    .bx { fill: #FAF9F5; stroke: #D8D5CC; stroke-width: 1; }
+  </style>
+
+  <rect x="0" y="0" width="1136" height="430" fill="#FAF9F5"/>
+
+  <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L8 4 L0 8 Z" fill="#57564F"/>
+  </marker>
+  <marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L8 4 L0 8 Z" fill="#B45309"/>
+  </marker>
+  <marker id="art" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L8 4 L0 8 Z" fill="#0F766E"/>
+  </marker>
+
+  <text x="16" y="26" font-size="18" font-weight="700">Cloudflare R2 이미지 업로드 — presigned URL(사전 서명 URL) 시퀀스와 2도메인 분리</text>
+
+  <!-- ============ 레인(액터) ============ -->
+  <rect x="40" y="38" width="200" height="46" rx="4" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1"/>
+  <text x="140" y="60" font-size="15" font-weight="600" text-anchor="middle">브라우저</text>
+  <text class="mut" x="140" y="77" font-size="13" text-anchor="middle">(클라이언트)</text>
+
+  <rect x="440" y="38" width="240" height="46" rx="4" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1"/>
+  <text x="560" y="60" font-size="15" font-weight="600" text-anchor="middle">markflow 서버</text>
+  <text class="m mut" x="560" y="77" font-size="13" text-anchor="middle">(Next.js Route Handler)</text>
+
+  <rect x="900" y="38" width="200" height="46" rx="4" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1"/>
+  <text x="1000" y="60" font-size="15" font-weight="600" text-anchor="middle">Cloudflare R2</text>
+  <text class="mut" x="1000" y="77" font-size="13" text-anchor="middle">(오브젝트 스토리지)</text>
+
+  <line x1="140" y1="88" x2="140" y2="312" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="560" y1="88" x2="560" y2="312" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="1000" y1="88" x2="1000" y2="312" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- ① 서명 URL 요청 -->
+  <circle cx="156" cy="92.5" r="10" fill="#0F766E"/>
+  <text x="156" y="97" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">1</text>
+  <text x="172" y="97" font-size="13"><tspan class="m">POST /api/upload-url</tspan> — 파일명 · MIME(Multipurpose Internet Mail Extensions) 타입</text>
+  <line x1="140" y1="104" x2="558" y2="104" stroke="#57564F" stroke-width="1" marker-end="url(#ar)"/>
+
+  <!-- ② 서버 서명 -->
+  <line x1="560" y1="140" x2="578" y2="140" stroke="#0F766E" stroke-width="1"/>
+  <rect x="578" y="112" width="340" height="56" rx="4" fill="#FAF9F5" stroke="#0F766E" stroke-width="1.5"/>
+  <text class="m ac2" x="592" y="132" font-size="13">getSignedUrl(S3Client,</text>
+  <text class="m ac2" x="592" y="147" font-size="13">PutObjectCommand, { expiresIn: 300 })</text>
+  <text x="592" y="164" font-size="13">비밀키는 서버에만 존재한다</text>
+  <circle cx="560" cy="140" r="11" fill="#0F766E"/>
+  <text x="560" y="144.5" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">2</text>
+
+  <!-- ③ 서명 URL 반환 -->
+  <circle cx="156" cy="188.5" r="10" fill="#0F766E"/>
+  <text x="156" y="193" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">3</text>
+  <text x="172" y="193" font-size="13">서명된 <tspan class="m">PUT</tspan> URL 반환 — 만료 5분(<tspan class="m">expiresIn: 300</tspan>)</text>
+  <line x1="560" y1="200" x2="142" y2="200" stroke="#57564F" stroke-width="1" marker-end="url(#ar)"/>
+
+  <!-- ④ 직접 업로드 -->
+  <circle cx="156" cy="224.5" r="10" fill="#B45309"/>
+  <text x="156" y="229" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">4</text>
+  <text x="172" y="229" font-size="13"><tspan class="m warn" font-weight="700">PUT</tspan> 으로 R2에 직접 업로드 — 서버를 거치지 않아 대역폭 · 타임아웃 회피</text>
+  <text class="m warn" x="998" y="229" font-size="13" text-anchor="end">&lt;ACCOUNT_ID&gt;.r2.cloudflarestorage.com</text>
+  <line x1="140" y1="236" x2="998" y2="236" stroke="#B45309" stroke-width="1" marker-end="url(#arw)"/>
+
+  <!-- ⑤ key 저장 -->
+  <circle cx="156" cy="256.5" r="10" fill="#0F766E"/>
+  <text x="156" y="261" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">5</text>
+  <text x="172" y="261" font-size="13">업로드된 <tspan class="m">key</tspan> 저장 — 마크다운에 삽입할 <tspan class="m">publicUrl</tspan></text>
+  <line x1="140" y1="268" x2="558" y2="268" stroke="#57564F" stroke-width="1" marker-end="url(#ar)"/>
+
+  <!-- ⑥ 읽기 -->
+  <circle cx="156" cy="288.5" r="10" fill="#0F766E"/>
+  <text x="156" y="293" font-size="13" font-weight="700" fill="#FAF9F5" text-anchor="middle">6</text>
+  <text x="172" y="293" font-size="13">읽기 — <tspan class="m ac2">&lt;img src="https://cdn.markflow.app/uploads/..."&gt;</tspan></text>
+  <text class="ac" x="998" y="293" font-size="13" text-anchor="end">커스텀 도메인 (공개 읽기 · 캐시)</text>
+  <line x1="140" y1="300" x2="998" y2="300" stroke="#0F766E" stroke-width="1" marker-end="url(#art)"/>
+
+  <!-- ============ 함정 2개 ============ -->
+  <rect x="16" y="318" width="548" height="66" rx="4" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1"/>
+  <text class="warn" x="30" y="341" font-size="13" font-weight="700">함정 1</text>
+  <text x="80" y="341" font-size="14.5" font-weight="600">presigned URL 은 <tspan class="m">PUT</tspan> 만 지원한다</text>
+  <text class="mut" x="30" y="362" font-size="13"><tspan class="m">POST</tspan> 는 지원 안 됨 — HTML <tspan class="m">&lt;form&gt;</tspan> 업로드 불가</text>
+  <text class="mut" x="30" y="379" font-size="13">지원 메서드: <tspan class="m">GET · HEAD · PUT · DELETE</tspan></text>
+
+  <rect x="572" y="318" width="548" height="66" rx="4" fill="#F2F0EA" stroke="#D8D5CC" stroke-width="1"/>
+  <text class="warn" x="586" y="341" font-size="13" font-weight="700">함정 2</text>
+  <text x="636" y="341" font-size="14.5" font-weight="600">presigned URL 은 커스텀 도메인에서 안 된다</text>
+  <text class="mut" x="586" y="362" font-size="13">업로드 → <tspan class="m">&lt;ACCOUNT_ID&gt;.r2.cloudflarestorage.com</tspan> (S3 엔드포인트)</text>
+  <text class="mut" x="586" y="379" font-size="13">읽기 → <tspan class="m">cdn.markflow.app</tspan> — 도메인이 갈라지는 게 정상 구성</text>
+
+  <text class="dim" x="16" y="402" font-size="12">브라우저는 PUT 전에 preflight(사전 요청) OPTIONS 를 먼저 보낸다. R2 버킷의 CORS(Cross-Origin Resource Sharing, 교차 출처 리소스 공유) 정책이 이 요청을 허용해야 업로드가 통과한다.</text>
+  <text class="dim" x="16" y="419" font-size="12">AllowedOrigins 에 http://localhost:3000 누락이 가장 흔한 실수 — 브라우저 콘솔에만 No 'Access-Control-Allow-Origin' header 가 뜨고 서버 로그엔 아무것도 안 남는다.</text>
+</svg>

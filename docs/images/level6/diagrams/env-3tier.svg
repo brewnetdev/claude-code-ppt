@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 400" width="940" height="400" role="img" aria-label="Git 브랜치와 Vercel 3환경(Development, Preview, Production), 각 환경의 사용자와 환경변수 스코프 매핑">
+<style>
+text{font-family:'Noto Sans KR',sans-serif;fill:#0F172A}
+.m{font-family:'JetBrains Mono',monospace}
+.h{font-size:13px;fill:#8A8880}
+.nm{font-size:16px;font-weight:700;fill:#115E59}
+.tg{font-size:13px;fill:#0F172A}
+.lb{font-size:13px;fill:#8A8880}
+.st{font-size:13px;fill:#57564F}
+.ur{font-size:13px;fill:#57564F}
+.u1{font-size:15px;fill:#0F172A}
+.u2{font-size:13px;fill:#57564F}
+.fn{font-size:12px;fill:#57564F}
+.ti{font-size:18px;font-weight:700}
+.bx{fill:#FAF9F5;stroke:#D8D5CC;stroke-width:1}
+.ev{fill:#FAF9F5;stroke:#0F766E;stroke-width:1.5}
+.sp{fill:#F2F0EA;stroke:#D8D5CC;stroke-width:1}
+.ln{stroke:#57564F;stroke-width:1;fill:none}
+</style>
+<defs>
+<marker id="ag" viewBox="0 0 9 8" refX="8" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0.6 L9 4 L0 7.4 Z" fill="#57564F"/></marker>
+</defs>
+<rect width="940" height="400" fill="#FAF9F5"/>
+
+<text class="ti" x="12" y="26">왜 환경을 나누는가 — Git 브랜치에서 Vercel 3환경, 그리고 사용자까지</text>
+<text class="h" x="12" y="48">Git 브랜치</text>
+<text class="h" x="152" y="48">Vercel 환경 · 트리거 · 환경변수 스코프</text>
+<text class="h" x="752" y="48">이 환경을 보는 사람</text>
+
+<!-- ROW 1 : Development -->
+<rect class="bx" x="12" y="83" width="112" height="44" rx="4"/>
+<text class="m" x="22" y="110" font-size="14">feature/*</text>
+<line class="ln" x1="128" y1="105" x2="147" y2="105" marker-end="url(#ag)"/>
+<rect class="ev" x="152" y="58" width="572" height="94" rx="4"/>
+<text class="nm" x="166" y="84">Development (= Local)</text>
+<text class="m ur" x="710" y="84" text-anchor="end">http://localhost:3000</text>
+<text class="tg" x="166" y="108"><tspan class="lb">트리거</tspan>  <tspan class="m">next dev</tspan> — 로컬 개발 서버, 브랜치와 무관</text>
+<rect class="sp" x="164" y="116" width="548" height="28" rx="3"/>
+<text class="st" x="176" y="135"><tspan class="m" fill="#115E59">DATABASE_URL</tspan> — <tspan class="m">.env.local</tspan> 의 값 · <tspan class="m">vercel env pull</tspan> 로 내려받음</text>
+<line class="ln" x1="728" y1="105" x2="747" y2="105" marker-end="url(#ag)"/>
+<rect class="bx" x="752" y="72" width="176" height="66" rx="4"/>
+<circle cx="768" cy="95" r="5" fill="none" stroke="#57564F" stroke-width="1"/>
+<text class="u1" x="782" y="100">개발자 본인</text>
+<text class="u2" x="782" y="122">내 컴퓨터에서만 확인</text>
+
+<!-- ROW 2 : Preview -->
+<line class="ln" x1="68" y1="131" x2="68" y2="185" marker-end="url(#ag)"/>
+<text class="lb" x="78" y="162">머지</text>
+<rect class="bx" x="12" y="189" width="112" height="44" rx="4"/>
+<text class="m" x="22" y="216" font-size="14">develop</text>
+<line class="ln" x1="128" y1="211" x2="147" y2="211" marker-end="url(#ag)"/>
+<rect class="ev" x="152" y="164" width="572" height="94" rx="4"/>
+<text class="nm" x="166" y="190">Preview</text>
+<text class="m ur" x="710" y="190" text-anchor="end">markflow-git-&lt;branch&gt;-&lt;team&gt;.vercel.app</text>
+<text class="tg" x="166" y="214"><tspan class="lb">트리거</tspan>  PR (Pull Request) 생성 · 프로덕션이 아닌 브랜치 push</text>
+<rect class="sp" x="164" y="222" width="548" height="28" rx="3"/>
+<text class="st" x="176" y="241"><tspan class="m" fill="#115E59">DATABASE_URL</tspan> — Neon <tspan class="m">preview/&lt;git-branch&gt;</tspan> 연결 문자열을 배포 시점에 주입</text>
+<line class="ln" x1="728" y1="211" x2="747" y2="211" marker-end="url(#ag)"/>
+<rect class="bx" x="752" y="178" width="176" height="66" rx="4"/>
+<circle cx="768" cy="201" r="5" fill="none" stroke="#57564F" stroke-width="1"/>
+<text class="u1" x="782" y="206">리뷰어 · 품질 검증</text>
+<text class="u2" x="782" y="228">PR 링크로 바로 확인</text>
+
+<!-- ROW 3 : Production -->
+<line class="ln" x1="68" y1="237" x2="68" y2="291" marker-end="url(#ag)"/>
+<text class="lb" x="78" y="268">머지</text>
+<rect class="bx" x="12" y="295" width="112" height="44" rx="4"/>
+<text class="m" x="22" y="322" font-size="14">main</text>
+<line class="ln" x1="128" y1="317" x2="147" y2="317" marker-end="url(#ag)"/>
+<rect class="ev" x="152" y="270" width="572" height="94" rx="4"/>
+<text class="nm" x="166" y="296">Production</text>
+<text class="m ur" x="710" y="296" text-anchor="end">markflow.app</text>
+<text class="tg" x="166" y="320"><tspan class="lb">트리거</tspan>  <tspan class="m">main</tspan> 브랜치 머지 · <tspan class="m">vercel --prod</tspan></text>
+<rect class="sp" x="164" y="328" width="548" height="28" rx="3"/>
+<text class="st" x="176" y="347"><tspan class="m" fill="#115E59">DATABASE_URL</tspan> — Vercel↔Neon 연동이 자동 생성 · <tspan class="m">Sensitive</tspan> 플래그로 저장</text>
+<line class="ln" x1="728" y1="317" x2="747" y2="317" marker-end="url(#ag)"/>
+<rect class="bx" x="752" y="284" width="176" height="66" rx="4"/>
+<circle cx="768" cy="307" r="5" fill="none" stroke="#57564F" stroke-width="1"/>
+<text class="u1" x="782" y="312">실사용자</text>
+<text class="u2" x="782" y="334">공개 트래픽</text>
+
+<text class="fn" x="12" y="378">첫 배포는 브랜치와 무관하게 Production으로 생성된다 — Vercel 공식 문서:<tspan x="12" dy="16">“The first deployment of a new project is always a production deployment.”</tspan></text>
+</svg>

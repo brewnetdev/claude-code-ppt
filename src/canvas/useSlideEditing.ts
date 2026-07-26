@@ -38,8 +38,19 @@ function isMutatingKeydown(e: KeyboardEvent): boolean {
 
 const SINGLE_LINE_SLOTS = new Set(['label', 'title', 'subtitle', 'caption', 'page-num']);
 const DRAG_HANDLE_CLASS = 'block-drag-handle';
+// This module is a plain hook, not a component, so React Fast Refresh can't
+// swap it in place — an already-open tab keeps running the old copy of every
+// listener registered here. The failure mode is silent and confusing: the DOM
+// affordances still appear (they come from CSS, which does hot-swap) but the
+// behaviour behind them is the previous build. Force a reload instead.
+if (import.meta.hot) {
+  import.meta.hot.accept(() => window.location.reload());
+}
+
 const COL_RESIZE_HANDLE_CLASS = 'col-resize-handle';
 const MIN_COL_WIDTH_PX = 40;
+const IMG_RESIZE_HANDLE_CLASS = 'img-resize-handle';
+const MIN_MEDIA_WIDTH_PX = 120;
 const CODE_BLOCK_SELECTOR = '.code-block, .terminal';
 const DATA_CODE_SOURCE = 'data-code-source';
 
@@ -376,6 +387,79 @@ export function useSlideEditing(
           window.removeEventListener('mousemove', onMove);
           window.removeEventListener('mouseup', onUp);
         });
+      });
+    });
+
+    // Media resize handles — in-flow images and inline diagram SVGs ship with
+    // `max-width:100%` / `max-height:Npx`, so their rendered size is pinned by
+    // the container and the author can't nudge it. Drop a corner handle on each
+    // one that rewrites inline `width` in source px (aspect ratio follows from
+    // `height:auto`). Same shape as the column handles above: mousedown on the
+    // handle, mousemove on window, notify() on release.
+    root.querySelectorAll<HTMLElement>('.slide-inner img, .slide-inner svg').forEach((media) => {
+      const host = media.parentElement;
+      if (!host) return;
+      // `offsetWidth` only exists on HTMLElement — an inline <svg> is an
+      // SVGSVGElement, where it reads `undefined` and poisons every downstream
+      // number with NaN (the handle then renders but nothing ever moves).
+      // getBoundingClientRect works for both; divide out the canvas scale to
+      // get back to 1280×720 source coordinates.
+      const sourceWidth = (scale: number) => media.getBoundingClientRect().width / scale;
+      // The handle is absolutely positioned against the wrapper — an <img> can't
+      // hold children, so it has to hang off the parent.
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+
+      const handle = document.createElement('div');
+      handle.className = IMG_RESIZE_HANDLE_CLASS;
+      handle.setAttribute('contenteditable', 'false');
+      handle.setAttribute('draggable', 'false');
+      handle.setAttribute('aria-label', 'Resize image');
+      host.appendChild(handle);
+      insertedResizeHandles.push(handle);
+
+      let startX = 0;
+      let startW = 0;
+      let maxW = 0;
+      let scale = 1;
+
+      const onMove = (ev: MouseEvent) => {
+        const next = startW + (ev.clientX - startX) / scale;
+        media.style.width = `${Math.round(Math.min(maxW, Math.max(MIN_MEDIA_WIDTH_PX, next)))}px`;
+      };
+
+      const onUp = () => {
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        handle.classList.remove('dragging');
+        document.body.classList.remove('col-resizing');
+        notify();
+      };
+
+      const onDown = (ev: MouseEvent) => {
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        startX = ev.clientX;
+        scale = getCanvasScale(media);
+        startW = sourceWidth(scale);
+        // Growing past the wrapper would overflow the slide, so clamp there.
+        maxW = host.clientWidth || host.getBoundingClientRect().width / scale || 1136;
+        // The authored max-* caps would fight the explicit width — once the
+        // user takes manual control, hand it over completely.
+        media.style.removeProperty('max-height');
+        media.style.removeProperty('max-width');
+        media.style.height = 'auto';
+        handle.classList.add('dragging');
+        document.body.classList.add('col-resizing');
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      };
+
+      handle.addEventListener('mousedown', onDown);
+      resizeCleanups.push(() => {
+        handle.removeEventListener('mousedown', onDown);
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
       });
     });
 
