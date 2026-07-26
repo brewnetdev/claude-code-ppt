@@ -1362,75 +1362,6 @@ body {
   background: var(--border);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   L5 skin — "OHPen" deep-teal on warm paper.
-   Scoped to .slide[data-skin="ohpen"] so ONLY the Level 5 deck
-   shifts; L1–L4 (same report template) are untouched.
-   Ref: docs/design_system/{COLOR.json,DESIGN_SYSTEM.md}.
-   Keeps the deck's semantic callout colors (blue/green/red);
-   only the primary teal accent + page background are reskinned.
-   ═══════════════════════════════════════════════════════════════ */
-[data-template="report"].slide[data-skin="ohpen"] {
-  --bg:            #faf9f5;   /* warm paper (was #FAFAF8) */
-  --border:        #e7e5dc;
-  --muted:         #57564f;
-  --amber:         #003748;   /* primary accent → deep petrol teal (was #0F766E) */
-  --amber-d:       #00212b;
-  --prompt-bg:     #efeee7;
-  --prompt-border: #003748;
-  --link:          #003748;
-}
-/* Solid accent bar — replaces the teal gradient (also drops an anti-slop gradient) */
-[data-template="report"].slide[data-skin="ohpen"] .slide-topbar {
-  background: #003748;
-}
-/* Hardcoded-teal components rescoped to deep petrol */
-[data-template="report"].slide[data-skin="ohpen"] .tbl th {
-  border-bottom-color: #003748;
-}
-[data-template="report"].slide[data-skin="ohpen"] .tbl tbody tr:nth-child(even) td {
-  background: rgba(0, 55, 72, 0.04);
-}
-[data-template="report"].slide[data-skin="ohpen"] .tbl tr:hover td {
-  background: rgba(0, 55, 72, 0.08);
-}
-[data-template="report"].slide[data-skin="ohpen"] .callout-amber {
-  background: rgba(0, 55, 72, 0.06);
-  border-color: rgba(0, 55, 72, 0.40);
-}
-[data-template="report"].slide[data-skin="ohpen"] .badge-amber {
-  background: rgba(0, 55, 72, 0.14);
-  color: #00212b;
-}
-[data-template="report"].slide[data-skin="ohpen"] .hl-amber { color: #003748; }
-[data-template="report"].slide[data-skin="ohpen"] .slide-section .section-num {
-  color: rgba(0, 55, 72, 0.10);
-}
-/* Cover (page 1) → Level 9 look&feel: dark slate + cyan-teal accent, clean
-   (no watermark numeral), meta as a bordered mono row. Only the L5 cover
-   matches this; the rest of L5 keeps the OHPen deep-teal/paper skin above. */
-[data-template="report"].slide-cover[data-skin="ohpen"] {
-  background: #0f172a;      /* L9 slate surface */
-  --amber: #4db6c9;         /* L9 cyan-teal accent → cover-level·t-hero em */
-  --muted: #94a3b8;         /* L9 muted on dark */
-}
-[data-template="report"].slide-cover[data-skin="ohpen"] .slide-topbar {
-  background: #4db6c9;      /* thin cyan-teal top accent */
-}
-[data-template="report"].slide-cover[data-skin="ohpen"] .t-hero em {
-  border-bottom-color: #4db6c9;
-}
-[data-template="report"].slide-cover[data-skin="ohpen"] .cover-meta-item strong {
-  color: #e2e8f0;
-}
-[data-template="report"].slide-cover[data-skin="ohpen"] .cover-meta {
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-  padding-top: 18px;
-}
-[data-template="report"].slide-cover[data-skin="ohpen"] .cover-deco {
-  display: none;            /* L9 cover has no watermark numeral */
-}
-
 
 /* ================================================================
    Harness Engineering 테마 — deck-standalone.html(Dracula)에서 추출.
@@ -1722,7 +1653,7 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
       <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.1 프로젝트 기획과 요구사항 정의</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Markdown Editor 기반 KMS, 기술 스택 선정, FR · NFR · 사용자 스토리</span></div></li>
       <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.2 개발 문서 작성</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PRD · TRD · REQUIREMENTS.md · 명세 변경 관리</span></div></li>
       <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.3 명세서 설계와 DB설계⭐⭐</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 데이터(ERD) · API · 컴포넌트 · 테스트 케이스</span></div></li>
-      <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.4 SDD 워크플로 — GSD</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Discuss → Plan → Execute → Verify 4단계</span></div></li>
+      <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.4 SDD 워크플로 — GSD<span style="white-space: normal"><span style="font-family: Inter, &quot;Noto Sans KR&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;">⭐</span></span></span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Discuss → Plan → Execute → Verify 4단계</span></div></li>
       <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.5 디버깅 &amp; 리팩토링</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 에러 보고 · 회귀 방지 · 테스트 안전망 · Playwright E2E</span></div></li>
       <li><div style="display:flex; gap:18px; align-items:baseline;"><span style="flex:0 0 360px; white-space:nowrap;">5.6 디자인 시스템을 이용한 프론트엔드 고도화&nbsp;</span><span class="sub" style="font-size:16px; color:var(--muted); flex:1; line-height:1.5;">디자인 시스템과 Color.JSON · 공식/커뮤니티 마켓플레이스 · 오픈 디자인</span></div></li>
       
@@ -2408,7 +2339,7 @@ changes:
     <div class="section-num" data-block-id="b33OY7a76" style="width: 116px; height: 96px; position: absolute; left: 72px; top: 161px;">04</div>
     <div class="t-chapter" data-block-id="bsj1uLNxq">PART 04</div>
     <div class="t-title" style="font-size:48px;max-width:840px;line-height:1.2;margin-top:8px;" data-block-id="bFrIYmqhF">5.4 SDD 워크플로 — GSD</div>
-    <div style="margin-top: 20px; font-size: 20px; color: var(--muted); line-height: 1.7; width: 1200px; flex: 0 0 auto;" data-block-id="bpC9lN131" class="">Specification-Driven Development. AI 에이전트를 "도움이 되는 자동완성"에서 "책임 있는 팀원"으로</div><div style="margin-top: 20px; font-size: 20px; color: var(--muted); line-height: 1.7; width: 1200px; flex: 0 0 auto;" data-block-id="bpC9lN131" class="">— Discuss → Plan → Execute → Verify 4단계.</div>
+    <div style="margin-top: 20px; font-size: 20px; color: var(--muted); line-height: 1.7; width: 1200px; flex: 0 0 auto;" data-block-id="bpC9lN131" class="">Specification-Driven Development. AI 에이전트를 "코드 양산" 관점에서 벗어나 "시니어 개발자" 팀원으로 만들기&nbsp;</div><div style="margin-top: 20px; font-size: 20px; color: var(--muted); line-height: 1.7; width: 1200px; flex: 0 0 auto;" data-block-id="bpC9lN131" class="">— Discuss → Plan → Execute → Verify 4단계.</div>
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">04 · 5.4 SDD 워크플로와 풀스택 개발 실습</span>
@@ -2653,7 +2584,7 @@ TypeError: ... 'id' of undefined
 2) GET(getDocument) → 테스트
 3) PATCH/DELETE 순서대로</pre>
     </div>
-    <div class="callout callout-green" style="margin-top: 14px; width: 1136px; height: 57px; position: absolute; left: 72px; top: 594px;" data-block-id="b6LSAbYAB"><span class="callout-icon">📐</span><div class="callout-body"><strong>3원칙</strong> &nbsp;① 베이스라인 테스트 ② 단위별 진행(한 함수씩) ③ 실패 시 체크포인트 복원 후 재시도. 한 번에 전체 변경 = 디버깅 지옥.</div></div>
+    <div class="callout callout-green" style="margin-top: 14px; width: 1136px; height: 57px; position: absolute; left: 72px; top: 594px;" data-block-id="b6LSAbYAB"><span class="callout-icon">📐</span><div class="callout-body"><strong>3원칙</strong> &nbsp;① 베이스라인 테스트 ② 단위별 진행(한 함수씩) ③ 실패 시 체크포인트 복원 후 재시도.&nbsp; &nbsp; <b>한 번에 전체 변경 = 디버깅 지옥.</b></div></div>
   </div>
   <div class="slide-footer" spellcheck="false">
     <span class="slide-footer-left">5.5.2 안전한 리팩토링 흐름</span>
@@ -2802,6 +2733,7 @@ npx grab@latest init
               <tr><td spellcheck="false">Phase 2</td><td spellcheck="false">레이아웃 — 사이드바 + 에디터 + 미리보기 3분할</td><td spellcheck="false"><br></td></tr>
               <tr><td spellcheck="false">Phase 3</td><td spellcheck="false">마크다운 에디터·미리보기 핵심 기능</td><td spellcheck="false"><br></td></tr>
               
+              <tr><td spellcheck="false">Phase 4</td><td spellcheck="false">API 연동·상태 관리·자동 저장</td><td spellcheck="false"><br></td></tr>
               <tr><td spellcheck="false">Phase 5</td><td spellcheck="false">디자인 시스템·접근성·성능 최적화·검증</td><td spellcheck="false"><br></td></tr>
         </tbody>
       </table>
@@ -3406,31 +3338,6 @@ npx grab@latest init
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
   <div class="slide-inner" spellcheck="false">
-    <div class="t-chapter" data-slot="label" data-block-id="b1grQ2W7A">5.6.20</div>
-    <div class="t-title" data-slot="title" data-block-id="bUVgLqqqF">frontend-design 공식 Skill</div>
-    <ul class="bullet-list" data-slot="bullets" data-block-id="bIr5HGzC1">
-      <li><div>설치: /plugin install frontend-design@anthropics/claude-plugins-official</div></li>
-      <li><div>4가지 차원 확정 강제 — Purpose / Tone / Constraints / Differentiation<span class="sub">AI slop(보라 그라데이션·획일적 컴포넌트) 방지</span></div></li>
-      <li><div>흔한 폰트(Inter·Roboto·Arial) 명시적 금지<span class="sub">의도적인 폰트 페어링 요구</span></div></li>
-      <li><div>DM Sans + JetBrains Mono 페어링 예시<span class="sub">markflow 에디토리얼 + 모노스페이스 디테일</span></div></li>
-    </ul>
-    <div class="callout callout-amber" style="margin-top:20px;" data-block-id="bq7dpGZ0a">
-      <div class="callout-icon">💡</div>
-      <div class="callout-body"><strong>주의</strong> frontend-design Skill은 BOLD한 미감을 유도한다. markflow처럼 도구성 우선 프로젝트에는 더 보수적인 톤으로 유도하는 후속 프롬프트가 필요하다.</div>
-    </div>
-  </div>
-  <div class="slide-footer" spellcheck="false">
-    <span class="slide-footer-left" data-slot="caption">frontend-design 공식 Skill</span>
-    <span class="slide-footer-right" data-slot="page-num">52</span>
-  </div>
-</div>
-</div>
-</section>
-<section class="export-slide" data-index="59">
-<div class="export-stage slide-canvas-host">
-<div class="slide" data-template="report" data-skin="ohpen">
-  <div class="slide-topbar"></div>
-  <div class="slide-inner" spellcheck="false">
     <div class="t-chapter" data-slot="label" data-block-id="bBfvfVEik">5.6.21</div>
     <div class="t-title" data-slot="title" data-block-id="b211z4POr">frontend-design Skill 사용 전후 비교</div>
     <div class="t-body" data-slot="body" data-block-id="b0wibMnPT">정성적 비교 (2026년 기준)</div>
@@ -3455,7 +3362,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="60">
+<section class="export-slide" data-index="59">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3481,7 +3388,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="61">
+<section class="export-slide" data-index="60">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3508,7 +3415,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="62">
+<section class="export-slide" data-index="61">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3536,7 +3443,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="63">
+<section class="export-slide" data-index="62">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3568,7 +3475,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="64">
+<section class="export-slide" data-index="63">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3599,7 +3506,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="65">
+<section class="export-slide" data-index="64">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3624,7 +3531,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="66">
+<section class="export-slide" data-index="65">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3657,7 +3564,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="67">
+<section class="export-slide" data-index="66">
 <div class="export-stage slide-canvas-host">
 <div class="slide slide-section" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3674,7 +3581,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="68">
+<section class="export-slide" data-index="67">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3701,7 +3608,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<section class="export-slide" data-index="69">
+<section class="export-slide" data-index="68">
 <div class="export-stage slide-canvas-host">
 <div class="slide" data-template="report" data-skin="ohpen">
   <div class="slide-topbar"></div>
@@ -3734,7 +3641,7 @@ npx grab@latest init
 </div>
 </div>
 </section>
-<div class="export-nav" id="export-nav">1 / 70 · ↑ ↓ · P = Print</div>
+<div class="export-nav" id="export-nav">1 / 69 · ↑ ↓ · P = Print</div>
 <script>
 (function(){
   var slides = Array.prototype.slice.call(document.querySelectorAll('.export-slide'));
