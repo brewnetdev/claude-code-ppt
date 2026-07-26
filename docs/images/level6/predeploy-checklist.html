@@ -23,12 +23,12 @@ html,body{background:transparent;margin:0}body{font-family:var(--sans);color:var
 .crow .ck{width:28px;height:28px;border:2px solid var(--teal);border-radius:6px;color:var(--teal);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .crow .t{font-size:22px;color:var(--ink)}.crow .cmd{margin-left:auto;font-family:var(--mono);font-size:18px;color:var(--teal-deep);background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:4px 12px;white-space:nowrap}
 </style></head><body><div class="frame">
-<div class="lede">마크다운 기반 팀 <b>KMS</b> — 단순 TODO 앱보다 무거운 <b>실무 복잡도</b>의 오픈소스로, 기획부터 배포까지 전 과정을 관통한다.</div>
-<div class="grid2">
- <div class="card"><div class="no">역량 ①</div><h3>AI 협업 전 과정</h3><p>요건 정의부터 배포까지, 개발자가 <b>오케스트레이터</b>로서 AI와 협업하는 능력.</p></div>
- <div class="card"><div class="no">역량 ②</div><h3>풀스택 아키텍처</h3><p>모노레포 기반 풀스택 설계 및 구현 능력.</p></div>
- <div class="card"><div class="no">역량 ③</div><h3>TDD 습관</h3><p>테스트 우선으로 안정적인 코드를 쓰는 습관.</p></div>
- <div class="card"><div class="no">역량 ④</div><h3>SDD 워크플로</h3><p>명세 주도 개발을 실무에 적용하는 능력.</p></div>
-</div>
-<div class="note"><div class="k">실무 복잡도</div><div class="b"><b>워크스페이스 · 문서 버전 관리 · Closure Table · JWT · RBAC · Cloudflare R2</b> — 실제 SaaS 핵심 요소를 모두 포함한다.</div></div>
-</div></body></html>
+<div class="lede">배포 전 <b>로컬에서 빌드가 정상</b>인지 반드시 확인 — Vercel 빌드 에러는 디버깅이 번거롭다.</div>
+<div class="check">
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">GitHub 리포지터리 생성 및 main 브랜치 푸시</div></div>
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">로컬 프로덕션 빌드 성공</div><div class="cmd">npm run build</div></div>
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">TypeScript 타입 체크 통과</div><div class="cmd">npx tsc --noEmit</div></div>
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">.env.local → .env.example 동기화 (시크릿 제외)</div></div>
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">DB 마이그레이션 스크립트 준비</div><div class="cmd">npm run db:migrate</div></div>
+ <div class="crow"><div class="ck">&#10003;</div><div class="t">DB 호출 페이지에 dynamic 설정</div><div class="cmd">dynamic = 'force-dynamic'</div></div>
+</div></div></body></html>

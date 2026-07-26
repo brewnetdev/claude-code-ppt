@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>범용 에이전트 하네스 — 필수 구성요소 분석 보고</title>
+<!-- 폰트: Pretendard — 한글 기술 보고서 장문 가독성 기준 선택 (한글·라틴 폭 균형) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --line: #d9d9d9;
+    --bg-soft: #f7f7f7;
+    --accent: #0f4c81; /* 액센트 1색 — 핵심 경로·검출 지점 전용 */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Pretendard", "Malgun Gothic", sans-serif;
+    color: var(--ink); background: #fff; line-height: 1.65; font-size: 15px;
+  }
+  .page { max-width: 920px; margin: 0 auto; padding: 56px 32px 80px; }
+
+  header { border-bottom: 1px solid var(--ink); padding-bottom: 24px; margin-bottom: 40px; }
+  .doc-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.35; }
+  .subtitle { margin-top: 8px; color: var(--ink-soft); font-size: 15px; }
+
+  h2 {
+    font-size: 19px; font-weight: 700; letter-spacing: -0.01em;
+    margin: 48px 0 16px; padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 15.5px; font-weight: 600; margin: 24px 0 8px; }
+  p { margin: 10px 0; }
+
+  .summary { border: 1px solid var(--ink); padding: 20px 24px; }
+  .summary .label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+  .summary p { margin: 6px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th { text-align: left; font-weight: 600; padding: 9px 12px; border-bottom: 1px solid var(--ink); background: var(--bg-soft); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .ok { color: var(--accent); font-weight: 600; }
+  .no { color: var(--ink-soft); }
+
+  code {
+    font-family: "JetBrains Mono", "D2Coding", Consolas, monospace;
+    font-size: 13px; background: var(--bg-soft); padding: 1px 5px;
+    border: 1px solid var(--line); border-radius: 3px;
+  }
+  ul, ol { margin: 10px 0 10px 22px; }
+  li { margin: 5px 0; }
+
+  /* 컴포넌트 상세: 정의 리스트 스타일 */
+  .comp { border: 1px solid var(--line); margin: 14px 0; }
+  .comp-head {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 10px 16px; background: var(--bg-soft); border-bottom: 1px solid var(--line);
+  }
+  .comp-head .cnum { color: var(--accent); font-weight: 700; font-size: 14px; }
+  .comp-head .cname { font-weight: 700; font-size: 15px; }
+  .comp-head .csolves { margin-left: auto; font-size: 13px; color: var(--ink-soft); }
+  .comp-body { padding: 12px 16px; font-size: 14px; }
+  .comp-body dl { display: grid; grid-template-columns: 96px 1fr; row-gap: 6px; column-gap: 12px; }
+  .comp-body dt { font-weight: 600; color: var(--ink-soft); font-size: 13px; }
+  .comp-body dd { margin: 0; }
+
+  figure { margin: 20px 0; border: 1px solid var(--line); }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: 12.5px; color: var(--ink-soft); padding: 8px 14px;
+    border-top: 1px solid var(--line); background: var(--bg-soft);
+  }
+
+  .callout {
+    border-left: 3px solid var(--accent); padding: 12px 18px; margin: 18px 0;
+    background: var(--bg-soft); font-size: 14px;
+  }
+
+  .checklist { list-style: none; margin-left: 0; font-size: 14px; }
+  .checklist li { padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 4px; color: var(--ink-soft); }
+  .check-group { font-weight: 700; margin-top: 12px; padding-left: 0 !important; }
+  .check-group::before { content: "" !important; }
+
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); line-height: 1.9; }
+
+  @media print {
+    .page { padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    table, figure, .comp, .summary { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="doc-meta">기술 분석 보고 · 2026-07-23 · 코드빌런</div>
+  <h1>범용 에이전트 하네스(Agent Harness)<br>필수 구성요소와 각 요소가 해결하는 문제</h1>
+  <div class="subtitle">"설치해서 쓰는" 범용 하네스 관점 · 2026년 논문·프레임워크 릴리스·실측 데이터 기반</div>
+</header>
+
+<div class="summary">
+  <div class="label">결론 요약</div>
+  <p><strong>Agent = Model + Harness.</strong> 하네스는 모델이 아닌 모든 것 — 프롬프트, 툴, 실행 환경, 오케스트레이션, 훅, 모델 설정 — 이며, 확률적 추론을 결정론적 행동으로 변환하는 유일한 계층이다.</p>
+  <p>필수 요소는 10가지로 정리된다. <strong>①~⑥(인터페이스·루프·컨텍스트·툴·안전·환경)이 없으면 하네스가 아니라 챗 래퍼</strong>이고, ⑦~⑨(세션·확장·관측성)가 프로덕션 품질을, ⑩(평가 하네스)이 지속 개선 가능성을 결정한다.</p>
+  <p>실증: 모델 교체 없이 하네스만 개선(검증 루프·컨텍스트 주입·루프 감지)해 Terminal Bench 2.0 순위를 30위에서 5위권으로 끌어올린 사례가 보고됐다.</p>
+</div>
+
+<h2><span class="num">1</span>전체 아키텍처</h2>
+
+<figure>
+<svg viewBox="0 0 860 470" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, sans-serif">
+  <!-- 사용자 -->
+  <rect x="330" y="12" width="200" height="34" fill="#fff" stroke="#1a1a1a"/>
+  <text x="430" y="34" text-anchor="middle" font-size="13" font-weight="600" fill="#1a1a1a">사용자 / CI</text>
+  <line x1="430" y1="46" x2="430" y2="66" stroke="#1a1a1a" stroke-width="1"/>
+  <path d="M426 60 L430 66 L434 60" fill="none" stroke="#1a1a1a"/>
+
+  <!-- 하네스 외곽 -->
+  <rect x="20" y="66" width="680" height="392" fill="none" stroke="#1a1a1a"/>
+  <text x="34" y="88" font-size="12" font-weight="700" fill="#555" letter-spacing="1">HARNESS</text>
+
+  <!-- ① 인터페이스 -->
+  <rect x="40" y="98" width="640" height="40" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="52" y="123" font-size="13" fill="#1a1a1a"><tspan font-weight="700" fill="#0f4c81">①</tspan> 인터페이스 계층 — CLI/TUI · 스트리밍 · 인터럽트 · 헤드리스(JSON 스트림)</text>
+
+  <!-- ② 루프 -->
+  <rect x="40" y="150" width="640" height="40" fill="#fff" stroke="#0f4c81"/>
+  <text x="52" y="175" font-size="13" fill="#1a1a1a"><tspan font-weight="700" fill="#0f4c81">②</tspan> 에이전트 루프 — 호출→파싱→실행→관찰 반복 · 정지 조건 · 턴/토큰 예산 · 루프 감지</text>
+
+  <!-- ③④⑤ 3열 -->
+  <rect x="40" y="202" width="204" height="72" fill="#fff" stroke="#d9d9d9"/>
+  <text x="52" y="224" font-size="13" font-weight="700" fill="#1a1a1a"><tspan fill="#0f4c81">③</tspan> 컨텍스트 엔진</text>
+  <text x="52" y="244" font-size="12" fill="#555">프롬프트 조립 · 컴팩션</text>
+  <text x="52" y="262" font-size="12" fill="#555">토큰 예산 · 출력 절단</text>
+
+  <rect x="258" y="202" width="204" height="72" fill="#fff" stroke="#d9d9d9"/>
+  <text x="270" y="224" font-size="13" font-weight="700" fill="#1a1a1a"><tspan fill="#0f4c81">④</tspan> 툴 시스템</text>
+  <text x="270" y="244" font-size="12" fill="#555">스키마 계약 · 디스패치</text>
+  <text x="270" y="262" font-size="12" fill="#555">결과 직렬화 (ACI)</text>
+
+  <rect x="476" y="202" width="204" height="72" fill="#fff" stroke="#d9d9d9"/>
+  <text x="488" y="224" font-size="13" font-weight="700" fill="#1a1a1a"><tspan fill="#0f4c81">⑤</tspan> 권한·안전 게이트</text>
+  <text x="488" y="244" font-size="12" fill="#555">행동 분류 · 승인 게이트</text>
+  <text x="488" y="262" font-size="12" fill="#555">샌드박스 · 인젝션 방어</text>
+
+  <!-- ⑥ 환경 어댑터 -->
+  <rect x="40" y="286" width="640" height="40" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="52" y="311" font-size="13" fill="#1a1a1a"><tspan font-weight="700" fill="#0f4c81">⑥</tspan> 환경 어댑터 — 파일시스템(조정 표면) · 셸 선택 · 인코딩 · Git</text>
+
+  <!-- ⑦⑧ 2열 -->
+  <rect x="40" y="338" width="312" height="52" fill="#fff" stroke="#d9d9d9"/>
+  <text x="52" y="360" font-size="13" font-weight="700" fill="#1a1a1a"><tspan fill="#0f4c81">⑦</tspan> 세션·상태</text>
+  <text x="52" y="378" font-size="12" fill="#555">저장/resume · 체크포인트/롤백</text>
+
+  <rect x="368" y="338" width="312" height="52" fill="#fff" stroke="#d9d9d9"/>
+  <text x="380" y="360" font-size="13" font-weight="700" fill="#1a1a1a"><tspan fill="#0f4c81">⑧</tspan> 확장 계층</text>
+  <text x="380" y="378" font-size="12" fill="#555">MCP · A2A · hooks · skills · 서브에이전트</text>
+
+  <!-- ⑨ 관측성 -->
+  <rect x="40" y="402" width="640" height="40" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="52" y="427" font-size="13" fill="#1a1a1a"><tspan font-weight="700" fill="#0f4c81">⑨</tspan> 관측성·비용 — 툴콜 트레이스 · 토큰 회계 · 리트라이 · 감사 로그</text>
+
+  <!-- 우측: 모델 / 환경 / 평가 -->
+  <rect x="724" y="150" width="116" height="40" fill="#fff" stroke="#1a1a1a"/>
+  <text x="782" y="175" text-anchor="middle" font-size="13" font-weight="600" fill="#1a1a1a">LLM (모델)</text>
+  <line x1="700" y1="170" x2="724" y2="170" stroke="#1a1a1a"/>
+  <path d="M718 166 L724 170 L718 174" fill="none" stroke="#1a1a1a"/>
+  <path d="M706 166 L700 170 L706 174" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="724" y="286" width="116" height="40" fill="#fff" stroke="#1a1a1a"/>
+  <text x="782" y="305" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">실제 환경</text>
+  <text x="782" y="320" text-anchor="middle" font-size="11" fill="#555">FS · 셸 · 네트워크</text>
+  <line x1="700" y1="306" x2="724" y2="306" stroke="#1a1a1a"/>
+  <path d="M718 302 L724 306 L718 310" fill="none" stroke="#1a1a1a"/>
+  <path d="M706 302 L700 306 L706 310" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="724" y="402" width="116" height="40" fill="#fff" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <text x="782" y="421" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f4c81">⑩ 평가 하네스</text>
+  <text x="782" y="436" text-anchor="middle" font-size="11" fill="#555">회귀 검증 (외부)</text>
+  <line x1="700" y1="422" x2="724" y2="422" stroke="#0f4c81" stroke-dasharray="4 3"/>
+</svg>
+<figcaption>그림 1. 범용 하네스 계층 구조 — ②루프가 ③④⑤를 매 턴 경유하고, 모든 계층이 ⑥환경 어댑터를 통해 실제 환경에 닿는다. ⑩평가 하네스는 런타임 외부에서 하네스 자체를 검증한다.</figcaption>
+</figure>
+
+<h2><span class="num">2</span>에이전트 루프 상세</h2>
+
+<figure>
+<svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, sans-serif">
+  <!-- 프롬프트 조립 -->
+  <rect x="24" y="120" width="132" height="56" fill="#fff" stroke="#1a1a1a"/>
+  <text x="90" y="144" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">컨텍스트 조립</text>
+  <text x="90" y="162" text-anchor="middle" font-size="11" fill="#555">시스템+지침 파일+히스토리</text>
+
+  <line x1="156" y1="148" x2="196" y2="148" stroke="#1a1a1a"/>
+  <path d="M190 144 L196 148 L190 152" fill="none" stroke="#1a1a1a"/>
+
+  <!-- LLM 호출 -->
+  <rect x="196" y="120" width="110" height="56" fill="#fff" stroke="#1a1a1a"/>
+  <text x="251" y="152" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">LLM 호출</text>
+
+  <line x1="306" y1="148" x2="346" y2="148" stroke="#1a1a1a"/>
+  <path d="M340 144 L346 148 L340 152" fill="none" stroke="#1a1a1a"/>
+
+  <!-- 응답 분기 -->
+  <rect x="346" y="120" width="120" height="56" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="406" y="144" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">응답 파싱</text>
+  <text x="406" y="162" text-anchor="middle" font-size="11" fill="#555">툴콜 유무 분기</text>
+
+  <!-- 종료 경로 -->
+  <line x1="466" y1="148" x2="740" y2="148" stroke="#1a1a1a"/>
+  <path d="M734 144 L740 148 L734 152" fill="none" stroke="#1a1a1a"/>
+  <text x="600" y="140" text-anchor="middle" font-size="11" fill="#555">툴콜 없음 → 최종 응답</text>
+  <rect x="740" y="120" width="100" height="56" fill="#fff" stroke="#1a1a1a"/>
+  <text x="790" y="152" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">종료</text>
+
+  <!-- 툴콜 경로 (아래) -->
+  <line x1="406" y1="176" x2="406" y2="216" stroke="#0f4c81"/>
+  <path d="M402 210 L406 216 L410 210" fill="none" stroke="#0f4c81"/>
+  <text x="416" y="200" font-size="11" fill="#0f4c81">툴콜 있음</text>
+
+  <rect x="330" y="216" width="152" height="56" fill="#fff" stroke="#0f4c81"/>
+  <text x="406" y="238" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">⑤ 권한 게이트</text>
+  <text x="406" y="256" text-anchor="middle" font-size="11" fill="#555">allowlist / 승인 / 거부</text>
+
+  <line x1="330" y1="244" x2="266" y2="244" stroke="#1a1a1a"/>
+  <path d="M272 240 L266 244 L272 248" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="130" y="216" width="136" height="56" fill="#fff" stroke="#1a1a1a"/>
+  <text x="198" y="238" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">④ 툴 실행</text>
+  <text x="198" y="256" text-anchor="middle" font-size="11" fill="#555">타임아웃 · 결과 절단</text>
+
+  <!-- 결과 재주입 (왼쪽 위로) -->
+  <line x1="130" y1="244" x2="90" y2="244" stroke="#1a1a1a"/>
+  <line x1="90" y1="244" x2="90" y2="176" stroke="#1a1a1a"/>
+  <path d="M86 182 L90 176 L94 182" fill="none" stroke="#1a1a1a"/>
+  <text x="96" y="212" font-size="11" fill="#555">결과를 히스토리에 추가</text>
+
+  <!-- 상단 가드 -->
+  <rect x="196" y="24" width="420" height="52" fill="#fff" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <text x="406" y="46" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f4c81">② 루프 가드 — 매 반복 검사</text>
+  <text x="406" y="64" text-anchor="middle" font-size="11.5" fill="#555">최대 턴 · 토큰 예산 · 동일 툴콜 반복 감지 · 컴팩션 트리거</text>
+  <line x1="406" y1="76" x2="406" y2="120" stroke="#0f4c81" stroke-dasharray="4 3"/>
+</svg>
+<figcaption>그림 2. 에이전트 루프 — 종료는 "모델의 자율 판단"과 "루프 가드의 결정론적 조건" 두 경로로 이뤄져야 하며, 후자가 없는 루프는 프로덕션에 부적합하다.</figcaption>
+</figure>
+
+<h2><span class="num">3</span>필수 요소 10가지 — 해결하는 문제와 미비 시 증상</h2>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">①</span><span class="cname">인터페이스 계층</span><span class="csolves">장시간 작업의 가시성·통제</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>스트리밍 렌더링, 실행 중 인터럽트, 승인 UI, 헤드리스 모드(CI용 JSON 이벤트 스트림)</dd>
+    <dt>미비 시</dt><dd>사용자가 진행 상황을 몰라 강제 종료 → 상태 오염</dd>
+    <dt>설치형 요건</dt><dd>대화형과 헤드리스를 같은 코어 위의 두 출력 모드로 제공</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">②</span><span class="cname">에이전트 루프</span><span class="csolves">단발 호출 → 목표 달성 반복</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>결정론적 정지 조건(최대 턴·토큰 예산·목표 판정), 동일 툴콜 반복 감지, 실패 백오프. 70개 OSS 에이전트 분석에서 60%가 이 패턴 채택</dd>
+    <dt>미비 시</dt><dd>무한 루프로 토큰 소진, 조기 종료로 미완성 결과</dd>
+    <dt>동향</dt><dd>턴 기반 외 목표 기반·시간 기반·프로액티브 루프로 분화</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">③</span><span class="cname">컨텍스트 엔진</span><span class="csolves">유한한 창 안의 정보 선별</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>계층적 프롬프트 조립(하네스 기본 + 워크스페이스 지침 파일 + 태스크), 컴팩션, 토큰 회계, 툴 출력 절단</dd>
+    <dt>표준화 동향</dt><dd>CLAUDE.md(프로젝트 관례)·AGENTS.md(역할)·MEMORY.md(세션 간 지식)·RULES.md(제약) — 검색이 아닌 "일관된 사전 조건"으로 로드</dd>
+    <dt>안티패턴</dt><dd>49KB 단일 프롬프트 매 턴 재전송 + 정규식 XML 파싱 + 오버플로 시 파괴적 중간 절단 (실측 보고된 업계 기본값)</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">④</span><span class="cname">툴 시스템 (레지스트리 + ACI)</span><span class="csolves">모델의 의도 → 실제 행동</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>JSON Schema 계약(정의) → 디스패치(실행) → 직렬화(결과). 툴 개수보다 인터페이스 품질(에러 메시지의 유익함)이 성능을 좌우</dd>
+    <dt>핵심 결정</dt><dd>행동마다 전용 툴 vs bash 하나로 즉석 조합 — 범용 하네스는 후자로 수렴 (셸 = 만능 툴 팩토리)</dd>
+    <dt>미비 시</dt><dd>대용량 stdout이 컨텍스트 폭파, 모호한 에러로 같은 실수 반복</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑤</span><span class="cname">권한·안전 게이트</span><span class="csolves">자율성 vs 파괴 가능성</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>행동 분류(읽기/쓰기/파괴/네트워크), allow·denylist, 위험 행동 승인 게이트, 샌드박스 격리</dd>
+    <dt>설치형 요건</dt><dd>사용자 실제 머신에서 구동되므로 SDK보다 엄격해야 함. 읽어온 파일·웹 내용이 지시로 둔갑하는 프롬프트 인젝션 방어 포함</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑥</span><span class="cname">환경 어댑터</span><span class="csolves">OS·셸·인코딩 차이의 흡수</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>셸 선택(bash/PowerShell), 작업 디렉토리, 타임아웃, 파일 도구의 인코딩·경로 처리</dd>
+    <dt>핵심 개념</dt><dd>파일시스템 = 조정 표면: 작업공간·중간 산출물 저장소·다중 에이전트/인간의 협조 표면. Git을 얹으면 버전·롤백·분기가 따라옴</dd>
+    <dt>미비 시</dt><dd>플랫폼별 동작 불일치 — "내 머신에선 되는데"의 하네스판</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑦</span><span class="cname">세션·상태 관리</span><span class="csolves">컨텍스트 창보다 긴 작업·복구</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>세션 저장/resume, 파일 수정 체크포인트/롤백, 파일시스템 경유 세션 간 인계(종료를 가로채 새 컨텍스트로 재주입하는 연속 실행 패턴 포함)</dd>
+    <dt>미비 시</dt><dd>크래시 = 전손실, 잘못된 대량 수정 복구 불가</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑧</span><span class="cname">확장 계층</span><span class="csolves">코어 수정 없는 기능 추가</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd><strong>MCP</strong>(외부 툴 주입 — 200+ 서버 구현으로 사실상 표준) · <strong>A2A</strong>(에이전트 간 발견·위임 — ACP 통합 후 Linux Foundation 이관) · hooks(툴 전후 결정론적 스크립트) · skills · 서브에이전트</dd>
+    <dt>설치형 의미</dt><dd>확장 계층 품질 = 생태계 크기 = 제품 수명</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑨</span><span class="cname">관측성·비용 제어</span><span class="csolves">디버깅·회계 가능성</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>툴콜 단위 트레이싱, 턴/세션별 토큰·비용 회계, API 리트라이·rate limit 대응, 감사 로그</dd>
+    <dt>미비 시</dt><dd>원인 불명 실패, 비용 폭주의 사후 인지</dd>
+  </dl></div>
+</div>
+
+<div class="comp">
+  <div class="comp-head"><span class="cnum">⑩</span><span class="cname">평가 하네스</span><span class="csolves">하네스 변경의 개선/퇴보 판별</span></div>
+  <div class="comp-body"><dl>
+    <dt>구성</dt><dd>재현 가능한 태스크 셋, 성공 판정 자동화, 반복 실행 통계(분산 포함), 회귀 게이트</dd>
+    <dt>실증</dt><dd>Terminal Bench 30위→5위권 사례 자체가 평가를 돌려가며 하네스만 개선한 결과. 평가 없는 하네스 튜닝은 감에 의존한 추측</dd>
+  </dl></div>
+</div>
+
+<div class="callout">①~⑥이 없으면 하네스가 아니라 챗 래퍼다. ⑦~⑨가 프로덕션 품질을, ⑩이 지속적 개선 가능성을 결정한다.</div>
+
+<h2><span class="num">4</span>랜드스케이프 — 설치형 하네스 vs SDK (2026-07)</h2>
+<table>
+  <thead><tr><th>구분</th><th>대표</th><th>특성</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>설치형 범용 하네스</strong></td>
+      <td>Claude Code, Codex CLI, OpenClaw 계열</td>
+      <td>10요소가 완성품으로 패키징 — 사용자는 설정·확장만</td>
+    </tr>
+    <tr>
+      <td>하네스 구축 SDK (랩 퍼스트파티)</td>
+      <td>Claude Agent SDK, OpenAI Agents SDK, Google ADK</td>
+      <td>모델 친화 통합. 핸드오프·가드레일 등 프리미티브 제공</td>
+    </tr>
+    <tr>
+      <td>오케스트레이션 프레임워크</td>
+      <td>LangGraph, CrewAI, Microsoft Agent Framework 1.0</td>
+      <td>LangGraph: 체크포인트·내구 상태·타임트래블 디버깅 / CrewAI: 역할 기반 / MS AF: AutoGen+SK 통합(2026-04 GA)</td>
+    </tr>
+    <tr>
+      <td>경량·특화</td>
+      <td>smolagents, Pydantic AI</td>
+      <td>smolagents: 코드 생성형 에이전트로 LLM 호출 약 30% 절감 / Pydantic AI: 타입 안전 스키마</td>
+    </tr>
+  </tbody>
+</table>
+<p>설치형 하네스를 직접 만드는 경우, SDK 위에 ①⑤⑥⑦(인터페이스·권한·환경·세션)을 얹는 구조가 표준 경로다 — SDK가 제공하는 것은 주로 ②③④⑧⑨의 프리미티브이기 때문이다.</p>
+
+<h2><span class="num">5</span>설계 체크리스트</h2>
+<ul class="checklist">
+  <li class="check-group">루프</li>
+  <li>최대 턴·토큰 예산이 코드로 강제되는가</li>
+  <li>동일 툴콜 반복을 감지·차단하는가</li>
+  <li>정지 조건이 모델의 자율 판단에만 의존하지 않는가</li>
+  <li class="check-group">컨텍스트</li>
+  <li>툴 출력 절단 한도가 있는가</li>
+  <li>컴팩션 트리거와 보존 우선순위가 정의됐는가</li>
+  <li>워크스페이스 지침 파일(CLAUDE.md류) 로딩 규약이 있는가</li>
+  <li class="check-group">안전</li>
+  <li>파괴적 행동 분류표와 승인 게이트가 있는가</li>
+  <li>읽어들인 콘텐츠(파일·웹)를 지시로 취급하지 않는 방어가 있는가</li>
+  <li>샌드박스 없는 플랫폼에서의 축소 모드가 정의됐는가</li>
+  <li class="check-group">운영</li>
+  <li>세션 resume과 파일 롤백이 되는가</li>
+  <li>툴콜 단위 트레이스와 비용 회계가 남는가</li>
+  <li>하네스 변경을 검증할 평가 태스크 셋이 있는가</li>
+</ul>
+
+<footer>
+  출처 —
+  The Last Harness You'll Ever Build (arxiv.org/pdf/2604.21003) ·
+  The Harness Effect (arxiv.org/pdf/2607.06906) ·
+  SemaClaw: 워크스페이스 컨텍스트 파일 (arxiv.org/pdf/2604.11548) ·
+  Scheduler-Theoretic Framework, 2026-04 ·
+  Improving Deep Agents with Harness Engineering (LangChain, Terminal Bench 사례) ·
+  Agent Harness Engineering (addyosmani.com/blog/agent-harness-engineering) ·
+  awesome-harness-engineering (github.com/ai-boost/awesome-harness-engineering) ·
+  프레임워크 비교 2026-07 (langfuse.com · builder.aws.com)
+</footer>
+
+</div>
+</body>
+</html>

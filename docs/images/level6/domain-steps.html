@@ -23,12 +23,15 @@ html,body{background:transparent;margin:0}body{font-family:var(--sans);color:var
 .crow .ck{width:28px;height:28px;border:2px solid var(--teal);border-radius:6px;color:var(--teal);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .crow .t{font-size:22px;color:var(--ink)}.crow .cmd{margin-left:auto;font-family:var(--mono);font-size:18px;color:var(--teal-deep);background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:4px 12px;white-space:nowrap}
 </style></head><body><div class="frame">
-<div class="lede">마크다운 기반 팀 <b>KMS</b> — 단순 TODO 앱보다 무거운 <b>실무 복잡도</b>의 오픈소스로, 기획부터 배포까지 전 과정을 관통한다.</div>
-<div class="grid2">
- <div class="card"><div class="no">역량 ①</div><h3>AI 협업 전 과정</h3><p>요건 정의부터 배포까지, 개발자가 <b>오케스트레이터</b>로서 AI와 협업하는 능력.</p></div>
- <div class="card"><div class="no">역량 ②</div><h3>풀스택 아키텍처</h3><p>모노레포 기반 풀스택 설계 및 구현 능력.</p></div>
- <div class="card"><div class="no">역량 ③</div><h3>TDD 습관</h3><p>테스트 우선으로 안정적인 코드를 쓰는 습관.</p></div>
- <div class="card"><div class="no">역량 ④</div><h3>SDD 워크플로</h3><p>명세 주도 개발을 실무에 적용하는 능력.</p></div>
+<div class="lede"><b>Settings &gt; Domains</b>에서 시작 — SSL은 Let's Encrypt가 자동 발급한다.</div>
+<div class="flow">
+ <div class="card"><div class="no">STEP 1</div><h3>도메인 입력</h3><p>Settings &gt; Domains 이동 후 도메인 추가.</p><p class="mono">tika.example.com</p></div>
+ <div class="arrow">&#8594;</div>
+ <div class="card"><div class="no">STEP 2</div><h3>DNS 레코드 설정</h3><p>CNAME(서브): cname.vercel-dns.com / A(루트): Vercel Anycast IP.</p></div>
+ <div class="arrow">&#8594;</div>
+ <div class="card"><div class="no">STEP 3</div><h3>전파 대기</h3><p>보통 몇 분~24시간. Vercel 도메인이면 1분 이내.</p></div>
+ <div class="arrow">&#8594;</div>
+ <div class="card"><div class="no">STEP 4</div><h3>SSL 자동 발급</h3><p>Let's Encrypt가 인증서 자동 발급 — 별도 설정 불필요.</p></div>
 </div>
-<div class="note"><div class="k">실무 복잡도</div><div class="b"><b>워크스페이스 · 문서 버전 관리 · Closure Table · JWT · RBAC · Cloudflare R2</b> — 실제 SaaS 핵심 요소를 모두 포함한다.</div></div>
+<div class="note"><div class="k">백엔드 도메인</div><div class="b">Railway는 별도: <b>Settings &gt; Networking &gt; Custom Domain</b> → CNAME 추가 <span class="m">api.tika.example.com</span></div></div>
 </div></body></html>

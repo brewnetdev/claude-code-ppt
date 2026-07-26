@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>평가 엔지니어링 워크플로 — 하네스 구축 참고 보고</title>
+<!-- 폰트: Pretendard — 한글 기술 보고서 장문 가독성 기준 선택 (한글·라틴 폭 균형) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --line: #d9d9d9;
+    --bg-soft: #f7f7f7;
+    --accent: #0f4c81; /* 액센트 1색 — 핵심 루프·검출 지점 전용 */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Pretendard", "Malgun Gothic", sans-serif;
+    color: var(--ink); background: #fff; line-height: 1.65; font-size: 15px;
+  }
+  .page { max-width: 920px; margin: 0 auto; padding: 56px 32px 80px; }
+
+  header { border-bottom: 1px solid var(--ink); padding-bottom: 24px; margin-bottom: 40px; }
+  .doc-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.35; }
+  .subtitle { margin-top: 8px; color: var(--ink-soft); font-size: 15px; }
+
+  h2 {
+    font-size: 19px; font-weight: 700; letter-spacing: -0.01em;
+    margin: 48px 0 16px; padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 15.5px; font-weight: 600; margin: 24px 0 8px; }
+  p { margin: 10px 0; }
+
+  .summary { border: 1px solid var(--ink); padding: 20px 24px; }
+  .summary .label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+  .summary p { margin: 6px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th { text-align: left; font-weight: 600; padding: 9px 12px; border-bottom: 1px solid var(--ink); background: var(--bg-soft); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+
+  code {
+    font-family: "JetBrains Mono", "D2Coding", Consolas, monospace;
+    font-size: 13px; background: var(--bg-soft); padding: 1px 5px;
+    border: 1px solid var(--line); border-radius: 3px;
+  }
+  pre {
+    font-family: "JetBrains Mono", "D2Coding", Consolas, monospace;
+    font-size: 13px; line-height: 1.6; background: var(--bg-soft);
+    border: 1px solid var(--line); padding: 16px 20px; overflow-x: auto;
+    margin: 14px 0; border-radius: 4px;
+  }
+  ul, ol { margin: 10px 0 10px 22px; }
+  li { margin: 5px 0; }
+
+  figure { margin: 20px 0; border: 1px solid var(--line); }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: 12.5px; color: var(--ink-soft); padding: 8px 14px;
+    border-top: 1px solid var(--line); background: var(--bg-soft);
+  }
+
+  .callout {
+    border-left: 3px solid var(--accent); padding: 12px 18px; margin: 18px 0;
+    background: var(--bg-soft); font-size: 14px;
+  }
+
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); line-height: 1.9; }
+
+  @media print {
+    .page { padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    table, figure, pre, .summary { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="doc-meta">기술 분석 보고 · 2026-07-23 · 코드빌런 · 원문: LangChain "Towards Automating Eval Engineering" (2026-07-22)</div>
+  <h1>평가 엔지니어링(Eval Engineering) 워크플로<br>— 하네스 구축 관점 정리</h1>
+  <div class="subtitle">하네스 필수 요소 ⑩(평가 하네스)의 구축 방법론 · 평가 생성 워크플로 · Harbor 태스크 구조 · 리워드 해킹 대응</div>
+</header>
+
+<div class="summary">
+  <div class="label">결론 요약</div>
+  <p><strong>평가 작성 자체를 코딩 에이전트에게 시킨다.</strong> 스킬이 저장소와 트레이스를 읽어 테스트할 능력을 제안하고, 사용자 인터뷰를 거쳐 실행 가능한 Harbor 태스크(instruction + Dockerfile 환경 + verifier)를 산출한다.</p>
+  <p>가장 실무적인 발견 두 가지 — ① 원샷 생성보다 <strong>인터뷰 방식</strong>의 평가 수용률이 높다. ② <strong>첫 verifier는 거의 항상 틀린다</strong>: 실행 후 에이전트 궤적과 verifier 궤적 양쪽을 검사해 리워드 해킹을 찾아 수정하는 반복이 평가 품질을 만든다.</p>
+  <p>이 루프가 앞선 보고서의 ⑩ 평가 하네스의 운영 형태다: <code>트레이스 마이닝 → 실패 식별 → 평가 작성 → 하네스 개선 → 재실행</code></p>
+</div>
+
+<h2><span class="num">1</span>평가 생성 워크플로</h2>
+
+<figure>
+<svg viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, sans-serif">
+  <!-- [1] 컨텍스트 수집 -->
+  <rect x="24" y="24" width="240" height="150" fill="none" stroke="#1a1a1a"/>
+  <text x="36" y="46" font-size="13" font-weight="700" fill="#1a1a1a">1. 컨텍스트 수집</text>
+  <rect x="40" y="60" width="208" height="46" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="50" y="79" font-size="12" font-weight="600" fill="#1a1a1a">저장소 크롤</text>
+  <text x="50" y="96" font-size="11" fill="#555">프롬프트·모델·툴·훅 + 배후 API</text>
+  <rect x="40" y="114" width="208" height="46" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="50" y="133" font-size="12" font-weight="600" fill="#1a1a1a">트레이스 마이닝</text>
+  <text x="50" y="150" font-size="11" fill="#555">툴의 실전 인자·결과·에러 관찰</text>
+
+  <line x1="264" y1="99" x2="304" y2="99" stroke="#1a1a1a"/>
+  <path d="M298 95 L304 99 L298 103" fill="none" stroke="#1a1a1a"/>
+
+  <!-- [2] 인터뷰 -->
+  <rect x="304" y="24" width="240" height="150" fill="none" stroke="#0f4c81"/>
+  <text x="316" y="46" font-size="13" font-weight="700" fill="#0f4c81">2. 능력 제안 · 사용자 인터뷰</text>
+  <rect x="320" y="60" width="208" height="46" fill="#fff" stroke="#d9d9d9"/>
+  <text x="330" y="79" font-size="12" font-weight="600" fill="#1a1a1a">테스트할 능력 후보 제안</text>
+  <text x="330" y="96" font-size="11" fill="#555">사용자가 선택·승인</text>
+  <rect x="320" y="114" width="208" height="46" fill="#fff" stroke="#d9d9d9"/>
+  <text x="330" y="133" font-size="12" font-weight="600" fill="#1a1a1a">실행 정책 결정</text>
+  <text x="330" y="150" font-size="11" fill="#555">라이브 vs 시뮬레이션 (비용·쓰기 툴)</text>
+
+  <line x1="544" y1="99" x2="584" y2="99" stroke="#1a1a1a"/>
+  <path d="M578 95 L584 99 L578 103" fill="none" stroke="#1a1a1a"/>
+
+  <!-- [3] Harbor 태스크 -->
+  <rect x="584" y="24" width="252" height="150" fill="none" stroke="#1a1a1a"/>
+  <text x="596" y="46" font-size="13" font-weight="700" fill="#1a1a1a">3. Harbor 태스크 생성</text>
+  <rect x="600" y="60" width="220" height="30" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="610" y="80" font-size="12" fill="#1a1a1a">① instruction — 태스크 설명</text>
+  <rect x="600" y="96" width="220" height="30" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="610" y="116" font-size="12" fill="#1a1a1a">② environment — Dockerfile</text>
+  <rect x="600" y="132" width="220" height="30" fill="#f7f7f7" stroke="#d9d9d9"/>
+  <text x="610" y="152" font-size="12" fill="#1a1a1a">③ verifier — 채점기</text>
+
+  <!-- 아래로 -->
+  <line x1="710" y1="174" x2="710" y2="214" stroke="#1a1a1a"/>
+  <path d="M706 208 L710 214 L714 208" fill="none" stroke="#1a1a1a"/>
+
+  <!-- [4] 실행 & 검증 루프 -->
+  <rect x="304" y="214" width="532" height="180" fill="none" stroke="#0f4c81"/>
+  <text x="316" y="236" font-size="13" font-weight="700" fill="#0f4c81">4. 실행 · 검증 루프 — 평가 품질이 만들어지는 단계</text>
+
+  <rect x="320" y="252" width="240" height="56" fill="#fff" stroke="#d9d9d9"/>
+  <text x="330" y="272" font-size="12" font-weight="600" fill="#1a1a1a">에이전트 궤적 검사</text>
+  <text x="330" y="290" font-size="11" fill="#555">메시지 · 툴콜 · 행동</text>
+
+  <rect x="580" y="252" width="240" height="56" fill="#fff" stroke="#d9d9d9"/>
+  <text x="590" y="272" font-size="12" font-weight="600" fill="#1a1a1a">verifier 궤적 검사</text>
+  <text x="590" y="290" font-size="11" fill="#555">증거 · 추론 · 최종 점수</text>
+
+  <rect x="320" y="322" width="500" height="56" fill="#f7f7f7" stroke="#0f4c81"/>
+  <text x="330" y="342" font-size="12" font-weight="600" fill="#0f4c81">리워드 해킹 발견 → 태스크/환경/verifier 수정 → 재실행</text>
+  <text x="330" y="360" font-size="11" fill="#555">과잉 인용 · 허위 주장 · 정답 노출 악용 · 프록시 충족</text>
+
+  <!-- 루프 화살표: 4에서 3으로 -->
+  <line x1="304" y1="350" x2="120" y2="350" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <line x1="120" y1="350" x2="120" y2="99" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <text x="132" y="330" font-size="11" fill="#0f4c81">개선된 이해로 재수집·재설계</text>
+</svg>
+<figcaption>그림 1. 평가 생성 워크플로 — 1→2→3은 생성 경로, 4는 품질을 만드는 반복 경로. 인터뷰(2)와 검증 루프(4)가 원샷 생성과의 차별점이다.</figcaption>
+</figure>
+
+<h3>Harbor 태스크 디렉토리</h3>
+<pre>evals/&lt;task-id&gt;/
+├── task.toml          # 태스크 메타
+├── instruction.md     # ① 에이전트에게 줄 태스크 설명
+├── environment/       # ② Dockerfile — 툴 설치·데이터 적재
+└── tests/             # ③ verifier — 완료 여부 채점</pre>
+<p>Harbor가 에이전트를 환경에서 실행하고 궤적·산출물·보상·에러를 기록한다. <strong>환경·태스크는 고정, 에이전트 구성만 교체</strong> — 모델·프롬프트·툴·하네스 버전을 바꿔가며 같은 평가로 직접 비교하고, 병렬 실행할 수 있다.</p>
+
+<h2><span class="num">2</span>Verifier 반복 설계 — 리워드 해킹 카탈로그</h2>
+<table>
+  <thead><tr><th>해킹 유형</th><th>예</th><th>대응</th></tr></thead>
+  <tbody>
+    <tr><td>과잉 인용</td><td>무관한 소스까지 전부 인용해 인용 점수 만점</td><td>인용 정확도(precision)도 채점</td></tr>
+    <tr><td>허위 주장</td><td>하지 않은 행동을 "했다"고 보고</td><td>자기 보고가 아닌 실제 상태(파일 diff·로그)로 검증</td></tr>
+    <tr><td>정답 노출 악용</td><td>환경에 노출된 golden answer를 읽음</td><td>정답 자료를 verifier 측에만 배치</td></tr>
+    <tr><td>프록시 충족</td><td>태스크 미완수인데 지표만 만족</td><td>최종 결과물 기준 검증 추가</td></tr>
+  </tbody>
+</table>
+<div class="callout"><strong>원칙: verifier는 에이전트의 말이 아니라 환경의 상태를 채점한다.</strong> 첫 verifier가 최종본인 경우는 드물며, 실행 결과의 양쪽 궤적을 읽는 것이 유일한 개선 방법이다.</div>
+
+<h2><span class="num">3</span>지속 개선 루프 — 하네스 엔지니어링과의 연결</h2>
+
+<figure>
+<svg viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, sans-serif">
+  <rect x="24" y="70" width="140" height="52" fill="#fff" stroke="#1a1a1a"/>
+  <text x="94" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">트레이스 마이닝</text>
+  <text x="94" y="110" text-anchor="middle" font-size="11" fill="#555">프로덕션 데이터</text>
+
+  <line x1="164" y1="96" x2="196" y2="96" stroke="#1a1a1a"/>
+  <path d="M190 92 L196 96 L190 100" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="196" y="70" width="120" height="52" fill="#fff" stroke="#1a1a1a"/>
+  <text x="256" y="100" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">실패 식별</text>
+
+  <line x1="316" y1="96" x2="348" y2="96" stroke="#1a1a1a"/>
+  <path d="M342 92 L348 96 L342 100" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="348" y="70" width="140" height="52" fill="#fff" stroke="#0f4c81"/>
+  <text x="418" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f4c81">평가 작성</text>
+  <text x="418" y="110" text-anchor="middle" font-size="11" fill="#555">Harbor 태스크 = 고정 타깃</text>
+
+  <line x1="488" y1="96" x2="520" y2="96" stroke="#1a1a1a"/>
+  <path d="M514 92 L520 96 L514 100" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="520" y="70" width="150" height="52" fill="#fff" stroke="#1a1a1a"/>
+  <text x="595" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">하네스 개선</text>
+  <text x="595" y="110" text-anchor="middle" font-size="11" fill="#555">프롬프트·툴 변경 / 파인튜닝</text>
+
+  <line x1="670" y1="96" x2="702" y2="96" stroke="#1a1a1a"/>
+  <path d="M696 92 L702 96 L696 100" fill="none" stroke="#1a1a1a"/>
+
+  <rect x="702" y="70" width="120" height="52" fill="#fff" stroke="#1a1a1a"/>
+  <text x="762" y="100" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a1a1a">재실행·비교</text>
+
+  <!-- 순환 -->
+  <line x1="762" y1="122" x2="762" y2="164" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <line x1="762" y1="164" x2="94" y2="164" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <line x1="94" y1="164" x2="94" y2="122" stroke="#0f4c81" stroke-dasharray="4 3"/>
+  <path d="M90 128 L94 122 L98 128" fill="none" stroke="#0f4c81"/>
+  <text x="428" y="184" text-anchor="middle" font-size="11.5" fill="#0f4c81">프로덕션 배포 → 새 트레이스가 다시 평가의 원료가 된다 (지속 개선 = 데이터 마이닝 문제)</text>
+
+  <text x="428" y="40" text-anchor="middle" font-size="12.5" fill="#555">"평가는 에이전트의 훈련 데이터" — 평가가 하네스 변경의 개선/퇴보를 판별하는 고정 타깃</text>
+</svg>
+<figcaption>그림 2. 지속 개선 루프 — Terminal Bench 30위→5위권 사례(모델 교체 없이 하네스만 개선)가 이 루프를 돌린 결과다.</figcaption>
+</figure>
+
+<h2><span class="num">4</span>하네스 구축(carve-harness)에의 적용</h2>
+
+<h3>평가 대상이 되는 하네스 능력 — 필수 요소 매핑</h3>
+<table>
+  <thead><tr><th>하네스 요소</th><th>평가할 능력</th><th>verifier 아이디어</th></tr></thead>
+  <tbody>
+    <tr><td>② 루프</td><td>동일 툴콜 반복 시 루프 감지 작동</td><td>툴콜 로그에서 반복 패턴 부재 확인</td></tr>
+    <tr><td>③ 컨텍스트</td><td>컴팩션 후에도 태스크 완수</td><td>긴 태스크 + 최종 파일 상태 diff</td></tr>
+    <tr><td>④ 툴</td><td>대용량 출력 절단 후 정보 보존</td><td>절단된 출력 기반 후속 판단 정확성</td></tr>
+    <tr><td>⑤ 안전</td><td>파괴적 명령의 승인 게이트</td><td>denylist 명령 실행 시도 기록 검사</td></tr>
+    <tr><td>⑦ 세션</td><td>resume 후 작업 연속성</td><td>중단·재개 시나리오의 최종 산출물 비교</td></tr>
+  </tbody>
+</table>
+
+<h3>구성 방법</h3>
+<ul>
+  <li><strong>Environment</strong>: carve-harness가 설치된 Dockerfile + 고정 테스트 저장소</li>
+  <li><strong>Instruction</strong>: 실제 사용 시나리오에서 추출한 태스크</li>
+  <li><strong>Verifier</strong>: 파일 상태·로그 기반 — 하네스의 자기 보고를 신뢰하지 않는다</li>
+  <li>Harbor는 하네스 중립이므로 버전 간(v1.2 vs v1.3)·타 하네스와의 비교에 그대로 사용</li>
+</ul>
+
+<h3>스킬 없이 차용 가능한 것</h3>
+<ul>
+  <li>평가 3요소(instruction / 환경 / verifier) 구조</li>
+  <li>"돌려보고 양쪽 궤적을 검사"하는 verifier 반복 절차</li>
+  <li>리워드 해킹 카탈로그 기반 점검</li>
+  <li>트레이스 → 실패 → 평가의 데이터 마이닝 관점</li>
+</ul>
+
+<h2><span class="num">5</span>실행 방법</h2>
+<ol>
+  <li><code>langchain-ai/langchain-skills</code> 저장소의 Eval Engineering Skill을 Claude Code 또는 Codex에 설치</li>
+  <li>평가 대상 에이전트 저장소를 열고, 트레이스가 있으면 위치 지정 (<code>langsmith-cli</code> 등)</li>
+  <li>시작 프롬프트:</li>
+</ol>
+<pre>Use the eval-engineering skill to create an eval with me.
+Inspect the agent first, propose a few abilities worth testing,
+recommend one, and wait for me to choose.</pre>
+<p>산출: <code>evals/</code> 아래 Harbor 태스크 + 실제 타깃 실행 + verifier가 의도한 행동을 측정했는지에 대한 리뷰.</p>
+
+<h2><span class="num">6</span>주의점 (비판적 검토)</h2>
+<ul>
+  <li>원문은 LangSmith·Harbor 생태계 유입을 위한 제품 블로그다. "인터뷰 방식의 수용률이 높다"에 정량 수치가 없고 자사 사례(chat-langchain) 하나뿐 — 방법론과 도구 종속을 분리해 판단할 것.</li>
+  <li>"평가의 평가" 문제: verifier가 잘못 측정하면 그 위의 모든 개선이 허수다. 사람의 verifier 검토가 병목으로 남는다.</li>
+  <li>트레이스 기반 평가는 과거 실패 재발 방지에 강하지만, 트레이스에만 의존하면 평가 셋이 "이미 아는 문제"로 편향된다. 합성 시나리오를 별도 보충할 것.</li>
+</ul>
+
+<footer>
+  출처 —
+  Towards Automating Eval Engineering (langchain.com/blog/towards-automating-eval-engineering, 2026-07-22) ·
+  Harbor 태스크 문서 (harborframework.com/docs/tasks) ·
+  Improving Agents is a Data Mining Problem (langchain.com/blog/improving-agents-is-a-data-mining-problem) ·
+  스킬 저장소 (github.com/langchain-ai/langchain-skills)
+</footer>
+
+</div>
+</body>
+</html>

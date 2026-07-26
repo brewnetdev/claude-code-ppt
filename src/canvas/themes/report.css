@@ -231,3 +231,72 @@
 [data-template="report"] .divider {
   background: var(--border);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   L5 skin — "OHPen" deep-teal on warm paper.
+   Scoped to .slide[data-skin="ohpen"] so ONLY the Level 5 deck
+   shifts; L1–L4 (same report template) are untouched.
+   Ref: docs/design_system/{COLOR.json,DESIGN_SYSTEM.md}.
+   Keeps the deck's semantic callout colors (blue/green/red);
+   only the primary teal accent + page background are reskinned.
+   ═══════════════════════════════════════════════════════════════ */
+[data-template="report"].slide[data-skin="ohpen"] {
+  --bg:            #faf9f5;   /* warm paper (was #FAFAF8) */
+  --border:        #e7e5dc;
+  --muted:         #57564f;
+  --amber:         #003748;   /* primary accent → deep petrol teal (was #0F766E) */
+  --amber-d:       #00212b;
+  --prompt-bg:     #efeee7;
+  --prompt-border: #003748;
+  --link:          #003748;
+}
+/* Solid accent bar — replaces the teal gradient (also drops an anti-slop gradient) */
+[data-template="report"].slide[data-skin="ohpen"] .slide-topbar {
+  background: #003748;
+}
+/* Hardcoded-teal components rescoped to deep petrol */
+[data-template="report"].slide[data-skin="ohpen"] .tbl th {
+  border-bottom-color: #003748;
+}
+[data-template="report"].slide[data-skin="ohpen"] .tbl tbody tr:nth-child(even) td {
+  background: rgba(0, 55, 72, 0.04);
+}
+[data-template="report"].slide[data-skin="ohpen"] .tbl tr:hover td {
+  background: rgba(0, 55, 72, 0.08);
+}
+[data-template="report"].slide[data-skin="ohpen"] .callout-amber {
+  background: rgba(0, 55, 72, 0.06);
+  border-color: rgba(0, 55, 72, 0.40);
+}
+[data-template="report"].slide[data-skin="ohpen"] .badge-amber {
+  background: rgba(0, 55, 72, 0.14);
+  color: #00212b;
+}
+[data-template="report"].slide[data-skin="ohpen"] .hl-amber { color: #003748; }
+[data-template="report"].slide[data-skin="ohpen"] .slide-section .section-num {
+  color: rgba(0, 55, 72, 0.10);
+}
+/* Cover (page 1) → Level 9 look&feel: dark slate + cyan-teal accent, clean
+   (no watermark numeral), meta as a bordered mono row. Only the L5 cover
+   matches this; the rest of L5 keeps the OHPen deep-teal/paper skin above. */
+[data-template="report"].slide-cover[data-skin="ohpen"] {
+  background: #0f172a;      /* L9 slate surface */
+  --amber: #4db6c9;         /* L9 cyan-teal accent → cover-level·t-hero em */
+  --muted: #94a3b8;         /* L9 muted on dark */
+}
+[data-template="report"].slide-cover[data-skin="ohpen"] .slide-topbar {
+  background: #4db6c9;      /* thin cyan-teal top accent */
+}
+[data-template="report"].slide-cover[data-skin="ohpen"] .t-hero em {
+  border-bottom-color: #4db6c9;
+}
+[data-template="report"].slide-cover[data-skin="ohpen"] .cover-meta-item strong {
+  color: #e2e8f0;
+}
+[data-template="report"].slide-cover[data-skin="ohpen"] .cover-meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding-top: 18px;
+}
+[data-template="report"].slide-cover[data-skin="ohpen"] .cover-deco {
+  display: none;            /* L9 cover has no watermark numeral */
+}
