@@ -23,9 +23,11 @@ export type PersistedDeck = {
   // Identity of the source HTML this cache was seeded from. Compared at
   // boot against the registry's current sourceHash to detect when a deck
   // has been re-published since the user's edits were captured. Optional
-  // for backward compatibility — caches written before this field existed
-  // (and decks without a source hash, like brewnet-presentation) leave it
-  // undefined and never trigger the stale-cache banner.
+  // only for backward compatibility: caches written before this field
+  // existed leave it undefined, and openDeck now treats that as stale
+  // rather than up-to-date — the old "undefined means fine" reading is what
+  // let an outdated cache outlive every source update, since the cache wins
+  // on load and exports read the same store.
   sourceHash?: string;
 };
 

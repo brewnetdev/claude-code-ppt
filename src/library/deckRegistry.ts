@@ -14,6 +14,8 @@
 // stays out of the bundle and out of the library grid. Segment match is exact:
 // `harness` scans docs/html/harness/ (the LV.9 editor deck) but NOT
 // docs/html/harness-sample/ (the hand-authored reference deck family + notes).
+import { contentFingerprint, extractSourceHash } from './contentFingerprint';
+
 const eagerHtml = import.meta.glob(
   '../../docs/html/{presentation,portfolio,report,harness}/**/*.html',
   { query: '?raw', import: 'default', eager: true },
@@ -90,13 +92,6 @@ function extractMetaSubtitle(html: string): string | null {
   return v.length > 0 ? v : null;
 }
 
-function extractMetaSourceHash(html: string): string | null {
-  const m = html.match(/<meta\s+name=["']deck-source-hash["']\s+content=["']([^"']*)["']/i);
-  if (!m) return null;
-  const v = m[1].trim();
-  return v.length > 0 ? v : null;
-}
-
 function buildRegistry(): DeckRegistryEntry[] {
   const out: DeckRegistryEntry[] = [];
   for (const [path, html] of Object.entries(eagerHtml)) {
@@ -106,7 +101,7 @@ function buildRegistry(): DeckRegistryEntry[] {
     const fileTitle = extractTitle(html);
     const title = TITLE_OVERRIDES[id] ?? fileTitle ?? id;
     const subtitle = SUBTITLE_OVERRIDES[id] ?? extractMetaSubtitle(html) ?? undefined;
-    const sourceHash = extractMetaSourceHash(html) ?? undefined;
+    const sourceHash = extractSourceHash(html) ?? contentFingerprint(html);
     out.push({ id, title, subtitle, template, kind: 'builtin', html, sourceHash });
   }
   out.sort((a, b) => {
@@ -231,7 +226,7 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       {
         level: 6,
         label: '빌드, 배포, 서비스 운영',
-        topic: 'CI/CD·Vercel·Railway·Cloudflare 셀프호스팅·보안 점검·구글/네이버 검색 등록',
+        topic: '환경·시크릿 · CI/CD 자동배포 · 도메인·R2 · Google OAuth · Resend 메일 · SEO·검색등록 · Railway/Cloudflare',
         deckId: 'claude-code-level7-chapter7',
       },
     ],

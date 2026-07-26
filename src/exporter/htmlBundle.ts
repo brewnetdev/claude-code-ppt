@@ -1,4 +1,5 @@
 import brewnetCss from '../canvas/themes/brewnet-dark.css?raw';
+import { SOURCE_HASH_META, contentFingerprint } from '../library/contentFingerprint';
 import codeBlocksCss from '../canvas/themes/code-blocks.css?raw';
 import portfolioCss from '../canvas/themes/portfolio.css?raw';
 import reportCss from '../canvas/themes/report.css?raw';
@@ -148,6 +149,14 @@ ${slideHtml}
     }),
   );
 
+  const slidesHtml = sections.join('\n');
+  // Stamp the revision identity into the file itself. Save writes this bundle
+  // back over the source deck, and without the meta the file lost its identity
+  // on every save — the registry then had nothing to compare a cached copy
+  // against, so a stale IndexedDB cache kept winning at load time and every
+  // export shipped an old revision with no warning.
+  const sourceHash = contentFingerprint(slidesHtml);
+
   // All slides stack vertically — each fills the viewport (16:9, fit-scaled)
   // so scrolling reveals the full deck, mirroring the PDF page model. Keyboard
   // nav scrolls slide-by-slide. Print CSS keeps one slide per page.
@@ -156,6 +165,7 @@ ${slideHtml}
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="${SOURCE_HASH_META}" content="${escapeAttr(sourceHash)}" />
 <title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" />
@@ -191,7 +201,7 @@ body { background: transparent; font-family: 'Inter', 'Noto Sans KR', system-ui,
 </style>
 </head>
 <body>
-${sections.join('\n')}
+${slidesHtml}
 <div class="export-nav" id="export-nav">1 / ${slides.length} · ↑ ↓ · P = Print</div>
 <script>
 (function(){
