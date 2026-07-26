@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136 380" width="1136" height="380" role="img" aria-label="첫 배포 실패 후 빌드 로그를 클로드 코드에 전달해 수정하고 재배포하는 루프">
+<style>
+text{font-family:'Noto Sans KR',sans-serif;fill:#0F172A}
+.m{font-family:'JetBrains Mono',monospace}
+.ti{font-size:18px;font-weight:700}
+.b1{font-size:16px}
+.b2{font-size:13px;fill:#57564F}
+.lb{font-size:13px;fill:#8A8880}
+.am{font-size:13px;fill:#B45309}
+.hd{font-size:13px;fill:#8A8880}
+.er{font-size:13px;fill:#B45309}
+.cz{font-size:13px;fill:#0F172A}
+.bx{fill:#FAF9F5;stroke:#D8D5CC;stroke-width:1}
+.ok{fill:#FAF9F5;stroke:#0F766E;stroke-width:1.5}
+.pn{fill:#F2F0EA;stroke:#D8D5CC;stroke-width:1}
+.ln{stroke:#57564F;stroke-width:1;fill:none}
+.al{stroke:#B45309;stroke-width:1;fill:none}
+</style>
+<defs>
+<marker id="ag" viewBox="0 0 9 8" refX="8" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0.6 L9 4 L0 7.4 Z" fill="#57564F"/></marker>
+<marker id="aa" viewBox="0 0 9 8" refX="8" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0.6 L9 4 L0 7.4 Z" fill="#B45309"/></marker>
+<marker id="at" viewBox="0 0 9 8" refX="8" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0.6 L9 4 L0 7.4 Z" fill="#0F766E"/></marker>
+</defs>
+<rect width="1136" height="380" fill="#FAF9F5"/>
+
+<text class="ti" x="14" y="26">첫 배포는 대개 실패한다 — 빌드 로그를 클로드 코드에 물려 고치는 루프</text>
+
+<!-- BAND 1 : happy path -->
+<rect class="bx" x="30" y="52" width="170" height="60" rx="4"/>
+<text class="m b1" x="44" y="88">git push</text>
+<line class="ln" x1="204" y1="82" x2="228" y2="82" marker-end="url(#ag)"/>
+<rect class="bx" x="232" y="52" width="190" height="60" rx="4"/>
+<text class="b1" x="246" y="88">Vercel 빌드</text>
+<line class="ln" x1="426" y1="82" x2="486" y2="82" marker-end="url(#ag)"/>
+<text class="lb" x="456" y="72" text-anchor="middle">통과</text>
+<rect class="ok" x="490" y="52" width="190" height="60" rx="4"/>
+<text class="b1" x="504" y="88" fill="#115E59">성공 (Ready)</text>
+
+<!-- failure branch -->
+<line class="al" x1="327" y1="112" x2="327" y2="238"/>
+<text class="am" x="337" y="134">실패</text>
+<line class="al" x1="327" y1="238" x2="120" y2="238"/>
+<line class="al" x1="120" y1="238" x2="120" y2="256" marker-end="url(#aa)"/>
+<line class="al" x1="327" y1="170" x2="692" y2="170" marker-end="url(#aa)"/>
+
+<!-- evidence panel -->
+<rect class="pn" x="700" y="52" width="420" height="160" rx="4"/>
+<text class="hd" x="714" y="74">빌드 로그 원문 — 첫 배포 실패</text>
+<text class="m er" x="714" y="98">Error: connect ECONNREFUSED 127.0.0.1:5432</text>
+<text class="m er" x="714" y="118">Error occurred prerendering page "/"</text>
+<line x1="714" y1="132" x2="1106" y2="132" stroke="#D8D5CC" stroke-width="1"/>
+<text class="cz" x="714" y="154">원인 — 빌드 타임 프리렌더가 데이터베이스에 접속</text>
+<text class="cz" x="714" y="176">해결 — 지연 초기화 + 동적 렌더 강제</text>
+<text class="m" x="714" y="198" font-size="13" fill="#115E59">export const dynamic = 'force-dynamic'</text>
+
+<!-- BAND 3 : fix loop -->
+<rect class="bx" x="30" y="256" width="180" height="66" rx="4"/>
+<text class="b1" x="44" y="284">Build Logs 확인</text>
+<text class="b2" x="44" y="306">Inspect Deployment</text>
+<line class="ln" x1="214" y1="289" x2="236" y2="289" marker-end="url(#ag)"/>
+<rect class="bx" x="240" y="256" width="400" height="66" rx="4"/>
+<text class="m" x="254" y="284" font-size="13">claude "이 빌드 로그 원인 찾아 고쳐줘"</text>
+<text class="b2" x="254" y="306">로그 원문을 그대로 붙여넣는다</text>
+<line class="ln" x1="644" y1="289" x2="666" y2="289" marker-end="url(#ag)"/>
+<rect class="bx" x="670" y="256" width="200" height="66" rx="4"/>
+<text class="b1" x="684" y="284">수정 커밋</text>
+<text class="m b2" x="684" y="306">git push origin main</text>
+<line class="ln" x1="874" y1="289" x2="896" y2="289" marker-end="url(#ag)"/>
+<rect class="bx" x="900" y="256" width="180" height="66" rx="4"/>
+<text class="b1" x="914" y="284">Redeploy</text>
+<text class="b2" x="914" y="306">Deployments 탭</text>
+
+<!-- return loop -->
+<line class="ln" x1="990" y1="322" x2="990" y2="350"/>
+<line class="ln" x1="990" y1="350" x2="14" y2="350"/>
+<line class="ln" x1="14" y1="350" x2="14" y2="82"/>
+<line class="ln" x1="14" y1="82" x2="26" y2="82" marker-end="url(#ag)"/>
+<text class="lb" x="40" y="344">또 실패하면 같은 루프를 반복한다 — 두 번째 실패는 다른 원인일 수 있다</text>
+</svg>
