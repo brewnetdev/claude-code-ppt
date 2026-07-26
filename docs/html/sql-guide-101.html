@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>sql-ddl-dml-dcl-dql-for-beginners</title>
+<meta charset="utf-8">
+<meta name="description" content="SQL을 DDL·DML·DQL·DCL 네 그룹으로 나눠 employees 테이블 하나로 배우는 입문 가이드. PostgreSQL 16 기준, 모든 예제 실행 검증.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* 폰트 선택 이유: 한글 장문 가독성을 위해 본문 Noto Sans KR, SQL 명령·키워드는 고정폭 JetBrains Mono로 분리해
+     "읽는 글"과 "실행하는 SQL"을 시각적으로 구분한다. (Inter/Arial 기본 수렴 금지) */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --text:#111111; --muted:#6B7280; --border:#E5E7EB; --bg:#FFFFFF;
+    --code-bg:#F3F4F6; --soft-bg:#F8F7F4;
+    --accent:#B45309;   /* 단일 액센트(deep amber, 대비 약 5.3:1) — 링크·강조·중요 노드에만 */
+  }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif;
+         font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  /* 워터마크 — 화면 전체에 옅게 반복(클릭 방해 없음) */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.22;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='15' y='130' font-family='monospace' font-size='16' fill='%2394A3B8' transform='rotate(-30 180 120)'%3Erun-ai.kr%20%20%20brewnet.dev@gmail.com%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+  }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+  .layout { display:block; }
+  @media (min-width:1040px){ .layout{ display:grid; grid-template-columns:360px minmax(0,1fr); gap:48px; align-items:start; } }
+
+  .toc { border:1px solid var(--border); border-radius:8px; padding:18px 16px; margin:24px 0; font-size:14px; }
+  @media (min-width:1040px){ .toc{ position:sticky; top:24px; margin:40px 0; max-height:calc(100vh - 60px); overflow:auto; } }
+  .toc h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+            font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  .toc ol { list-style:none; counter-reset:t; }
+  .toc li { counter-increment:t; margin:2px 0; }
+  .toc a { display:block; padding:5px 8px; color:var(--text); text-decoration:none;
+           border-left:2px solid transparent; line-height:1.4; border-radius:0 4px 4px 0; }
+  .toc a::before { content:counter(t,decimal-leading-zero) " "; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc a:hover { color:var(--accent); }
+  .toc a.active { color:var(--accent); border-left-color:var(--accent); background:var(--soft-bg); font-weight:500; }
+
+  header { padding:56px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1 { font-size:34px; font-weight:900; line-height:1.2; letter-spacing:-.02em; }
+  .lead { color:var(--muted); font-size:17px; margin-top:14px; max-width:720px; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:18px; }
+
+  main { padding-bottom:80px; }
+  section { padding-top:44px; }
+  h2.sec { font-size:25px; font-weight:700; letter-spacing:-.02em; line-height:1.3; padding-bottom:12px;
+           border-bottom:1px solid var(--border); margin-bottom:20px; }
+  h2.sec .n { font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; margin-right:10px; }
+  h3 { font-size:19px; font-weight:700; margin:28px 0 10px; }
+  p { margin:12px 0; }
+  ul, ol { margin:12px 0 12px 4px; padding-left:22px; }
+  li { margin:6px 0; }
+  a.link { color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-all; }
+
+  .lvl { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em;
+         color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:2px 8px;
+         vertical-align:middle; margin-left:10px; font-weight:600; }
+
+  pre { position:relative; background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+        padding:16px 18px; margin:14px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:14px; line-height:1.7; }
+  pre code { font-family:inherit; white-space:pre; color:#1f2937; }
+  pre .c { color:var(--muted); }   /* 주석 */
+  pre .p { color:var(--accent); }  /* 핵심 키워드/강조 */
+  .copy { position:absolute; top:8px; right:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+          color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:4px;
+          padding:3px 9px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  .copy:hover { color:var(--accent); border-color:var(--accent); }
+  code.inline { font-family:'JetBrains Mono',monospace; font-size:.9em; background:var(--code-bg);
+                border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+  kbd { font-family:'JetBrains Mono',monospace; font-size:.82em; background:var(--bg); color:var(--text);
+        border:1px solid #C9CCD1; border-bottom-width:2px; border-radius:4px; padding:1px 7px; white-space:nowrap; }
+
+  .note { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+          background:var(--soft-bg); padding:14px 18px; margin:18px 0; }
+  .note .t { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .note p { margin:4px 0; }
+
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin:16px 0; }
+  th { text-align:left; font-weight:700; border-bottom:2px solid var(--text); padding:9px 12px; }
+  td { border-bottom:1px solid var(--border); padding:9px 12px; vertical-align:top; }
+  td code, th code { font-family:'JetBrains Mono',monospace; font-size:13px; }
+
+  footer { border-top:1px solid var(--border); padding:28px 0 60px; color:var(--muted); font-size:13px; }
+  footer a { color:var(--accent); }
+
+  @media print {
+    .toc, .copy { display:none; }
+    body { font-size:12pt; }
+    a.link::after { content:" (" attr(href) ")"; font-size:9pt; color:#555; }
+    pre, table { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">SQL Fundamentals · PostgreSQL</div>
+    <h1>SQL 기본 4분류 — DDL · DML · DQL · DCL</h1>
+    <p class="lead">SQL 명령은 하는 일에 따라 네 그룹으로 나뉩니다. <code class="inline">employees</code> <strong>테이블 하나</strong>만
+       가지고 네 그룹을 전부 배웁니다. 명령어는 외우지 말고 <strong>영어 풀네임의 약어</strong>로 이해하세요.</p>
+    <p class="meta">기준: PostgreSQL 16 · 모든 예제 실행 검증(exit 0)</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="목차">
+      <h2>학습 순서 목차</h2>
+      <ol>
+        <li><a href="#s0">SQL 4분류란? · 기준 테이블</a></li>
+        <li><a href="#s1">DDL — 구조를 정의한다</a></li>
+        <li><a href="#s2">DML — 데이터를 조작한다</a></li>
+        <li><a href="#s3">DQL — 데이터를 조회한다</a></li>
+        <li><a href="#s4">DCL — 권한을 제어한다</a></li>
+        <li><a href="#s5">한눈에 요약</a></li>
+        <li><a href="#appendix">부록 — 치트시트 · 출처</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <div class="note" style="margin-top:32px">
+        <div class="t">4글자 약어부터 풀어놓고 시작하세요</div>
+        <p>가운데 글자가 핵심입니다 — <strong>D</strong>ata <strong>D</strong>efinition(정의) · <strong>M</strong>anipulation(조작) ·
+           <strong>Q</strong>uery(질의) · <strong>C</strong>ontrol(제어). "무엇을 대상으로 하는가"만 알면 어느 그룹인지 바로 구분됩니다 —
+           <strong>구조</strong>냐, <strong>데이터(행)</strong>냐, <strong>조회</strong>냐, <strong>권한</strong>이냐.</p>
+      </div>
+
+      <!-- 0 -->
+      <section id="s0">
+        <h2 class="sec"><span class="n">00</span>SQL 4분류란? · 기준 테이블<span class="lvl">개념</span></h2>
+        <p>같은 <code class="inline">SQL</code>이라도 <strong>테이블 구조</strong>를 바꾸는 명령과, 그 안의 <strong>데이터</strong>를 바꾸는 명령은
+           동작도 위험도도 다릅니다. 그래서 하는 일에 따라 네 그룹으로 나눠 이해합니다.</p>
+
+        <table>
+          <thead><tr><th>분류</th><th>풀네임</th><th>한글</th><th>무엇을 다루나</th></tr></thead>
+          <tbody>
+            <tr><td><strong>DDL</strong></td><td>Data Definition Language</td><td>데이터 정의어</td><td>구조(테이블·컬럼)</td></tr>
+            <tr><td><strong>DML</strong></td><td>Data Manipulation Language</td><td>데이터 조작어</td><td>데이터(행)</td></tr>
+            <tr><td><strong>DQL</strong></td><td>Data Query Language</td><td>데이터 질의어</td><td>조회(SELECT)</td></tr>
+            <tr><td><strong>DCL</strong></td><td>Data Control Language</td><td>데이터 제어어</td><td>권한(롤)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>기준 테이블 — <code class="inline">employees</code></h3>
+        <p>이 문서의 모든 예제는 아래 직원 테이블 하나를 대상으로 합니다.</p>
+        <table>
+          <thead><tr><th>컬럼</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>SERIAL (PK)</td><td>자동 증가 기본키</td></tr>
+            <tr><td><code>name</code></td><td>VARCHAR(50)</td><td>이름 (NOT NULL)</td></tr>
+            <tr><td><code>department</code></td><td>VARCHAR(50)</td><td>부서</td></tr>
+            <tr><td><code>salary</code></td><td>INTEGER</td><td>급여 (0 이상)</td></tr>
+            <tr><td><code>hired_at</code></td><td>DATE</td><td>입사일 (기본값 = 오늘)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 1 -->
+      <section id="s1">
+        <h2 class="sec"><span class="n">01</span>DDL — 구조를 정의한다<span class="lvl">Data Definition</span></h2>
+        <p><strong>D</strong>ata <strong>D</strong>efinition <strong>L</strong>anguage(데이터 정의어). 테이블·스키마의
+           <strong>구조 자체</strong>를 만들고·바꾸고·지웁니다. PostgreSQL에서 DDL은 실행 즉시 반영되는 성격이 강해
+           <strong>되돌리기가 어렵습니다</strong>.</p>
+        <pre><button class="copy" type="button">복사</button><code><span class="c">-- 테이블 생성</span>
+<span class="p">CREATE TABLE</span> employees (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(50) NOT NULL,
+    department  VARCHAR(50),
+    salary      INTEGER CHECK (salary &gt;= 0),
+    hired_at    DATE DEFAULT CURRENT_DATE
+);
+
+<span class="c">-- 컬럼 추가 (구조 변경)</span>
+<span class="p">ALTER TABLE</span> employees ADD COLUMN email VARCHAR(100);
+
+<span class="c">-- 테이블 삭제</span>
+<span class="p">DROP TABLE</span> employees;</code></pre>
+        <table>
+          <thead><tr><th>명령어</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>CREATE</code></td><td>테이블/객체 생성</td></tr>
+            <tr><td><code>ALTER</code></td><td>구조 변경 (컬럼 추가·수정·삭제)</td></tr>
+            <tr><td><code>DROP</code></td><td>테이블/객체 삭제</td></tr>
+            <tr><td><code>TRUNCATE</code></td><td>데이터 전체 삭제 (구조는 유지 — DDL로 분류)</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">왜 DDL은 위험한가</div>
+          <p><code class="inline">DROP</code>·<code class="inline">TRUNCATE</code>는 구조·데이터를 통째로 날립니다.
+             DML의 <code class="inline">ROLLBACK</code>처럼 간단히 되돌리기 어려우니, 운영 DB에서는 실행 전 한 번 더 확인하세요.</p>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section id="s2">
+        <h2 class="sec"><span class="n">02</span>DML — 데이터를 조작한다<span class="lvl">Data Manipulation</span></h2>
+        <p><strong>D</strong>ata <strong>M</strong>anipulation <strong>L</strong>anguage(데이터 조작어). 테이블 안의
+           <strong>데이터(행)</strong>를 넣고·고치고·지웁니다. 트랜잭션으로 묶여 있어 <code class="inline">ROLLBACK</code>으로
+           <strong>되돌릴 수 있습니다</strong>.</p>
+        <pre><button class="copy" type="button">복사</button><code><span class="c">-- 삽입</span>
+<span class="p">INSERT INTO</span> employees (name, department, salary)
+VALUES ('김철수', '개발', 5000),
+       ('이영희', '디자인', 4500),
+       ('박민수', '개발', 6000);
+
+<span class="c">-- 수정</span>
+<span class="p">UPDATE</span> employees SET salary = 5500 WHERE name = '김철수';
+
+<span class="c">-- 삭제</span>
+<span class="p">DELETE FROM</span> employees WHERE name = '박민수';</code></pre>
+        <table>
+          <thead><tr><th>명령어</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>INSERT</code></td><td>행 추가</td></tr>
+            <tr><td><code>UPDATE</code></td><td>행 값 수정</td></tr>
+            <tr><td><code>DELETE</code></td><td>행 삭제</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t"><code class="inline">WHERE</code>를 빠뜨리지 마세요</div>
+          <p><code class="inline">UPDATE</code>·<code class="inline">DELETE</code>에서 <code class="inline">WHERE</code> 절을 빼면
+             <strong>전체 행</strong>이 수정·삭제됩니다. 실행 전 <code class="inline">SELECT</code>로 대상 행을 먼저 확인하는 습관이 안전합니다.</p>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section id="s3">
+        <h2 class="sec"><span class="n">03</span>DQL — 데이터를 조회한다<span class="lvl">Data Query</span></h2>
+        <p><strong>D</strong>ata <strong>Q</strong>uery <strong>L</strong>anguage(데이터 질의어). 데이터를
+           <strong>조회</strong>만 합니다. 명령은 <code class="inline">SELECT</code> 하나이며, DML의 일부로 보기도 합니다.</p>
+        <pre><button class="copy" type="button">복사</button><code><span class="c">-- 조건 조회 + 정렬</span>
+<span class="p">SELECT</span> name, department, salary
+FROM employees
+WHERE salary &gt;= 5000
+ORDER BY salary DESC;
+
+<span class="c">-- 그룹 집계</span>
+<span class="p">SELECT</span> department,
+       COUNT(*)         AS 인원,
+       AVG(salary)::INT AS 평균급여
+FROM employees
+GROUP BY department;</code></pre>
+        <table>
+          <thead><tr><th>요소</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>SELECT</code></td><td>조회할 컬럼 지정</td></tr>
+            <tr><td><code>WHERE</code></td><td>행 필터링 조건</td></tr>
+            <tr><td><code>ORDER BY</code></td><td>정렬 (<code>ASC</code>/<code>DESC</code>)</td></tr>
+            <tr><td><code>GROUP BY</code></td><td>그룹핑 후 집계(<code>COUNT</code>·<code>AVG</code>·<code>SUM</code> 등)</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">읽기 순서 ≠ 쓰는 순서</div>
+          <p>SQL은 <code class="inline">SELECT</code>부터 쓰지만, DB는 <code class="inline">FROM</code> → <code class="inline">WHERE</code> →
+             <code class="inline">GROUP BY</code> → <code class="inline">SELECT</code> → <code class="inline">ORDER BY</code> 순으로 처리합니다.
+             그래서 <code class="inline">WHERE</code>에는 <code class="inline">SELECT</code>에서 만든 별칭(<code class="inline">AS 인원</code>)을 쓸 수 없습니다.</p>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section id="s4">
+        <h2 class="sec"><span class="n">04</span>DCL — 권한을 제어한다<span class="lvl">Data Control</span></h2>
+        <p><strong>D</strong>ata <strong>C</strong>ontrol <strong>L</strong>anguage(데이터 제어어). 사용자(롤)에게
+           <strong>권한</strong>을 주거나 회수합니다. "누가 무엇을 할 수 있는가"를 다룹니다.</p>
+        <pre><button class="copy" type="button">복사</button><code><span class="c">-- 로그인 가능한 롤 생성</span>
+<span class="p">CREATE ROLE</span> analyst LOGIN PASSWORD 'pw123';
+
+<span class="c">-- 조회 권한 부여</span>
+<span class="p">GRANT</span> SELECT ON employees TO analyst;
+
+<span class="c">-- 권한 회수</span>
+<span class="p">REVOKE</span> SELECT ON employees FROM analyst;</code></pre>
+        <table>
+          <thead><tr><th>명령어</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>GRANT</code></td><td>권한 부여</td></tr>
+            <tr><td><code>REVOKE</code></td><td>권한 회수</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">TCL은 별개로 보기도 합니다</div>
+          <p><code class="inline">COMMIT</code>·<code class="inline">ROLLBACK</code>은 트랜잭션 제어어(TCL, <strong>T</strong>ransaction
+             <strong>C</strong>ontrol <strong>L</strong>anguage)로 DCL과 구분하기도 합니다. PostgreSQL에서 DML은 트랜잭션 안에서
+             <code class="inline">ROLLBACK</code>으로 되돌릴 수 있습니다.</p>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section id="s5">
+        <h2 class="sec"><span class="n">05</span>한눈에 요약<span class="lvl">치트시트</span></h2>
+        <table>
+          <thead><tr><th>분류</th><th>대상</th><th>대표 명령어</th><th>되돌리기</th></tr></thead>
+          <tbody>
+            <tr><td><strong>DDL</strong></td><td>구조(테이블)</td><td><code>CREATE</code> <code>ALTER</code> <code>DROP</code> <code>TRUNCATE</code></td><td>어려움 (자동 반영)</td></tr>
+            <tr><td><strong>DML</strong></td><td>데이터(행)</td><td><code>INSERT</code> <code>UPDATE</code> <code>DELETE</code></td><td>가능 (<code>ROLLBACK</code>)</td></tr>
+            <tr><td><strong>DQL</strong></td><td>조회</td><td><code>SELECT</code></td><td>해당 없음</td></tr>
+            <tr><td><strong>DCL</strong></td><td>권한</td><td><code>GRANT</code> <code>REVOKE</code></td><td>가능 (<code>ROLLBACK</code>)</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="t">한 문장으로 기억하기</div>
+          <p><strong>구조는 DDL, 행은 DML, 조회는 DQL, 권한은 DCL.</strong> 무엇을 대상으로 하는지만 짚으면 어느 그룹인지 바로 나옵니다.</p>
+        </div>
+      </section>
+
+      <!-- 부록 -->
+      <section id="appendix">
+        <h2 class="sec"><span class="n">A</span>부록 — 출처<span class="lvl">Reference</span></h2>
+        <p>아래 SQL 예제는 PostgreSQL 16.13 환경에서 순차 실행하여 전부 정상 동작(exit 0)함을 확인했습니다.</p>
+        <ul>
+          <li>PostgreSQL 공식 — SQL Commands: <a class="link" href="https://www.postgresql.org/docs/current/sql-commands.html">postgresql.org/docs/current/sql-commands.html</a></li>
+          <li><code>CREATE TABLE</code>: <a class="link" href="https://www.postgresql.org/docs/current/sql-createtable.html">postgresql.org/docs/current/sql-createtable.html</a></li>
+          <li><code>GRANT</code>: <a class="link" href="https://www.postgresql.org/docs/current/sql-grant.html">postgresql.org/docs/current/sql-grant.html</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        예제는 PostgreSQL 16 기준입니다. MySQL·Oracle 등 다른 DBMS는 일부 문법(예: <code>SERIAL</code>, <code>ROLE</code> 옵션)이 다를 수 있습니다.
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/* 코드 복사 버튼 — 각 pre의 code 텍스트를 클립보드로 */
+document.querySelectorAll('pre .copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var code = btn.parentElement.querySelector('code');
+    if (!code) return;
+    navigator.clipboard.writeText(code.innerText).then(function(){
+      var prev = btn.textContent; btn.textContent = '복사됨';
+      setTimeout(function(){ btn.textContent = prev; }, 1200);
+    });
+  });
+});
+
+/* 임베드 안전 패치 — run-ai.kr 등이 이 문서를 sandbox iframe(origin null)으로 임베드할 때:
+   1) 네이티브 #hash 앵커 클릭이 상위 SPA URL을 바꿔 라우터 재렌더 크래시를 유발 → scrollIntoView로 대체
+   2) sandbox에서 navigator.clipboard 부재 시 복사 버튼이 죽음 → execCommand 폴백 주입 */
+document.addEventListener('click', function(e){
+  var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if (!a) return;
+  var href = a.getAttribute('href');
+  if (!href || href.length < 2) return;
+  var el = document.getElementById(href.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+if (!navigator.clipboard || !navigator.clipboard.writeText) {
+  try {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(t){
+      var ta = document.createElement('textarea'); ta.value = t;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      ta.remove(); return Promise.resolve();
+    } } });
+  } catch (err) {}
+}
+</script>
+</body>
+</html>
