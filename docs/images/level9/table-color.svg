@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-labelledby="t d">
+<title id="t">“더 잘 말하기”로는 안 풀리는 문제 6가지</title>
+<desc id="d">지시로는 해결되지 않는 6가지 문제를 문제·말로 시키면(지시)·하네스로 만들면(구조) 3열로 대조한 표. 자기 코드 자기 검사, 긴 대화의 조급증, 규칙 망각, 건드리면 안 될 코드 수정, 무한 반복, 기억 유실 순서.</desc>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap');
+text{font-family:'IBM Plex Sans KR','IBM Plex Sans','Noto Sans KR',sans-serif}
+.ttl{font-size:34px;font-weight:600;fill:#191917;letter-spacing:-.6px}
+.th{font-size:18px;font-weight:600;fill:#ffffff}
+.p{font-size:18px;font-weight:600;fill:#191917}
+.i{font-size:18px;font-weight:400;fill:#56564E}
+.s{font-size:18px;font-weight:500;fill:#191917}
+.n{font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;font-weight:500;fill:#5E5850}
+</style>
+
+<rect id="bg" x="0" y="0" width="1280" height="720" fill="#FAF6EA"/>
+
+<text class="ttl" x="80" y="112">“더 잘 말하기”로는 안 풀리는 문제 6가지</text>
+
+<rect x="80" y="280" width="1120" height="70" fill="#F2ECDC"/>
+<rect x="80" y="420" width="1120" height="70" fill="#F2ECDC"/>
+<rect x="80" y="560" width="1120" height="70" fill="#F2ECDC"/>
+
+<rect x="80" y="158" width="1120" height="52" fill="#2F4858"/>
+<text class="th" x="148" y="190">문제</text>
+<text class="th" x="416" y="190">말로 시키면 (지시)</text>
+<text class="th" x="836" y="190">하네스로 만들면 (구조)</text>
+
+<text class="n" x="96" y="251">01</text>
+<text class="p" x="148" y="251">자기 코드 자기 검사</text>
+<text class="i" x="416" y="251">“비판적으로 리뷰해” → 결국 자기 칭찬</text>
+<text class="s" x="836" y="251">만드는 AI와 검사하는 AI를 분리</text>
+
+<text class="n" x="96" y="321">02</text>
+<text class="p" x="148" y="321">긴 대화의 조급증</text>
+<text class="i" x="416" y="321">대화가 길어지면 서둘러 마무리하려 함</text>
+<text class="s" x="836" y="321">컨텍스트 초기화 + 파일로 상태 인계</text>
+
+<text class="n" x="96" y="391">03</text>
+<text class="p" x="148" y="391">규칙 망각</text>
+<text class="i" x="416" y="391">CLAUDE.md에 적어도 한참 지나면 잊음</text>
+<text class="s" x="836" y="391">훅(Hook)·린터가 자동으로 잡아냄</text>
+
+<text class="n" x="96" y="461">04</text>
+<text class="p" x="148" y="461">건드리면 안 될 코드 수정</text>
+<text class="i" x="416" y="461">“여기만 고쳐” → 편하다고 다른 곳도 수정</text>
+<text class="s" x="836" y="461">도구 권한으로 접근 자체를 차단</text>
+
+<text class="n" x="96" y="531">05</text>
+<text class="p" x="148" y="531">무한 반복</text>
+<text class="i" x="416" y="531">“5번까지만 시도해” → 무시하기도 함</text>
+<text class="s" x="836" y="531">반복 횟수 상한을 하드 리밋으로 강제</text>
+
+<text class="n" x="96" y="601">06</text>
+<text class="p" x="148" y="601">기억 유실</text>
+<text class="i" x="416" y="601">새 세션이 되면 이전 맥락이 사라짐</text>
+<text class="s" x="836" y="601">파일에 남겨 다음 세션이 이어받게 함</text>
+
+<g stroke="#8E8776" stroke-width="1">
+<line x1="80" y1="280.5" x2="1200" y2="280.5"/>
+<line x1="80" y1="350.5" x2="1200" y2="350.5"/>
+<line x1="80" y1="420.5" x2="1200" y2="420.5"/>
+<line x1="80" y1="490.5" x2="1200" y2="490.5"/>
+<line x1="80" y1="560.5" x2="1200" y2="560.5"/>
+<line x1="80" y1="630.5" x2="1200" y2="630.5"/>
+</g>
+</svg>

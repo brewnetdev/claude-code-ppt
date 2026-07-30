@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4강 · 훅 — 요청(request)을 보증(guarantee)으로</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">LV4</span> · 4강</div>
+<header class="page">
+  <div class="kicker">Level 4 · Requests → Guarantees</div>
+  <h1>훅 — 요청(request)을 보증(guarantee)으로</h1>
+  <p class="subtitle">하네스 설계에서 가장 중요한 한 문장: "CLAUDE.md와 스킬의 지시는 요청이지 보증이 아니다. 반드시 일어나야 하는 일은 훅에 속한다." 이 강은 그 이유(이론), 결과(실증), 방법(구현), 그리고 무인 실행이라는 확장까지 다룬다.</p>
+</header>
+
+<h2>4-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>훅 (Hook)</dt>
+  <dd><strong>에이전트 루프 밖에서</strong> 라이프사이클 이벤트에 발화하는 이벤트 핸들러. 셸 명령·HTTP 요청·프롬프트·서브에이전트를 실행할 수 있다.
+  <span class="easy">쉬운 비유: "테스트 돌려주세요"라고 말하는 것(요청)과 테스트가 깨지면 커밋 자체가 안 되는 CI(보증)의 차이. 훅이 후자다.</span></dd>
+  <dt>라이프사이클 이벤트 (Lifecycle Event)</dt>
+  <dd>훅이 발화하는 시점들. 대표적으로 <strong>PreToolUse</strong>(도구 호출 직전 — 차단 가능), <strong>PostToolUse</strong>(호출 직후 — 후처리), <strong>SessionStart</strong>(세션 시작), <strong>Stop</strong>(에이전트가 멈추려는 순간 — 종료 조건 검사).</dd>
+  <dt>확률적 준수 vs 결정적 강제</dt>
+  <dd>프롬프트·CLAUDE.md의 지시는 <em>대체로</em> 지켜진다(확률적) — 컨텍스트가 차면 누락될 수 있다(1강 대전제). 훅·설정은 모델의 의지와 무관하게 <em>실행된다</em>(결정적).</dd>
+  <dt>무인 실행 (Unattended Run)</dt>
+  <dd>사람이 지켜보지 않는 장시간 자율 실행. 공식 문서 표현으로, 프롬프트 버전 검증은 아무 과제에나 통하지만 <strong>/goal과 Stop 훅 버전이야말로 무인 실행이 사람 없이 올바르게 끝나게 해주는 것</strong>이다.</dd>
+</dl>
+<p class="src">용어 근거: <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(이벤트·실행 종류), <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a>(루프 밖 핸들러), <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a>(/goal·Stop 훅과 무인 실행)</p>
+
+<h2>4-2. 이론 — 왜 "요청"은 반드시 새는가</h2>
+<p>이 구분이 필요한 근본 이유는 1강의 대전제로 되돌아간다: <strong>컨텍스트가 차면 성능이 저하된다.</strong> CLAUDE.md의 규칙은 세션 초반엔 잘 지켜지다가, 긴 세션에서 컨텍스트가 차오르면 주의 경쟁에서 밀려 누락된다 — 즉 <strong>요청의 준수율은 세션 길이의 감소 함수</strong>다. 규칙 위반이 "가끔, 긴 세션에서, 하필 중요한 순간에" 발생하는 패턴은 버그가 아니라 확률적 준수의 구조적 성질이다. 그래서 실무 결론은 단호하다: <strong>"CLAUDE.md와 스킬의 지시는 요청이지 보증이 아니다. 반드시 일어나야 하는 것은 훅에 속한다. 가드레일은 훅에 넣고, 그 외 전부는 정중한 제안이다."</strong> <span class="src">근거: <a href="https://code.claude.com/docs/en/best-practices">공식</a>(컨텍스트 저하 대전제), <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(요청/보증 구분 원문)</span></p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">두 개의 층: 확률적 준수 vs 결정적 강제</text>
+  <rect x="20" y="44" width="720" height="64" fill="#f6f6f6" stroke="#d9d9d9"/>
+  <text x="34" y="66" font-weight="600" fill="#1a1a1a">요청 층 (모델이 '읽고 따르려 노력'하는 것) — 확률적 준수</text>
+  <text x="34" y="88" fill="#555555">CLAUDE.md 규칙 · 스킬 지시 · 세션 프롬프트 → 대체로 지켜지지만, 컨텍스트가 차면 누락될 수 있다</text>
+  <rect x="20" y="128" width="720" height="72" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="34" y="150" font-weight="600" fill="#0f4bd8">보증 층 (에이전트 루프 밖에서 '실행되는' 것) — 결정적 강제</text>
+  <text x="34" y="170" fill="#555555">PreToolUse 훅: 위험 명령 사전 차단 · PostToolUse 훅: 파일 수정마다 자동 포맷/테스트 · Stop 훅: 종료 조건 미달 시 계속</text>
+  <text x="34" y="188" fill="#555555">settings.json deny 규칙 (2강) · CI 게이트 (7강의 평가 게이트가 여기 얹힌다)</text>
+</svg>
+<figcaption>훅은 에이전트 루프 바깥에서 도는 이벤트 핸들러다 — 모델이 잊거나 무시할 수 없다.</figcaption>
+</figure>
+
+<h2>4-3. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">훅 도입 전</th><th>도입 후</th></tr></thead>
+  <tbody>
+    <tr><td>"이번엔 포맷을 안 했네", "또 위험한 명령을 시도했네" — 규칙 준수가 세션 길이와 그날 컨디션에 좌우.</td><td>포맷 안 된 파일·차단 대상 명령이 <strong>구조적으로 존재 불가능</strong>한 범주가 생김. 규칙 리뷰가 "지켰나"에서 "규칙 자체가 옳은가"로 승격.</td></tr>
+    <tr><td>긴 세션 후반부에 품질 사고 집중 — 원인 추적이 "왜 이번엔 무시했지?"라는 미궁으로.</td><td>보증 층 위반은 0건이므로, 남는 사고는 전부 요청 층 설계 문제로 좁혀짐 — 디버깅 표면이 절반으로.</td></tr>
+    <tr><td>무인 실행을 맡기면 "다 했습니다"라며 미완성 상태로 조기 종료.</td><td>Stop 훅이 종료 조건(목표 달성 여부)을 검사 — <strong>무인 실행이 사람 없이 올바르게 끝나는</strong> 상태에 도달. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>)</span></td></tr>
+    <tr><td>수정 후 테스트를 "나중에 몰아서" → 깨진 상태 위에 작업이 누적.</td><td>PostToolUse 훅의 빠른 테스트 패스로 깨짐이 발생 즉시 표면화 — 결함의 발견 지연이 0에 수렴.</td></tr>
+  </tbody>
+</table>
+
+<h2>4-4. 대표 용례 — 이벤트별 정리</h2>
+<table>
+  <thead><tr><th>이벤트</th><th>용례</th><th>보증하는 것</th></tr></thead>
+  <tbody>
+    <tr><td class="key">PostToolUse</td><td>파일 쓰기마다 포매터 자동 실행</td><td>"포맷 지켜줘"(요청) → 포맷 안 된 파일이 존재할 수 없음(보증)</td></tr>
+    <tr><td class="key">PostToolUse</td><td>수정 후 빠른 테스트 패스 실행</td><td>깨진 상태로 다음 단계 진행 불가</td></tr>
+    <tr><td class="key">PreToolUse</td><td>명백히 위험한 셸 명령 사전 차단</td><td>실수·오판이 실행 전에 걸러짐</td></tr>
+    <tr><td class="key">Stop</td><td>종료 조건(/goal 달성) 검사, 미달 시 계속</td><td>미완성 조기 종료 불가 — 무인 실행의 핵심 부품</td></tr>
+    <tr><td class="key">SessionStart</td><td>환경 상태 주입(브랜치·마이그레이션 상태 요약)</td><td>세션이 낡은 가정으로 시작하지 않음</td></tr>
+  </tbody>
+</table>
+<p class="src">용례 근거: <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(포맷·테스트·차단 3종), <a href="https://code.claude.com/docs/en/best-practices">공식</a>(Stop 훅과 무인 실행)</p>
+
+<h2>4-5. 예제 — 자동 포맷 + 위험 명령 차단기</h2>
+<p><strong>사용 방법</strong>: <code>.claude/settings.json</code>의 hooks에 등록한다. 이후 에이전트가 어떤 파일을 수정하든 포매터가 <em>모델의 의지와 무관하게</em> 실행되고, 위험 명령은 실행 전에 걸러진다.</p>
+<pre><code>// .claude/settings.json 내 hooks (예시 — 스키마는 설치 버전 공식 문서로 확인)
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command",
+            "command": "pnpm prettier --write \"$CLAUDE_FILE_PATHS\"" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command",
+            "command": "python3 .claude/hooks/block_dangerous.py" }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<pre><code># .claude/hooks/block_dangerous.py — 위험 명령 사전 차단기
+import json, re, sys
+
+BLOCK_PATTERNS = [
+    r"rm\s+-rf\s+/",          # 루트 삭제
+    r"git\s+push\s+--force",   # 강제 푸시
+    r"curl[^|]*\|\s*(ba)?sh",  # 원격 스크립트 파이프 실행
+]
+
+payload = json.load(sys.stdin)                      # 훅 입력(JSON)
+cmd = payload.get("tool_input", {}).get("command", "")
+
+for pat in BLOCK_PATTERNS:
+    if re.search(pat, cmd):
+        print(f"차단됨: 패턴 '{pat}' 매칭", file=sys.stderr)
+        sys.exit(2)   # 비정상 종료 = 도구 호출 차단 신호
+sys.exit(0)
+</code></pre>
+<p class="note">훅 입출력 규약(종료 코드 의미, payload 스키마)은 버전에 따라 다를 수 있으므로 <a href="https://code.claude.com/docs/en/setup">설치 버전 공식 문서</a> 대조 필수. 원칙은 불변: <strong>차단 로직은 모델 밖의 코드로 존재한다.</strong></p>
+
+<h2>4-6. 실증 — 훅 생태계의 성숙</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px">훅은 이론적 기능이 아니라 이미 전용 생태계가 형성된 프리미티브다. GitHub 트렌딩 1위를 기록한 베스트 프랙티스 저장소는 <strong>훅 구현을 별도 전용 레포로 분리</strong>해 배포하고 있으며(작업 중 이벤트를 소리로 알리는 커스텀 훅 사운드까지 포함), 에이전트 팀·자기 진화 루프(Ralph Wiggum 패턴) 같은 고급 패턴이 훅을 기반 부품으로 사용한다. 즉 훅은 "옵션 기능"이 아니라 <strong>고급 워크플로 전체가 딛고 서는 바닥</strong>이다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan/claude-code-best-practice</a> (전용 훅 레포·훅 사운드·고급 패턴 구현 디렉토리)</p>
+</div>
+
+<h2>4-7. 배치 지도 — 어디에 무엇을 넣을지 최종 정리</h2>
+<table>
+  <thead><tr><th>계층</th><th>성격</th><th>넣을 것</th></tr></thead>
+  <tbody>
+    <tr><td class="key">CLAUDE.md (1강)</td><td>항상 로드되는 요청</td><td>짧고 안정적인 컨벤션, 완료의 정의</td></tr>
+    <tr><td class="key">스킬 (3강)</td><td>조건부 로드되는 요청</td><td>작업 유형별 긴 노하우, Gotchas</td></tr>
+    <tr><td class="key">settings.json (2강)</td><td>결정적 경계</td><td>권한 allow/ask/deny, 하네스 강제 설정</td></tr>
+    <tr><td class="key">훅 (4강)</td><td>결정적 행동</td><td>반드시 실행/차단되어야 하는 것 전부 + 무인 실행의 종료 조건</td></tr>
+  </tbody>
+</table>
+
+<h2>4-8. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">보증이 필요한 규칙을 CLAUDE.md에 "NEVER" 문장으로</td><td>확률적 준수는 긴 세션에서 반드시 샌다 (4-2 이론)</td><td>판별 질문(2강): 어기면 곤란한가? → 훅/설정으로</td></tr>
+    <tr><td class="key">무거운 훅 남발</td><td>모든 편집마다 전체 테스트를 돌리면 루프가 기어감 — 보증에도 지연 비용이 있다</td><td>PostToolUse엔 빠른 검사만, 전체 검증은 커맨드/CI로</td></tr>
+    <tr><td class="key">훅 실패를 조용히 삼킴</td><td>보증 층이 침묵하면 요청 층보다 위험 — "지켜지고 있다"는 거짓 안심</td><td>훅 실패는 반드시 표면화(비정상 종료 + 로그)</td></tr>
+  </tbody>
+</table>
+
+<div class="box gate">
+  <div class="label">7강 예고 — 훅 자리에 평가를 꽂으면</div>
+  <p style="margin:0">훅의 구조(이벤트 → 검사 → 통과/차단)는 EDD의 blocking eval과 동형이다. 차이는 검사 내용뿐 — 정규식 패턴 대신 <strong>골든셋 점수와 임계값</strong>을 넣으면, 그것이 7강의 평가 게이트다. 4강까지 온 팀은 EDD의 실행 인프라를 이미 가진 셈이다.</p>
+</div>
+
+<h2>4-9. 체크리스트</h2>
+<ul class="check">
+  <li>"반드시 일어나야 하는 일" 목록이 존재하고, 전부 훅/설정으로 구현되어 있는가</li>
+  <li>CLAUDE.md에 "NEVER/반드시" 문장이 남아있지 않은가</li>
+  <li>파일 수정 → 자동 포맷/빠른 테스트 훅이 걸려 있는가</li>
+  <li>위험 명령 차단기가 모델 밖 코드로 존재하는가</li>
+  <li>무인 실행에 Stop 훅 기반 종료 조건이 있는가</li>
+  <li>훅 실패가 침묵하지 않고 표면화되는가</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 컨텍스트 저하 대전제, /goal·Stop 훅과 무인 실행</li>
+    <li>[커뮤니티] <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a> — "요청 vs 보증" 원문, 훅 이벤트와 3대 용례</li>
+    <li>[커뮤니티] <a href="https://mcp.directory/blog/claude-code-best-practices">mcp.directory</a> — 훅 = 루프 밖 이벤트 핸들러</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> — 전용 훅 레포, 훅 기반 고급 패턴</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="03-skills-commands.html"><span class="dir">이전 · 3강</span>← 커맨드와 스킬</a>
+  <a class="next" href="05-subagents.html"><span class="dir">다음 · 5강</span>서브에이전트와 검증 루프 →</a>
+</nav>
+
+</div></body></html>

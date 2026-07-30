@@ -1,0 +1,76 @@
+/* 폰트 선택 이유: IBM Plex Sans KR — 기술 문서 전용 설계로 한/영 혼용 정합이 좋고,
+   동일 패밀리 Plex Mono와 본문-코드 전환이 시각적으로 일관됨. */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #555555;
+  --line: #d9d9d9;
+  --bg: #ffffff;
+  --bg-soft: #f6f6f6;
+  --accent: #0f4bd8; /* 액센트 1색: 레벨 번호·결정 지점·링크 등 위계와 판정에만 사용 */
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'IBM Plex Sans KR', 'Noto Sans KR', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.7; font-size: 15px; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+.crumb { font-size: 12px; color: var(--ink-soft); margin-bottom: 20px; }
+.crumb a { color: var(--ink-soft); text-decoration: none; }
+.crumb a:hover { color: var(--accent); }
+.crumb .lv { font-family: 'IBM Plex Mono', monospace; color: var(--accent); }
+
+header.page { border-bottom: 1px solid var(--ink); padding-bottom: 20px; margin-bottom: 28px; }
+.kicker { font-size: 12px; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 6px; }
+h1 { font-size: 24px; font-weight: 700; line-height: 1.4; }
+.subtitle { margin-top: 8px; color: var(--ink-soft); font-size: 14px; }
+
+h2 { font-size: 18px; font-weight: 700; margin: 40px 0 12px; padding-top: 20px; border-top: 1px solid var(--line); }
+h3 { font-size: 15px; font-weight: 600; margin: 22px 0 8px; }
+p { margin-bottom: 12px; }
+p.note, li.note { font-size: 13px; color: var(--ink-soft); }
+.src { font-size: 12px; color: var(--ink-soft); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 13.5px; }
+th, td { border: 1px solid var(--line); padding: 8px 11px; text-align: left; vertical-align: top; }
+th { background: var(--bg-soft); font-weight: 600; }
+td .key { font-weight: 600; }
+
+pre { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; overflow-x: auto; margin: 12px 0 16px; }
+code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.6; }
+p code, li code, td code { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; font-size: 12.5px; }
+
+ul, ol { margin: 0 0 14px 22px; }
+li { margin-bottom: 7px; }
+
+.box { border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px; margin: 16px 0; }
+.box .label { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; font-weight: 600; }
+.box.gate { border-color: var(--accent); }
+.box.gate .label { color: var(--accent); }
+.box.easy { background: var(--bg-soft); }
+
+figure.diagram { border: 1px solid var(--line); border-radius: 4px; padding: 18px; margin: 18px 0; }
+figure.diagram svg { display: block; width: 100%; height: auto; }
+figure.diagram figcaption { font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+
+.check { list-style: none; margin-left: 0; }
+.check li { padding-left: 26px; position: relative; font-size: 14px; }
+.check li::before { content: "☐"; position: absolute; left: 2px; color: var(--ink-soft); }
+
+nav.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; border-top: 1px solid var(--ink); padding-top: 16px; font-size: 13.5px; }
+nav.pager a { border: 1px solid var(--line); border-radius: 4px; padding: 10px 14px; color: var(--ink); flex: 1; }
+nav.pager a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+nav.pager .next { text-align: right; }
+nav.pager .dir { display: block; font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+
+footer.refs { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 16px; font-size: 12.5px; color: var(--ink-soft); }
+footer.refs li { margin-bottom: 6px; }
+
+/* index 전용 */
+.toc-list { list-style: none; margin: 20px 0 0 0; }
+.toc-list li { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 10px; }
+.toc-list a { display: block; padding: 14px 18px; color: var(--ink); }
+.toc-list a:hover { border-color: var(--accent); text-decoration: none; }
+.toc-list li:hover { border-color: var(--accent); }
+.toc-list .lv { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); display: block; margin-bottom: 2px; }
+.toc-list .t { font-weight: 600; }
+.toc-list .d { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }

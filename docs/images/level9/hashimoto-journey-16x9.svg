@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-labelledby="ttl desc">
+<title id="ttl">Mitchell Hashimoto의 AI 도입 여정 6단계</title>
+<desc id="desc">챗봇 버리기, 자기 작업 재현, 퇴근 전 에이전트, 확실한 작업 위임, 하네스 엔지니어링, 항상 에이전트 실행의 6단계를 좌에서 우로 배열한 도식. 5단계가 원문 시점의 현재 위치이며 6단계와 동시 진행 중임을 표시한다.</desc>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap');
+text{font-family:'IBM Plex Sans KR','IBM Plex Sans','Noto Sans KR',sans-serif;fill:#1a1a1a}
+.h1{font-size:28px;font-weight:600;letter-spacing:-0.2px}
+.sub{font-size:15px;fill:#555555}
+.meta{font-size:14px;font-weight:500}
+.metas{font-size:12.5px;fill:#555555}
+.num{font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:12.5px;font-weight:500;fill:#8a8a8a;letter-spacing:1px}
+.en{font-size:16px;font-weight:600}
+.ko{font-size:14px;font-weight:500;fill:#555555}
+.d{font-size:12.5px;fill:#555555}
+.lbl{font-size:12.5px;fill:#0f4bd8}
+.tag{font-size:11px;fill:#0f4bd8;font-weight:500}
+.sec{font-size:14px;font-weight:600}
+.body{font-size:13px;fill:#555555}
+.src{font-size:12px;fill:#8a8a8a}
+.strip{font-size:12.5px;fill:#555555}
+.rule{stroke:#d9d9d9;stroke-width:1}
+.card{fill:#ffffff;stroke:#d9d9d9;stroke-width:1}
+.cardnow{fill:#ffffff;stroke:#0f4bd8;stroke-width:1.5}
+.hair{stroke:#e6e6e6;stroke-width:1}
+</style>
+<rect x="0" y="0" width="1280" height="720" fill="#ffffff"/>
+
+<text class="h1" x="50" y="58">My AI Adoption Journey</text>
+<text class="sub" x="50" y="84">AI 도입 여정 6단계 · 챗봇 버리기에서 항상 실행까지</text>
+<text class="meta" x="1230" y="54" text-anchor="end">Mitchell Hashimoto</text>
+<text class="metas" x="1230" y="74" text-anchor="end">HashiCorp 공동창업자 · Terraform · Ghostty</text>
+<line class="rule" x1="50" y1="100" x2="1230" y2="100"/>
+
+<text class="lbl" x="1038" y="122" text-anchor="middle">05 · 06 동시 진행 (run in parallel)</text>
+<path d="M846 138 V130 H1230 V138" fill="none" stroke="#0f4bd8" stroke-width="1"/>
+
+<rect class="card" x="50" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="64" y="180">01</text>
+<text class="en" x="64" y="214">Drop the</text>
+<text class="en" x="64" y="234">Chatbot</text>
+<text class="ko" x="64" y="264">챗봇 버리기</text>
+<line class="hair" x1="64" y1="282" x2="221" y2="282"/>
+<text class="d" x="64" y="308">웹 챗으로 코딩 중단.</text>
+<text class="d" x="64" y="327">파일 읽기 · 프로그램</text>
+<text class="d" x="64" y="346">실행 · HTTP 요청이</text>
+<text class="d" x="64" y="365">되는 에이전트로 전환.</text>
+
+<rect class="card" x="249" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="263" y="180">02</text>
+<text class="en" x="263" y="214">Reproduce Your</text>
+<text class="en" x="263" y="234">Own Work</text>
+<text class="ko" x="263" y="264">자기 작업 재현</text>
+<line class="hair" x1="263" y1="282" x2="420" y2="282"/>
+<text class="d" x="263" y="308">수동으로 먼저 풀고,</text>
+<text class="d" x="263" y="327">정답 비공개 상태로</text>
+<text class="d" x="263" y="346">에이전트에 동일한</text>
+<text class="d" x="263" y="365">결과를 요구했다.</text>
+<text class="d" x="263" y="384">같은 일을 두 번.</text>
+
+<rect class="card" x="448" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="462" y="180">03</text>
+<text class="en" x="462" y="214">End-of-Day</text>
+<text class="en" x="462" y="234">Agents</text>
+<text class="ko" x="462" y="264">퇴근 전 에이전트</text>
+<line class="hair" x1="462" y1="282" x2="619" y2="282"/>
+<text class="d" x="462" y="308">하루 마지막 30분을</text>
+<text class="d" x="462" y="327">착수 시간으로 블록.</text>
+<text class="d" x="462" y="346">딥리서치 · 아이디어</text>
+<text class="d" x="462" y="365">병렬 · 이슈 트리아지</text>
+<text class="d" x="462" y="384">응답 권한은 미부여.</text>
+
+<rect class="card" x="647" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="661" y="180">04</text>
+<text class="en" x="661" y="214">Outsource the</text>
+<text class="en" x="661" y="234">Slam Dunks</text>
+<text class="ko" x="661" y="264">확실한 작업 위임</text>
+<line class="hair" x1="661" y1="282" x2="818" y2="282"/>
+<text class="d" x="661" y="308">확실히 잘할 작업만</text>
+<text class="d" x="661" y="327">백그라운드 위임.</text>
+<text class="d" x="661" y="346">알림은 끈다. 중단</text>
+<text class="d" x="661" y="365">시점은 사람이 통제.</text>
+
+<rect class="cardnow" x="846" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="860" y="180" fill="#0f4bd8">05</text>
+<text class="tag" x="890" y="180">현재 위치</text>
+<text class="en" x="860" y="214">Engineer the</text>
+<text class="en" x="860" y="234">Harness</text>
+<text class="ko" x="860" y="264">하네스 엔지니어링</text>
+<line class="hair" x1="860" y1="282" x2="1017" y2="282"/>
+<text class="d" x="860" y="308">실수 1건 = 구조 1건.</text>
+<text class="d" x="860" y="327">AGENTS.md 갱신과</text>
+<text class="d" x="860" y="346">검증 도구 작성으로</text>
+<text class="d" x="860" y="365">재발을 차단한다.</text>
+
+<rect class="card" x="1045" y="152" width="185" height="262" rx="4"/>
+<text class="num" x="1059" y="180">06</text>
+<text class="en" x="1059" y="214">Always Have an</text>
+<text class="en" x="1059" y="234">Agent Running</text>
+<text class="ko" x="1059" y="264">항상 에이전트 실행</text>
+<line class="hair" x1="1059" y1="282" x2="1216" y2="282"/>
+<text class="d" x="1059" y="308">“지금 에이전트가 할</text>
+<text class="d" x="1059" y="327">일이 있나?”를 상시</text>
+<text class="d" x="1059" y="346">자문. 단일 에이전트</text>
+<text class="d" x="1059" y="365">유지, 가동률 10~20%.</text>
+
+<line class="rule" x1="50" y1="432" x2="1230" y2="432"/>
+<line class="rule" x1="341" y1="432" x2="341" y2="440"/>
+<line class="rule" x1="540" y1="432" x2="540" y2="440"/>
+<line class="rule" x1="739" y1="432" x2="739" y2="440"/>
+<text class="strip" x="50" y="458" font-weight="500" fill="#1a1a1a">단계별 자기 평가</text>
+<text class="strip" x="341" y="458">적정 가치, 순효율 이득 없음</text>
+<text class="strip" x="540" y="458">AI 이전보다 약간 더 많이</text>
+<text class="strip" x="739" y="458">“돌아갈 수 없다”</text>
+
+<rect x="50" y="500" width="1180" height="122" rx="4" fill="#f6f6f6" stroke="#d9d9d9" stroke-width="1"/>
+<text class="sec" x="74" y="532">Harness engineering · 하네스 엔지니어링 (05)</text>
+<text class="body" x="74" y="560">에이전트가 실수하면, 그 실수가 다시 나오지 않도록 구조를 만든다.</text>
+<text class="body" x="74" y="584">형태는 둘. AGENTS.md 갱신과 실제 검증 도구 작성.</text>
+<line class="rule" x1="660" y1="516" x2="660" y2="606"/>
+<text class="sec" x="684" y="532">원문 시점 (2026-02-05)</text>
+<text class="body" x="684" y="560">05가 현재 위치. 06은 아직 목표 상태로, 백그라운드 에이전트</text>
+<text class="body" x="684" y="584">가동률은 근무일의 10~20%. 멀티 에이전트는 미사용.</text>
+
+<text class="src" x="50" y="662">출처: Mitchell Hashimoto, “My AI Adoption Journey”, 2026-02-05 · mitchellh.com/writing/my-ai-adoption-journey</text>
+</svg>

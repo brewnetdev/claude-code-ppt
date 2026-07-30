@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5강 · 서브에이전트와 검증 루프 — 컨텍스트 위생과 제2의 눈</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">LV5</span> · 5강</div>
+<header class="page">
+  <div class="kicker">Level 5 · Context Hygiene & Second Eyes</div>
+  <h1>서브에이전트와 검증 루프 — 컨텍스트 위생과 제2의 눈</h1>
+  <p class="subtitle">하네스 최상위 레벨의 원칙 두 가지: 큰 조사는 격리된 컨텍스트에 시키고(위생), 일한 에이전트가 스스로를 채점하게 두지 않는다(검증). 그리고 이 검증을 "증거"로 종결시키는 방법.</p>
+</header>
+
+<h2>5-1. 용어 정의</h2>
+<dl class="terms">
+  <dt>서브에이전트 (Subagent)</dt>
+  <dd>격리된 컨텍스트 윈도우에서 자체 에이전트 루프를 돌고 <strong>요약만 반환</strong>하는 행위자. Task 도구로 생성되며, <code>.claude/agents/&lt;name&gt;.md</code>로 정의를 재사용할 수 있다.
+  <span class="easy">쉬운 비유: 조사 나갔다가 요약 한 장만 들고 돌아오는 인턴. 인턴이 뒤진 서류 더미는 내 책상(메인 컨텍스트)에 올라오지 않는다.</span></dd>
+  <dt>컨텍스트 위생 (Context Hygiene)</dt>
+  <dd>다시 볼 일 없는 대량 자료가 메인 컨텍스트를 침수시키지 않게 유지하는 규율. 1강 대전제("차면 저하된다")의 실행 전술.</dd>
+  <dt>검증 서브에이전트 (Verification Subagent)</dt>
+  <dd>신선한(fresh) 컨텍스트의 모델이 작업 결과를 <strong>반박 시도</strong>하는 패턴 — 일한 에이전트가 스스로 채점하지 않게 만든다.</dd>
+  <dt>Test-time Compute</dt>
+  <dd>추론 시점에 컴퓨트를 더 투입해 품질을 올리는 접근. 여기서는 "별도 컨텍스트 윈도우가 결과를 실제로 좋게 만든다 — 한 에이전트가 만든 버그를 같은 모델의 다른 에이전트가 찾는다"로 구체화된다.</dd>
+  <dt>에이전트 팀 / git worktree</dt>
+  <dd>여러 에이전트가 병렬로 작업하는 구성. worktree는 같은 레포의 브랜치별 독립 작업 폴더로, 에이전트 간 파일 충돌을 격리한다.</dd>
+</dl>
+<p class="src">용어 근거: <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a>(검증 서브에이전트·에이전트 팀), <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>(Task 도구·요약 반환), <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>(test-time compute·worktree)</p>
+
+<h2>5-2. 이론 — 두 개의 실패 모드와 하나의 해법</h2>
+<h3>실패 모드 1: 컨텍스트 오염</h3>
+<p>"레이트 리밋이 어디서 강제되는지" 한 문장을 답하기 위해 15개 파일을 읽으면, 그 15개 파일은 답이 나온 뒤에도 컨텍스트에 남아 이후 모든 추론의 예산을 잠식한다. 서브에이전트가 파고들어 <strong>한 문단만</strong> 건네면 메인 세션은 다시 볼 일 없는 자료로 침수되지 않는다 — "문제에 컴퓨트를 더 쓰고 싶으면 'use subagents'라고 말하라"가 커뮤니티 규칙인 이유. <span class="src">(<a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a>, <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></p>
+<h3>실패 모드 2: 자기 채점 편향</h3>
+<p>구현한 에이전트의 컨텍스트에는 "이 코드가 왜 옳은지"의 서사가 이미 쌓여 있다 — 사람의 "내가 짠 코드는 내 눈에 맞아 보인다"와 같은 구조다. 공식 처방: <strong>검증 서브에이전트 또는 자기 발견을 재검사하는 동적 워크플로는 신선한 모델이 결과를 반박하게 하여, 일한 에이전트가 채점자가 되지 않게 한다.</strong> 별도 컨텍스트는 실제로 결과를 개선한다 — 같은 모델이라도 컨텍스트가 다르면 버그를 서로 찾아낸다. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>, <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>)</span></p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">구현–검증 분리 루프 (implementer ≠ grader)</text>
+  <rect x="20" y="52" width="240" height="130" fill="#ffffff" stroke="#1a1a1a"/>
+  <text x="34" y="76" font-weight="600" fill="#1a1a1a">메인 세션 (구현자)</text>
+  <text x="34" y="98" fill="#555555">PLAN.md 에 따라 구현</text>
+  <text x="34" y="118" fill="#555555">diff 생성</text>
+  <text x="34" y="152" fill="#555555" font-size="11">검증 결과(갭 목록)를 직접 수신 →</text>
+  <text x="34" y="168" fill="#555555" font-size="11">수정 후 재검증 요청 (사람 개입 불필요)</text>
+  <line x1="260" y1="90" x2="360" y2="90" stroke="#0f4bd8"/>
+  <text x="268" y="82" fill="#0f4bd8" font-size="11">diff + PLAN.md 전달</text>
+  <line x1="360" y1="140" x2="260" y2="140" stroke="#0f4bd8"/>
+  <text x="268" y="158" fill="#0f4bd8" font-size="11">갭 목록만 반환 (요약)</text>
+  <rect x="360" y="52" width="250" height="130" fill="#ffffff" stroke="#0f4bd8"/>
+  <text x="374" y="76" font-weight="600" fill="#0f4bd8">검증 서브에이전트 (격리 컨텍스트)</text>
+  <text x="374" y="98" fill="#555555">요구사항 전부 구현됐는가</text>
+  <text x="374" y="118" fill="#555555">엣지 케이스에 테스트가 있는가</text>
+  <text x="374" y="138" fill="#555555">범위 밖 변경은 없는가</text>
+  <text x="374" y="166" fill="#555555" font-size="11">지시: "스타일 취향 말고 갭만 보고"</text>
+  <rect x="640" y="52" width="100" height="130" fill="#f6f6f6" stroke="#d9d9d9"/>
+  <text x="652" y="76" font-weight="600" fill="#1a1a1a">증거</text>
+  <text x="652" y="98" fill="#555555" font-size="11">테스트 출력</text>
+  <text x="652" y="116" fill="#555555" font-size="11">실행 명령과</text>
+  <text x="652" y="132" fill="#555555" font-size="11">그 반환값</text>
+  <text x="652" y="150" fill="#555555" font-size="11">스크린샷</text>
+  <line x1="610" y1="117" x2="640" y2="117" stroke="#555555"/>
+</svg>
+<figcaption>공식 문서의 리뷰 프롬프트 패턴 도식화. 리뷰어가 서브에이전트로 돌기 때문에 구현 세션이 갭을 직접 받아 수정–재검증을 반복하고, 사람은 창 사이에서 결과를 복붙할 필요가 없다. 근거: <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a></figcaption>
+</figure>
+
+<h2>5-3. 적용 전 vs 적용 후 — 목격되는 현상</h2>
+<table>
+  <thead><tr><th style="width:50%">분리 전</th><th>분리 후</th></tr></thead>
+  <tbody>
+    <tr><td>대량 탐색 후 메인 세션이 무거워져 후반 추론 품질이 급락 — "세션 오래 쓰면 멍청해진다"는 체감.</td><td>조사 결과가 요약으로만 유입 — 긴 세션에서도 메인 컨텍스트가 가볍게 유지됨.</td></tr>
+    <tr><td>"다 됐습니다"라는 자기 보고를 사람이 일일이 재검증 — 검증이 사람의 병목.</td><td>구현–검증–수정 루프가 사람 없이 회전. 사람의 일은 <strong>기록된 발견의 스팟 체크</strong>로 축소. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>: 에이전트 팀이 이 루프를 여러 과제에 걸쳐 유지)</span></td></tr>
+    <tr><td>구현자가 낙관 보고 → 프로덕션에서 미구현 요구사항 발견.</td><td>신선한 눈이 PLAN.md와 diff를 대조 — 미구현·범위 밖 변경이 ship 전에 표면화.</td></tr>
+    <tr><td>완료 판정 = 에이전트의 단언("테스트 통과했습니다").</td><td>완료 판정 = 증거(테스트 출력·실행 명령·반환값·스크린샷). <strong>증거 검토가 검증 재실행보다 빠르고, 지켜보지 않은 세션에도 통한다.</strong> <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>)</span></td></tr>
+  </tbody>
+</table>
+
+<h2>5-4. 예제 — 검증 서브에이전트 정의와 호출</h2>
+<p><strong>사용 방법</strong>: 리뷰어 에이전트를 파일로 정의해두고, 구현이 끝나면 메인 세션에서 리뷰를 위임한다.</p>
+<pre><code># .claude/agents/plan-reviewer.md
+---
+name: plan-reviewer
+description: 구현 diff 를 PLAN.md 와 대조 검증할 때 사용.
+---
+너는 검증 전담 리뷰어다. 주어진 diff 를 PLAN.md 와 대조하여:
+1. 모든 요구사항이 구현되었는지
+2. 명시된 엣지 케이스에 테스트가 있는지
+3. 과제 범위 밖의 변경이 없는지
+만 검사한다. 스타일 취향은 보고하지 않는다.
+정확성 또는 명시된 요구사항에 영향을 주는 갭만 보고하라.
+</code></pre>
+<pre><code># 메인 세션에서 (공식 문서의 프롬프트 패턴)
+"서브에이전트를 사용해 rate limiter diff 를 PLAN.md 와 대조 리뷰하라.
+모든 요구사항이 구현됐는지, 나열된 엣지 케이스에 테스트가 있는지,
+과제 범위 밖에서 바뀐 것이 없는지 확인하고,
+스타일 취향이 아니라 갭만 보고하라."
+</code></pre>
+
+<h2>5-5. 실증 — 리뷰어의 과보고: 공식 문서가 경고하는 함정</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px">검증 루프를 도입한 팀이 다음으로 겪는 현상은 공식 문서에 그대로 기록되어 있다: <strong>"갭을 찾으라고 프롬프트된 리뷰어는 작업이 건전할 때도 보통 무언가를 보고한다 — 그것이 요청받은 일이기 때문이다. 모든 발견을 좇으면 과잉 설계로 이어진다: 불필요한 추상 레이어, 방어 코드, 일어날 수 없는 케이스에 대한 테스트."</strong> 처방도 명시적이다: 리뷰어에게 <em>정확성 또는 명시된 요구사항에 영향을 주는 갭만</em> 표시하게 하고, 나머지는 선택 사항으로 취급하라.</p>
+  <p style="margin-bottom:8px"><strong>이 실증의 의미</strong>: 검증자는 공짜가 아니다 — 검증자의 판정 기준 자체가 설계 대상이다. 이 통찰은 7강에서 그대로 재등장한다: LLM-as-Judge도 "채점하라면 무언가를 지적"하며, 루브릭을 좁고 검증 가능하게 제한하지 않으면 평가가 개발을 왜곡한다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://code.claude.com/docs/en/best-practices">공식 Best Practices</a> (과보고 관찰과 처방 원문)</p>
+</div>
+
+<h2>5-6. 확장 — 병렬화와 무인 실행</h2>
+<ul>
+  <li><strong>에이전트 팀</strong>: 장시간 자율 실행에서는 팀이 구현–검증 루프를 여러 과제에 걸쳐 유지하고, 사람은 기록된 발견을 스팟 체크한다. <span class="src">(<a href="https://code.claude.com/docs/en/best-practices">공식</a>)</span></li>
+  <li><strong>tmux + git worktree</strong>: 병렬 에이전트마다 독립 작업 폴더를 줘 파일 충돌을 격리한다. <span class="src">(<a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a>, <a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a>)</span></li>
+  <li><strong>스킬과의 접점</strong>: 스킬에 <code>context: fork</code>를 지정하면 스킬 실행 자체가 격리 서브에이전트에서 돌아, 메인은 최종 결과만 본다(3강 참조).</li>
+  <li><strong>무인 실행의 완성</strong>: 검증 루프(이 강) + Stop 훅 종료 조건(4강) + 증거 원칙이 합쳐질 때 "지켜보지 않은 세션이 올바르게 끝나는" 상태가 된다 — 6강 완성형의 정의로 이어진다.</li>
+</ul>
+
+<h2>5-7. 안티패턴 3가지</h2>
+<table>
+  <thead><tr><th>안티패턴</th><th>왜 실패하는가</th><th>교정</th></tr></thead>
+  <tbody>
+    <tr><td class="key">리뷰어 지적 전부 수용</td><td>과보고는 구조적 성질 — 좇으면 과잉 설계(5-5 실증)</td><td>"정확성·명시 요구사항 갭만" 제한, 나머지는 선택</td></tr>
+    <tr><td class="key">구현자에게 자기 검증 요청</td><td>자기 서사가 쌓인 컨텍스트는 반박을 못 한다</td><td>신선한 컨텍스트의 별도 에이전트로 분리</td></tr>
+    <tr><td class="key">서브에이전트 결과를 원문 그대로 회수</td><td>격리의 목적(위생) 자체가 무효화됨</td><td>요약·결론만 반환하도록 에이전트 정의에 명시</td></tr>
+  </tbody>
+</table>
+
+<div class="box gate">
+  <div class="label">7강 예고 — 리뷰어에서 Judge로</div>
+  <p style="margin:0">"신선한 눈이 루브릭으로 갭만 보고한다"는 이 구조는 EDD의 <strong>LLM-as-Judge와 정확히 동형</strong>이다. 차이는 하나 — EDD는 이 판정을 점수화하고, 임계값·골든셋·인간 일치율 검증으로 관리한다. 5강까지 온 팀은 Judge의 프로토타입을 이미 운영 중인 셈이다.</p>
+</div>
+
+<h2>5-8. 체크리스트</h2>
+<ul class="check">
+  <li>대량 파일 탐색이 서브에이전트로 오프로드되는가</li>
+  <li>구현 에이전트와 검증 에이전트가 분리되어 있는가</li>
+  <li>리뷰어에게 "갭만, 취향 제외" 제한이 걸려 있는가</li>
+  <li>완료 판정이 단언이 아니라 증거로 이뤄지는가</li>
+  <li>병렬 에이전트가 worktree 등으로 작업 공간을 격리하는가</li>
+  <li>서브에이전트가 요약만 반환하도록 정의되어 있는가</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</a> — 검증 서브에이전트, 리뷰 프롬프트 패턴, 과보고 경고와 처방, 증거 원칙, 에이전트 팀</li>
+    <li>[커뮤니티] <a href="https://dev.to/galian/claude-code-workflow-best-practices-that-ship-code-na">DEV Community</a> — 컨텍스트 위생 (15개 파일 → 한 문단)</li>
+    <li>[커뮤니티] <a href="https://github.com/shanraisshan/claude-code-best-practice">shanraisshan</a> — test-time compute, tmux+worktree, context: fork</li>
+    <li>[커뮤니티] <a href="https://medium.com/@habib.mrad.83/claude-code-practical-best-practices-for-agentic-coding-2be1b62cfeff">Habib Mrad</a> — worktree 병렬 세션</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="04-hooks.html"><span class="dir">이전 · 4강</span>← 훅</a>
+  <a class="next" href="06-complete-harness.html"><span class="dir">다음 · 6강</span>완성형 하네스 →</a>
+</nav>
+
+</div></body></html>

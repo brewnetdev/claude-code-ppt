@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7강 · 하네스 이후 — EDD로 가는 방향성</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+dl.terms { margin: 16px 0; }
+dl.terms dt { font-weight: 600; margin-top: 14px; }
+dl.terms dd { margin-left: 0; padding-left: 16px; border-left: 1px solid var(--line); margin-top: 4px; font-size: 14px; }
+dl.terms dd .easy { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="crumb"><a href="index.html">목차</a> / <span class="lv">그 이후</span> · 7강</div>
+<header class="page">
+  <div class="kicker">Beyond the Harness · Evaluation-Driven Development</div>
+  <h1>하네스 이후 — EDD로 가는 방향성</h1>
+  <p class="subtitle">완성형 하네스는 "올바르게 실행"한다. EDD는 거기에 "얼마나 잘하는지 측정하고, 그 숫자로 결정"을 얹는다. 이 강은 (1) 하네스가 못 하는 것의 근거, (2) 도입 전후의 실증, (3) 6강까지의 부품이 EDD 부품으로 승격되는 경로를 다룬다.</p>
+</header>
+
+<h2>7-1. 용어 정의 (EDD 최소 세트)</h2>
+<dl class="terms">
+  <dt>Eval (평가)</dt>
+  <dd>LLM 시스템의 출력 품질을 체계적·반복적으로 측정하는 절차와 점수.
+  <span class="easy">쉬운 비유: 매번 같은 심사표로 채점하는 고정 심사위원단 — 기분 따라 바뀌는 손님 리뷰(바이브 체크)의 반대.</span></dd>
+  <dt>골든 데이터셋</dt>
+  <dd>입력·정답(기준) 쌍의 영구 컬렉션. 6강 PLAN.md가 1회용 대조표라면, 골든셋은 <strong>재사용되는</strong> 대조표다.</dd>
+  <dt>LLM-as-Judge</dt>
+  <dd>별도 LLM이 명시적 루브릭으로 출력을 채점하는 패턴. 5강의 검증 서브에이전트에 점수·임계값·인간 일치율 검증을 부여한 것.</dd>
+  <dt>평가 게이트 / Blocking eval</dt>
+  <dd>CI에서 점수 미달 시 머지를 차단하는 게이트(오프라인), 런타임 크리티컬 패스에서 출력을 차단·재시도·폴백시키는 평가(온라인). 4강 훅의 "검사 내용"이 점수로 바뀐 것.</dd>
+</dl>
+<p class="note">전체 용어·이론·통계(pass@k vs pass^k, 오차 범위)는 별도 문서 「EDD 완전 가이드 (10장)」 1·2·7장에서 상세히 다룬다. 이 강은 하네스와의 접점에 집중한다.</p>
+
+<h2>7-2. 근거 — 하네스만으로 안 되는 것 4가지와 EDD의 해결 장치</h2>
+<table>
+  <thead><tr><th style="width:34%">하네스의 한계</th><th style="width:33%">EDD의 해결 장치</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="key">① 판정이 정성적.</span> review(5강)는 "갭 있음/없음"만 낸다 — 개선·회귀의 <em>정도</em>를 말하지 못한다.</td>
+      <td>루브릭 점수 + 임계값. Judge–인간 일치율로 채점 자체를 교정.</td>
+      <td class="src"><a href="https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests">Anthropic Docs</a> — 성공 기준을 측정 가능하게, 채점 방법 선택 원칙</td>
+    </tr>
+    <tr>
+      <td><span class="key">② 추이를 모른다.</span> 게이트는 이번 변경만 본다 — "지난달보다 나아졌는가"에 답할 데이터가 없다.</td>
+      <td>골든셋 고정 + 매 변경 재채점 → regression delta 시계열.</td>
+      <td class="src"><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals</a> — 지표가 감(guesswork)을 대체</td>
+    </tr>
+    <tr>
+      <td><span class="key">③ 도구·프레임워크는 모델 수준 평가에 부분적으로 갇힘.</span> 프롬프트-응답 정확도 중심이라, 컨텍스트 엔진·메모리·가드레일을 포함한 컴파운드 시스템의 실패(도구 오용·메모리 오염)가 미탐지로 남는다.</td>
+      <td>파이프라인(프롬프트·중간 결과·출력)과 아티팩트(목표·메모리·도구·가드레일) 전체를 평가 범위로 삼는 시스템 수준 평가 + 실패 트리아지(실패 모드 분류 → 최초 결정 지점에 표적 수정).</td>
+      <td class="src"><a href="https://arxiv.org/abs/2411.13768">Xia et al., EDDOps (arXiv:2411.13768)</a> — 기존 도구의 partial support 지적, 시스템 수준·연속 평가, 트리아지 방법론</td>
+    </tr>
+    <tr>
+      <td><span class="key">④ 배포 후가 무방비.</span> 하네스의 게이트는 배포 전에 끝난다 — 입력 분포 변화·드리프트는 아무도 안 잰다.</td>
+      <td>온라인 모니터링 eval(샘플링 채점) + 런타임 blocking eval(가드레일).</td>
+      <td class="src"><a href="https://arxiv.org/abs/2411.13768">동일 논문</a> — 오프라인+온라인 연속 평가를 일급 기능으로</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7-3. 적용 전 vs 적용 후 — 목격되는 현상 (Anthropic 실전 보고)</h2>
+<table>
+  <thead><tr><th style="width:50%">Eval 없이 (완성형 하네스만으로)</th><th>EDD 도입 후</th></tr></thead>
+  <tbody>
+    <tr><td><strong>반응적 루프</strong>: 하나를 고치면 다른 게 깨지고, 진짜 회귀인지 노이즈인지 구분하지 못한 채 수렁에 빠짐.</td><td><strong>개발 가속</strong>: 실패가 테스트 케이스가 되고, 테스트 케이스가 회귀를 막고, 지표가 감을 대체 — 가치가 복리로 쌓임.</td></tr>
+    <tr><td><strong>프로덕션에서만 발견</strong>: 사용자 불만 → 수동 재현 → 수정 → "다른 게 안 깨졌기를 기도".</td><td><strong>배포 전 검출</strong>: 변경을 수백 시나리오에 먼저 돌리고 점수 델타로 판단.</td></tr>
+    <tr><td><strong>"느낌이 나빠졌다" 논쟁</strong>: 팀원마다 체감이 달라 행동으로 옮길 수 없음.</td><td><strong>공동의 오를 언덕</strong>: "느낌"이 측정 항목으로 바뀌고 팀 전체가 같은 지표를 봄 — 단, eval을 부속물이 아닌 핵심 컴포넌트로 다룰 때만.</td></tr>
+  </tbody>
+</table>
+<p class="src">근거(전/후 전체): <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals for AI agents</a></p>
+
+<h2>7-4. 실증 사례 — 실제 팀의 전환 기록</h2>
+<div class="box case" style="background:var(--bg-soft)">
+  <p style="margin-bottom:8px"><strong>Descript (수동 채점 → LLM grader 진화)</strong>: 영상 편집 에이전트에 성공적 워크플로의 3차원 — <strong>"망가뜨리지 말 것 / 시킨 것을 할 것 / 잘할 것"</strong> — 으로 eval을 설계. 수동 채점에서 시작해 제품팀이 기준을 정의한 LLM grader로 진화했고, 주기적 인간 교정을 유지하며 현재 품질 벤치마킹용·회귀 테스트용 <strong>이중 스위트</strong>를 상시 운영한다. 5강 리뷰어의 "루브릭 좁히기 + 인간 재교정"이 조직 프로세스가 된 형태.</p>
+  <p style="margin-bottom:8px"><strong>Bolt (대규모 서비스 후 3개월 구축)</strong>: 이미 널리 쓰이는 에이전트를 가진 상태에서 뒤늦게 시작해, 3개월 만에 <strong>정적 분석으로 출력 채점 + 브라우저 에이전트로 생성 앱 실제 테스트 + 지시 이행은 LLM judge 판정</strong>이라는 3중 채점 시스템을 구축했다. 코드형 grader / 실행 검증 / Judge를 섞는 이 구성은 "채점자를 사려 깊게 설계하고 여러 유형을 결합하라"는 원칙의 실물이다.</p>
+  <p style="margin-bottom:8px"><strong>시작 규모의 실증</strong>: 수백 케이스가 필요하다는 오해와 달리, 실제 실패에서 추출한 <strong>20~50개 단순 과제</strong>로 충분히 시작한다 — 초기 변경은 효과 크기가 커서 작은 표본으로 신호가 잡히며, 프로덕션 중이라면 버그 트래커·CS 큐가 최고 소재다. 과제는 "두 전문가가 동일하게 채점 가능한" 명세로 다듬는다.</p>
+  <p class="src" style="margin:0">근거: <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals</a>(Descript·Bolt·grader 결합 원칙), <a href="https://inkeep.com/blog/anthropic-s-guide-to-ai-agent-evals-what-support-teams-need">Inkeep 해설</a>(20~50건·동일 채점 원칙)</p>
+</div>
+
+<h2>7-5. 부품 승격표 — 6강까지의 자산이 EDD의 무엇이 되는가</h2>
+<figure class="diagram">
+<svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif" font-size="12">
+  <text x="20" y="24" font-weight="700" fill="#1a1a1a">하네스 부품 → EDD 부품 승격 경로</text>
+  <g font-size="11.5">
+    <rect x="20" y="48" width="300" height="38" fill="#f6f6f6" stroke="#d9d9d9"/>
+    <text x="32" y="72" fill="#1a1a1a">검증 서브에이전트 (5강) — 갭 있음/없음 판정</text>
+    <line x1="320" y1="67" x2="420" y2="67" stroke="#0f4bd8"/>
+    <rect x="420" y="48" width="320" height="38" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="432" y="72" fill="#0f4bd8">LLM-as-Judge — 루브릭·점수·임계값·인간 일치율 검증</text>
+
+    <rect x="20" y="98" width="300" height="38" fill="#f6f6f6" stroke="#d9d9d9"/>
+    <text x="32" y="122" fill="#1a1a1a">PLAN.md 요구사항 목록 (6강) — 1회용 대조표</text>
+    <line x1="320" y1="117" x2="420" y2="117" stroke="#0f4bd8"/>
+    <rect x="420" y="98" width="320" height="38" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="432" y="122" fill="#0f4bd8">골든 데이터셋 — 영구 재사용되는 입력·정답·기준 집합</text>
+
+    <rect x="20" y="148" width="300" height="38" fill="#f6f6f6" stroke="#d9d9d9"/>
+    <text x="32" y="172" fill="#1a1a1a">훅·차단기 (4강) — 이번 호출의 결정적 차단</text>
+    <line x1="320" y1="167" x2="420" y2="167" stroke="#0f4bd8"/>
+    <rect x="420" y="148" width="320" height="38" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="432" y="172" fill="#0f4bd8">Blocking eval / 가드레일 — 점수 기반 차단·재시도·승격</text>
+
+    <rect x="20" y="198" width="300" height="38" fill="#f6f6f6" stroke="#d9d9d9"/>
+    <text x="32" y="222" fill="#1a1a1a">커맨드 /pre-ship (3강) — 사람이 부르는 점검</text>
+    <line x1="320" y1="217" x2="420" y2="217" stroke="#0f4bd8"/>
+    <rect x="420" y="198" width="320" height="38" fill="#ffffff" stroke="#0f4bd8"/>
+    <text x="432" y="222" fill="#0f4bd8">CI 평가 게이트 — PR마다 자동 실행, 회귀 시 머지 차단</text>
+  </g>
+</svg>
+<figcaption>승격의 공통 원리: 정성적·1회성·수동이던 것에 "점수·영속성·자동 트리거"를 부여한다. 왼쪽은 이미 6강까지 만든 것들이므로, EDD 도입은 제로에서의 구축이 아니라 업그레이드다.</figcaption>
+</figure>
+
+<h2>7-6. 승격 예제 — /pre-ship 커맨드를 CI 평가 게이트로</h2>
+<p><strong>사용 방법</strong>: 3강 커맨드의 점검을 골든셋 기반 평가로 바꾸고 PR마다 자동 실행되게 한다. 이제 프롬프트·CLAUDE.md·스킬의 변경도 코드와 동일한 게이트를 통과해야 한다 — 1강의 "CLAUDE.md 변경도 결국 프롬프트 변경"이라는 복선의 회수.</p>
+<pre><code># .github/workflows/eval-gate.yml
+name: eval-gate
+on: [pull_request]
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt deepeval
+      - run: deepeval test run tests/evals/   # 임계값 미달 시 exit 1 → 머지 차단
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+</code></pre>
+
+<h2>7-7. 방향성 로드맵 — EDD 성숙도 LV0→5 (요약)</h2>
+<table>
+  <thead><tr><th>레벨</th><th>상태와 목격 현상</th><th>다음 행동</th></tr></thead>
+  <tbody>
+    <tr><td class="key">LV0 바이브 체크</td><td>채팅창에서 몇 개 돌려보고 배포 — 7-3 표의 "적용 전" 현상 전부</td><td>실패 20~50건으로 골든셋 v1</td></tr>
+    <tr><td class="key">LV1 골든셋+수동 채점</td><td>"3번·7번 케이스가 깨졌다"는 대화가 처음 가능. 채점이 병목</td><td>규칙화 가능한 항목부터 코드 grader 자동화</td></tr>
+    <tr><td class="key">LV2 자동 채점</td><td>실험 속도 급상승. "정확하지만 불친절한 답"이 여전히 샘</td><td>루브릭 명문화 → Judge 도입 (인간 일치율 검증 먼저)</td></tr>
+    <tr><td class="key">LV3 Judge+CI 게이트</td><td>배포 전 검출 정착. Judge 편향의 자기강화 리스크 등장 <span class="src">(<a href="https://arxiv.org/abs/2504.19076">arXiv:2504.19076</a>)</span></td><td>Judge 재교정 프로세스화, 런타임 확장</td></tr>
+    <tr><td class="key">LV4 런타임 가드레일</td><td>드리프트가 지표로 잡힘. 단 "달았다≠막힌다" — 인젝션 공격 대상 가드레일 평균 탐지율 58.57%, 차단 성공 37.26% 미만 실측 <span class="src">(<a href="https://arxiv.org/abs/2606.05805">TRIAD</a>)</span></td><td>가드레일 자체를 공격셋으로 정기 평가</td></tr>
+    <tr><td class="key">LV5 완전한 EDD 루프</td><td>실패→분류→최초 결정 지점 수정→골든셋 환류가 규정으로 회전. Descript의 이중 스위트가 실례</td><td>eval 스위트 자체의 포화 관리·갱신</td></tr>
+  </tbody>
+</table>
+<p class="src">레벨별 상세 실증·분석은 별도 문서 「EDD 완전 가이드 (10장)」 6장 참조.</p>
+
+<h2>7-8. 마지막 주의 — EDD에서도 하네스의 교훈은 유효하다</h2>
+<ul>
+  <li><strong>Judge는 5강 리뷰어와 같은 병을 앓는다</strong>: 채점하라면 무언가를 지적한다. LLM 판정이 개발과 평가 양쪽에 쓰이면 편향이 자기강화되어 거짓 성공을 가리킬 수 있다 — 루브릭은 좁고 검증 가능하게, 인간 일치율은 정기 재측정. <span class="src">(<a href="https://arxiv.org/abs/2504.19076">arXiv:2504.19076</a>)</span></li>
+  <li><strong>점수도 증거가 필요하다</strong>: "85%→87%"는 표본 크기·오차 범위 없이는 판정 근거가 아니다 — eval은 노이즈 속의 측정 과학이다. <span class="src">(<a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Anthropic, statistical approach</a>)</span></li>
+  <li><strong>일찍 시작하되 완벽을 기다리지 마라</strong>: eval은 개발 초기에 기대 행동을 명시적으로 인코딩하는 데 특히 유용하고, Bolt처럼 늦게 시작해도 3개월이면 구축된다 — 그러나 그 사이의 반응적 루프 비용은 돌려받지 못한다. <span class="src">(<a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic</a>)</span></li>
+  <li><strong>문제는 모델에게 충분히 어려워야 한다</strong>: 프론티어 모델의 SWE-bench Verified가 1년 만에 40%→80%+로 뛰며 6개월 전 eval이 포화되는 시대 — 일괄 100%는 축하가 아니라 문항 교체 신호다. <span class="src">(<a href="https://inkeep.com/blog/anthropic-s-guide-to-ai-agent-evals-what-support-teams-need">Inkeep 해설</a>)</span></li>
+</ul>
+
+<div class="box gate">
+  <div class="label">시리즈 결론</div>
+  <p style="margin:0">CLAUDE.md 한 파일(1강)에서 시작한 여정의 종착지: <strong>하네스는 에이전트가 "올바르게 일하게" 만들고, EDD는 그 일이 "얼마나 좋아지고 있는지"를 숫자로 관리한다.</strong> 순서는 정해져 있다 — 하네스 레벨을 건너뛴 EDD는 측정할 파이프라인이 없고, EDD 없는 완성형 하네스는 성장을 감에 맡긴다. 그리고 7-5의 승격표가 보여주듯, 성실하게 쌓은 하네스는 EDD의 부품을 이미 절반 이상 갖고 있다.</p>
+</div>
+
+<h2>7-9. 체크리스트</h2>
+<ul class="check">
+  <li>review 판정에 루브릭·점수·임계값이 부여되어 있는가</li>
+  <li>PLAN.md류의 검증 목록이 골든셋으로 영속화되고 있는가</li>
+  <li>프롬프트·CLAUDE.md·스킬 변경이 CI 평가 게이트를 통과하는가</li>
+  <li>Judge와 인간 라벨의 일치율을 측정한 적이 있는가</li>
+  <li>운영 실패가 골든셋으로 환류되는 경로가 있는가</li>
+  <li>일괄 100% 문항(포화)을 교체하는 갱신 주기가 있는가</li>
+</ul>
+
+<footer class="refs">
+  <ul style="margin-left:18px">
+    <li>[공식] <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals for AI agents</a> — 전/후 현상, Descript·Bolt 사례, grader 결합, 시작 시점</li>
+    <li>[공식·연구] <a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Anthropic, A statistical approach to model evaluations</a> — 점수의 통계학</li>
+    <li>[공식] <a href="https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests">Anthropic Docs, Define success criteria</a> — 측정 가능한 성공 기준·채점 방법</li>
+    <li>[학술] <a href="https://arxiv.org/abs/2411.13768">Xia et al., EDDOps</a> — partial support, 시스템 수준·연속 평가, 트리아지 / <a href="https://arxiv.org/abs/2606.05805">TRIAD</a> — 가드레일 실측 / <a href="https://arxiv.org/abs/2504.19076">LLM-Evaluation Tropes</a> — Judge 자기강화</li>
+    <li>[해설] <a href="https://inkeep.com/blog/anthropic-s-guide-to-ai-agent-evals-what-support-teams-need">Inkeep</a> — 20~50건, 동일 채점 원칙, SWE-bench 포화 맥락</li>
+  </ul>
+</footer>
+
+<nav class="pager">
+  <a href="06-complete-harness.html"><span class="dir">이전 · 6강</span>← 완성형 하네스</a>
+  <a class="next" href="index.html"><span class="dir">처음으로</span>목차 →</a>
+</nav>
+
+</div></body></html>
