@@ -8,9 +8,9 @@
 
 
 [data-template="harness"] {
-  --bg:        #faf9f5;
+  --bg:        #f8f8f2;
   --surface:   #ffffff;
-  --border:    #e7e5dc;
+  --border:    #d8dae5;
   --text:      #1a1a18;
   --muted:     #57564f;
   --faint:     #64748b;
@@ -20,11 +20,9 @@
   --success:   #1d8a45;
   --warning:   #b26214;
 
-  
   --sx-key:  #c7226e; --sx-str: #946f00; --sx-num: #003748; --sx-fn: #1d8a45;
   --sx-type: #0e7490; --sx-com: #64748b; --sx-var: #1a1a18; --sx-param: #b26214;
 
-  
   --fs-hero: 44px;   
   --fs-h2:   30px;   
   --fs-h3:   22px;   
@@ -32,14 +30,14 @@
   --fs-sub:  18px;   
   --fs-code: 16px;   
 
-  --font-sans: "Noto Sans KR", "IBM Plex Sans KR", sans-serif;
+  --font-sans: "IBM Plex Sans KR", "IBM Plex Sans", "Noto Sans KR", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }[data-template="harness"].slide[data-variant="dark"] {
-  --bg:        #0f172a;
-  --surface:   #1e293b;
-  --border:    #334155;
+  --bg:        #282a36;
+  --surface:   #44475a;
+  --border:    #44475a;
   --text:      #e2e8f0;
-  --muted:     #94a3b8;   
+  --muted:     #94a3b8;
   --faint:     #64748b;
   --accent:    #4db6c9;
   --accent-ink:#0f172a;
@@ -131,3 +129,17 @@
   flex:0 0 auto; display:flex; align-items:baseline; justify-content:space-between;
   font-size:var(--fs-sub); color:var(--muted); border-top:1px solid var(--border);
   margin:0 52px; padding:8px 0 12px; letter-spacing:.02em; }[data-template="harness"] .slide-footer-left { font-family:var(--font-sans); font-size:var(--fs-sub); font-weight:600; color:var(--text); }[data-template="harness"] .slide-footer-right { font-family:var(--font-mono); font-size:var(--fs-sub); color:var(--muted); }[data-template="harness"] .slide-inner.closing .kicker { margin-bottom:12px; }[data-template="harness"] .slide-inner.closing .hero { font-size:36px; line-height:1.15; }[data-template="harness"] .slide-inner.closing .col-text .sub { line-height:1.42; margin-top:9px !important; }[data-template="harness"] .slide-inner.closing .col-text .list { gap:7px; margin-top:10px !important; }[data-template="harness"] .slide-inner.closing .col-text .list.tight > li { line-height:1.4; }
+
+
+/* ── v4.1: table-color.svg 기준 표 스타일 (사용자 지정 — 에디터/Export 공통) ── */
+[data-template="harness"] thead th{
+  background:#2F4858; color:#ffffff; font-weight:600; border-bottom:none; padding:11px 14px; letter-spacing:.01em;
+}
+[data-template="harness"] tbody td{
+  color:#191917; border-bottom:1px solid #8E8776; padding:11px 14px; background:transparent;
+}
+[data-template="harness"] tbody tr:nth-child(even) td{ background:#F2ECDC; }
+[data-template="harness"] tbody tr:last-child td{ border-bottom:1px solid #8E8776; }
+[data-template="harness"] td .k, [data-template="harness"] td.k{ font-weight:600; color:#191917; }
+[data-template="harness"] td .mono, [data-template="harness"] td.mono{ color:#5E5850; }
+[data-template="harness"] td .sub{ color:#56564E; }
