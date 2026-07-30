@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP 2026-07-28 사양 — 무상태 코어 전환 정리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;
+  --frame:#F4F3EF;
+  --ink:#17171A;
+  --ink-2:#55555C;
+  --ink-3:#6C6C73;
+  --line:#D4D2CB;
+  --line-2:#ABA9A2;
+  --code:#F4F3EF;
+  --mark:#9E2B1E;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--frame);color:var(--ink);
+  font-family:"IBM Plex Sans KR","IBM Plex Sans","Noto Sans KR",sans-serif;
+  font-size:16px;line-height:1.68;
+}
+.page{max-width:880px;margin:0 auto;background:var(--paper);padding:0 0 80px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.inner{padding:0 56px}
+code,kbd,pre,.mono{font-family:"IBM Plex Mono","JetBrains Mono",monospace}
+code{font-size:.885em;background:var(--code);padding:1px 5px;border:1px solid var(--line);word-break:break-word}
+pre{background:var(--code);border:1px solid var(--line);padding:16px 18px;overflow-x:auto;font-size:13px;line-height:1.6;margin:14px 0}
+pre code{background:none;border:0;padding:0;font-size:13px}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
+a:hover{text-decoration-color:var(--ink)}
+
+header.hd{border-bottom:1px solid var(--line-2);padding:56px 56px 30px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 14px}
+h1{margin:0 0 12px;font-size:35px;font-weight:600;letter-spacing:-.8px;line-height:1.24}
+.lede{margin:0 0 22px;font-size:17.5px;color:var(--ink-2);line-height:1.6}
+.meta{font-size:13.5px;color:var(--ink-3);margin:0;line-height:1.75}
+.meta strong{color:var(--ink-2);font-weight:500}
+
+h2{margin:52px 0 4px;font-size:24px;font-weight:600;letter-spacing:-.4px;line-height:1.3}
+h2 .no{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500;color:var(--ink-3);display:block;margin-bottom:6px;letter-spacing:.06em}
+h3{margin:32px 0 8px;font-size:18px;font-weight:600;line-height:1.4}
+h4{margin:22px 0 6px;font-size:15.5px;font-weight:600;color:var(--ink-2)}
+p{margin:0 0 14px}
+.sub{color:var(--ink-2);font-size:15px;margin:0 0 20px}
+hr{border:0;border-top:1px solid var(--line);margin:44px 0}
+
+ul,ol{margin:0 0 16px;padding-left:22px}
+li{margin-bottom:7px}
+li>ul{margin-top:7px}
+dl{margin:0 0 16px}
+dt{font-weight:600;font-size:15px;margin-top:14px}
+dd{margin:2px 0 0;color:var(--ink-2);font-size:15px}
+
+table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:14.5px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{background:var(--code);font-weight:600;font-size:13.5px;border-bottom:1px solid var(--line-2)}
+td.k{font-weight:500;white-space:nowrap}
+td .mono{font-size:13px}
+
+.brk{
+  display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.06em;color:var(--mark);border:1px solid var(--mark);
+  padding:1px 6px;margin-left:8px;vertical-align:2px;
+}
+.keep{
+  display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.06em;color:var(--ink-3);border:1px solid var(--line-2);
+  padding:1px 6px;margin-left:8px;vertical-align:2px;
+}
+.note{border-left:3px solid var(--line-2);padding:2px 0 2px 16px;margin:18px 0;color:var(--ink-2);font-size:15px}
+.warn{border:1px solid var(--mark);padding:14px 16px;margin:20px 0;font-size:14.5px}
+.warn .t{font-weight:600;color:var(--mark);display:block;margin-bottom:5px;font-size:14px}
+
+nav.toc{background:var(--code);border:1px solid var(--line);padding:20px 24px;margin:32px 0 0}
+nav.toc p{font-size:12.5px;font-family:"IBM Plex Mono",monospace;letter-spacing:.08em;color:var(--ink-3);margin:0 0 10px}
+nav.toc ol{margin:0;padding-left:20px;font-size:14.5px;columns:2;column-gap:32px}
+nav.toc li{margin-bottom:5px}
+
+.sep{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3)}
+.srcs{font-size:14px}
+.srcs td{padding:9px 12px}
+footer{border-top:1px solid var(--line-2);margin-top:56px;padding-top:22px;font-size:13.5px;color:var(--ink-3)}
+
+@media (max-width:720px){
+  .inner,header.hd{padding-left:22px;padding-right:22px}
+  h1{font-size:27px}
+  nav.toc ol{columns:1}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hd">
+  <p class="eyebrow">MODEL CONTEXT PROTOCOL · SPEC RELEASE</p>
+  <h1>MCP <span class="mono">2026-07-28</span> 사양 정리</h1>
+  <p class="lede">출시 이후 가장 큰 개정. 프로토콜이 양방향 상태 유지(stateful) 방식에서 요청·응답 무상태(stateless) 방식으로 바뀌었다. 세션과 핸드셰이크가 사라지고, 라우팅·캐싱·인가가 일반 HTTP 인프라의 방식에 맞춰졌다.</p>
+  <p class="meta">
+    <strong>원문</strong> The 2026-07-28 Specification · Model Context Protocol Blog · 2026년 7월 28일<br>
+    <strong>저자</strong> David Soria Parra, Den Delimarsky (Lead Maintainers)<br>
+    <strong>이 문서</strong> 원문과 릴리스 후보 공지(2026-05-21)를 교차 확인해 한국어로 재정리한 요약·분석본. 원문 번역이 아니며, 파트너 인용문은 옮기지 않고 요지만 정리했다.
+  </p>
+  <nav class="toc">
+    <p>CONTENTS</p>
+    <ol>
+      <li><a href="#s1">30초 요약</a></li>
+      <li><a href="#s2">요청 형태의 변화</a></li>
+      <li><a href="#s3">무상태 코어</a></li>
+      <li><a href="#s4">MRTR</a></li>
+      <li><a href="#s5">헤더 기반 라우팅</a></li>
+      <li><a href="#s6">목록 결과 캐싱</a></li>
+      <li><a href="#s7">인가 강화</a></li>
+      <li><a href="#s8">확장 프레임워크</a></li>
+      <li><a href="#s9">Tasks</a></li>
+      <li><a href="#s10">폐기와 수명주기 정책</a></li>
+      <li><a href="#s11">그 외 변경</a></li>
+      <li><a href="#s12">깨지는 것 / 유지되는 것</a></li>
+      <li><a href="#s13">SDK 현황</a></li>
+      <li><a href="#s14">생태계 대응</a></li>
+      <li><a href="#s15">타임라인</a></li>
+      <li><a href="#s16">폐쇄망·게이트웨이 관점 검토</a></li>
+      <li><a href="#s17">근거 링크와 검증 상태</a></li>
+    </ol>
+  </nav>
+</header>
+
+<div class="inner">
+
+<h2 id="s1"><span class="no">01</span>30초 요약</h2>
+<ol>
+  <li><b>세션이 없어졌다.</b> <code>initialize</code>/<code>initialized</code> 핸드셰이크와 <code>Mcp-Session-Id</code> 헤더가 제거됐다. 모든 요청이 자기 자신을 설명하므로 평범한 라운드로빈 로드밸런서 뒤 아무 인스턴스나 처리할 수 있다.</li>
+  <li><b>서버가 사용자에게 되묻는 방식이 바뀌었다.</b> SSE 스트림을 열어두는 대신, 서버가 "입력 필요" 응답을 돌려주고 클라이언트가 답을 붙여 원래 호출을 재시도한다(MRTR).</li>
+  <li><b>게이트웨이가 본문을 뜯지 않아도 된다.</b> 메서드와 툴 이름이 <code>Mcp-Method</code>·<code>Mcp-Name</code> HTTP 헤더로 이동했다.</li>
+  <li><b>목록 응답에 캐시 힌트가 붙었다.</b> <code>ttlMs</code>·<code>cacheScope</code>로 툴 카탈로그를 캐싱할 수 있다.</li>
+  <li><b>파괴적 변경이지만 마지막이 목표다.</b> 확장(Extensions) 프레임워크와 최소 12개월 폐기 유예의 수명주기 정책이 함께 도입됐다.</li>
+</ol>
+<p class="sub">규모 지표: Tier 1 SDK 합계 월 다운로드가 5억 건에 근접하고, TypeScript·Python SDK는 누적 10억 건을 넘었다.</p>
+
+<h2 id="s2"><span class="no">02</span>요청 형태의 변화</h2>
+<p>이전 버전에서는 툴을 한 번 호출하려면 먼저 세션을 세워야 했다. <code>initialize</code>로 세션을 열고, 서버가 발급한 <code>Mcp-Session-Id</code>를 이후 모든 요청에 실어야 하며, 그 헤더가 클라이언트를 발급한 인스턴스에 고정시켰다.</p>
+
+<h4>2026-07-28 방식 — 자기 완결적 단일 요청</h4>
+<pre><code>POST /mcp HTTP/1.1
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: search
+Content-Type: application/json
+
+{"jsonrpc":"2.0","id":1,"method":"tools/call",
+ "params":{"name":"search","arguments":{"q":"otters"},
+ "_meta":{"io.modelcontextprotocol/clientInfo":{"name":"my-app","version":"1.0"}}}}</code></pre>
+<p>프로토콜 버전, 클라이언트 신원, 클라이언트 기능이 전부 <code>_meta</code>에 실려 매 요청마다 함께 이동한다. 스티키 라우팅과 공유 세션 저장소는 프로토콜 계층에서 더 이상 필요하지 않다.</p>
+
+<h2 id="s3"><span class="no">03</span>무상태 코어<span class="brk">BREAKING</span></h2>
+<dl>
+  <dt>핸드셰이크 제거 <span class="sep">SEP-2575</span></dt>
+  <dd><code>initialize</code>/<code>notifications/initialized</code> 교환이 사라졌다. 대신 <code>io.modelcontextprotocol/protocolVersion</code>, <code>io.modelcontextprotocol/clientCapabilities</code> 같은 <code>_meta</code> 키로 매 요청이 스스로를 설명한다.</dd>
+
+  <dt>세션 제거 <span class="sep">SEP-2567</span></dt>
+  <dd>Streamable HTTP에서 <code>Mcp-Session-Id</code> 헤더와 프로토콜 수준 세션이 제거됐다. <code>tools/list</code>·<code>resources/list</code>·<code>prompts/list</code>는 이제 연결마다 다른 결과를 주지 않는다.</dd>
+
+  <dt>선택적 사전 조회 <span class="keep">NEW</span></dt>
+  <dd>클라이언트가 먼저 서버 기능을 알아야 하면 새 RPC <code>server/discover</code>를 호출한다. 필수가 아니다.</dd>
+</dl>
+
+<h3>무상태 프로토콜, 상태를 가진 애플리케이션</h3>
+<p>프로토콜에서 세션이 빠졌다는 것이 애플리케이션이 무상태여야 한다는 뜻은 아니다. 호출 간에 상태를 이어가야 하면 HTTP API가 늘 해온 방식을 쓴다 — 툴이 명시적 핸들(<code>basket_id</code>, <code>browser_id</code> 같은 식별자)을 발급하고, 모델이 그 값을 다음 호출의 일반 인자로 되돌려 넘긴다.</p>
+<p>메인테이너들은 이 방식이 단순한 대체재가 아니라 더 나은 설계라고 본다. 트랜스포트 메타데이터에 숨겨진 세션 상태와 달리 <b>모델이 핸들을 볼 수 있어서</b>, 여러 툴에 걸쳐 핸들을 조합하고 단계 사이로 넘길 수 있다.</p>
+<div class="note">달라지는 책임: 상태 관리가 프로토콜에서 애플리케이션으로 내려왔다. 핸들의 발급·검증·만료·권한 확인을 서버가 직접 설계해야 한다. 프로토콜이 대신 해주지 않는다.</div>
+
+<h2 id="s4"><span class="no">04</span>MRTR — Multi Round-Trip Requests<span class="brk">BREAKING</span></h2>
+<p>툴 실행 중간에 사용자 확인이나 누락된 파라미터가 필요할 때가 있다. 이전에는 서버가 <code>elicitation/create</code>, <code>sampling/createMessage</code>, <code>roots/list</code>를 클라이언트로 밀어내려면 스트림을 열어두어야 했다. MRTR은 그 흐름을 무상태로 재구성한다. <span class="sep">SEP-2322</span></p>
+<ol>
+  <li>서버가 <code>resultType: "input_required"</code>와 필요한 요청 목록, 그리고 재개용 <code>requestState</code>를 반환한다.</li>
+  <li>클라이언트가 사용자에게 물어 답을 모은다.</li>
+  <li>클라이언트가 <code>inputResponses</code>와 에코된 <code>requestState</code>를 붙여 <b>원래 호출을 재시도</b>한다.</li>
+</ol>
+<pre><code>{
+  "resultType": "input_required",
+  "inputRequests": {
+    "confirm": {
+      "type": "elicitation",
+      "message": "Delete 3 files?",
+      "schema": { "type": "boolean" }
+    }
+  },
+  "requestState": "eyJzdGVwIjoxLCJmaWxlcyI6WyJhIiwiYiIsImMiXX0="
+}</code></pre>
+<p>재시도에 필요한 모든 것이 페이로드 안에 있으므로 어느 서버 인스턴스가 받아도 이어서 처리할 수 있다. 스키마상 타입은 <code>InputRequiredResult</code>다.</p>
+<p>함께 조여진 규칙 하나 <span class="sep">SEP-2260</span>: 서버 발신 요청은 <b>서버가 클라이언트 요청을 실제로 처리하고 있는 동안에만</b> 낼 수 있다. 이전 버전에서는 권고였고 이제는 필수다. 사용자가 맥락 없이 갑자기 확인 창을 받는 일이 없고, 모든 확인 요청은 사용자나 그 에이전트가 시작한 동작으로 추적된다.</p>
+
+<h2 id="s5"><span class="no">05</span>헤더 기반 라우팅<span class="brk">BREAKING</span></h2>
+<p>Streamable HTTP 요청은 <code>Mcp-Method</code>와 <code>Mcp-Name</code> 헤더를 <b>반드시</b> 포함해야 한다. <span class="sep">SEP-2243</span></p>
+<ul>
+  <li>게이트웨이·레이트리미터·WAF가 JSON 본문을 파싱하지 않고 헤더만으로 라우팅하고 계량할 수 있다.</li>
+  <li>헤더와 본문의 내용이 어긋나면 서버가 요청을 거부한다.</li>
+</ul>
+<p>운영 관점에서 이 변경의 의미가 크다. 툴 단위 레이트리밋, 툴 단위 인가, 툴별 백엔드 분리가 애플리케이션 코드가 아니라 인프라 계층의 설정 문제로 내려온다.</p>
+
+<h2 id="s6"><span class="no">06</span>목록 결과 캐싱</h2>
+<p><code>tools/list</code>, <code>prompts/list</code>, <code>resources/list</code>, <code>resources/read</code> 응답에 <code>ttlMs</code>와 <code>cacheScope</code>가 붙는다. HTTP <code>Cache-Control</code>을 본뜬 설계다. <span class="sep">SEP-2549</span></p>
+<ul>
+  <li><code>ttlMs</code> — 응답이 신선한 기간</li>
+  <li><code>cacheScope</code> — 사용자 간 공유가 안전한지 여부</li>
+  <li>결정적(deterministic) 순서가 보장되므로, 재접속 후에도 상위 프롬프트 캐시가 흔들리지 않는다</li>
+</ul>
+<p>부수 효과로, 목록이 바뀐 것을 알아내기 위해 장기 SSE 스트림을 유지하는 것이 유일한 방법이 아니게 됐다.</p>
+
+<h2 id="s7"><span class="no">07</span>인가 강화</h2>
+<p>메인테이너들은 지난 1년간 구현자들과 논의한 결과, 통합 시간의 대부분이 인가에서 소모된다고 판단했다. 이번 개정은 OAuth 2.0과 OpenID Connect의 실제 배포 관행에 더 가깝게 맞추는 데 집중했다.</p>
+<table>
+  <thead><tr><th style="width:22%">변경</th><th>내용</th><th style="width:16%">SEP</th></tr></thead>
+  <tbody>
+    <tr><td class="k">RFC 9207 <span class="mono">iss</span> 검증</td><td>인가 서버는 응답에 <code>iss</code>를 포함해야 하고, 클라이언트는 코드를 교환하기 전에 이를 검증해야 한다. 인가 서버 혼동(mix-up) 공격 경로를 막는다. MCP는 클라이언트 하나가 서버 여럿을 상대하는 패턴이라 이 취약점이 더 잘 노출된다. 향후 버전에서는 <code>iss</code>가 없는 응답을 거부하도록 요구할 예정이다.</td><td class="mono">2468</td></tr>
+    <tr><td class="k"><span class="mono">application_type</span> 선언</td><td>클라이언트가 DCR 시 OpenID Connect의 <code>application_type</code>을 명시한다. 인가 서버가 데스크톱·CLI 클라이언트를 <code>"web"</code>으로 간주해 localhost 리다이렉트를 거부하던 문제를 해소한다. CLI 클라이언트에서 <code>redirect_uri</code> 오류를 겪었다면 대개 이 원인이다.</td><td class="mono">837</td></tr>
+    <tr><td class="k">issuer 바인딩</td><td>클라이언트 자격증명이 이를 발급한 issuer에 묶인다. 인가 서버 간 재사용이 금지된다. 리소스가 다른 인가 서버로 옮겨가면 재등록한다.</td><td class="mono">2352</td></tr>
+    <tr><td class="k">DCR 폐기<span class="brk">DEPRECATED</span></td><td>동적 클라이언트 등록(DCR)이 공식 폐기되고 <b>CIMD</b>(Client ID Metadata Documents)가 표준이 된다. DCR은 하위 호환을 위해 계속 동작하지만 향후 버전에서 제거된다.</td><td class="mono">—</td></tr>
+    <tr><td class="k">보조 정비</td><td>OpenID Connect 계열 인가 서버에서 refresh token을 요청하는 방법을 문서화(2207), step-up 시 scope 누적 규칙 명확화(2350), <code>.well-known</code> 디스커버리 접미사 규칙 정리(2351).</td><td class="mono">2207 · 2350 · 2351</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s8"><span class="no">08</span>확장 프레임워크가 정식화됐다</h2>
+<p>확장은 이전 버전에도 있었지만 절차가 없었다. 이번에 형식이 확정됐다. <span class="sep">SEP-2133</span></p>
+<ul>
+  <li>역방향 DNS 형태의 ID로 식별한다 (예: <code>io.modelcontextprotocol/tasks</code>)</li>
+  <li>클라이언트·서버 capabilities의 <code>extensions</code> 맵으로 협상한다</li>
+  <li>별도 <code>ext-*</code> 저장소에서 위임된 메인테이너가 관리하고, 사양과 <b>독립적으로 버전을 올린다</b></li>
+  <li>SEP 프로세스에 Extensions Track이 신설돼, 실험 단계에서 공식 단계로 가는 경로가 생겼다</li>
+</ul>
+<h3>현재 공식 확장</h3>
+<table>
+  <thead><tr><th style="width:26%">확장</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td class="k">MCP Apps</td><td>서버가 대화형 HTML 인터페이스를 제공하고 호스트가 샌드박스 iframe에서 렌더링한다. 툴이 UI 템플릿을 미리 선언하므로 호스트가 사전 프리페치·캐싱·보안 검토를 할 수 있다. 렌더된 UI가 호스트와 주고받는 통신도 같은 JSON-RPC 기반 프로토콜을 쓰기 때문에, UI에서 시작된 동작도 직접 툴 호출과 동일한 감사·동의 경로를 지난다. <span class="sep">SEP-1865</span></td></tr>
+    <tr><td class="k">Tasks</td><td>장시간 실행 작업. 아래 09 절 참조. AWS가 기여했다. <span class="sep">SEP-2663</span></td></tr>
+    <tr><td class="k">EMA</td><td>Enterprise Managed Authorization — 조직이 관리하는 인가·신원.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s9"><span class="no">09</span>Tasks — 실험적 코어에서 확장으로<span class="brk">BREAKING</span></h2>
+<p>Tasks는 이전 버전에서 실험적 코어 기능으로 출시됐다. 실제 프로덕션 사용에서 재설계가 필요하다는 것이 드러나, 사양 본문이 아니라 확장(<code>io.modelcontextprotocol/tasks</code>)이 적절한 자리라고 판단했다.</p>
+<ul>
+  <li>서버가 <code>tools/call</code>에 태스크 핸들로 응답할 수 있고, 클라이언트가 <code>tasks/get</code>(폴링), <code>tasks/update</code>, <code>tasks/cancel</code>로 진행한다</li>
+  <li>태스크 생성은 <b>서버 주도</b>다. 클라이언트가 확장 지원을 알리면, 어떤 호출을 태스크로 돌릴지는 서버가 결정한다</li>
+  <li><code>tasks/list</code>는 제거됐다 — 세션이 없으면 스코프를 안전하게 한정할 수 없기 때문이다</li>
+  <li>변경 알림이 기존 HTTP GET 엔드포인트에서 단일 <code>subscriptions/listen</code> 스트림으로 이동했고, 클라이언트가 알림 유형별로 옵트인한다</li>
+</ul>
+<div class="warn">
+  <span class="t">마이그레이션 필요</span>
+  이전 버전의 실험적 Tasks API로 구현한 코드는 새 수명주기로 옮겨야 한다. 실험적 기능이었으므로 12개월 폐기 유예의 보호를 받지 않는다.
+</div>
+
+<h2 id="s10"><span class="no">10</span>폐기와 수명주기 정책</h2>
+<h3>폐기된 기능 <span class="sep">SEP-2577</span></h3>
+<table>
+  <thead><tr><th style="width:20%">기능</th><th>권고 대체 수단</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Roots</td><td>툴 파라미터, 리소스 URI, 또는 서버 설정</td></tr>
+    <tr><td class="k">Sampling</td><td>LLM 제공자 API를 직접 통합</td></tr>
+    <tr><td class="k">Logging</td><td>stdio 트랜스포트는 <code>stderr</code>, 구조적 관측은 OpenTelemetry</td></tr>
+    <tr><td class="k">HTTP+SSE 트랜스포트</td><td>Streamable HTTP (레거시 트랜스포트는 1년 오프램프)</td></tr>
+  </tbody>
+</table>
+<p>이들은 <b>표기상의 폐기</b>다. 메서드·타입·capability 플래그는 이번 릴리스에서 그대로 동작하고, 최소 12개월간 유지된다. 실제 제거에는 수명주기 정책에 따른 별도 SEP이 필요하다. 다만 새로 만드는 구현에서는 채택하지 않는 것이 권고다.</p>
+
+<h3>수명주기 정책 <span class="sep">SEP-2596</span></h3>
+<p>모든 기능이 <b>Active → Deprecated → Removed</b> 수명주기를 갖고, 폐기 시점부터 가장 이른 제거 시점까지 <b>최소 12개월</b>이 보장된다. 사후 대응이 아니라 계획을 세울 수 있게 하는 장치다.</p>
+<p>여기에 두 가지가 더해진다. 새 기능은 옵트인 확장으로 먼저 출시해 거기서 안정화할 수 있고(경우에 따라 사양 본문으로 들어오지 않을 수도 있다), Standards Track SEP는 적합성 테스트 스위트(conformance suite)에 해당 시나리오가 들어오기 전에는 Final 상태에 이를 수 없다. <span class="sep">SEP-2484</span> 이 스위트는 공식 SDK 등급제가 SDK를 채점하는 기준과 같은 것이다.</p>
+<div class="note">메인테이너의 입장 요약: 이번처럼 파괴적인 변경은 예외로 두겠다는 것이다. <code>2026-07-28</code>을 타깃으로 구현하면 이후 개정에서 트랜스포트나 수명주기 코드를 다시 쓰지 않아도 되게 하는 것이 목표로 제시됐다.</div>
+
+<h2 id="s11"><span class="no">11</span>그 외 변경</h2>
+<dl>
+  <dt>툴 스키마가 JSON Schema 2020-12 전체로 확장 <span class="sep">SEP-2106</span></dt>
+  <dd>툴의 <code>inputSchema</code>·<code>outputSchema</code>가 완전한 JSON Schema 2020-12가 됐다. 입력 스키마는 루트가 <code>type: "object"</code>여야 하는 제약을 유지하지만 <code>oneOf</code>·<code>anyOf</code>·<code>allOf</code> 조합, 조건부, <code>$ref</code>·<code>$defs</code> 참조를 쓸 수 있다. 출력 스키마는 제약이 없고, <code>structuredContent</code>가 객체가 아닌 임의의 JSON 값이어도 된다. 구현체는 외부 <code>$ref</code> URI를 자동 역참조해서는 안 되며, 스키마 깊이와 검증 시간에 상한을 두는 것이 권고다.</dd>
+
+  <dt>오류 코드 변경 <span class="sep">SEP-2164</span><span class="brk">BREAKING</span></dt>
+  <dd>리소스를 찾지 못했을 때의 코드가 MCP 고유값 <code>-32002</code>에서 JSON-RPC 표준 <code>-32602</code>(Invalid Params)로 바뀌었다. <b>클라이언트가 <code>-32002</code> 리터럴로 분기한다면 수정해야 한다.</b></dd>
+
+  <dt>W3C Trace Context 전파 문서화 <span class="sep">SEP-414</span></dt>
+  <dd><code>_meta</code>에 담기는 <code>traceparent</code>·<code>tracestate</code>·<code>baggage</code> 키 이름이 사양에 고정됐다. 이미 일부 SDK와 도구가 하던 일이지만, 키 이름이 확정되면서 호스트 애플리케이션에서 시작된 트레이스가 클라이언트 SDK → MCP 서버 → 서버가 호출하는 하위 시스템까지 이어져 OpenTelemetry 호환 백엔드에서 하나의 span 트리로 보인다.</dd>
+</dl>
+
+<h2 id="s12"><span class="no">12</span>깨지는 것 / 유지되는 것</h2>
+<table>
+  <thead><tr><th style="width:34%">항목</th><th style="width:18%">상태</th><th>대응</th></tr></thead>
+  <tbody>
+    <tr><td class="k"><code>Mcp-Session-Id</code> 의존 코드</td><td>제거</td><td>명시적 핸들 패턴으로 재설계</td></tr>
+    <tr><td class="k"><code>initialize</code> 호출 흐름</td><td>제거</td><td><code>_meta</code> + 선택적 <code>server/discover</code></td></tr>
+    <tr><td class="k">서버 발신 elicitation / sampling</td><td>구조 변경</td><td>MRTR (<code>input_required</code> → 재시도)</td></tr>
+    <tr><td class="k">스티키 세션 / 공유 세션 저장소</td><td>불필요</td><td>라운드로빈 LB로 단순화 가능</td></tr>
+    <tr><td class="k">실험적 Tasks API</td><td>재설계</td><td>Tasks 확장으로 이전 (유예 없음)</td></tr>
+    <tr><td class="k">오류 코드 <code>-32002</code></td><td>변경</td><td><code>-32602</code>로 수정</td></tr>
+    <tr><td class="k">Roots / Sampling / Logging</td><td>폐기, 동작 유지</td><td>12개월 이상 유예. 신규 채택 비권고</td></tr>
+    <tr><td class="k">HTTP+SSE 레거시 트랜스포트</td><td>폐기, 동작 유지</td><td>1년 오프램프</td></tr>
+    <tr><td class="k">DCR</td><td>폐기, 동작 유지</td><td>CIMD로 이행 계획 수립</td></tr>
+    <tr><td class="k">Tier 1 SDK 사용 코드 일반</td><td>하위 호환 유지</td><td>SDK가 구·신 프로토콜 양쪽을 처리</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s13"><span class="no">13</span>SDK 현황</h2>
+<p>Tier 1 SDK 4종이 공개 당일 <code>2026-07-28</code>을 지원한다. 서버와 클라이언트 양쪽을 새 사양으로 만들 수 있다.</p>
+<ul>
+  <li><a href="https://github.com/modelcontextprotocol/typescript-sdk">TypeScript</a> · <a href="https://github.com/modelcontextprotocol/python-sdk">Python</a> · <a href="https://github.com/modelcontextprotocol/go-sdk">Go</a> · <a href="https://github.com/modelcontextprotocol/csharp-sdk">C#</a></li>
+  <li><a href="https://github.com/modelcontextprotocol/rust-sdk">Rust SDK</a>는 베타로 새 사양을 지원한다</li>
+</ul>
+<p>세션 식별자에 의존했던 코드에는 마이그레이션 비용이 있다고 메인테이너들이 명시했다. 베타 기간의 초기 테스트 피드백을 반영해 그 과정을 완화했다고 밝혔다.</p>
+
+<h2 id="s14"><span class="no">14</span>생태계 대응</h2>
+<p class="sub">원문에는 파트너사 코멘트가 다수 실려 있다. 인용문을 옮기지 않고 사실 요지만 정리했다.</p>
+<table>
+  <thead><tr><th style="width:26%">주체</th><th>대응 내용</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Amazon Bedrock AgentCore</td><td>무상태 코어를 지원한다. 세션이나 지속 연결 관리 없이 표준 인프라에 MCP 서버를 배포할 수 있다. Tasks 확장은 AWS가 기여했다. AgentCore Gateway에서는 <code>UpdateGateway</code> 호출 한 번으로 지원 버전을 추가하고, 기존 클라이언트는 그대로 동작한다.</td></tr>
+    <tr><td class="k">Cloudflare</td><td>Agents SDK가 공개 당일부터 지원한다. Workers에서 MCP 서버를 직접 실행하고, 트랜스포트 세션 오버헤드 없이 툴을 호출한다. 접근 승인 같은 elicitation 흐름도 가능해졌다. 기존 <code>McpAgent</code>는 폐기·기능 동결 상태로, 무상태 핸들러로 이전이 권고된다.</td></tr>
+    <tr><td class="k">Microsoft Foundry</td><td>MCP를 기반으로 통합 MCP 엔드포인트를 운영하며 거버넌스·신원·관측을 중앙화한다. 통합 규모를 수십 개에서 수천 개로 확장하는 근거로 제시했다.</td></tr>
+    <tr><td class="k">Google Cloud</td><td>무상태 아키텍처가 대규모 에이전트 워크플로 배포의 마찰을 제거한다고 평가하며, 자사 개발자 도구 생태계에 반영할 계획을 밝혔다.</td></tr>
+    <tr><td class="k">Supabase</td><td>Supabase MCP가 무상태로 동작해 elicitation을 지원하기 어려웠는데, MRTR로 해결됐다. 프로젝트 생성 비용이나 데이터 삭제 쿼리처럼 위험한 동작 전에 사용자 확인을 받을 수 있게 된다.</td></tr>
+    <tr><td class="k">honeycomb.io</td><td>월간 대화형 쿼리의 약 20%가 이미 에이전트에서 발생한다고 밝혔다. 새 사양으로 엔터프라이즈 규모에서 elicitation 같은 기능을 지원할 수 있게 됐다.</td></tr>
+    <tr><td class="k">Manufact (mcp-use)</td><td>새 SDK v2의 클라이언트·서버 분리로 패키지 크기를 약 83% 줄이고 약 25% 빠르게 만들었다고 밝혔다. 무상태 전환으로 인프라 우회책 없이 프로덕션 트래픽을 처리한다.</td></tr>
+    <tr><td class="k">FastMCP</td><td>FastMCP 4.0에서 백그라운드 태스크, 무상태 대화형 처리, 엔터프라이즈 인가를 지원한다. 거버넌스 플랫폼 Horizon은 처음부터 무상태로 설계했다고 밝혔다.</td></tr>
+    <tr><td class="k">기타</td><td>Figma(MCP Apps·Tasks·EMA 활용 계획), Netlify(MCP Apps를 확장 프레임워크에 편입한 점을 평가), PostHog(무상태화로 고객 MCP 서버 분석 제공이 쉬워짐), Xero, GitHub MCP Server(공식 Go SDK 사용, 최종 사양 공개 전 선지원).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s15"><span class="no">15</span>타임라인</h2>
+<table>
+  <thead><tr><th style="width:18%">시점</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td class="k mono">2025-11-25</td><td>이전 사양 버전 공개. Tasks가 실험적 코어 기능으로 포함됐다.</td></tr>
+    <tr><td class="k mono">2025-12-19</td><td>트랜스포트 미래 계획 공개. 이번 무상태 전환은 이 계획의 완결이다.</td></tr>
+    <tr><td class="k mono">2026-05-21</td><td>릴리스 후보 잠금. 10주간의 SDK·클라이언트 검증 창 시작.</td></tr>
+    <tr><td class="k mono">2026-07-23</td><td>GitHub MCP Server가 최종 사양 전에 지원 발표.</td></tr>
+    <tr><td class="k mono">2026-07-27</td><td>Cloudflare Agents SDK가 새 MCP SDK v2 기반 지원 발표.</td></tr>
+    <tr><td class="k mono">2026-07-28</td><td>최종 사양 공개. Tier 1 SDK 4종 동시 지원.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s16"><span class="no">16</span>폐쇄망·게이트웨이 관점 검토</h2>
+<p class="sub">이 절은 원문에 없는 내용으로, 사내 폐쇄망 환경과 API 게이트웨이 구축 맥락에 대입한 검토다.</p>
+
+<h3>유리해지는 것</h3>
+<ul>
+  <li><b>게이트웨이 필터가 단순해진다.</b> <code>Mcp-Method</code>·<code>Mcp-Name</code>이 헤더에 오므로, 툴 단위 레이트리밋·서킷브레이커·라우팅을 본문 파싱 없이 헤더 조건으로 구성할 수 있다. JSON 본문을 읽는 커스텀 필터를 만들 필요가 사라진다.</li>
+  <li><b>세션 저장소가 필요 없다.</b> 스티키 세션과 공유 세션 스토어(Redis 등)를 프로토콜 때문에 두던 이유가 없어진다. 인스턴스를 늘리는 것이 곧 처리량 증가가 된다.</li>
+  <li><b>Sampling 폐기의 영향이 작다.</b> 폐쇄망에서 이미 로컬 추론 서버를 직접 호출하는 구조라면, 권고 대체 수단(LLM 제공자 API 직접 통합)과 이미 일치한다.</li>
+  <li><b>목록 캐싱이 대역폭을 줄인다.</b> <code>ttlMs</code>·<code>cacheScope</code>로 툴 카탈로그 재조회를 줄일 수 있다.</li>
+</ul>
+
+<h3>확인이 필요한 것</h3>
+<ul>
+  <li><b>CIMD 이행이 폐쇄망에서 문제가 될 수 있다.</b> DCR이 폐기되고 Client ID Metadata Documents가 표준이 된다. CIMD는 클라이언트 메타데이터 문서를 조회 가능한 위치에 게시하는 방식이므로, 외부로 나갈 수 없는 환경에서는 내부에서 호스팅하고 내부 인가 서버가 그것을 해석하도록 설계해야 한다. <b>DCR이 하위 호환으로 남아 있는 동안 이행 경로를 먼저 확정해 두는 것이 안전하다.</b></li>
+  <li><b>Logging 폐기는 관측 스택 준비를 요구한다.</b> 구조적 관측의 권고 대체가 OpenTelemetry이므로, 폐쇄망 내부에 OTel 컬렉터와 백엔드가 필요하다. Trace Context 키 이름이 사양에 고정된 것은 이 방향과 맞물린다.</li>
+  <li><b>상태 관리 책임이 애플리케이션으로 내려온다.</b> 명시적 핸들 패턴을 쓰면 핸들의 발급·검증·만료·소유자 확인을 직접 구현해야 한다. 모델이 핸들 값을 보게 되므로, 핸들 자체가 권한을 담지 않도록(추측·재사용 불가하도록) 설계해야 한다.</li>
+  <li><b>게이트웨이가 헤더/본문 불일치를 어떻게 다룰지 정해야 한다.</b> 사양은 서버가 불일치 요청을 거부하도록 한다. 게이트웨이에서 헤더를 다시 쓰는 필터를 넣으면 그 자체가 사양 위반 요청을 만들 수 있다.</li>
+</ul>
+
+<div class="warn">
+  <span class="t">아래 예시는 개념 설명용이다</span>
+  헤더 조건 라우팅의 형태를 보이기 위한 것으로, 프로퍼티 경로와 predicate 표기는 사용 중인 Spring Cloud 버전의 공식 문서로 확인해야 한다. YAML 문법만 검증했고, 해당 버전에서의 동작은 검증하지 못했다.
+</div>
+<pre><code>spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: mcp-tools-call
+            uri: http://mcp-tool-pool
+            predicates:
+              - Path=/mcp
+              - Method=POST
+              - Header=Mcp-Method, tools/call
+          - id: mcp-discover
+            uri: http://mcp-meta-pool
+            predicates:
+              - Path=/mcp
+              - Method=POST
+              - Header=Mcp-Method, server/discover</code></pre>
+
+<h2 id="s17"><span class="no">17</span>근거 링크와 검증 상태</h2>
+<h3>1차 출처</h3>
+<table class="srcs">
+  <thead><tr><th style="width:50%">문서</th><th style="width:16%">확인</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/">The 2026-07-28 Specification</a></td><td>본문 확인</td><td>이 문서의 주 출처. 2026-07-28</td></tr>
+    <tr><td><a href="https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/">The 2026-07-28 MCP Specification Release Candidate</a></td><td>본문 확인</td><td>SEP 번호·기술 상세의 출처. 2026-05-21</td></tr>
+    <tr><td><a href="https://modelcontextprotocol.io/docs">MCP 공식 문서</a></td><td>접속 확인</td><td>버전별 경로 <code>/docs/2026-07-28/…</code></td></tr>
+    <tr><td>사양 본문 <code>/specification/2026-07-28</code> · 변경 이력 <code>/specification/2026-07-28/changelog</code></td><td>미확인</td><td>자동 조회에서 404가 반환됐다. 검색 인덱스에는 변경 이력 페이지가 존재하는 것으로 나타나므로, 브라우저에서 공식 문서 내 링크로 접근해 확인할 것을 권한다.</td></tr>
+  </tbody>
+</table>
+
+<h3>SEP 원문 (전수 연결 확인)</h3>
+<table class="srcs">
+  <thead><tr><th style="width:18%">SEP</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2575">SEP-2575</a></td><td>핸드셰이크 제거</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2567">SEP-2567</a></td><td>프로토콜 수준 세션 제거</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2322">SEP-2322</a></td><td>MRTR</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2243">SEP-2243</a></td><td>헤더 기반 라우팅</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2549">SEP-2549</a></td><td>목록 결과 캐시 힌트</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2468">SEP-2468</a></td><td>RFC 9207 <code>iss</code> 검증</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/837">SEP-837</a></td><td><code>application_type</code> 선언</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2352">SEP-2352</a></td><td>자격증명 issuer 바인딩</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2663">SEP-2663</a></td><td>Tasks 확장</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2577">SEP-2577</a></td><td>Roots·Sampling·Logging 폐기</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2133">SEP-2133</a></td><td>확장 프레임워크</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2596">SEP-2596</a></td><td>기능 수명주기 정책</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2106">SEP-2106</a></td><td>JSON Schema 2020-12</td></tr>
+    <tr><td class="k"><a href="https://github.com/modelcontextprotocol/conformance">conformance</a></td><td>적합성 테스트 스위트 저장소</td></tr>
+  </tbody>
+</table>
+<p class="sub">위 GitHub 링크 19건(SEP 13건, SDK 5건, conformance 1건)은 HTTP 200 응답을 확인했다. 본문에 SEP 번호만 표기하고 링크를 생략한 항목(2260, 414, 2164, 2207, 2350, 2351, 2484, 1865, 1777)은 같은 저장소의 동일한 PR 번호 경로에 있다.</p>
+
+<footer>
+  이 문서는 공개된 1차 출처를 한국어로 재정리한 요약·분석본이다. 원문 및 파트너 코멘트의 저작권은 각 저작자에게 있으며, 원문 문장을 옮기지 않고 사실과 요지만 정리했다. 사양 자체의 저작권 표기는 Model Context Protocol, a Series of LF Projects, LLC.<br>
+  정리 시점: 2026년 7월 30일. 사양은 계속 갱신되므로 구현 전에 공식 문서를 확인할 것.
+</footer>
+
+</div>
+</div>
+<script>
+// 이 문서는 단독 파일로도 열리지만 학습 사이트(SPA) 안에 임베드되기도 한다.
+// 그런 환경에서는 라우터가 목차의 해시 클릭을 경로 이동으로 가로채면서
+// 존재하지 않는 라우트로 넘어가고, 앱이 하이드레이션에 실패한다
+// (Cannot read properties of undefined (reading 'rehydrate')).
+// 캡처 단계에서 먼저 받아 문서 안 스크롤로 끝내면 어느 환경에서도 동일하게 동작한다.
+document.addEventListener('click', function (e) {
+  var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if (!a) return;
+  var id = a.getAttribute('href').slice(1);
+  if (!id) return;
+  var target = document.getElementById(id);
+  if (!target) return;              // 이 문서의 앵커가 아니면 원래 동작에 맡긴다
+  e.preventDefault();
+  e.stopPropagation();
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (history.replaceState) history.replaceState(null, '', '#' + id);
+}, true);
+</script>
+</body>
+</html>
