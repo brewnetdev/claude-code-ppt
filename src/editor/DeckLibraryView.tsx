@@ -151,7 +151,7 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {levelItems.map((item) => (
           <LevelCard
-            key={item.level}
+            key={`${item.level}-${item.label}`}
             item={item}
             onOpen={onOpen}
             onHide={item.deck ? () => hideDeck(item.deck!.id, item.deck!.title) : undefined}
@@ -246,6 +246,10 @@ function LevelCard({
       </div>
       {deck ? (
         <span className="shrink-0 text-[11px] text-editor-dim">{slideCount} slides</span>
+      ) : item.externalUrl ? (
+        <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
+          새 탭
+        </span>
       ) : (
         <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
           준비 중
@@ -260,6 +264,26 @@ function LevelCard({
       <p className="mt-1 text-xs leading-relaxed text-editor-dim">{item.topic}</p>
     </div>
   );
+
+  if (!deck && item.externalUrl) {
+    // 독립 실행 덱 — 에디터 파서가 인라인 스타일을 버리므로 편집으로 열지 않고
+    // 새 탭에서 원본 HTML을 그대로 실행한다 (dev 서버가 repo 경로를 정적 서빙).
+    return (
+      <div className="group flex h-full flex-col rounded-lg border border-editor-border bg-editor-panel transition hover:border-editor-accent hover:bg-editor-panel/80">
+        <button
+          type="button"
+          onClick={() => window.open(item.externalUrl, '_blank', 'noopener')}
+          className="flex h-full flex-1 flex-col items-stretch p-5 text-left"
+        >
+          {header}
+          {body}
+          <div className="mt-4 flex items-center justify-end text-xs text-editor-dim transition group-hover:text-editor-accent">
+            새 탭에서 발표 열기 →
+          </div>
+        </button>
+      </div>
+    );
+  }
 
   if (!deck) {
     // 발표자료 없는 레벨 — 클릭 불가 카드.

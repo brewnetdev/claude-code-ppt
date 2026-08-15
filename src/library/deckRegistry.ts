@@ -161,6 +161,11 @@ export type CourseLevel = {
   topic: string;
   // Backing deck id (a BUILTIN_DECKS id). Absent → list-only ("발표자료 준비 중").
   deckId?: string;
+  // Standalone presentation opened in a new tab instead of the editor.
+  // Used for decks whose inline-styled markup the editor parser would destroy
+  // (e.g. the L9 copy deck at docs/html/l9-harness-evaluator-slides.html —
+  // served by the Vite dev server straight from the repo tree).
+  externalUrl?: string;
 };
 
 export type CourseStage = {
@@ -256,6 +261,12 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
         label: '하네스 엔지니어링 · Evaluator 제어',
         topic: '바이브→검증된 코딩 · 하네스 5단계 · Evaluator 설계 · EDD 평가 게이트',
         deckId: 'claude-code-harness-evaluator',
+      },
+      {
+        level: 9,
+        label: '하네스 · Evaluator — 발표용 카피 덱',
+        topic: '동일 내용 89장 · 챕터 타이틀 분리 · 점진 완성 빌드 — 브라우저 단독 실행 (편집 불가)',
+        externalUrl: '/docs/html/l9-harness-evaluator-slides.html',
       },
       {
         level: 10,

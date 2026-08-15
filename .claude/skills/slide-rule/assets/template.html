@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{DECK_TITLE}} — SLIDE-RULE 템플릿</title>
+<style>
+  /* Dracula-soft palette — L9 원본 덱(themes/harness.css)과 동일 */
+  :root{
+    --bg:#282a36; --bg2:#21222c; --fg:#e2e8f0; --dim:#94a3b8;
+    --line:#44475a; --accent:#4db6c9; --warn:#e5c07b; --ok:#6ee7b7; --bad:#f87171;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans KR','IBM Plex Sans','Noto Sans KR',-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#000;color:var(--fg);font-family:var(--sans);overflow:hidden}
+  #stage{position:fixed;inset:0;display:grid;place-items:center}
+  #deck{position:relative;width:1280px;height:720px;transform-origin:center center;background:var(--bg)}
+  .slide{position:absolute;inset:0;padding:46px 66px 80px;display:none;flex-direction:column;overflow:hidden}
+  .slide.on{display:flex}
+
+  .kicker{font-family:var(--mono);font-size:14px;color:var(--accent);letter-spacing:.14em;margin-bottom:9px}
+  h1{font-size:62px;line-height:1.18;letter-spacing:-.03em}
+  h2{font-size:40px;line-height:1.24;letter-spacing:-.025em;margin-bottom:14px}
+  h3{font-size:21px;color:var(--accent);margin:6px 0 10px;font-weight:600}
+
+  ul{list-style:none}
+  li{position:relative;padding-left:26px;margin:17px 0;font-size:23px;line-height:1.5;color:var(--fg)}
+  li::before{content:"";position:absolute;left:4px;top:.55em;width:9px;height:9px;border-radius:50%;
+             background:var(--accent);opacity:.8}
+  li .d{display:block;font-size:18px;color:var(--dim);margin-top:6px;line-height:1.5}
+  li b{color:#fff}
+
+  code{font-family:var(--mono);font-size:.88em;background:#ffffff12;padding:2px 8px;border-radius:5px;color:#7dd3fc}
+  pre{font-family:var(--mono);font-size:18px;line-height:1.55;background:var(--bg2);border:1px solid var(--line);
+      border-radius:8px;padding:16px 20px;color:#cbd5e1;overflow:hidden;white-space:pre;margin:10px 0}
+  pre b{color:var(--warn);font-weight:600}
+  pre i{color:#64748b;font-style:normal}
+
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:20px}
+  th,td{border:1px solid var(--line);padding:12px 16px;text-align:left;vertical-align:top;line-height:1.45}
+  th{background:#ffffff08;color:var(--accent);font-weight:600;font-size:17px;letter-spacing:.02em}
+  td code{font-size:18px}
+  td .d{display:block;font-size:16px;color:var(--dim);margin-top:4px}
+  td b{color:#fff}
+  .tok{color:var(--ok)} .tbad{color:var(--bad)} .twrn{color:var(--warn)}
+  table.tight th,table.tight td{padding:8px 14px}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-content:start}
+  .cols.a{grid-template-columns:1.2fr 1fr}
+  .cols.b{grid-template-columns:1fr 1.2fr}
+
+  /* 콜아웃 — 좌측 레일 금지 규칙: 전체 1px 테두리 박스 */
+  .key{border:1px solid #e5c07b59;background:#e5c07b0f;padding:15px 20px;margin:14px 0 0;
+       font-size:22px;line-height:1.5;border-radius:8px}
+  .key b{color:var(--warn)}
+  .key .d{display:block;font-size:18px;color:var(--dim);margin-top:8px;line-height:1.5}
+  .cap{font-size:17px;color:var(--dim);line-height:1.5;margin-top:12px}
+
+  .big{font-size:36px;line-height:1.5;text-align:center;margin:auto 0;letter-spacing:-.02em}
+  .big b{color:var(--accent)}
+  .big .sub{display:block;font-size:22px;color:var(--dim);margin-top:24px;letter-spacing:0;line-height:1.6}
+
+  .dg{display:flex;flex-direction:column;align-items:center;margin:8px 0}
+  .row{display:flex;gap:14px;justify-content:center;align-items:stretch}
+  .stk{display:flex;flex-direction:column;gap:8px}
+  .box{border:1px solid var(--line);background:var(--bg2);border-radius:8px;padding:12px 16px;
+       text-align:center;font-size:20px;line-height:1.35;color:var(--fg)}
+  .box .s{display:block;font-size:15px;color:var(--dim);margin-top:5px;line-height:1.4}
+  .box.k{border-color:var(--accent);background:#4db6c918;color:#d9f2f7}
+  .box.w{border-color:var(--warn);background:#e5c07b14}
+  .box.g{border-color:var(--ok);background:#6ee7b714}
+  .box.r{border-color:var(--bad);background:#f8717114}
+  .box.d{border-style:dashed;background:transparent;color:var(--dim)}
+  .box.sm{font-size:17px;padding:9px 12px}
+  .box.sm .s{font-size:13.5px;margin-top:3px}
+  .ghost{opacity:.22}
+
+  .arw{width:2px;background:var(--line);position:relative;margin:0 auto;height:26px;flex:none}
+  .arw::after{content:"";position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);
+              border:6px solid transparent;border-top-color:var(--line);border-bottom:0}
+  .arw.s{height:18px}
+  .arh{height:2px;width:34px;background:var(--line);position:relative;align-self:center;flex:none}
+  .arh::after{content:"";position:absolute;top:50%;right:-1px;transform:translateY(-50%);
+              border:6px solid transparent;border-left-color:var(--line);border-right:0}
+  .arh.two::before{content:"";position:absolute;top:50%;left:-1px;transform:translateY(-50%);
+              border:6px solid transparent;border-right-color:var(--line);border-left:0}
+  .join{width:322px;height:26px;margin:0 auto;position:relative;
+        border-left:2px solid var(--line);border-right:2px solid var(--line);
+        border-bottom:2px solid var(--line)}
+  .join::after{content:"";position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);
+               width:2px;height:24px;background:var(--line)}
+  .join::before{content:"";position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);
+                border:6px solid transparent;border-top-color:var(--line);border-bottom:0;z-index:1}
+  .join .mid{position:absolute;left:50%;top:0;height:100%;width:2px;background:var(--line);
+             transform:translateX(-50%)}
+  .alab{font-size:17px;color:var(--dim);text-align:center;margin:4px 0}
+
+  .frame{border:1px dashed var(--line);border-radius:8px;padding:20px 18px 16px;position:relative;margin:14px 0 0}
+  .frame > .ft{position:absolute;top:-10px;left:16px;background:var(--bg);padding:0 10px;
+               font-size:14px;color:var(--dim);letter-spacing:.06em;font-family:var(--mono)}
+  .frame.k{border-color:#4db6c966} .frame.g{border-color:#6ee7b755}
+  .frame.r{border-color:#f8717166} .frame.w{border-color:#e5c07b66}
+  .frame.solid{border-style:solid}
+
+  .agenda div{font-size:23px;padding:15px 0;border-bottom:1px solid var(--line);color:var(--fg)}
+  .agenda span{font-family:var(--mono);color:var(--accent);margin-right:18px;font-size:17px}
+  .agenda i{color:var(--dim);font-style:normal;font-size:18px}
+
+  .num{font-family:var(--mono);font-size:64px;font-weight:700;color:var(--accent);line-height:1}
+  .tag{display:inline-block;font-family:var(--mono);font-size:13px;color:var(--warn);
+       border:1px solid #e5c07b66;border-radius:4px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+
+  .foot{position:absolute;left:66px;right:66px;bottom:22px;display:flex;justify-content:space-between;
+        font-family:var(--mono);font-size:13px;color:#6272a4;border-top:1px solid var(--line);padding-top:11px}
+  #prog{position:absolute;left:0;bottom:0;height:4px;background:var(--accent)}
+
+  .title{justify-content:center;align-items:center;text-align:center}
+  .title .sub{font-size:23px;color:var(--dim);margin-top:20px;letter-spacing:.02em}
+  .sec{justify-content:center;align-items:flex-start}
+  .sec .cnum{font-family:var(--mono);font-size:120px;font-weight:700;color:var(--accent);
+             line-height:1;letter-spacing:-.02em;margin-bottom:22px;opacity:.9}
+  .sec h1{font-size:54px}
+  .sec .sub{font-size:23px;color:var(--dim);margin-top:22px;line-height:1.6;max-width:980px}
+
+  @media print{
+    html,body{overflow:visible;background:#fff}
+    #stage{position:static;display:block} #deck{transform:none!important}
+    .slide{display:flex!important;position:relative;page-break-after:always}
+    #hud{display:none!important}
+  }
+  #hud{position:fixed;right:14px;top:10px;font-family:var(--mono);font-size:12px;color:#6272a4;
+       user-select:none;z-index:21}
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SLIDE-RULE 템플릿 — 아래 샘플 4장을 지우고 실제 슬라이드로 교체한다.
+  · 슬라이드 = <section class="slide"> … </section> (순서 = 표시 순서)
+  · 페이지 번호는 JS가 .pg 스팬에 자동 기입 — 수동 번호 금지
+  · 아키타입별 마크업은 references/STYLE-GUIDE.md 참조
+════════════════════════════════════════════════════════════════ -->
+
+<!-- [아키타입 A] 표지 — 좌 텍스트 + 우 이미지(선택) -->
+<section class="slide" style="justify-content:center">
+  <div class="row" style="align-items:center;justify-content:space-between;gap:50px">
+    <div style="flex:1;text-align:left;padding-left:70px">
+      <div class="kicker">{{시리즈 · 부제}}</div>
+      <h1>{{메인 타이틀<br>둘째 줄}}</h1>
+      <div style="font-size:23px;color:var(--dim);margin-top:20px;letter-spacing:.02em">{{한 줄 부제}}</div>
+    </div>
+    <!-- 이미지 없으면 <img> 삭제하고 텍스트만 중앙 배치 -->
+  </div>
+  <div class="foot"><span>{{발표자}}</span><span class="pg"></span></div>
+</section>
+
+<!-- [아키타입 C] 섹션(챕터) 타이틀 — 반드시 독립 장표 -->
+<section class="slide sec">
+  <div class="cnum">01</div>
+  <h1>{{챕터 제목}}</h1>
+  <div class="sub">{{챕터가 답하는 질문 한 줄}}</div>
+  <div class="foot"><span>SECTION 01</span><span class="pg"></span></div>
+</section>
+
+<!-- [아키타입 F] 본문 — 다이어그램(박스 흐름) + 콜아웃 -->
+<section class="slide">
+  <div class="kicker">01 · {{소주제}}</div>
+  <h2>{{장표 제목}}</h2>
+  <div class="dg" style="margin-top:18px">
+    <div class="row" style="align-items:center;gap:16px">
+      <div class="box" style="width:250px">{{단계 1}}<span class="s">{{부제}}</span></div>
+      <div class="arh"></div>
+      <div class="box k" style="width:250px">{{단계 2 · 핵심}}<span class="s">{{부제}}</span></div>
+      <div class="arh"></div>
+      <div class="box g" style="width:250px">{{단계 3 · 결과}}<span class="s">{{부제}}</span></div>
+    </div>
+  </div>
+  <div class="key">{{이 장의 결론 한 문장 — <b>강조는 b</b>}}
+    <span class="d">{{보조 설명 · 근거 — 없으면 span 삭제}}</span></div>
+  <div class="foot"><span>① {{챕터 짧은 이름}}</span><span class="pg"></span></div>
+</section>
+
+<!-- [아키타입 L] 마무리 -->
+<section class="slide title">
+  <div class="kicker">THANK YOU</div>
+  <h1>감사합니다</h1>
+  <div class="sub">{{연락처 · 참고 링크}}</div>
+  <div class="foot"><span>END</span><span class="pg"></span></div>
+</section>
+
+<div id="prog"></div>
+</div></div>
+<div id="hud">방향키 이동 · f 전체화면 · p 인쇄</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var deck=document.getElementById('deck'), prog=document.getElementById('prog');
+  var i=0;
+
+  // 페이지 번호 자동 기입 — 수동 재넘버링 제거
+  slides.forEach(function(s,k){
+    var pg=s.querySelector('.pg');
+    if(pg) pg.textContent=(k+1)+' / '+slides.length;
+  });
+
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i);});
+    prog.style.width=((i+1)/slides.length*100)+'%';
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+  }
+  function fit(){
+    deck.style.transform='scale('+Math.min(innerWidth/1280, innerHeight/720)+')';
+  }
+  addEventListener('resize',fit);
+
+  addEventListener('keydown',function(e){
+    var k=e.key;
+    if(k==='ArrowRight'||k==='ArrowDown'||k===' '||k==='PageDown'){e.preventDefault();show(i+1);}
+    else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'){e.preventDefault();show(i-1);}
+    else if(k==='Home'){show(0);}
+    else if(k==='End'){show(slides.length-1);}
+    else if(k==='f'||k==='F'){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+    else if(k==='p'||k==='P'){ print(); }
+  });
+  addEventListener('click',function(e){
+    if(e.target.closest('a')) return; // links open normally, no slide advance
+    show(e.clientX < innerWidth*0.25 ? i-1 : i+1);
+  });
+
+  var h=parseInt((location.hash||'').slice(1),10);
+  fit(); show(isNaN(h)?0:h-1);
+})();
+</script>
+</body>
+</html>
