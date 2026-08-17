@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  /* book-author badge — 960x66 @2x → 1920x132 GIF. Border pulses amber; text is static. */
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  .frame {
+    box-sizing: border-box;
+    width: 954px; height: 60px;
+    margin: 3px;
+    border: 3px solid #F5A623;
+    border-radius: 8px;
+    display: flex; align-items: center;
+    padding: 0 23px;
+    font-family: 'IBM Plex Sans KR', 'IBM Plex Sans', sans-serif;
+    font-size: 18px; color: #1a1a1a; white-space: nowrap;
+  }
+  .frame b { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <span>YES24&nbsp;IT/모바일 분야 실시간 1위, 일간 베스트 3위, 13주 연속 카테고리 TOP 20&nbsp;·&nbsp;<b>클로드 코드 마스터(한빛미디어) 저자 직강</b></span>
+</div>
+<script>
+  // Deterministic frame setter for the GIF builder (no wall-clock animation).
+  // Border color pulses base→light→base over one N-frame cycle (cosine blend).
+  var BASE = [245, 166, 35], LIGHT = [255, 223, 160];
+  window.setFrame = function (i, N) {
+    var t = (1 - Math.cos(2 * Math.PI * i / N)) / 2; // 0→1→0
+    var c = BASE.map(function (b, k) { return Math.round(b + (LIGHT[k] - b) * t); });
+    document.getElementById('frame').style.borderColor = 'rgb(' + c.join(',') + ')';
+  };
+</script>
+</body>
+</html>
