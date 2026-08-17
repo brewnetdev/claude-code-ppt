@@ -131,3 +131,178 @@
   flex:0 0 auto; display:flex; align-items:baseline; justify-content:space-between;
   font-size:var(--fs-sub); color:var(--muted); border-top:1px solid var(--border);
   margin:0 52px; padding:8px 0 12px; letter-spacing:.02em; }[data-template="harness"] .slide-footer-left { font-family:var(--font-sans); font-size:var(--fs-sub); font-weight:600; color:var(--text); }[data-template="harness"] .slide-footer-right { font-family:var(--font-mono); font-size:var(--fs-sub); color:var(--muted); }[data-template="harness"] .slide-inner.closing .kicker { margin-bottom:12px; }[data-template="harness"] .slide-inner.closing .hero { font-size:36px; line-height:1.15; }[data-template="harness"] .slide-inner.closing .col-text .sub { line-height:1.42; margin-top:9px !important; }[data-template="harness"] .slide-inner.closing .col-text .list { gap:7px; margin-top:10px !important; }[data-template="harness"] .slide-inner.closing .col-text .list.tight > li { line-height:1.4; }
+
+/* ═══ navy-skin:start — claude-code-harness-evaluator-navy 전용 스킨.
+   html-ppt-pro navy-clinical 팔레트(#F4F6F9/#0A2540/#1890FF)를 하네스 템플릿 위에
+   [data-skin="navy"]로 스코프. 위 [data-template="harness"] 규칙(0,1,x)을
+   .slide[data-skin="navy"](0,2,x) 특이도로 덮어쓴다. 지오메트리는 스탠드얼론
+   l9-harness-evaluator-slides-pro.html과 동일. 빌드 스크립트가 이 블록을
+   markers로 추출해 덱 head에도 인라인한다 — 수정 시 덱 재빌드 필요. ═══ */
+.slide[data-skin="navy"]{
+  --bg:#F4F6F9; --bg2:#FFFFFF; --fg:#1E293B; --dim:#52627A;
+  --line:#B4C0CF; --accent:#1890FF; --warn:#B45309; --ok:#0E9F6E; --bad:#DC2626;
+  --navy:#0A2540; --strong:#0A2540;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Pretendard','Noto Sans KR',-apple-system,sans-serif;
+  background:var(--bg); color:var(--fg); font-family:var(--sans);
+  word-break:keep-all; overflow-wrap:break-word;
+}
+.slide[data-skin="navy"] .slide-inner{
+  position:absolute; inset:0; padding:46px 66px 80px;
+  display:flex; flex-direction:column; overflow:hidden;
+  background:transparent; width:auto; height:auto; gap:0;
+}
+.slide[data-skin="navy"] .kicker{font-family:var(--mono);font-size:14px;font-weight:700;
+  color:var(--accent);letter-spacing:.14em;margin-bottom:9px}
+.slide[data-skin="navy"] h1{font-size:62px;line-height:1.18;letter-spacing:-.03em;
+  font-weight:800;color:var(--navy);margin:0}
+.slide[data-skin="navy"] h2{font-size:40px;line-height:1.24;letter-spacing:-.025em;
+  margin:0 0 14px;font-weight:800;color:var(--navy)}
+.slide[data-skin="navy"] h3{font-size:21px;color:var(--navy);margin:6px 0 10px;font-weight:700}
+.slide[data-skin="navy"] ul{list-style:none;margin:0;padding:0}
+.slide[data-skin="navy"] li{position:relative;padding-left:26px;margin:17px 0;
+  font-size:23px;line-height:1.5;color:var(--fg)}
+.slide[data-skin="navy"] li::before{content:"";position:absolute;left:4px;top:.58em;
+  width:8px;height:8px;border-radius:1px;background:var(--accent)}
+.slide[data-skin="navy"] li .d{display:block;font-size:18px;color:var(--dim);margin-top:6px;line-height:1.5}
+.slide[data-skin="navy"] li b{color:var(--navy);font-weight:700}
+.slide[data-skin="navy"] code{font-family:var(--mono);font-size:.88em;background:#E4EEF9;
+  padding:2px 8px;border-radius:5px;color:#0B5CAD}
+.slide[data-skin="navy"] pre{font-family:var(--mono);font-size:18px;line-height:1.55;
+  background:var(--navy);border:1px solid var(--navy);border-radius:8px;padding:16px 20px;
+  color:#D9E4F2;overflow:hidden;white-space:pre;margin:10px 0}
+.slide[data-skin="navy"] pre b{color:#FFC24D;font-weight:600}
+.slide[data-skin="navy"] pre i{color:#7E93AB;font-style:normal}
+.slide[data-skin="navy"] table{border-collapse:collapse;width:100%;margin:8px 0;
+  font-size:20px;background:var(--bg2)}
+.slide[data-skin="navy"] th,.slide[data-skin="navy"] td{border:1px solid var(--line);
+  padding:12px 16px;text-align:left;vertical-align:top;line-height:1.45;font-size:20px}
+.slide[data-skin="navy"] th{background:var(--navy);color:#fff;border-color:#1E3A5C;
+  font-weight:700;font-size:17px;letter-spacing:.02em}
+.slide[data-skin="navy"] td code{font-size:18px}
+.slide[data-skin="navy"] td .d{display:block;font-size:16px;color:var(--dim);margin-top:4px}
+.slide[data-skin="navy"] td b{color:var(--navy)}
+.slide[data-skin="navy"] .tok{color:var(--ok)}
+.slide[data-skin="navy"] .tbad{color:var(--bad)}
+.slide[data-skin="navy"] .twrn{color:var(--warn)}
+.slide[data-skin="navy"] table.tight th,.slide[data-skin="navy"] table.tight td{padding:8px 14px}
+.slide[data-skin="navy"] .cols{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-content:start}
+.slide[data-skin="navy"] .cols.a{grid-template-columns:1.2fr 1fr}
+.slide[data-skin="navy"] .cols.b{grid-template-columns:1fr 1.2fr}
+.slide[data-skin="navy"] .key{border:1px solid var(--navy);background:var(--navy);color:#EAF2FA;
+  padding:15px 20px;margin:14px 0 0;font-size:22px;line-height:1.5;border-radius:8px}
+.slide[data-skin="navy"] .key b{color:#6FBBFF}
+.slide[data-skin="navy"] .key .d{display:block;font-size:18px;color:#B9C6D6;margin-top:8px;line-height:1.5}
+.slide[data-skin="navy"] .key code{background:#1C3A57;color:#9CD2FF}
+.slide[data-skin="navy"] .cap{font-size:17px;color:var(--dim);line-height:1.5;margin-top:12px}
+.slide[data-skin="navy"] .big{font-size:36px;line-height:1.5;text-align:center;margin:auto 0;letter-spacing:-.02em}
+.slide[data-skin="navy"] .big b{color:var(--accent)}
+.slide[data-skin="navy"] .big .sub{display:block;font-size:22px;color:var(--dim);margin-top:24px;
+  letter-spacing:0;line-height:1.6}
+.slide[data-skin="navy"] .dg{display:flex;flex-direction:column;align-items:center;margin:8px 0}
+.slide[data-skin="navy"] .row{display:flex;gap:14px;justify-content:center;align-items:stretch}
+.slide[data-skin="navy"] .stk{display:flex;flex-direction:column;gap:8px}
+.slide[data-skin="navy"] .box{border:1px solid var(--line);background:var(--bg2);border-radius:8px;
+  padding:12px 16px;text-align:center;font-size:20px;line-height:1.35;color:var(--fg);
+  box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.slide[data-skin="navy"] .box .s{display:block;font-size:15px;color:var(--dim);margin-top:5px;line-height:1.4}
+.slide[data-skin="navy"] .box.k{border-color:var(--accent);background:#E8F3FF;color:#0A2540}
+.slide[data-skin="navy"] .box.w{border-color:#D9A05B;background:#FBF3E6}
+.slide[data-skin="navy"] .box.g{border-color:#5BBFA0;background:#E9F6F1}
+.slide[data-skin="navy"] .box.r{border-color:#E38B8B;background:#FCEEEE}
+.slide[data-skin="navy"] .box.d{border-style:dashed;background:transparent;color:var(--dim);box-shadow:none}
+.slide[data-skin="navy"] .box.sm{font-size:17px;padding:9px 12px}
+.slide[data-skin="navy"] .box.sm .s{font-size:13.5px;margin-top:3px}
+.slide[data-skin="navy"] .ghost{opacity:.26}
+.slide[data-skin="navy"] .arw{width:2px;background:var(--line);position:relative;margin:0 auto;
+  height:26px;flex:none}
+.slide[data-skin="navy"] .arw::after{content:"";position:absolute;left:50%;bottom:-1px;
+  transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--line);border-bottom:0}
+.slide[data-skin="navy"] .arw.s{height:18px}
+.slide[data-skin="navy"] .arh{height:2px;width:34px;background:var(--line);position:relative;
+  align-self:center;flex:none}
+.slide[data-skin="navy"] .arh::after{content:"";position:absolute;top:50%;right:-1px;
+  transform:translateY(-50%);border:6px solid transparent;border-left-color:var(--line);border-right:0}
+.slide[data-skin="navy"] .arh.two::before{content:"";position:absolute;top:50%;left:-1px;
+  transform:translateY(-50%);border:6px solid transparent;border-right-color:var(--line);border-left:0}
+.slide[data-skin="navy"] .join{width:322px;height:26px;margin:0 auto;position:relative;
+  border-left:2px solid var(--line);border-right:2px solid var(--line);border-bottom:2px solid var(--line)}
+.slide[data-skin="navy"] .join::after{content:"";position:absolute;left:50%;bottom:-24px;
+  transform:translateX(-50%);width:2px;height:24px;background:var(--line)}
+.slide[data-skin="navy"] .join::before{content:"";position:absolute;left:50%;bottom:-30px;
+  transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--line);border-bottom:0;z-index:1}
+.slide[data-skin="navy"] .join .mid{position:absolute;left:50%;top:0;height:100%;width:2px;
+  background:var(--line);transform:translateX(-50%)}
+.slide[data-skin="navy"] .alab{font-size:17px;color:var(--dim);text-align:center;margin:4px 0}
+.slide[data-skin="navy"] .frame{border:1px dashed var(--line);border-radius:8px;
+  padding:20px 18px 16px;position:relative;margin:14px 0 0}
+.slide[data-skin="navy"] .frame > .ft{position:absolute;top:-10px;left:16px;background:var(--bg);
+  padding:0 10px;font-size:14px;color:var(--dim);letter-spacing:.06em;font-family:var(--mono)}
+.slide[data-skin="navy"] .frame.k{border-color:#1890FF99}
+.slide[data-skin="navy"] .frame.g{border-color:#0E9F6E88}
+.slide[data-skin="navy"] .frame.r{border-color:#DC262688}
+.slide[data-skin="navy"] .frame.w{border-color:#D9770688}
+.slide[data-skin="navy"] .frame.solid{border-style:solid}
+.slide[data-skin="navy"] .agenda div{font-size:23px;padding:15px 0;
+  border-bottom:1px solid var(--line);color:var(--fg)}
+.slide[data-skin="navy"] .agenda span{font-family:var(--mono);color:var(--accent);
+  margin-right:18px;font-size:17px;font-weight:700}
+.slide[data-skin="navy"] .agenda i{color:var(--dim);font-style:normal;font-size:18px}
+.slide[data-skin="navy"] .num{font-family:var(--mono);font-size:64px;font-weight:700;
+  color:var(--accent);line-height:1}
+.slide[data-skin="navy"] .tag{display:inline-block;font-family:var(--mono);font-size:13px;
+  color:var(--warn);border:1px solid #D9770699;border-radius:4px;padding:1px 8px;
+  margin-left:8px;vertical-align:2px}
+.slide[data-skin="navy"] .slide-footer{position:absolute;left:66px;right:66px;bottom:22px;
+  top:auto;height:auto;display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:13px;color:#8494A8;border-top:1px solid var(--line);padding:11px 0 0;background:transparent}
+.slide[data-skin="navy"] .slide-footer-left,.slide[data-skin="navy"] .slide-footer-right{
+  font-family:var(--mono);font-size:13px;color:#8494A8;letter-spacing:.02em}
+/* 표지·챕터·클로징 = 네이비 풀블리드. 인라인 color:var(--…)는 재스코프로 자동 반전 */
+.slide[data-skin="navy"].cover,.slide[data-skin="navy"].sec,.slide[data-skin="navy"].title{
+  background:var(--navy);
+  --fg:#F2F7FC; --dim:#B9C6D6; --accent:#6FBBFF; --line:#2E4A68; --strong:#FFFFFF;
+}
+.slide[data-skin="navy"].cover h1,.slide[data-skin="navy"].sec h1,.slide[data-skin="navy"].title h1{color:#fff}
+.slide[data-skin="navy"].cover .slide-footer,.slide[data-skin="navy"].sec .slide-footer,
+.slide[data-skin="navy"].title .slide-footer,
+.slide[data-skin="navy"].cover .slide-footer-left,.slide[data-skin="navy"].sec .slide-footer-left,
+.slide[data-skin="navy"].title .slide-footer-left,
+.slide[data-skin="navy"].cover .slide-footer-right,.slide[data-skin="navy"].sec .slide-footer-right,
+.slide[data-skin="navy"].title .slide-footer-right{color:#7E93AB}
+.slide[data-skin="navy"].cover .slide-inner{justify-content:center}
+.slide[data-skin="navy"].sec .slide-inner{justify-content:center;align-items:flex-start}
+.slide[data-skin="navy"].title .slide-inner{justify-content:center;align-items:center;text-align:center}
+.slide[data-skin="navy"] .sub{font-size:23px;color:var(--dim);margin-top:20px;letter-spacing:.02em}
+.slide[data-skin="navy"].sec .cnum{font-family:var(--mono);font-size:120px;font-weight:700;
+  color:var(--accent);line-height:1;letter-spacing:-.02em;margin-bottom:22px}
+.slide[data-skin="navy"].sec h1{font-size:54px}
+.slide[data-skin="navy"].sec .sub{font-size:23px;color:var(--dim);margin-top:22px;line-height:1.6;max-width:980px}
+/* ═══ navy-skin:end ═══ */
+
+/* navy-skin 프레젠테이션 모드 진입 모션 — 의도적으로 navy-skin 마커 블록 밖:
+   convert.py가 덱 head에 인라인하는 복사본에서 제외돼 덱 HTML은 keyframes-free.
+   [data-presenting](PresentationView 전용 앵커) 아래에서만 발동하므로
+   편집 캔버스·썸네일·PNG/HTML export는 정적 유지. keyframes는 from만 정의 —
+   종료값이 각 요소의 원래 opacity로 보간돼 .ghost(opacity .26)를 깨지 않는다. */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes navy-rise{from{opacity:0;transform:translateY(16px)}}
+  [data-presenting] .slide[data-skin="navy"] .kicker{animation:navy-rise .38s ease backwards}
+  [data-presenting] .slide[data-skin="navy"] h1,
+  [data-presenting] .slide[data-skin="navy"] h2{animation:navy-rise .45s ease .06s backwards}
+  [data-presenting] .slide[data-skin="navy"] .sub{animation:navy-rise .5s ease .16s backwards}
+  [data-presenting] .slide[data-skin="navy"] li{animation:navy-rise .42s ease .1s backwards}
+  [data-presenting] .slide[data-skin="navy"] li:nth-child(2){animation-delay:.17s}
+  [data-presenting] .slide[data-skin="navy"] li:nth-child(3){animation-delay:.24s}
+  [data-presenting] .slide[data-skin="navy"] li:nth-child(4){animation-delay:.31s}
+  [data-presenting] .slide[data-skin="navy"] li:nth-child(5){animation-delay:.38s}
+  [data-presenting] .slide[data-skin="navy"] li:nth-child(n+6){animation-delay:.45s}
+  [data-presenting] .slide[data-skin="navy"] .agenda>div{animation:navy-rise .42s ease .1s backwards}
+  [data-presenting] .slide[data-skin="navy"] .agenda>div:nth-child(2){animation-delay:.18s}
+  [data-presenting] .slide[data-skin="navy"] .agenda>div:nth-child(3){animation-delay:.26s}
+  [data-presenting] .slide[data-skin="navy"] .agenda>div:nth-child(4){animation-delay:.34s}
+  [data-presenting] .slide[data-skin="navy"] .agenda>div:nth-child(n+5){animation-delay:.42s}
+  [data-presenting] .slide[data-skin="navy"] :where(table,pre,.dg,.frame,.cols,.big,img){
+    animation:navy-rise .55s ease .12s backwards}
+  [data-presenting] .slide[data-skin="navy"] .key{animation:navy-rise .5s ease .3s backwards}
+}

@@ -269,6 +269,12 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
         externalUrl: '/docs/html/l9-harness-evaluator-slides.html',
       },
       {
+        level: 9,
+        label: '하네스 · Evaluator — Navy Edition',
+        topic: '카피 덱의 navy-clinical 라이트 재해석 89장 · 진입 모션 — 브라우저 단독 실행 (편집 불가)',
+        externalUrl: '/docs/html/l9-harness-evaluator-slides-pro.html',
+      },
+      {
         level: 10,
         label: 'Local LLM 설치와 활용',
         topic: '로컬 LLM·Ollama·Qwen·Gemma 활용',

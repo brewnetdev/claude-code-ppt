@@ -124,6 +124,7 @@ export function PresentationView({ onExit }: Props) {
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-black"
       role="presentation"
       data-testid="presentation-overlay"
+      data-presenting
       onClick={(e) => {
         // Click on the dark backdrop — not the slide — exits.
         if (e.target === e.currentTarget) onExit();
