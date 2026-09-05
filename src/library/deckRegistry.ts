@@ -160,12 +160,9 @@ export type CourseLevel = {
   label: string;
   topic: string;
   // Backing deck id (a BUILTIN_DECKS id). Absent → list-only ("발표자료 준비 중").
+  // Standalone (non-editable) presentation HTML lives in EXTERNAL_DECKS below,
+  // not here — those are derivatives of a level deck, not levels themselves.
   deckId?: string;
-  // Standalone presentation opened in a new tab instead of the editor.
-  // Used for decks whose inline-styled markup the editor parser would destroy
-  // (e.g. the L9 copy deck at docs/html/l9-harness-evaluator-slides.html —
-  // served by the Vite dev server straight from the repo tree).
-  externalUrl?: string;
 };
 
 export type CourseStage = {
@@ -258,21 +255,9 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       },
       {
         level: 9,
-        label: '하네스 엔지니어링 · Evaluator 제어',
-        topic: '바이브→검증된 코딩 · 하네스 5단계 · Evaluator 설계 · EDD 평가 게이트',
-        deckId: 'claude-code-harness-evaluator',
-      },
-      {
-        level: 9,
-        label: '하네스 · Evaluator — 발표용 카피 덱',
-        topic: '동일 내용 89장 · 챕터 타이틀 분리 · 점진 완성 빌드 — 브라우저 단독 실행 (편집 불가)',
-        externalUrl: '/docs/html/l9-harness-evaluator-slides.html',
-      },
-      {
-        level: 9,
         label: '하네스 · Evaluator — Navy Edition',
-        topic: '카피 덱의 navy-clinical 라이트 재해석 89장 · 진입 모션 — 브라우저 단독 실행 (편집 불가)',
-        externalUrl: '/docs/html/l9-harness-evaluator-slides-pro.html',
+        topic: '바이브→검증된 코딩 · 하네스 5단계 · Evaluator 설계 · EDD 평가 게이트 (정본 · 편집 가능)',
+        deckId: 'claude-code-harness-evaluator-navy',
       },
       {
         level: 10,
@@ -280,6 +265,37 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
         topic: '로컬 LLM·Ollama·Qwen·Gemma 활용',
       },
     ],
+  },
+];
+
+// Standalone presentation HTML that the editor parser would destroy (inline
+// styles / custom build motion), so it opens in a new tab instead. These are
+// derivatives of an outline deck — not curriculum levels — so they render in
+// the "참고 자료 · 기타 데크" section, not the level grid.
+export type ExternalDeck = {
+  id: string;
+  label: string;
+  topic: string;
+  // Served straight from the repo tree by the Vite dev server.
+  url: string;
+  // Outline level this deck derives from, shown as the card's badge.
+  level: number;
+};
+
+export const EXTERNAL_DECKS: ReadonlyArray<ExternalDeck> = [
+  {
+    id: 'l9-harness-evaluator-slides',
+    label: '하네스 · Evaluator — 발표용 카피 덱',
+    topic: '정본과 동일 내용 89장 · 챕터 타이틀 분리 · 점진 완성 빌드 — 브라우저 단독 실행 (편집 불가)',
+    url: '/docs/html/l9-harness-evaluator-slides.html',
+    level: 9,
+  },
+  {
+    id: 'l9-harness-evaluator-slides-pro',
+    label: '하네스 · Evaluator — Navy Edition (단독 실행판)',
+    topic: '카피 덱의 navy-clinical 라이트 재해석 89장 · 진입 모션 — 브라우저 단독 실행 (편집 불가)',
+    url: '/docs/html/l9-harness-evaluator-slides-pro.html',
+    level: 9,
   },
 ];
 

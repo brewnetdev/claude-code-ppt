@@ -5,9 +5,11 @@ import {
   BUILTIN_DECKS,
   COURSE_OUTLINE,
   countSlides,
+  EXTERNAL_DECKS,
   OUTLINE_DECK_IDS,
   type CourseLevel,
   type DeckRegistryEntry,
+  type ExternalDeck,
 } from '../library/deckRegistry';
 import { type ResourceEntry, type ResourceKind } from '../library/resourceRegistry';
 import {
@@ -159,13 +161,16 @@ function DeckGrid({ onOpen }: { onOpen: (deck: DeckRegistryEntry) => void }) {
         ))}
       </div>
 
-      {visibleOther.length > 0 ? (
+      {visibleOther.length > 0 || EXTERNAL_DECKS.length > 0 ? (
         <div className="mt-12">
           <h2 className="mb-1 text-sm font-semibold text-editor-text">참고 자료 · 기타 데크</h2>
           <p className="mb-4 text-xs text-editor-dim">
-            커리큘럼 리포트·발표 소개 등 레벨 목차에 속하지 않는 데크입니다.
+            커리큘럼 리포트·발표 소개, 그리고 정본 데크에서 파생된 단독 실행 발표본입니다.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {EXTERNAL_DECKS.map((item) => (
+              <ExternalDeckCard key={item.id} item={item} />
+            ))}
             {visibleOther.map((deck) => (
               <DeckCard
                 key={deck.id}
@@ -246,10 +251,6 @@ function LevelCard({
       </div>
       {deck ? (
         <span className="shrink-0 text-[11px] text-editor-dim">{slideCount} slides</span>
-      ) : item.externalUrl ? (
-        <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
-          새 탭
-        </span>
       ) : (
         <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
           준비 중
@@ -264,26 +265,6 @@ function LevelCard({
       <p className="mt-1 text-xs leading-relaxed text-editor-dim">{item.topic}</p>
     </div>
   );
-
-  if (!deck && item.externalUrl) {
-    // 독립 실행 덱 — 에디터 파서가 인라인 스타일을 버리므로 편집으로 열지 않고
-    // 새 탭에서 원본 HTML을 그대로 실행한다 (dev 서버가 repo 경로를 정적 서빙).
-    return (
-      <div className="group flex h-full flex-col rounded-lg border border-editor-border bg-editor-panel transition hover:border-editor-accent hover:bg-editor-panel/80">
-        <button
-          type="button"
-          onClick={() => window.open(item.externalUrl, '_blank', 'noopener')}
-          className="flex h-full flex-1 flex-col items-stretch p-5 text-left"
-        >
-          {header}
-          {body}
-          <div className="mt-4 flex items-center justify-end text-xs text-editor-dim transition group-hover:text-editor-accent">
-            새 탭에서 발표 열기 →
-          </div>
-        </button>
-      </div>
-    );
-  }
 
   if (!deck) {
     // 발표자료 없는 레벨 — 클릭 불가 카드.
@@ -318,6 +299,35 @@ function LevelCard({
         {body}
         <div className="mt-4 flex items-center justify-end text-xs text-editor-dim transition group-hover:text-editor-accent">
           편집 열기 →
+        </div>
+      </button>
+    </div>
+  );
+}
+
+// 단독 실행 발표본 — 에디터 파서가 인라인 스타일을 버리므로 새 탭에서 원본을 그대로 연다.
+function ExternalDeckCard({ item }: { item: ExternalDeck }) {
+  return (
+    <div className="group flex h-full flex-col rounded-lg border border-editor-border bg-editor-panel transition hover:border-editor-accent hover:bg-editor-panel/80">
+      <button
+        type="button"
+        onClick={() => window.open(item.url, '_blank', 'noopener')}
+        className="flex h-full flex-1 flex-col items-stretch p-5 text-left"
+      >
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className="rounded bg-editor-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-editor-accent">
+            LV.{item.level} 파생
+          </span>
+          <span className="shrink-0 rounded border border-editor-border px-2 py-0.5 text-[10px] text-editor-dim">
+            새 탭
+          </span>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold leading-snug text-editor-text">{item.label}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-editor-dim">{item.topic}</p>
+        </div>
+        <div className="mt-4 flex items-center justify-end text-xs text-editor-dim transition group-hover:text-editor-accent">
+          새 탭에서 발표 열기 →
         </div>
       </button>
     </div>
