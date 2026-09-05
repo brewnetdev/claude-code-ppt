@@ -600,7 +600,8 @@ public class AuthService {
         if (user.getRefreshToken() == null) {
             throw new ApiException(ErrorCode.NO_SESSION, "로그인 세션이 없습니다.");
         }
-        if (clock.instant().isAfter(user.getRefreshTokenExpiresAt())) {
+        if (user.getRefreshTokenExpiresAt() != null
+                && clock.instant().isAfter(user.getRefreshTokenExpiresAt())) {
             throw new ApiException(ErrorCode.TOKEN_EXPIRED, "세션이 만료되었습니다.");
         }
         if (!refreshToken.equals(user.getRefreshToken())) {
