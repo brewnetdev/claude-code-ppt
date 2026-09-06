@@ -165,6 +165,7 @@
 .slide[data-skin="navy"] li::before{content:"";position:absolute;left:4px;top:.58em;
   width:8px;height:8px;border-radius:1px;background:var(--accent)}
 .slide[data-skin="navy"] li .d{display:block;font-size:18px;color:var(--dim);margin-top:6px;line-height:1.5}
+.slide[data-skin="navy"] li .d a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .slide[data-skin="navy"] li b{color:var(--navy);font-weight:700}
 .slide[data-skin="navy"] code{font-family:var(--mono);font-size:.88em;background:#E4EEF9;
   padding:2px 8px;border-radius:5px;color:#0B5CAD}
