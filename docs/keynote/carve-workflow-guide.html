@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>/carve-workflow — 사용 가이드</title>
-  <meta name="description" content="claude-code-ppt 프로젝트에서 /carve-workflow 스킬을 어떻게 쓰는가 — 7단계 루프, 8요소 출력, 완료 게이트, 프로젝트 사용 예시.">
+  <title>carve-harness — 사용 가이드</title>
+  <meta name="description" content="carve-harness v0.10.1은 CLAUDE.md 3기둥(제약·피드백·상태)을 PreToolUse·Stop 훅의 exit 2로 강제하고, 완료 선언을 verify-loop 채점과 골든셋 평가로 검증하는 bash 훅 + 마크다운 하네스다.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
   <style>
@@ -19,7 +19,7 @@
       --border-2:   #CBD5E1;
       --accent:     #0F766E;
       --accent-bg:  #F0FDFA;
-      --warn:  
+      --warn:
            #B45309;
       --warn-bg:    #FFFBEB;
       --good:       #15803D;
@@ -42,10 +42,16 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* 와이드 레이아웃 — 화면에 비례해 채운다. 표·코드블록이 많은 문서라
+       고정 좁은 폭은 내용을 눌러 가독성을 떨어뜨린다. 1125px 뷰포트에서
+       96vw = 1080px으로, 데스크톱 실효 폭 1080px 이상이 보장된다. */
     .wrap {
-      max-width: 880px;
+      width: min(96vw, 1680px);
       margin: 0 auto;
-      padding: 64px 32px 96px;
+      padding: 56px 40px 96px;
+    }
+    @media (max-width: 1120px) {
+      .wrap { width: 100%; padding: 40px 24px 72px; }
     }
 
     /* --- Header --- */
@@ -342,12 +348,12 @@
 <div class="wrap">
 
   <header class="doc-head">
-    <p class="eyebrow">claude-code-ppt · skill guide</p>
-    <h1 class="doc-title"><code>/carve-workflow</code> — 사용 가이드</h1>
+    <p class="eyebrow">claude-code-ppt · harness guide</p>
+    <h1 class="doc-title">carve-harness — 사용 가이드</h1>
     <p class="doc-sub">
-      7단계 절차 루프와 8요소 보고 형식으로 다단계·고모호 작업을 "장기 실행"으로 끌고 가는 메타 스킬. 직접 코드를 만들지 않고
-      <code>sprint-contract</code> · <code>evaluation-criteria</code> · <code>iterate</code> · <code>squad-*</code> 를
-      지휘한다.
+      carve-harness는 bash 훅과 마크다운으로만 구성된 제로 의존성 하네스다. 코딩 에이전트의 규칙 위반은
+      설득이 아니라 PreToolUse·Stop 훅의 <code>exit 2</code>로 막고, 완료 선언은 주장이 아니라
+      verify-loop 채점과 골든셋 평가로 검증한다. 프로젝트 루트에 설치하면 즉시 동작한다.
     </p>
     <dl class="doc-meta">
       <div>
@@ -356,325 +362,649 @@
       </div>
       <div>
         <dt>도구 버전</dt>
-        <dd><code>carve-harness v1.7.0</code> · 2026-06-15</dd>
+        <dd><code>carve-harness v0.10.1</code> · 2026-09-05</dd>
       </div>
       <div>
         <dt>라이선스</dt>
-        <dd>MIT · TypeScript ESM · Node ≥22.18</dd>
+        <dd>MIT · bash 훅 + 마크다운 · 의존성 0</dd>
       </div>
     </dl>
   </header>
 
-  <!-- About carve-harness -->
+  <div class="callout warn">
+    <span class="label">이 문서는 전면 개정됐다</span>
+    <p>
+      이 가이드의 이전 버전은 <code>/carve-workflow</code> 스킬과 7단계 절차 루프·8요소 출력 형식을 다뤘다.
+      carve-harness v0.10.1에는 이 스킬도, 7단계 루프도, 8요소 형식도, "Fablize" 같은 자연어 트리거도,
+      <code>sprint-contract.md</code>·<code>evaluation-criteria.md</code>도, <code>squad-*</code> 에이전트도 존재하지 않는다.
+      저장소 전체를 검색해도 관련 문구는 한 건도 나오지 않는다.
+    </p>
+    <p>대체 대응은 다음과 같다.</p>
+    <ul style="margin-bottom:0;">
+      <li>검증 루프 → <code>/verify-loop</code> (+ <code>checklist-loop</code> 스킬)</li>
+      <li>완료 게이트 → <code>eval-score.sh</code>의 G1·G2·G3 거부권</li>
+      <li>계획·검증 → <code>/plan</code> · <code>/verify</code></li>
+      <li>에이전트 → Squad 9종이 아니라 <strong>7종</strong> (<code>evaluator</code> · fable 4종 · <code>pr-test-analyzer</code> · <code>security-reviewer</code>)</li>
+    </ul>
+  </div>
+
+  <!-- About -->
   <section>
     <h2><span class="part">ABOUT</span>carve-harness 한눈에</h2>
 
     <p>
-      <strong>carve-harness</strong>는 코드베이스를 분석해 그 프로젝트에 맞는 스킬·훅·서브에이전트를
-      대화형으로 선택 설치하는 <em>하네스 엔지니어링 CLI</em>입니다.
-      이 가이드의 <code>/carve-workflow</code> 스킬은 <strong>v1.7.0(2026-06-15)에 새로 추가된 기능</strong>입니다.
+      carve-harness는 bash 훅과 마크다운으로만 구성된 하네스다. <code>package.json</code> 설명을 그대로 옮기면
+      "Bash-hook + markdown harness — npm scripts wrap the shell test suites (zero dependencies)"이며,
+      TypeScript가 아니고 Node 버전 요구도 없고 빌드 단계도 없다. 전제는 하나다 - 코딩 에이전트의 규칙 위반은
+      설득이 아니라 훅의 <code>exit 2</code>로 막는다. 프로젝트 루트에 내려받으면 바로 동작한다.
     </p>
+    <p><em>"필요한 것만 남기고, 나머지는 깎아낸다."</em></p>
 
-    <h3>핵심 동작 한 줄</h3>
+    <h3>하네스 3기둥 (<code>CLAUDE.md</code>)</h3>
+    <table>
+      <thead><tr><th style="width:100px;">기둥</th><th>구성</th></tr></thead>
+      <tbody>
+        <tr><td><strong>제약</strong></td><td><code>CLAUDE.md</code> + <code>.claude/rules/*</code> + PreToolUse 차단 훅</td></tr>
+        <tr><td><strong>피드백</strong></td><td>PostToolUse(포맷·린트) + Stop(빌드·타입·테스트) + Evaluator 에이전트</td></tr>
+        <tr><td><strong>상태</strong></td><td>SessionStart/PreCompact 핸드오프 + <code>specs/</code>(SDD 산출물)</td></tr>
+      </tbody>
+    </table>
 
-    <pre><code>carve install → 스택 탐지 → (구성요소 선택) → .claude/에 자산 생성
-              → 생성된 검증 훅이 위험 명령을 exit code 2로 결정적 차단</code></pre>
-
-    <h3>7대 특징</h3>
-
+    <h3>절대 금지 (<code>CLAUDE.md</code>, 언어 무관)</h3>
     <ul>
-      <li><strong>토큰 효율 기본 탑재</strong> — codesight·LSP MCP 자동 등록. grep 대신 정확 탐색.</li>
-      <li><strong>결정적 안전</strong> — 위험 명령·시크릿 파일을 <code>exit 2</code>로 강제 차단 (권고 아님).</li>
-      <li><strong>맞춤 선택 설치</strong> — 탐지 → 추천 → 선택. 일괄 없음, 멱등 재설치·클린 제거.</li>
-      <li><strong>anti-slop 게이트</strong> — HTML·SVG·문서 슬롭을 <code>check-slop</code> 린터로 결정적 차단.</li>
-      <li><strong>Squad 9 에이전트</strong> — <code>review · plan · refactor · qa · debug · docs · gitops · audit · evaluator</code>.</li>
-      <li><strong>자기검증 auditor</strong> — 설치 전 secret·과도 권한·훅 주입·셸 문법 스캔, 통과해야 설치.</li>
-      <li><strong>빌드 0</strong> — <code>.ts</code> 직접 실행 (Node 22.18+ 타입 스트리핑).</li>
+      <li>자동 커밋 금지</li>
+      <li>테스트 없는 개발 금지</li>
+      <li>시크릿 하드코딩 금지 (환경변수·시크릿 매니저로)</li>
+      <li>위험 git 금지 (force push, 히스토리 재작성)</li>
+      <li>기존 마이그레이션 수정 금지 (새 버전만 추가)</li>
+      <li>미검증 완료 선언 금지 (완료는 <code>specs/</code>의 완료 기준 SC로만)</li>
     </ul>
-
-    <div class="callout accent">
-      <span class="label">이 가이드의 위상</span>
-      <p style="margin-bottom:0;">
-        <code>/carve-workflow</code>는 carve-harness v1.7.0의 신규 스킬로,
-        <strong>Fable5 모델식 7단계 루프</strong>와 최소 출력형식·완료 게이트·에스컬레이션을 구현합니다.
-        기존 자산(<code>iterate</code> · <code>sprint-contract</code> · <code>squad-evaluator</code>)을 지휘하고,
-        net-new 원칙(불신·결정외화·범위수렴)을 항상-켜짐으로 주입합니다.
-      </p>
-    </div>
   </section>
 
   <!-- Part 1 -->
   <section>
-    <h2><span class="part">PART 1</span>한 문장 정의</h2>
+    <h2><span class="part">PART 1</span>설치와 시작 순서</h2>
+
+    <h3>설치</h3>
+    <pre><code>cd /path/to/your-project
+curl -fsSL https://raw.githubusercontent.com/claude-code-expert/carve-harness/main/install.sh | bash</code></pre>
+
+    <p>설치 시작 시 다음 둘 중 하나를 묻는다.</p>
+    <ul>
+      <li><code>[1]</code> 프로젝트 분석 후 맞춤 하네스 구축 (권장) - 전체 설치 후 세션에서 <code>/carve-harness-create</code>를 실행해 맞지 않는 규칙·에이전트·스킬을 prune한다.</li>
+      <li><code>[2]</code> 수동 컴포넌트 선택</li>
+    </ul>
+
     <p>
-      <strong>workflow는 7단계 절차 루프와 8요소 보고 형식으로 다단계·고모호 작업을
-      "장기 실행"으로 끌고 가는 <em>메타 스킬</em>입니다.</strong>
-      직접 코드를 만들지 않고 <code>sprint-contract</code> · <code>evaluation-criteria</code> ·
-      <code>iterate</code> · <code>squad-*</code> · <code>tdd</code> 같은 <em>기존 자산을 지휘</em>합니다.
+      구성 선택 TUI는 <code>↑↓</code>/<code>jk</code>로 이동, 스페이스로 토글, <code>1</code>~<code>5</code>로 섹션 점프,
+      <code>a</code>로 전체 토글, 엔터로 설치한다. 기본값은 전체 선택이다. 비대화형 설치는 환경변수로 처리한다.
     </p>
-    <p>쉽게 말해 — "이번 작업은 즉답이 아니라 <em>프로젝트</em>로 다뤄야 한다"고 선언하는 스위치입니다.</p>
+    <pre><code>HARNESS_COMPONENTS=md,hooks bash install.sh</code></pre>
+
+    <p>
+      기존 파일은 건드리지 않고 SKIP으로 보고한다. 설치된 목록은 <code>.claude/harness-manifest.txt</code>에 남는다.
+    </p>
 
     <div class="callout accent">
-      <span class="label">스킬을 부르는 방법 — 2가지</span>
-      <p style="margin-bottom:8px;"><strong>① 슬래시 명시</strong> — 채팅 입력에 <code>/carve-workflow</code> 한 줄.</p>
-      <p style="margin-bottom:8px;"><strong>② 자연어 트리거 어구</strong> — 다음 어구 중 하나가 사용자 발화에 포함되면 Claude가 이 스킬을 <em>자동 invoke</em>합니다 (단일 출처: <code>.claude/skills/workflow/SKILL.md</code>의 <code>description</code> 필드):</p>
-      <ul style="margin-bottom:0;">
-        <li><em>"절차대로 완수해"</em></li>
-        <li><em>"목표 분해해서 검증까지"</em></li>
-        <li><em>"장기 작업으로 진행"</em></li>
-        <li><em>"Fablize"</em></li>
-      </ul>
-      <p style="margin-top:10px; margin-bottom:0; color:var(--ink-mute); font-size:13px;">
-        ⚠ <strong>주의</strong> — 이 어구 없이 그냥 작업 내용만 적으면 workflow는 켜지지 않습니다. Claude는 평범한 다단계 요청으로 처리하며, 7단계 게이트와 8요소 보고는 보장되지 않습니다.
+      <span class="label">예외 - settings.json은 스킵하지 않는다</span>
+      <p>
+        <code>.claude/settings.json</code>만은 스킵이 아니라 jq로 <strong>병합</strong>한다 - 훅 6이벤트와
+        LSP·플러그인 선언을 등록하며 멱등이다. 스킵하면 훅이 등록되지 않아 전 게이트가 무력화되기 때문이다.
       </p>
     </div>
+
+    <p>
+      언어팩은 <code>HARNESS_PACKS=auto|none|all|typescript,python</code>로 지정한다(미지정 시 <code>auto</code>).
+      설치 후에는 <code>bash install.sh pack list|add &lt;name&gt;|remove &lt;name&gt;</code>로 조정한다.
+    </p>
+    <p>
+      오프라인 설치는 <code>HARNESS_SRC_DIR=/path/to/harness bash /path/to/harness/install.sh</code>.
+      소스 저장소를 바꾸려면 <code>HARNESS_REPO=&lt;owner&gt;/&lt;repo&gt;</code> · <code>HARNESS_REF=&lt;branch|tag&gt;</code>를 쓴다.
+      단 2026-09-06 개정에서 <strong>README의 오프라인 설치 절이 삭제됐다</strong> - 기능은
+      <code>install.sh</code>에 그대로 남아 동작하지만(<code>HARNESS_SRC_DIR</code> 참조 6곳), 상류 문서에는
+      더 이상 근거가 없으므로 향후 제거될 수 있다.
+    </p>
+    <p>
+      초기 설정(선택)은 <code>bash install.sh setup</code> - git init · jq PATH 확보 · LICENSE 생성 ·
+      보호 경로 추가 · 도메인 규칙 수집 · 스택 감지 리포트를 한 번에 처리한다.
+    </p>
+    <p>설치가 끝나면 <code>/harness-audit</code>가 자동 실행된다.</p>
+    <p>
+      업데이트는 <code>curl … | bash -s -- update</code> 또는 <code>bash install.sh update</code>.
+      롤백은 <code>bash install.sh rollback</code>(백업은 소비되므로 연속 실행하면 한 단계씩 과거로 돌아간다).
+      현재 버전 확인은 <code>cat .claude/harness-version</code>. 제거는 <code>bash uninstall.sh</code>(드라이런)
+      또는 <code>bash uninstall.sh --yes</code>.
+    </p>
+
+    <h3>전제 조건</h3>
+    <table>
+      <thead><tr><th style="width:150px;">조건</th><th>왜</th><th>없으면</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Claude Code로 개발</td>
+          <td>PreToolUse·Stop 훅이 exit 2로 차단하는 유일한 자리</td>
+          <td>Cursor·Codex·Aider는 <code>AGENTS.md</code> 규칙 + <code>.githooks/pre-commit</code>만 - 커밋 시점 차단으로 후퇴</td>
+        </tr>
+        <tr>
+          <td>git 저장소</td>
+          <td>증분 검증·커밋 게이트·update/rollback 백업</td>
+          <td>전체 검증으로 후퇴, 커밋 게이트 없음</td>
+        </tr>
+        <tr>
+          <td>jq</td>
+          <td>모든 훅이 stdin JSON을 jq로 읽는다</td>
+          <td>설치기가 <code>~/.local/bin/jq</code> 배치를 시도, 실패 시 설치 중단. 부재 시 fail-closed</td>
+        </tr>
+        <tr>
+          <td>지원 스택 + 툴체인</td>
+          <td>게이트·채점기가 <code>tsc/npm</code>·<code>gradlew</code>·<code>ruff/pytest</code>·<code>go</code>·<code>cargo</code>를 실제로 실행</td>
+          <td>툴체인 없는 스택은 best-effort 스킵(차단 아님), <code>eval-score</code>는 <code>skipped</code>로 명시</td>
+        </tr>
+        <tr>
+          <td>골든셋을 유지할 사람</td>
+          <td><code>/eval</code>·CI 차단 모드는 사람이 케이스를 검수해야 의미가 있다</td>
+          <td>게이트·검증 루프까지만 쓰고 <code>/eval</code>은 보류</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      잘 맞는 프로젝트 - TypeScript/React/Next · Java/Spring · Python/FastAPI · Go · Rust 서비스 코드베이스.
+      테스트 러너가 있고 PR 단위로 일하며 에이전트가 하루에도 여러 번 코드를 쓰는 곳. 게이트웨이·결제·인증처럼
+      "틀리면 사고"인 경로가 있으면 검증 루프·골든셋이 특히 값을 한다.
+    </p>
+    <p>
+      맞지 않음 - Ruby·PHP·C#·Swift·Dart 주력(게이트 없음) · git 없는 디렉토리 · Windows 네이티브 셸(WSL 필요) ·
+      에이전트가 코드를 거의 안 쓰는 리서치·문서 저장소.
+    </p>
+
+    <h3>언어팩 6종</h3>
+    <p>
+      설치는 감지된 언어만 깐다. 팩 하나는 규칙 + 검증 게이트·포맷터·채점 어댑터 + 골든셋 스타터 4건 +
+      LLM-judge 예시 + LSP 토글로 구성된다. 미선택 팩은 파일 자체가 없다.
+    </p>
+    <table>
+      <thead><tr><th>팩</th><th>감지 마커</th><th>게이트·포맷</th><th>LSP</th></tr></thead>
+      <tbody>
+        <tr><td><code>typescript</code></td><td><code>package.json</code> · <code>tsconfig.json</code></td><td><code>tsc --noEmit</code> · lint/test 스크립트 · prettier</td><td>vtsls</td></tr>
+        <tr><td><code>java-spring</code></td><td><code>gradlew</code> · <code>build.gradle(.kts)</code> · <code>pom.xml</code></td><td>gradle compile/test · spotless · <code>eval-java</code> 스코어러</td><td>jdtls</td></tr>
+        <tr><td><code>python</code></td><td><code>pyproject.toml</code> · <code>requirements.txt</code> · <code>setup.py/cfg</code></td><td>ruff check · pytest · ruff format</td><td>pyright</td></tr>
+        <tr><td><code>go</code></td><td><code>go.mod</code></td><td>go build/vet/test · gofmt</td><td>gopls</td></tr>
+        <tr><td><code>rust</code></td><td><code>Cargo.toml</code></td><td>cargo check/test · rustfmt</td><td>rust-analyzer</td></tr>
+        <tr><td><code>database</code></td><td>매니페스트의 ORM(prisma·drizzle·typeorm·sqlalchemy·JPA·gorm·diesel·sqlx)</td><td>규칙만</td><td>없음</td></tr>
+      </tbody>
+    </table>
+
+    <h3>시작 순서 8단계</h3>
+    <p>3번까지만 해도 가드·게이트는 전부 동작한다.</p>
+    <div class="seven-step">
+      1.설치 → 2.언어팩 확정 → 3.머신 준비+초기 설정 → 4.스택 맞춤(선택) →<br>
+      5.도메인 규칙 → 6.검증 → 7.그냥 사용 → <strong>8.(1~2주 뒤) 골든셋 셋업</strong>
+    </div>
+    <table>
+      <thead><tr><th style="width:36px;">#</th><th style="width:170px;">단계</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>설치</td><td><code>curl … | bash</code>, 시작 질문에서 <code>[1]</code> 맞춤 구축 권장</td></tr>
+        <tr><td>2</td><td>언어팩 확정</td><td><code>bash install.sh pack list|add|remove</code></td></tr>
+        <tr><td>3</td><td>머신 준비 + 초기 설정</td><td><code>jq</code>·<code>git</code>·스택 툴체인, <code>bash install.sh setup</code></td></tr>
+        <tr><td>4</td><td>스택 맞춤(선택)</td><td>세션에서 <code>/carve-harness-create</code>, 1회 확인 후 prune</td></tr>
+        <tr><td>5</td><td>도메인 규칙</td><td><code>CLAUDE.md</code> "도메인 규칙"에 프로젝트 불변식 3줄(예: "주문 금액 음수 불가"). 코드 패턴은 훅이 못 보므로 테스트로 강제한다</td></tr>
+        <tr><td>6</td><td>검증</td><td><code>/harness-audit</code>가 <code>0 failed</code>면 전 게이트 활성</td></tr>
+        <tr><td>7</td><td>그냥 사용</td><td>-</td></tr>
+        <tr><td>8</td><td>(1~2주 뒤) 골든셋 셋업</td><td><code>/eval-init</code> 1회</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <!-- Part 2 -->
   <section>
-    <h2><span class="part">PART 2</span>7단계 루프 + 3원칙</h2>
+    <h2><span class="part">PART 2</span>자동으로 도는 게이트 (훅)</h2>
+    <p>
+      실측 20종 - 이벤트 게이트 5 · 라이브러리 3 · CLI·헬퍼 12. 이 중 사용자가 직접 부르지 않아도
+      항상 도는 것은 <strong>이벤트 게이트 5종</strong>뿐이다. CLI·헬퍼 12종은 명령/커맨드로 수동 호출하는
+      도구라 PART 3에서 다룬다. 측정 근거는 PART 8에 있다.
+    </p>
 
-    <h3>7단계 (<code>.claude/skills/workflow/SKILL.md</code> 단일 출처)</h3>
-
-    <div class="seven-step">
-      1.목표 재정의 → 2.작업 분해 → 3.완료 기준 → 4.가정 정리 →
-      5.실행 → 6.자체 검증 → <strong>7.리스크 + 다음</strong>
-    </div>
-
+    <h3>이벤트 게이트 5종 (자동 작동)</h3>
     <table>
-      <thead>
-        <tr><th style="width:42px;">#</th><th style="width:160px;">단계</th><th>한 줄</th></tr>
-      </thead>
+      <thead><tr><th style="width:140px;">훅</th><th style="width:180px;">트리거</th><th>역할</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td><strong>목표 재정의</strong></td><td>요청을 <em>측정 가능한 형태</em>로 바꾼다. 모호하면 가정 명시 후 진행, 치명적 모호성은 멈춤.</td></tr>
-        <tr><td>2</td><td><strong>작업 분해</strong></td><td>2단계 이상이면 분해 + 단계별 완료기준·의존성. <code>squad-plan</code>에 위임 가능.</td></tr>
-        <tr><td>3</td><td><strong>완료 기준</strong></td><td>"무엇이 완료의 증거인가"에 먼저 답 — 테스트·실행 결과·로그.</td></tr>
-        <tr><td>4</td><td><strong>가정 정리</strong></td><td>가정·검증법·fallback을 <em>표</em>로 외화. <code>sprint-contract.md</code>의 <code>## 가정</code> 절.</td></tr>
-        <tr><td>5</td><td><strong>실행</strong></td><td>즉시 실행. 약속만 하고 미루지 않음.</td></tr>
-        <tr><td>6</td><td><strong>자체 검증</strong></td><td>산출물을 <em>실제로</em> 실행·관찰 — 코드는 테스트, 시각물은 렌더, 설정은 적용. <code>iterate</code>·<code>squad-qa</code>에 위임 가능.</td></tr>
-        <tr><td>7</td><td><strong>리스크 + 다음</strong></td><td>남은 불확실성·"검증되지 않음"을 정직 표시, 다음 액션/에스컬레이션 제안.</td></tr>
+        <tr>
+          <td><code>pretool-guard</code></td>
+          <td>PreToolUse - Write·Edit·Bash 직전마다</td>
+          <td>보호 경로(쓰기·삭제)·시크릿·위험 명령(force push·<code>reset --hard</code>·<code>curl|sh</code>·파괴적 SQL·루트/홈 재귀 삭제) 차단 + 하네스 자기보호(GUARD-07) + 동일 툴콜 5연속 루프 브레이크. exit 2, fail-closed</td>
+        </tr>
+        <tr>
+          <td><code>posttool-format</code></td>
+          <td>PostToolUse - 파일 쓰기·수정 성공 직후</td>
+          <td>확장자로 언어 감지 후 포맷 (exit 0)</td>
+        </tr>
+        <tr>
+          <td><code>stop-verify</code></td>
+          <td>Stop - 응답 종료 직전</td>
+          <td>변경된 스택만 빌드·타입·테스트, 실패 시 exit 2</td>
+        </tr>
+        <tr>
+          <td><code>checklist-gate</code></td>
+          <td>Stop - <code>stop-verify</code> 뒤</td>
+          <td><code>specs/checklist.json</code> 미달(&lt;95)·미채점 항목이 남으면 완료 차단. <code>type: domain_safety</code>는 100점 필수(거부권). 루프 미개시면 무동작. 자가 우회 차단 - 채점 파일을 지워도 tombstone(<code>specs/.checklist-active</code>)이 남아 계속 차단, threshold 하향은 하한 95로 무효화</td>
+        </tr>
+        <tr>
+          <td><code>session-handoff</code></td>
+          <td>SessionStart·PreCompact·SessionEnd</td>
+          <td>핸드오프 복원·저장 + 구성 배너</td>
+        </tr>
       </tbody>
     </table>
 
-    <h3>베이스라인 3원칙 (<code>.claude/CLAUDE.md</code>가 단일 출처)</h3>
-    <table>
-      <thead>
-        <tr><th>원칙</th><th>풀어쓰기</th><th>실전 적용</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Contractual Distrust</strong></td>
-          <td><em>계약적 불신</em> — 입력·출력·미래의 나를 의심하라</td>
-          <td>경계 4종(정상·매핑·None·변조)을 테스트. <em>"이 함수에 빈 배열이 들어오면?"</em> 같은 질문.</td>
-        </tr>
-        <tr>
-          <td><strong>Externalized Decisions</strong></td>
-          <td><em>결정의 외화</em> — 결정에 D1·D2 같은 ID를 붙이고 주석에 <em>이유·비용·탈출구</em> 명시</td>
-          <td>"왜 zod 대신 valibot?" 같은 결정은 코드 위에 <code>// D3:</code> 주석으로.</td>
-        </tr>
-        <tr>
-          <td><strong>Scope Convergence</strong></td>
-          <td><em>범위 수렴</em> — <em>"안 건드릴 것"</em>을 먼저 적어 변경 반경을 좁힌다</td>
-          <td><code>sprint-contract</code>의 <code>## 범위 밖</code>을 <em>계획 전</em>에 채운다.</td>
-        </tr>
-      </tbody>
-    </table>
+    <h3>라이브러리 3종 (<code>source</code>로 참조, 직접 실행 안 함)</h3>
+    <ul>
+      <li><code>lib-protected</code> - 보호 경로·시크릿·위험 명령 정규식 단일 정의</li>
+      <li><code>lib-stop-guard</code> - Stop 루프 가드</li>
+      <li><code>lib-packs</code> - 언어팩 매니페스트 리더</li>
+    </ul>
   </section>
 
   <!-- Part 3 -->
   <section>
-    <h2><span class="part">PART 3</span>8요소 출력 형식 + 완료 게이트</h2>
+    <h2><span class="part">PART 3</span>수동 도구 (커맨드·CLI)</h2>
 
-    <p>작업 보고는 이 <strong>8요소</strong>로 <em>고정</em>됩니다 (이게 workflow의 시그니처):</p>
-
-    <div class="eight-element">
-      [목표]  무엇을 측정 가능한 형태로 완수하려는가<br>
-      [계획]  어떤 단계로 쪼개 진행하는가<br>
-      [가정]  무엇을 사실로 가정하고, 어떻게 검증하는가<br>
-      [실행]  실제로 무엇을 했는가 (약속 아님)<br>
-      [증거]  실행 결과 — 명령 출력, 파일 diff, 스크린샷<br>
-      [검증]  자체 검증 결과 — 게이트 통과 여부<br>
-      [리스크] 남은 불확실성 / "검증 안 된 부분"<br>
-      [다음]  다음 액션 또는 에스컬레이션
-    </div>
-
-    <h3>완료 게이트 (<code>evaluation-criteria.md</code> — 100점 만점, <strong>PASS ≥ 90</strong>)</h3>
-
-    <p>
-      <code>G</code>는 <strong>Gate</strong>(게이트), <code>DoD</code>는
-      <strong>Definition of Done</strong>(완료 정의), <code>MUST PASS</code>는
-      <em>"하나라도 0점이면 총점과 무관하게 FAIL"</em>인 결정적 항목입니다.
-    </p>
-
+    <h3>슬래시 커맨드 14종</h3>
     <table>
-      <thead>
-        <tr><th style="width:60px;">게이트</th><th>항목</th><th>0점 = 즉시 FAIL</th></tr>
-      </thead>
+      <thead><tr><th style="width:160px;">커맨드</th><th>용도</th></tr></thead>
       <tbody>
-        <tr><td><strong>G1</strong></td><td>빌드/타입체크 (<code>npm run build</code> / <code>typecheck</code> exit 0)</td><td>빌드 실패</td></tr>
-        <tr><td><strong>G2</strong></td><td>테스트 통과 (<code>npm run test</code>)</td><td>테스트 1개라도 fail</td></tr>
-        <tr><td><strong>G3</strong></td><td>안전 위반 0건 (파괴 명령·비밀 노출 검증 훅)</td><td>1건 이상 위반</td></tr>
+        <tr><td><code>/harness-audit</code></td><td>하네스 구성 PASS/FAIL (AUDIT-01~09)</td></tr>
+        <tr><td><code>/plan</code></td><td>작업을 완료 기준(SC) 단위로 분해 → <code>specs/</code></td></tr>
+        <tr><td><code>/verify</code></td><td>현재 변경을 SC·빌드·타입·테스트로 검증</td></tr>
+        <tr><td><code>/verify-loop &lt;목표&gt;</code></td><td>항목별 0~100 채점, 전 항목 95점까지 재작업 반복</td></tr>
+        <tr><td><code>/review</code></td><td>변경분을 타입·보안·예외·상태관리 관점 검토</td></tr>
+        <tr><td><code>/commit</code></td><td>인자를 메시지로 현재 브랜치에 commit→pull→push</td></tr>
+        <tr><td><code>/commit-branch</code></td><td>현재 브랜치에 Conventional Commits로 커밋 + 푸시(<code>main</code> 직접 금지)</td></tr>
+        <tr><td><code>/eval-init</code></td><td>설치 후 1회 - 분석 + 인터뷰로 평가·품질 게이트 확정, 골든셋 생성</td></tr>
+        <tr><td><code>/eval</code></td><td>골든셋 재채점 → pass@k/pass^k · 추이 append · baseline 대비 회귀 판정</td></tr>
+        <tr><td><code>/ponytail*</code> (6종)</td><td>ponytail 모드 제어 · audit · debt · gain · review · help</td></tr>
       </tbody>
     </table>
 
-    <p>
-      이 3개는 <em>총점 90/100을 받아도</em> 0이면 즉시 탈락.
-      workflow의 6단계(자체 검증)는 항상 <em>이 3개부터</em> 돕니다.
-    </p>
+    <h3>CLI·헬퍼 12종</h3>
+    <p>명령으로 직접 부르는 bash 스크립트다. eval 계열은 PART 4 검증 3층에서 각각의 역할을 자세히 다룬다.</p>
+    <table>
+      <thead><tr><th style="width:150px;">CLI</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>harness-audit</code></td><td>하네스 구성 진단, <code>/harness-audit</code>가 호출. 실측치는 PART 8 참조</td></tr>
+        <tr><td><code>logs-report</code></td><td><code>bash .claude/hooks/logs-report.sh [days]</code>로 로그 요약, <code>--rotate N</code> 회전, <code>--tokens N</code> 세션별 토큰 사용량</td></tr>
+        <tr><td><code>config-doctor</code> · <code>log-event</code></td><td>이벤트 게이트가 내부적으로 쓰는 설정 점검·로깅 헬퍼(개별 옵션은 이 문서 범위 밖)</td></tr>
+        <tr><td><code>eval-score</code></td><td>PART 4 참조 - 빌드 건강도 채점표</td></tr>
+        <tr><td><code>eval-gate</code></td><td>PART 4 참조 - CI 회귀 판정, <code>--mode report|block</code></td></tr>
+        <tr><td><code>eval-run</code></td><td>PART 4 참조 - 골든셋 케이스 실행</td></tr>
+        <tr><td><code>eval-trend</code></td><td>PART 4 참조 - 추이 파일 관리</td></tr>
+        <tr><td><code>eval-state</code></td><td>PART 4 참조 - 상태 assert 채점(<code>file_exists</code>·<code>file_contains</code>·<code>cmd_exit0</code>·<code>git_diff_contains</code>)</td></tr>
+        <tr><td><code>eval-java</code></td><td>Java 스택 전용 스코어러</td></tr>
+        <tr><td><code>carve-validate</code></td><td>PART 4 참조 - 골든셋 런 전 프리플라이트</td></tr>
+        <tr><td><code>redteam</code></td><td>PART 8 참조 - 공격 34·정상 19 케이스로 <code>pretool-guard</code> 채점</td></tr>
+      </tbody>
+    </table>
+
+    <h3>스킬 10종</h3>
+    <table>
+      <thead><tr><th style="width:170px;">스킬</th><th style="width:70px;">분류</th><th>트리거·용도</th></tr></thead>
+      <tbody>
+        <tr><td><code>anti-ai-slop</code></td><td>코어</td><td>시각물·문서 생성 직전 자동</td></tr>
+        <tr><td><code>carve-guide</code></td><td>코어</td><td>HTML 산출물 작성 시 자동</td></tr>
+        <tr><td><code>handoff</code></td><td>코어</td><td>세션 종료·압축 직전</td></tr>
+        <tr><td><code>changelog</code></td><td>코어</td><td>비가역 결정 시 <code>specs/DECISIONS.md</code></td></tr>
+        <tr><td><code>version-changelog</code></td><td>코어</td><td>릴리스 시 VERSION·CHANGELOG·README 동기</td></tr>
+        <tr><td><code>carve-harness-create</code></td><td>코어</td><td>스택 감지 후 prune</td></tr>
+        <tr><td><code>checklist-loop</code></td><td>검증</td><td>워크플로 없이 손으로 채점 루프</td></tr>
+        <tr><td><code>eval-goldenset</code></td><td>검증</td><td>골든셋 회귀·pass@k 측정 SOP</td></tr>
+        <tr><td><code>eval-init</code></td><td>검증</td><td>1회성 셋업</td></tr>
+        <tr><td><code>theme-factory</code></td><td>벤더</td><td>-</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <!-- Part 4 -->
   <section>
-    <h2><span class="part">PART 4</span>언제 쓰고 언제 쓰지 말 것</h2>
+    <h2><span class="part">PART 4</span>검증 3층</h2>
+    <p>이 도구의 핵심이다. 세 층은 서로 다른 것을 채점한다.</p>
+    <ul>
+      <li><strong>verify-loop</strong> - 태스크 하나의 스펙 정합성을 항목 단위로 채점</li>
+      <li><strong>eval-score</strong> - 지금 이 순간의 빌드 건강도를 결정적으로 채점</li>
+      <li><strong>골든셋 평가</strong> - 고정 케이스 집합의 품질을 시간축으로 추적</li>
+    </ul>
 
-    <div class="callout good">
-      <span class="label">쓸 때 (네 조건 중 둘 이상 해당)</span>
-      <ul>
-        <li><strong>다단계</strong> — 3개 이상의 독립 작업이 직렬·병렬로 묶임</li>
-        <li><strong>고모호</strong> — <em>"어떤 게 완료인지"</em>가 시작 시점에 불명</li>
-        <li><strong>검증 필수</strong> — 테스트·렌더·anti-slop·게이트 중 <em>둘 이상</em>을 만족해야 함</li>
-        <li><strong>시간 분산</strong> — 한 세션에 안 끝남, <code>handoff</code>로 다음 세션에 인계 가능성</li>
+    <h3>1) verify-loop - 스펙 정합성 채점</h3>
+    <p>
+      "구현했다"는 주장(claim)을 하나씩 실제 코드와 대조해 0~100점으로 채점하고, 95점 미만 항목만
+      gap을 되먹여 다시 고치는 루프다. <code>stop-verify</code>가 빌드·테스트 <strong>통과 여부</strong>만
+      보는 것과 달리, <strong>스펙의 각 요구가 실제로 구현됐는지</strong>를 항목 단위로 본다.
+    </p>
+    <p>
+      채점은 교차검증이다. 코드를 짠 빌더가 아니라 독립 evaluator가 항목마다 다음을 수행한다.
+    </p>
+    <ol>
+      <li>코드 대조 - claim이 acceptance를 문자 그대로 충족하는지 Read/Grep으로 확인, 주장을 믿지 않는다</li>
+      <li>테스트 실행 - 통과/실패/스킵/미수집 구분, 명령 성공 ≠ 결과 정확</li>
+      <li>감점·근거 - 파일:라인과 테스트 원문을 evidence로</li>
+      <li>gap - 95 미만이면 "무엇을 어떻게"를 구체로</li>
+    </ol>
+    <p>생성자와 채점자를 분리해 Self-Eval Blindspot을 막는다.</p>
+
+    <p>5단계 (<code>carve-verify-loop</code> 워크플로):</p>
+    <pre><code>P1 Checklist  목표 → 항목 분해 (claim·acceptance·owns) → specs/checklist.json
+P2 Build      항목별 빌더 (worktree 격리)
+P3 Score      항목별 evaluator → 코드 대조 + 테스트 실행 → 5축 루브릭(exists·match·test·contract·no_regress, 합 100) + gap·evidence
+P4 Loop       score&lt;95 항목만 gap 되먹여 P2로 (항목당 최대 3회, 외곽 8회)
+P5 Verify     전 항목 95↑ → 통합 최종 판정</code></pre>
+
+    <p>
+      사용: <code>/verify-loop 주문 취소 API 구현</code>(목표만 주면 항목 자동 분해 3~7개).
+      항목을 직접 지정하려면 워크플로로 - 발화에 <code>carve-verify-loop 실행</code> 또는
+      <code>ultracode</code> + <code>{goal, threshold, tasks[]}</code>.
+    </p>
+    <p>
+      효과: 미달·미채점 항목이 남으면 <code>checklist-gate</code>가 완료 선언을 exit 2로 차단한다.
+      재작업은 실패 항목만 외과적으로 고친다. <code>checklist.json</code>이 없으면 게이트는 무동작이라
+      일반 작업은 방해받지 않는다.
+    </p>
+
+    <div class="callout">
+      <span class="label">불변식 (checklist-loop 스킬)</span>
+      <ul style="margin-bottom:0;">
+        <li>생성자와 채점자는 절대 같은 에이전트가 아니다</li>
+        <li>주장을 믿지 않는다</li>
+        <li>완료 = 모든 항목 ≥ 임계(기본 95)</li>
+        <li>에이전트 간 통신은 파일 기반(<code>specs/checklist.json</code>이 단일 진실원)</li>
       </ul>
     </div>
 
-    <div class="callout warn">
-      <span class="label">쓰지 말 것</span>
-      <ul>
-        <li>1줄 typo 수정</li>
-        <li>단발 질문(<em>"이 함수가 뭐 해?"</em>)</li>
-        <li>탐색만 하는 작업(<em>"이 폴더에 뭐가 있어?"</em>)</li>
-        <li>사용자가 <em>대화</em>를 원하는 상황 — workflow는 <em>완수</em>가 목적</li>
-      </ul>
+    <h3>2) eval-score - 빌드 건강도 채점표</h3>
+    <p><code>bash .claude/hooks/eval-score.sh</code>. LLM 없이 결정적으로 채점한다.</p>
+    <table>
+      <thead><tr><th>항목</th><th style="width:80px;">배점</th></tr></thead>
+      <tbody>
+        <tr><td>G1 빌드</td><td>25</td></tr>
+        <tr><td>G2 테스트</td><td>25</td></tr>
+        <tr><td>G3 안전</td><td>15</td></tr>
+        <tr><td>lint</td><td>10</td></tr>
+        <tr><td>regression</td><td>10</td></tr>
+        <tr><td>coverage</td><td>5</td></tr>
+        <tr><td>antislop</td><td>10</td></tr>
+        <tr><td><strong>합</strong></td><td><strong>100</strong></td></tr>
+      </tbody>
+    </table>
+    <p>
+      G1~G3은 <strong>거부권</strong>을 가진다 - 하나라도 0점이면 총점과 무관하게 <code>verdict: FAIL</code>.
+      거부권이 없으면 <code>total/max &gt;= 0.9</code>일 때 PASS. 못 잰 항목은 <code>skipped</code>로 명시되고
+      <strong>분모에서 빠진다</strong>(조용한 통과가 아니다). 스택을 하나도 감지하지 못하면
+      <code>verdict: "unable"</code>, exit 1로 fail-closed. 산출물은 <code>specs/SCORE.json</code>.
+      다중 스택은 게이트는 AND, 총점은 min을 취한다.
+    </p>
+    <p>이 G1·G2·G3 거부권과 90% 통과선은 구 문서에도 있던 개념으로, 현재도 유효하다.</p>
+
+    <h3>3) 골든셋 평가 (carve-eval)</h3>
+    <p>
+      verify-loop가 태스크당 완성도를 본다면, 이건 고정 케이스 집합의 품질을 <strong>시간축</strong>으로
+      추적한다.
+    </p>
+    <pre><code>Validate  carve-validate.sh 프리플라이트 - 설정 오류를 런 전에 분리(에이전트 0회). 실패 시 런을 시작하지 않는다(비용 보호)
+Load      specs/goldenset/*.json → 케이스(입력·assert·k·version)
+Run       케이스별 k회 실행 → 텍스트 assert + 상태 assert + llm-rubric 채점
+Score     pass@k(능력)·pass^k(일관성) → specs/eval-score.json에 append
+          → baseline 대비 delta(기본 3pt) 초과 하락 시 [REGRESSION]
+          → 케이스 version이 직전 run과 다르면 [VERSION CHANGED]</code></pre>
+
+    <p>채점 3계층 - 원칙은 "에이전트의 말이 아니라 환경의 상태를 채점한다".</p>
+    <table>
+      <thead><tr><th style="width:80px;">계층</th><th>assert 타입</th><th>채점 주체</th></tr></thead>
+      <tbody>
+        <tr><td>상태</td><td><code>file_exists</code> · <code>file_contains</code> · <code>cmd_exit0</code> · <code>git_diff_contains</code></td><td><code>eval-state.sh</code> (결정적, 실제 워크디렉토리)</td></tr>
+        <tr><td>텍스트</td><td><code>contains</code> · <code>not_contains</code> · <code>regex</code> · <code>not_regex</code></td><td>워크플로 순수 함수</td></tr>
+        <tr><td>정성</td><td><code>llm-rubric</code></td><td><code>evaluator</code> 에이전트</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      시작: 설치 직후엔 골든셋이 비어 있다. <code>/eval-init</code> 1회 - 프로젝트 분석(진입점·수정 빈도 상위·
+      차단 이력·커버리지 실측) + 7문항 인터뷰 → 골든셋 초안 → 케이스마다 궤적 검사 후 <strong>승인분만 편입</strong>.
+      이후 <code>/eval</code>로 재채점한다.
+    </p>
+
+    <div class="callout accent">
+      <span class="label">케이스 자동 확정을 막아둔 이유</span>
+      <p>
+        케이스 자동 확정은 의도적으로 막아뒀다 - 에이전트가 혼자 만든 골든셋은 자기가 이미 통과하는 것만
+        담아(자기강화) 지표를 무의미하게 만든다. 크리티컬 경로·실패 소재·엄격도는 사람이 정한다.
+      </p>
     </div>
+
+    <p>
+      이 저장소 자신의 골든셋 20건이 작성 예시다(가드 준수 5 · 작업 품질 5 · 고난도 5 · 하네스 자체 5).
+      케이스는 양방향 검증이다 - 작업 전에는 실패해야 하고(<code>--red</code>), 정답 상태에서는 통과해야 한다.
+    </p>
+    <p>
+      CI 강제는 옵트인이다. <code>eval-gate.sh --mode report|block</code>이 추이 파일만 읽어 결정적으로
+      판정한다(LLM 없음): <code>unable</code> → <code>stale</code> → <code>suspicious</code> → <code>regressed</code> → <code>ok</code>.
+      <strong>차단 모드는 골든셋을 유지할 사람이 있을 때만</strong> 권한다.
+    </p>
   </section>
 
   <!-- Part 5 -->
   <section>
-    <h2><span class="part">PART 5</span>프로젝트에서 사용 예시</h2>
+    <h2><span class="part">PART 5</span>Fable 팀 오케스트레이션</h2>
+    <p>
+      메인 세션이 작업을 태스크 3~5개로 쪼개 역할별 워커에게 맡기고 결과를 종합한다. 워커는 겹치지 않는
+      파일 소유권(<code>owns</code> glob)을 갖고 격리 worktree에서 작업하므로 병렬로 돌려도 충돌하지 않는다.
+      생성(빌더)과 검증(evaluator)은 같은 에이전트가 절대 아니다.
+    </p>
+    <pre><code>P1 Spec      리서치 → 태스크 3~5개 분해 (owns·acceptance 필수)
+P2 Build     태스크별 빌더(worktree) → 완료 즉시 evaluator 검증   [배리어 없는 파이프라인]
+P3 Document  doc-writer + visualizer 병렬
+P4 Verify    evaluator 최종 SC 판정</code></pre>
+
+    <h3>에이전트 7종</h3>
+    <ul>
+      <li><code>evaluator</code> - 완료기준 대비 판정, read-only</li>
+      <li><code>fable-researcher</code> - 공식 문서·근거 조사</li>
+      <li><code>fable-builder</code> - 구현 + 테스트, worktree 격리</li>
+      <li><code>fable-doc-writer</code> - README·가이드·API 문서</li>
+      <li><code>fable-visualizer</code> - 다이어그램·목업</li>
+      <li><code>pr-test-analyzer</code></li>
+      <li><code>security-reviewer</code></li>
+    </ul>
+
+    <h3>발화 예시</h3>
+    <div class="utterances">
+      <div class="utterance">
+        <span class="ex-label">단건 위임</span>
+        <pre><code>fable-researcher로 Next.js 16 캐시 조사해줘</code></pre>
+      </div>
+      <div class="utterance">
+        <span class="ex-label">전체 파이프라인 (옵트인 - ultracode 키워드나 워크플로 이름 명시 필요)</span>
+        <pre><code>fable-team-pipeline으로 "주문 취소 API + 문서 + 흐름도" 돌려줘</code></pre>
+      </div>
+      <div class="utterance">
+        <span class="ex-label">깊이 조절</span>
+        <pre><code>+300k 예산으로 fable-team-pipeline 실행</code></pre>
+      </div>
+      <div class="utterance">
+        <span class="ex-label">워커 간 합의</span>
+        <pre><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 + "팀 만들어서"</code></pre>
+      </div>
+    </div>
 
     <p>
-      각 예시는 <strong>슬래시 + 자연어 트리거 2종</strong>을 회전 노출합니다.
-      자연어 트리거의 <strong>전체 4종</strong>(<code>"절차대로 완수해"</code> · <code>"목표 분해해서 검증까지"</code> · <code>"장기 작업으로 진행"</code> · <code>"Fablize"</code>)은
-      위 <strong>PART 1 callout</strong>에 정리돼 있으며, 어느 것으로 발화해도 동일한 workflow가 발동됩니다.
-      7단계 매핑은 <strong>PART 2</strong>를 참조하세요.
+      효과: 병목은 코드 생성이 아니라 검증이다. P2가 파이프라인 구조라 A를 검증하는 동안 B 빌드가 계속 돈다.
     </p>
-
-    <!-- Example A -->
-    <article class="example">
-      <p class="ex-head">예시 A — Level 8 신규 챕터 덱 작성</p>
-      <div class="utterances">
-        <div class="utterance">
-          <span class="ex-label">방법 1 · 슬래시 명시</span>
-<pre><code>/carve-workflow
-Level 8 챕터 덱을 처음부터 작성해서 anti-slop 통과·export viewer까지 가져가줘</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 2 · "절차대로 완수"</span>
-<pre><code>Level 8 챕터 덱을 처음부터 만드는 걸 <em>절차대로 완수</em>해줘 — 토픽 매핑·다이어그램·page-num·slop 검증·export까지</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 3 · "장기 작업으로 진행"</span>
-<pre><code>Level 8 챕터 덱 0→완성을 <em>장기 작업으로 진행</em>해줘. md-to-slidedeck → slide-to-image → check-slop → export-html-deck 순으로</code></pre>
-        </div>
-      </div>
-      <dl class="ex-foot">
-        <dt>작업 핵심</dt><dd>토픽 매핑 → 슬라이드 골격 → 다이어그램 → 임베드 → page-num → slop 검증 → export</dd>
-        <dt>호출 자산</dt><dd><code>md-to-slidedeck</code> · <code>slide-to-image</code> · <code>clean-html</code> · <code>check-slop.mjs</code> · <code>export-html-deck</code></dd>
-        <dt>완료 게이트</dt><dd>anti-slop 0 ERROR · page-num 연속 · <code>typecheck</code> 통과 · viewer 정상</dd>
-      </dl>
-    </article>
-
-    <!-- Example B -->
-    <article class="example">
-      <p class="ex-head">예시 B — 전 덱(Level 1~7) watermark 일괄 적용</p>
-      <div class="utterances">
-        <div class="utterance">
-          <span class="ex-label">방법 1 · 슬래시 명시</span>
-<pre><code>/carve-workflow
-전 덱에 brand watermark 입히고 슬라이드 깨짐 없는지 확인해줘</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 2 · "Fablize"</span>
-<pre><code><em>Fablize</em>: 전 덱 watermark 적용 — Level 1부터 7까지, 한 덱 적용 후 diff·렌더 확인 다음 덱</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 3 · "목표 분해해서 검증까지"</span>
-<pre><code>전 덱 watermark 일괄 적용을 <em>목표 분해해서 검증까지</em> 가져가줘. 1덱 파일럿 → 회귀 점검 → 나머지 6덱 순으로</code></pre>
-        </div>
-      </div>
-      <dl class="ex-foot">
-        <dt>작업 핵심</dt><dd>1덱 파일럿 → diff·렌더 확인 → 나머지 6덱 반복 → 전체 회귀 점검</dd>
-        <dt>호출 자산</dt><dd><code>watermark</code> · <code>export-html-deck</code> · <code>check-slop.mjs</code></dd>
-        <dt>완료 게이트</dt><dd>watermark 7/7 적용 · check-slop 신규 ERROR 0 · 기존 viewer 시각 회귀 0</dd>
-      </dl>
-    </article>
-
-    <!-- Example C -->
-    <article class="example">
-      <p class="ex-head">예시 C — 다른 챕터 발표 스크립트 일괄 작성</p>
-      <div class="utterances">
-        <div class="utterance">
-          <span class="ex-label">방법 1 · 슬래시 명시</span>
-<pre><code>/carve-workflow
-다른 챕터도 ch2.5와 같은 양식으로 docs/keynote/levelN-X.X-주제-상세.md 파일로 일괄 작성해줘</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 2 · "절차대로 완수"</span>
-<pre><code>다른 챕터도 ch2.5와 같은 양식으로 일괄 작성하는 걸 <em>절차대로 완수</em>해줘 — 양식 확정부터 일괄 작성까지 단계별로</code></pre>
-        </div>
-        <div class="utterance">
-          <span class="ex-label">방법 3 · "목표 분해해서 검증까지"</span>
-<pre><code>다른 챕터 일괄 작성을 <em>목표 분해해서 검증까지</em> 가져가줘. 양식 확정 → 파일럿 → 나머지 순으로</code></pre>
-        </div>
-      </div>
-      <dl class="ex-foot">
-        <dt>작업 핵심</dt><dd>양식 확정 → ch2.5 파일럿 저장 → 사용자 리뷰 → 양식 조정 → 나머지 챕터 일괄</dd>
-        <dt>호출 자산</dt><dd><code>docs/html/report/*.html</code> · <code>docs/images/levelN/*.html</code> · <code>squad-docs</code></dd>
-        <dt>완료 게이트</dt><dd>전 챕터 파일 존재 · 용어 풀네임 표 일관 · 사용자 양식 승인</dd>
-      </dl>
-    </article>
+    <p>
+      셋 다 특정 모델에 묶이지 않는다 - Fable 5가 없어도 opus·sonnet 세션이나 Cursor·Codex에서 같은
+      절차(SOP)를 손으로 밟으면 동작한다.
+    </p>
   </section>
 
   <!-- Part 6 -->
   <section>
-    <h2><span class="part">PART 6</span>Anti-pattern (이렇게 쓰면 안 된다)</h2>
-    <p>workflow를 <em>형식만</em> 빌려 쓰면 오히려 해롭습니다. 다음 네 가지 시그널은 즉시 폐기 대상입니다.</p>
+    <h2><span class="part">PART 6</span>전체 구성 인벤토리</h2>
+    <table>
+      <thead><tr><th>구성요소</th><th style="width:110px;">개수</th><th>위치</th></tr></thead>
+      <tbody>
+        <tr><td>훅</td><td>20 (이벤트 게이트 5 + 라이브러리 3 + CLI·헬퍼 12)</td><td><code>.claude/hooks/</code> (+ tests 30 스위트)</td></tr>
+        <tr><td>슬래시 커맨드</td><td>14</td><td><code>.claude/commands/</code></td></tr>
+        <tr><td>스킬</td><td>10</td><td><code>.claude/skills/</code></td></tr>
+        <tr><td>에이전트</td><td>7</td><td><code>.claude/agents/</code></td></tr>
+        <tr><td>워크플로</td><td>3</td><td><code>.claude/workflows/</code></td></tr>
+        <tr><td>언어팩</td><td>6</td><td><code>packs/</code> · <code>.claude/stacks/</code></td></tr>
+        <tr><td>규칙</td><td>11</td><td><code>.claude/rules/</code></td></tr>
+      </tbody>
+    </table>
 
-    <div class="callout warn">
-      <span class="label">Anti-pattern 4종</span>
-      <ol>
-        <li><strong>약속형 5단계</strong> — <code>[실행]</code>에 <em>"이렇게 진행하겠습니다"</em>만 쓰고 실제 도구 호출이 없는 경우. 5단계는 <em>동사 + 결과</em>여야 합니다.</li>
-        <li><strong>검증 우회</strong> — <code>[검증]</code>을 생략하거나 <em>"통과한 것으로 보입니다"</em> 같은 모호한 문장으로 게이트 G1·G2·G3을 <em>건너뛰는</em> 경우. 게이트는 <em>명령 + exit code</em>로 적어야 합니다.</li>
-        <li><strong>가정으로 덮기</strong> — 치명적 모호성(스펙 밖 결함, 고정 답 없는 창의 디테일)을 <code>[가정]</code> 표에 적어 <em>밀어붙이는</em> 경우. 에스컬레이션이 정답입니다.</li>
-        <li><strong>단발 과적용</strong> — 1줄 typo 수정에 8요소를 채우는 경우. 오버헤드만 발생합니다. 그냥 고치세요.</li>
-      </ol>
-    </div>
+    <h3>디렉토리 구조</h3>
+    <pre><code>├── CLAUDE.md / AGENTS.md    # 규칙 정본 (Claude / 크로스 에이전트)
+├── VERSION · CHANGELOG.md · RELEASE.md
+├── install.sh / uninstall.sh
+├── vendor/ponytail/
+├── .githooks/               # pre-commit·commit-msg (에이전트 무관 커밋 게이트)
+├── packs/                   # 언어팩 정의 6종
+├── specs/                   # 핸드오프·결정 기록·골든셋(goldenset/)
+└── .claude/
+    ├── settings.json        # 훅 6이벤트 등록
+    ├── hooks/  (20종 + tests 30 스위트)
+    ├── stacks/ (6종)
+    ├── workflows/ (fable-team-pipeline · carve-verify-loop · carve-eval)
+    └── commands/ (14종) · agents/ (7종) · skills/ (10종) · rules/ (11종)</code></pre>
+
+    <h3>관측</h3>
+    <p>
+      모든 훅 판정은 <code>logs/*.jsonl</code>에 기록된다(PII 마스킹). <code>bash .claude/hooks/logs-report.sh [days]</code>로
+      요약하고, <code>--rotate N</code>으로 회전, <code>--tokens N</code>으로 세션별 토큰 사용량을 본다.
+      훅 메시지는 <code>[carve-harness:&lt;hook&gt;]</code> 프리픽스로 통일돼 있다.
+    </p>
   </section>
 
   <!-- Part 7 -->
   <section>
-    <h2><span class="part">PART 7</span>마무리 격언</h2>
+    <h2><span class="part">PART 7</span>한계</h2>
+    <p>적대적 감사에서 실제로 뚫린 지점만 싣는다.</p>
 
-    <div class="pull">
-      <p>
-        <strong>workflow는 새 도구가 아니라 <em>기존 도구를 결합하는 규율</em>입니다.</strong><br>
-        <em>7단계는 회의실 화이트보드, 8요소는 회의록, G1·G2·G3 게이트는 출입증.</em>
+    <div class="callout warn">
+      <span class="label">실제로 뚫린 것</span>
+      <ul style="margin-bottom:0;">
+        <li>훅 차단은 Claude Code 전용 - 타 에이전트는 pre-commit이 커밋 시점 차단.</li>
+        <li>Bash 쓰기 가드는 명령 표면만 본다. 변수 간접(<code>F=.env; echo x &gt; $F</code>)·인터프리터 경유(<code>python3 -c "open('.env','w')"</code>)는 미탐(pre-commit이 2차 차단). 리다이렉트·<code>tee</code>·<code>cp</code>/<code>mv</code>·<code>sed -i</code>·<code>rm</code>/<code>touch</code>는 차단됨.</li>
+        <li>시크릿 스캔은 리터럴 매칭이다. base64 인코딩·문자열 분할 조립(<code>"sk-"+"..."</code>)은 미탐 - 사람이 리뷰해야 한다.</li>
+        <li>위험 명령 차단은 명령 위치 기준이다. <code>env</code>/<code>sudo</code>/<code>VAR=</code> 접두는 커버하지만 셸 alias·함수로 감싸면 미탐, <code>curl -o file && bash file</code>도 미탐.</li>
+        <li>Stop 게이트 스택은 Java·Node/TS·Python·Go·Rust·bash. 그 외는 미검증 통과. 각 스택은 툴체인이 설치돼 있을 때만 문다.</li>
+        <li>게이트 자기보호(GUARD-07)는 설치본에서만 활성(하네스 소스 저장소는 자기 훅을 편집해야 하므로 예외).</li>
+        <li>검증 루프 게이트는 checklist.json 삭제·threshold 하향은 막지만 채점 내용 자체가 거짓이면 막지 못한다(evaluator 분리로 완화).</li>
+      </ul>
+    </div>
+
+    <h3>무엇을 보장하고 무엇을 보장하지 않는가</h3>
+
+    <p>
+      상류 저장소의 자기평가(<code>specs/fitness-assessment.md</code>, 2026-09-06)가 이 경계를 명시한다.
+      핵심 구분은 이것이다 - 이 하네스는 <strong>과정 품질(process floor)을 강제</strong>하지
+      <strong>도메인 정합성(correctness)을 보장하지 않는다.</strong>
+    </p>
+
+    <table>
+      <thead><tr><th style="width:110px;">구분</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>강제</strong><br>(결정적, exit 2)</td>
+          <td>보호 경로·시크릿 쓰기 차단, 위험 git·파괴적 SQL·마이그레이션 수정 차단, 변경 스택의 빌드·타입·린트·테스트 통과 없이는 완료 선언 불가, 검증 루프 미달 시 완료 차단</td>
+        </tr>
+        <tr>
+          <td><strong>측정</strong><br>(숫자)</td>
+          <td>골든셋 pass@k/pass^k 추이·회귀, 빌드 건강도 채점표(<code>eval-score</code>), 가드레일 자기평가(<code>redteam</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>강제 못 함</strong></td>
+          <td>"이 코드가 요구사항을 맞게 구현했나"는 사람이 쓴 테스트·골든셋 케이스·리뷰가 있을 때만 잡힌다. 앱이 런타임에 실제로 도는지는 e2e를 직접 쓴 경우에만</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      같은 문서가 품질 차원별로 강제력을 0~3점(0 없음 · 1 규칙/권고 · 2 게이트 강제 · 3 게이트+측정)으로
+      채점했다. 아래는 <strong>2점에 못 미치는 축</strong>만 추린 것으로, 하네스를 깔았다고 해결되지 않는
+      영역이다.
+    </p>
+
+    <table>
+      <thead><tr><th>차원</th><th style="width:70px;">점수</th><th>현재 상태</th></tr></thead>
+      <tbody>
+        <tr><td>런타임 실제 구동(앱이 진짜 뜨나)</td><td>0~1</td><td>표준 게이트 없음. 단위·통합 테스트만 - e2e는 직접 써야 한다</td></tr>
+        <tr><td>모바일 클라이언트(Swift·Kotlin·Dart)</td><td>0</td><td>지원 스택 아님. React Native는 typescript 팩으로 부분 커버(1~2)</td></tr>
+        <tr><td>API 계약(클라↔서버 스키마·에러 코드)</td><td>0~1</td><td>클라이언트 측 규칙 없음. 서버는 Java 게이트웨이 통합 테스트만</td></tr>
+        <tr><td>네트워크 견고성(타임아웃·재시도·백오프)</td><td>0</td><td>규칙·게이트 모두 없음</td></tr>
+        <tr><td>N+1·트랜잭션·인덱스</td><td>1</td><td>규칙 로드는 되나 권고 수준. 강제는 프로젝트 테스트 몫</td></tr>
+        <tr><td>입력 검증·SQLi·XSS</td><td>1</td><td>Zod·<code>@Valid</code> 규칙 권고. 강제 게이트 아님</td></tr>
+        <tr><td>인증·인가가 엔드포인트에 실제로 걸렸나</td><td>2 / 1</td><td>Java 게이트웨이는 통합 테스트로 강제(2), 그 외 스택은 권고(1)</td></tr>
+        <tr><td>커버리지 하락</td><td>1</td><td>80% 규칙은 문장. 임계를 소유하는 건 프로젝트 설정</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="label">한 줄 결론</span>
+      <p style="margin-bottom:0;">
+        "훨씬 안정적인 동작을 <strong>보장</strong>"이 아니라 "안 짠 테스트·안 막은 실수의
+        <strong>바닥을 올린다</strong>"가 정확하다. 강제력은 스택별 편차가 크고, 백엔드(특히 Java/Spring)와
+        웹·DB 시나리오에서 가장 강하다.
+      </p>
+    </div>
+  </section>
+
+  <!-- Part 8 -->
+  <section>
+    <h2><span class="part">PART 8</span>실측 노트</h2>
+    <p>
+      이 가이드의 수치는 소스 저장소를 직접 클론해 audit·테스트를 돌린 결과다(<code>42b9db3</code>,
+      2026-09-06 측정). 아래는 그 실측치이며, 현재 README 표기와 일치한다.
+    </p>
+    <table>
+      <thead><tr><th>항목</th><th style="width:250px;">실측</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>훅 개수</td><td>20 (이벤트 게이트 5 + 라이브러리 3 + CLI·헬퍼 12)</td><td>파일 수 기준 <code>.claude/hooks/*.sh</code></td></tr>
+        <tr><td>테스트</td><td>30 스위트 · 504건 중 503 통과</td><td>최대 스위트는 <code>pretool-guard.test.sh</code> 71건. README는 통과분 503건으로 표기</td></tr>
+        <tr><td>harness-audit</td><td>71 체크 (70 passed, 1 failed)</td><td>AUDIT-01이 33건으로 최대, AUDIT-09가 18건</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="label">수치 이력 - 이 표를 다시 볼 때</span>
+      <p style="margin-bottom:0;">
+        2026-09-05 시점 README는 훅 17 · 테스트 26 스위트(419건) · audit 67 체크로 적고 있었고 실측과
+        어긋났다. 상류가 <code>docs: fix stale inventory counts</code>로 이를 정정해 현재는 불일치가 없다.
+        구성 요소 수는 README 헤드라인만 갱신이 누락되기 쉬운 자리이므로, 다음 갱신 때도
+        <strong>README를 믿지 말고 파일 수를 직접 세는 편</strong>이 안전하다.
       </p>
     </div>
 
-    <p style="margin-top:18px;">
-      설치된 자산(<code>iterate</code> · <code>tdd</code> · <code>test-gen</code> · <code>squad-plan</code> ·
-      <code>squad-evaluator</code> · <code>squad-qa</code> · <code>handoff</code> ·
-      <code>check-slop.mjs</code> · <code>export-html-deck</code> · <code>slide-to-image</code> ·
-      <code>watermark</code>)이 모두 그대로 있고,
-      <strong>workflow는 이들을 <em>언제·어떤 순서로</em> 부를지 결정하는 지휘봉</strong>입니다.
-      7단계의 ①②③이 <em>plan</em>, ④가 <em>contract</em>, ⑤가 <em>execute</em>, ⑥이 <em>evaluate</em>,
-      ⑦이 <em>handoff</em> — 결국 이 프로젝트의 하네스 전체가 7단계에 한 번씩 호출되는 구조입니다.
+    <div class="callout">
+      <span class="label">실패 1건의 원인</span>
+      <p>
+        유일한 실패는 <code>core.hooksPath unset — run install.sh (AUDIT-04)</code>였다. 이는
+        <strong><code>install.sh</code>를 돌리지 않은 맨 클론이라 당연히 나는 결과</strong>이며 제품 결함이
+        아니다. 테스트 실패 1건도 같은 원인(<code>live baseline exit 0</code>)이다.
+      </p>
+    </div>
+
+    <p>
+      <code>redteam.sh</code>는 공격 34 · 정상 19 케이스를 <code>pretool-guard</code> exit 코드로 채점한다
+      (LLM 0). 차단율과 과잉차단율을 분리 집계하고, <code>--strict</code>는 회귀 시 exit 1이다.
+      표어: <em>"달았다 ≠ 막힌다"</em>.
     </p>
   </section>
 
+  <div class="pull">
+    <p>
+      규칙을 설득이 아니라 <code>exit 2</code>로 강제하고, 완료를 주장이 아니라 채점으로 정의한다.
+    </p>
+  </div>
+
   <footer class="doc-foot">
-    docs/keynote/carve-workflow-guide.html · 단일출처: <code>.claude/skills/workflow/SKILL.md</code>
+    docs/keynote/carve-workflow-guide.html · 정본: github.com/claude-code-expert/carve-harness v0.10.1 (<code>42b9db3</code>) · 실측 2026-09-06
   </footer>
 
 </div>
