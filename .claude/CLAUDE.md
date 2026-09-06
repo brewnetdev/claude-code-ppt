@@ -147,6 +147,7 @@ PPTX export is **not** in scope unless requested.
 ## 제약 (결정적 강제 — 권고가 아님)
 - 위험 명령(`rm -rf /`·포크밤 등)·비밀 파일(`.env`·키)은 PreToolUse 훅이 **exit 2로 차단**한다. (상세 규칙 → 아래 Guardrails)
 - 시각·문서 산출물(HTML·SVG·문서)은 **anti-ai-slop** 표준 — `check-slop`이 게이트한다.
+- **문서형 HTML은 와이드 레이아웃이 기본이다.** 본문 컨테이너 `width: min(96vw, 1680px)` + `margin: 0 auto`, `@media (max-width:1120px)`에서 `width:100%`. **데스크톱 실효 폭 1080px 이상**을 보장하고, 표·`pre`·`img`·`svg`는 컨테이너 전폭을 쓴다. 고정 좁은 폭(`max-width: 640~900px`) 금지 — 습관적으로 좁게 나오던 것을 막는 규칙이다. 슬라이드 덱(1280×720)·모바일 리더는 예외. 정본은 `.claude/skills/SKILL.md` §3.
 - 커밋 전 린트·푸시 전 테스트가 강제된다(해당 훅 설치 시).
 
 ## 토큰 효율 (기본 탑재)

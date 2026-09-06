@@ -51,6 +51,16 @@ transition은 색·투명도 등 **기능적 상태 변화**에만, **150ms 이�
 - **구분**: 효과 대신 `1px solid border` + 여백으로 구획.
 - **border-radius**: 0~8px.
 - **폰트**: Inter·Roboto·Arial·system-ui·Space Grotesk로 기본 수렴 금지. 목적에 맞는 폰트를 **의도적으로 선택**하고 그 이유를 한 줄로 밝힌다.
+- **레이아웃 폭**: 본문 컨테이너는 뷰포트에 비례해 채운다. 고정 좁은 폭 금지.
+  ```css
+  .wrap {
+    width: min(96vw, 1680px);   /* 화면 비례, 초대형 모니터만 상한 */
+    margin: 0 auto;
+    padding: 56px 40px 96px;
+  }
+  @media (max-width: 1120px) { .wrap { width: 100%; padding: 32px 20px 64px; } }
+  ```
+  데스크톱 실효 폭 **1080px 이상**을 보장한다. 표·`pre`·`img`·`svg`는 컨테이너 전폭을 쓰고, 개별 `max-width`로 다시 좁히지 않는다. 장문 산문 전용 문서에 한해 `p { max-width: 100ch }`까지 허용.
 
 ## 워크플로 A — 생성 (clean HTML 만들기)
 
@@ -102,6 +112,7 @@ node .claude/skills/clean-html/scripts/check-slop.mjs a.html b.html c.css
 - [ ] 콘텐츠와 무관한 배경 장식(워터마크/그리드/광선)이 있는가?
 - [ ] 정보를 전달하지 않는 순수 장식 요소가 있는가?
 - [ ] 폰트가 Inter/Roboto/Arial/system 기본값으로 수렴했는가?
+- [ ] 본문 컨테이너가 **고정 좁은 폭**(1080px 미만 고정값)인가? 표·코드블록이 컨테이너보다 좁게 갇혀 있는가?
 
 ## 주의
 
