@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 268" role="img" aria-label="앱 바깥에서 보는 지표와 앱 안에서 내보내는 지표의 대비">
+  <rect width="960" height="268" fill="#ffffff"/>
+  <defs><marker id="a0003" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#585f6b"/></marker></defs>
+  <text x="24" y="30" font-family="ui-monospace,monospace" font-size="16" fill="#585f6b" text-anchor="start" font-weight="400">폐쇄형 — 바깥에서 본다</text>
+  <rect x="24" y="46" width="420" height="210" rx="0" fill="none" stroke="#d8dbe0" stroke-width="1.5"/>
+  <rect x="150" y="96" width="168" height="74" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="234" y="130" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="middle" font-weight="400">애플리케이션</text>
+  <text x="234" y="152" font-family="ui-monospace,monospace" font-size="13" fill="#585f6b" text-anchor="middle" font-weight="400">(안이 안 보인다)</text>
+  <line x1="60" y1="133" x2="142" y2="133" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0003)"/>
+  <text x="34" y="126" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">CPU</text>
+  <text x="34" y="148" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">메모리</text>
+  <text x="234" y="208" font-family="sans-serif" font-size="14" fill="#585f6b" text-anchor="middle" font-weight="400">'느리다'는 알지만</text>
+  <text x="234" y="230" font-family="sans-serif" font-size="14" fill="#585f6b" text-anchor="middle" font-weight="400">왜 느린지는 모른다</text>
+  <text x="516" y="30" font-family="ui-monospace,monospace" font-size="16" fill="#585f6b" text-anchor="start" font-weight="400">개방형 — 안에서 내보낸다</text>
+  <rect x="516" y="46" width="420" height="210" rx="0" fill="none" stroke="#1a4fa0" stroke-width="1.5"/>
+  <rect x="566" y="96" width="168" height="74" rx="0" fill="#f5f6f7" stroke="#1a4fa0" stroke-width="1.5"/>
+  <text x="650" y="124" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="middle" font-weight="400">애플리케이션</text>
+  <text x="650" y="148" font-family="ui-monospace,monospace" font-size="13" fill="#1a4fa0" text-anchor="middle" font-weight="400">계측 코드</text>
+  <line x1="742" y1="133" x2="906" y2="133" stroke="#1a4fa0" stroke-width="1.8" marker-end="url(#a0003)"/>
+  <text x="760" y="118" font-family="ui-monospace,monospace" font-size="13" fill="#1a4fa0" text-anchor="start" font-weight="400">orders_created</text>
+  <text x="760" y="158" font-family="ui-monospace,monospace" font-size="13" fill="#1a4fa0" text-anchor="start" font-weight="400">processing_seconds</text>
+  <text x="726" y="208" font-family="sans-serif" font-size="14" fill="#15181d" text-anchor="middle" font-weight="400">'주문 처리가 3초'</text>
+  <text x="726" y="230" font-family="sans-serif" font-size="14" fill="#1a4fa0" text-anchor="middle" font-weight="400">— 맥락이 있다</text>
+</svg>

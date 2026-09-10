@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" role="img" aria-label="빌드 방식 네 가지의 최종 이미지 크기 비교 막대">
+  <rect width="960" height="250" fill="#ffffff"/>
+  <text x="24" y="80" font-family="sans-serif" font-size="15" fill="#15181d" text-anchor="start" font-weight="400">한 스테이지에서 빌드까지</text>
+  <rect x="300" y="60" width="620.0" height="26" rx="0" fill="#8f4408" stroke="none" stroke-width="0"/>
+  <text x="930.0" y="79" font-family="ui-monospace,monospace" font-size="15" fill="#8f4408" text-anchor="start" font-weight="600">1.02GB</text>
+  <text x="300" y="104" font-family="sans-serif" font-size="13" fill="#585f6b" text-anchor="start" font-weight="400">JDK · 메이븐 · 소스 · 의존성 캐시 · jar</text>
+  <text x="24" y="138" font-family="sans-serif" font-size="15" fill="#15181d" text-anchor="start" font-weight="400">미리 빌드한 jar 만 복사</text>
+  <rect x="300" y="118" width="288.7254901960784" height="26" rx="0" fill="#2e7d4f" stroke="none" stroke-width="0"/>
+  <text x="598.7254901960785" y="137" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">475MB</text>
+  <text x="300" y="162" font-family="sans-serif" font-size="13" fill="#585f6b" text-anchor="start" font-weight="400">JRE · jar</text>
+  <text x="24" y="196" font-family="sans-serif" font-size="15" fill="#15181d" text-anchor="start" font-weight="400">멀티스테이지</text>
+  <rect x="300" y="176" width="288.7254901960784" height="26" rx="0" fill="#2e7d4f" stroke="none" stroke-width="0"/>
+  <text x="598.7254901960785" y="195" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">475MB</text>
+  <text x="300" y="220" font-family="sans-serif" font-size="13" fill="#585f6b" text-anchor="start" font-weight="400">JRE · jar (빌드는 이미지 안에서)</text>
+  <text x="24" y="254" font-family="sans-serif" font-size="15" fill="#15181d" text-anchor="start" font-weight="400">빌드팩 (이 실습)</text>
+  <rect x="300" y="234" width="167.76470588235293" height="26" rx="0" fill="#2e7d4f" stroke="none" stroke-width="0"/>
+  <text x="477.7647058823529" y="253" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">276MB</text>
+  <text x="300" y="278" font-family="sans-serif" font-size="13" fill="#585f6b" text-anchor="start" font-weight="400">JRE · 계층 분리된 앱</text>
+</svg>

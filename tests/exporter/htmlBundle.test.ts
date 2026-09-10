@@ -36,6 +36,7 @@ describe('buildHtmlBundle theme bundling', () => {
     // SlideRenderer but forgotten in the export bundle, so harness decks leaked
     // the dark brewnet chrome. Guard the whole theme list, not a fixed count.
     expect(out).toContain('[data-template="harness"]');
+    expect(out).toContain('[data-template="study"]');
     // brewnet-dark base is still the foundation.
     expect(out).toMatch(/--bg:\s*#0F172A/);
   });

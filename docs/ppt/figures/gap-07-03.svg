@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 270" role="img" aria-label="고장 시각부터 알림 도착까지 네 구간 타임라인">
+  <rect width="960" height="270" fill="#ffffff"/>
+  <defs><marker id="a0703" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#585f6b"/></marker></defs>
+  <rect x="40" y="120" width="180" height="52" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="52" y="144" font-family="sans-serif" font-size="14" fill="#15181d" text-anchor="start" font-weight="400">스크레이프 간격</text>
+  <text x="52" y="164" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="start" font-weight="600">30s</text>
+  <text x="52" y="204" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">이상이 메트릭에 반영되기까지</text>
+  <rect x="228" y="120" width="180" height="52" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="240" y="144" font-family="sans-serif" font-size="14" fill="#15181d" text-anchor="start" font-weight="400">규칙 평가 주기</text>
+  <text x="240" y="164" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="start" font-weight="600">30s</text>
+  <text x="240" y="204" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">프로메테우스가 조건을 다시</text>
+  <text x="240" y="221" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">계산하기까지</text>
+  <rect x="416" y="120" width="300" height="52" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="428" y="144" font-family="sans-serif" font-size="14" fill="#15181d" text-anchor="start" font-weight="400">for</text>
+  <text x="428" y="164" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="start" font-weight="600">2m</text>
+  <text x="428" y="204" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">조건이 계속 참이어야 하는 시간. 순간적인 튐을 걸러낸다</text>
+  <rect x="724" y="120" width="180" height="52" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="736" y="144" font-family="sans-serif" font-size="14" fill="#15181d" text-anchor="start" font-weight="400">group_wait</text>
+  <text x="736" y="164" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="start" font-weight="600">30s</text>
+  <text x="736" y="204" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">알림매니저가 같은 그룹을 모으는 시간</text>
+  <line x1="40" y1="96" x2="904" y2="96" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="40" y="86" font-family="ui-monospace,monospace" font-size="14" fill="#8f4408" text-anchor="start" font-weight="400">고장</text>
+  <text x="904" y="86" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="end" font-weight="400">알림 도착</text>
+  <text x="40" y="60" font-family="ui-monospace,monospace" font-size="16" fill="#15181d" text-anchor="start" font-weight="600">합계 30s + 30s + 2m + 30s — 3분 30초</text>
+</svg>

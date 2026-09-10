@@ -9,6 +9,7 @@ import './themes/code-blocks.css';
 import './themes/portfolio.css';
 import './themes/report.css';
 import './themes/harness.css';
+import './themes/study.css';
 
 const COMMIT_DEBOUNCE_MS = 300;
 

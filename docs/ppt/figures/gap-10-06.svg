@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" role="img" aria-label="지연 주입 실험의 네 시점 타임라인">
+  <rect width="960" height="300" fill="#ffffff"/>
+  <line x1="130" y1="96" x2="900" y2="96" stroke="#585f6b" stroke-width="1.5"/>
+  <circle cx="130" cy="96" r="6" fill="#1a4fa0"/>
+  <text x="130" y="78" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="middle" font-weight="600">0 ~ 1분</text>
+  <text x="124" y="130" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">대시보드에서 order-api 와 gateway</text>
+  <text x="124" y="150" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">의 P95 가 올라간다</text>
+  <circle cx="340" cy="96" r="6" fill="#8f4408"/>
+  <text x="340" y="78" font-family="ui-monospace,monospace" font-size="15" fill="#8f4408" text-anchor="middle" font-weight="600">3분경</text>
+  <text x="280" y="130" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">프로메테우스 Alerts 에서</text>
+  <text x="280" y="150" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">AppHighLatencyP95 가 …</text>
+  <circle cx="560" cy="96" r="6" fill="#2e7d4f"/>
+  <text x="560" y="78" font-family="ui-monospace,monospace" font-size="15" fill="#2e7d4f" text-anchor="middle" font-weight="600">5분</text>
+  <text x="500" y="130" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">실험 자동 종료. P95 가 내려온다</text>
+  <circle cx="760" cy="96" r="6" fill="#585f6b"/>
+  <text x="760" y="78" font-family="ui-monospace,monospace" font-size="15" fill="#585f6b" text-anchor="middle" font-weight="600">8분경</text>
+  <text x="700" y="130" font-family="sans-serif" font-size="13" fill="#15181d" text-anchor="start" font-weight="400">알림 resolved</text>
+  <rect x="130" y="176" width="400" height="56" rx="0" fill="#f5f6f7" stroke="#8f4408" stroke-width="1.5"/>
+  <text x="146" y="200" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">주입한 지연 600ms</text>
+  <text x="146" y="222" font-family="ui-monospace,monospace" font-size="14" fill="#8f4408" text-anchor="start" font-weight="400">알림은 3분 뒤 — for: 3m 이 만든 간격</text>
+</svg>

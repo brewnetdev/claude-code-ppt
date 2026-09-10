@@ -1,0 +1,322 @@
+/* study — 관측성 스터디 장표 테마
+ *
+ * 정본: docs/ppt/GUIDE.md. 팔레트 6색과 타이포 스케일이 거기서 온다.
+ * 저작 좌표는 1280×720이고 export에서 1.5× 되어 1920×1080이 된다. GUIDE의
+ * 치수는 1920 기준이라 여기서는 전부 ×0.667 한 값을 쓴다 (여백 80→53px 등).
+ *
+ * 폰트는 Pretendard(본문) + JetBrains Mono(코드). 기본값(Inter/system-ui)으로
+ * 수렴하지 않은 이유 — 이 덱은 한글 본문에 영문 식별자(ServiceMonitor,
+ * imagePullPolicy)가 계속 섞인다. Pretendard는 한글 자소 폭이 고르고 라틴
+ * 글리프가 같은 리듬으로 붙어서 그 혼합을 흔들림 없이 받는다. 코드와 출력은
+ * 자릿수 정렬이 판독의 전부라 등폭이 필수다.
+ */
+
+[data-template="study"] {
+  /* GUIDE 팔레트 — 이 여섯 개 밖의 색을 본문에 쓰지 않는다 */
+  --text:    #15181d;  /* 제목 · 본문 */
+  --muted:   #585f6b;  /* 캡션 · 라벨 · 도판의 선 */
+  --border:  #d8dbe0;  /* 표 테두리 · 구분선 */
+  --surface: #f5f6f7;  /* 코드 블록 · 강조 박스 배경 */
+  --accent:  #1a4fa0;  /* 지금 말하는 것 하나 — 장표당 1회 */
+  --warn:    #8f4408;  /* 함정 · 정정 · 실패 */
+  --bg:      #ffffff;
+
+  /* 타이포 스케일 (@1280). GUIDE @1920 값의 ×0.667 */
+  --fs-title: 52px;
+  --fs-lead:  32px;
+  --fs-body:  26px;
+  --fs-code:  24px;
+  --fs-cap:   21px;
+
+  --font-sans: 'Pretendard', 'Pretendard Variable', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ── 슬라이드 셸 ───────────────────────────────────────────────
+   하단 80px(=GUIDE 120px)은 강의실에서 가려지는 구간이라 비워 둔다.
+   푸터는 그 비워 둔 영역 안에 얹는다 — 가려져도 잃을 것이 없는 정보만. */
+[data-template="study"].slide {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+[data-template="study"] .slide-inner {
+  position: absolute;
+  inset: 53px 53px 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-template="study"] .slide-footer {
+  position: absolute;
+  left: 53px; right: 53px; bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+[data-template="study"] .slide-footer-left { font-family: var(--font-sans); }
+[data-template="study"] .slide-footer-right { font-family: var(--font-mono); }
+
+/* ── 제목부 ─────────────────────────────────────────────────── */
+[data-template="study"] .kicker {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+
+[data-template="study"] h2 {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -.01em;
+  margin: 0 0 20px;
+}
+
+/* 제목 안에서 딱 한 곳을 강조할 때. 두 곳을 강조하면 어느 쪽도 강조가 아니다. */
+[data-template="study"] h2 .hi { color: var(--accent); }
+[data-template="study"] .warn { color: var(--warn); }
+
+/* ── 본문 ──────────────────────────────────────────────────── */
+[data-template="study"] .body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* 넘치면 제목과 말할 것을 덮는다. 잘라 내면 검사에서 수치로 잡히지만
+     겹치면 스크린샷상 '그럴듯하게' 보여서 놓친다. 그래서 자른다. */
+  overflow: hidden;
+}
+
+/* 텍스트 전용 장표의 주장 문구 */
+[data-template="study"] .lead {
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--text);
+  max-width: 30ch;
+}
+[data-template="study"] .lead.wide { max-width: none; }
+
+/* 좌우 두 칸 */
+[data-template="study"] .cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+[data-template="study"] .col-head {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+
+/* ── 도판 ──────────────────────────────────────────────────── */
+[data-template="study"] .fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+[data-template="study"] .fig svg {
+  display: block;
+  width: 100%;
+  max-width: 1067px;   /* GUIDE 1600px @1920 */
+  height: auto;
+  max-height: 100%;
+}
+[data-template="study"] .fig img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  /* PNG 5종은 954px 원본이다. 확대하면 뭉개지므로 늘리지 않는다. */
+  width: auto; height: auto;
+}
+[data-template="study"] .fig-cap {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* ── 표 ───────────────────────────────────────────────────────
+   행을 줄이지 않는다(GUIDE). 안 들어가면 장표를 쪼갠다. */
+[data-template="study"] table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+[data-template="study"] th,
+[data-template="study"] td {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+[data-template="study"] th {
+  font-size: var(--fs-cap);
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .03em;
+  border-bottom: 1px solid var(--muted);
+  white-space: nowrap;
+}
+[data-template="study"] tr:last-child td { border-bottom: none; }
+
+/* 행이 많은 표. 행을 줄이는 대신(GUIDE 금지) 여백과 글자를 한 단계 내린다.
+   .dense 는 5행 이상일 때 빌더가 붙인다. */
+[data-template="study"] table.dense { font-size: 23px; }
+[data-template="study"] table.dense th,
+[data-template="study"] table.dense td { padding: 7px 12px; }
+[data-template="study"] table.dense th { font-size: 19px; }
+[data-template="study"] td.num,
+[data-template="study"] td.mono { font-family: var(--font-mono); white-space: nowrap; }
+
+/* 열이 넷 이상이거나 셀이 길어 격자로는 못 읽는 표는 행 카드로 편다.
+   격자를 유지하려고 글자를 22pt 밑으로 내리는 것보다 낫다. */
+[data-template="study"] .cards {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+[data-template="study"] .card {
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+}
+[data-template="study"] .card-h {
+  font-size: 23px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+[data-template="study"] .card-row {
+  display: grid;
+  grid-template-columns: 186px 1fr;
+  gap: 10px;
+  font-size: 20px;
+  line-height: 1.4;
+  padding: 1px 0;
+}
+[data-template="study"] .cards.dense { gap: 7px; }
+[data-template="study"] .cards.dense .card { padding: 8px 14px; }
+[data-template="study"] .cards.dense .card-h { font-size: 21px; }
+[data-template="study"] .cards.dense .card-row { font-size: 19px; line-height: 1.35; }
+
+[data-template="study"] .card-k { color: var(--muted); }
+[data-template="study"] .card-v code,
+[data-template="study"] .card-v .mono { font-family: var(--font-mono); }
+
+/* ── 코드 · 실행 결과 ──────────────────────────────────────────
+   명령과 출력은 다른 블록으로 나눈다. 프롬프트 기호($)는 붙이지 않는다. */
+[data-template="study"] pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 18px 22px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-code);
+  line-height: 1.45;
+  white-space: pre;
+  overflow: hidden;
+  margin: 0;
+}
+[data-template="study"] pre + pre { margin-top: 12px; }
+
+/* 판정 줄에만 강조색이 간다. 나머지 출력은 본문색 그대로. */
+[data-template="study"] pre .verdict { color: var(--accent); font-weight: 600; }
+[data-template="study"] pre .dim { color: var(--muted); }
+[data-template="study"] pre .bad { color: var(--warn); }
+
+/* 잘라낸 코드임을 표시하는 줄 */
+[data-template="study"] pre .elide { color: var(--muted); }
+
+/* 출력 아래 붙는 판정 문장 */
+[data-template="study"] .verdict-note {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  margin-top: 14px;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
+}
+[data-template="study"] .verdict-note b { color: var(--accent); font-weight: 600; }
+
+/* ── 말할 것 — 장표 하나의 주장 한 문장 ────────────────────────
+   발표자 노트를 옮겨 붙이는 자리가 아니다. 한 문장을 넘기지 않는다. */
+[data-template="study"] .key {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--text);
+}
+[data-template="study"] .key b { color: var(--accent); font-weight: 600; }
+
+/* ── 표지 · 챕터 타이틀 · 로드맵 ─────────────────────────────────
+   클래스 이름은 단독 실행본(docs/html/observability-study-slides.html)과
+   공유한다. 두 산출물이 같은 CSS 를 쓰므로 한쪽만 고쳐지는 일이 없다. */
+/* .title / .sec 변형은 슬라이드 루트와 `.slide-inner` 양쪽에 붙는다.
+   `.slide-inner` 를 기준으로 쓰면 `data-template` 이 슬라이드에 붙든(에디터)
+   `<html>` 에 붙든(단독 실행본) 같은 셀렉터 하나로 걸린다. */
+[data-template="study"] .slide-inner.title { justify-content: center; }
+[data-template="study"] .slide-inner.title h1 {
+  font-size: 66px; font-weight: 700; line-height: 1.16; letter-spacing: -.03em;
+}
+[data-template="study"] .slide-inner.title .sub {
+  font-size: 30px; color: var(--muted); margin-top: 22px; letter-spacing: .01em;
+}
+[data-template="study"] .slide-inner.title .meta {
+  font-family: var(--font-mono); font-size: 19px; color: var(--muted); margin-top: 44px;
+}
+
+/* 챕터 타이틀 — 큰 번호 + 그 장의 장표 미리보기 */
+[data-template="study"] .slide-inner.sec {
+  justify-content: center; align-items: flex-start;
+}
+[data-template="study"] .slide-inner.sec .cnum {
+  font-family: var(--font-mono); font-size: 120px; font-weight: 700;
+  color: var(--accent); line-height: 1; letter-spacing: -.02em; margin-bottom: 20px;
+}
+[data-template="study"] .slide-inner.sec h1 {
+  font-size: 52px; font-weight: 700; line-height: 1.16; letter-spacing: -.025em;
+}
+[data-template="study"] .slide-inner.sec .sub {
+  font-size: 21px; color: var(--muted); margin-top: 24px;
+  line-height: 1.75; max-width: 1000px;
+}
+[data-template="study"] .slide-inner.sec .sub span {
+  font-family: var(--font-mono); color: var(--muted); margin-right: 10px;
+}
+
+/* 로드맵 — 11개 장의 의존 흐름 */
+[data-template="study"] .roadmap {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 19px;
+}
+[data-template="study"] .rm-item {
+  border: 1px solid var(--border); padding: 12px 14px; line-height: 1.4;
+}
+[data-template="study"] .rm-item .n {
+  font-family: var(--font-mono); color: var(--muted);
+  display: block; margin-bottom: 4px; font-size: 17px;
+}
+
+/* 굵기만으로 위계를 만든다 — GUIDE: "위계는 크기·굵기·여백·정렬로 만든다.
+   색·효과로 만들지 않는다." 강조색은 제목의 .hi 와 판정에만 쓴다. */
+[data-template="study"] .lead b { font-weight: 700; }
+[data-template="study"] .lead .d {
+  display: block; font-size: 24px; color: var(--muted);
+  margin-top: 22px; line-height: 1.6;
+}
+[data-template="study"] code {
+  font-family: var(--font-mono); font-size: .9em;
+  background: #15181d0d; padding: 2px 7px; border-radius: 4px;
+}
+[data-template="study"] h3 {
+  font-size: 21px; color: var(--accent); margin: 6px 0 10px; font-weight: 600;
+}

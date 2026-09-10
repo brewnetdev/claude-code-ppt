@@ -36,7 +36,7 @@ import { installDomParser } from '../_utils/jsdom';
 // scoped to [data-template="harness"]). The deck lives in docs/html/harness/
 // so inferTemplate resolves its registry template to 'harness', matching the
 // uniform slide data-template.
-const VALID_TEMPLATES = new Set(['presentation', 'portfolio', 'report', 'harness']);
+const VALID_TEMPLATES = new Set(['presentation', 'portfolio', 'report', 'harness', 'study']);
 
 beforeAll(() => installDomParser());
 

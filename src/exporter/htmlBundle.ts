@@ -3,6 +3,7 @@ import codeBlocksCss from '../canvas/themes/code-blocks.css?raw';
 import portfolioCss from '../canvas/themes/portfolio.css?raw';
 import reportCss from '../canvas/themes/report.css?raw';
 import harnessCss from '../canvas/themes/harness.css?raw';
+import studyCss from '../canvas/themes/study.css?raw';
 import type { ImageOverlay, Overlay, TextOverlay } from '../canvas/OverlayLayer';
 import type { ParsedSlide } from '../importer/parsePresentation';
 import { applyBackgroundToHtml } from '../scene/applySlideBackground';
@@ -18,7 +19,7 @@ import { linkifyHtml } from './linkify';
 // under canvas/themes, it MUST be appended here and in generator/inlineThemeCss
 // (THEME_CSS_PATHS) — the two standalone-export paths. Order mirrors
 // SlideRenderer: brewnet-dark base first, then per-template overrides.
-const themeCss = [brewnetCss, codeBlocksCss, portfolioCss, reportCss, harnessCss].join('\n\n');
+const themeCss = [brewnetCss, codeBlocksCss, portfolioCss, reportCss, harnessCss, studyCss].join('\n\n');
 
 const PRESET_CLASS: Record<NonNullable<TextOverlay['preset']>, string> = {
   h1: 't-title',

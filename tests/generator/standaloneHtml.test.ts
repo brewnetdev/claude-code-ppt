@@ -53,6 +53,7 @@ describe('standalone HTML — inlined theme CSS', () => {
 
   it('inlines harness.css selectors (LV.9 harness/evaluator deck theme)', () => {
     expect(css).toMatch(/\[data-template="harness"\]\s*\{/);
+    expect(css).toMatch(/\[data-template="study"\]\s*\{/);
   });
 });
 

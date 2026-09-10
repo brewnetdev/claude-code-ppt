@@ -26,6 +26,7 @@ export const THEME_CSS_PATHS = [
   'src/canvas/themes/portfolio.css',
   'src/canvas/themes/report.css',
   'src/canvas/themes/harness.css',
+  'src/canvas/themes/study.css',
 ];
 
 // brewnet-dark.css ends with an editor-iframe override block (`body { margin: 0

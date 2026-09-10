@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 236" role="img" aria-label="VM 수명과 파드 수명의 대비, 그리고 라벨로 묶은 집합">
+  <rect width="960" height="236" fill="#ffffff"/>
+  <text x="24" y="34" font-family="ui-monospace,monospace" font-size="16" fill="#585f6b" text-anchor="start" font-weight="400">VM — 개별 인스턴스를 추적한다</text>
+  <rect x="300" y="50" width="600" height="34" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="312" y="72" font-family="ui-monospace,monospace" font-size="14" fill="#15181d" text-anchor="start" font-weight="400">web-01                                    24시간+</text>
+  <text x="24" y="72" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">이름이 곧 대상</text>
+  <text x="24" y="132" font-family="ui-monospace,monospace" font-size="16" fill="#585f6b" text-anchor="start" font-weight="400">파드 — 이름이 계속 바뀐다</text>
+  <rect x="300" y="148" width="96" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="306" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-a0x0</text>
+  <rect x="404" y="148" width="62" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="410" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-b1x1</text>
+  <rect x="472" y="148" width="120" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="478" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-c2x2</text>
+  <rect x="598" y="148" width="78" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="604" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-d3x3</text>
+  <rect x="682" y="148" width="140" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="688" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-e4x4</text>
+  <rect x="828" y="148" width="72" height="26" rx="0" fill="#ffffff" stroke="#9aa1ad" stroke-width="1.2"/>
+  <text x="834" y="166" font-family="ui-monospace,monospace" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">…-f5x5</text>
+  <line x1="300" y1="196" x2="900" y2="196" stroke="#585f6b" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="300" y="216" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="start" font-weight="400">job="order-api" 로 묶으면 하나의 시계열</text>
+  <text x="24" y="166" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">수 분~수 시간</text>
+</svg>

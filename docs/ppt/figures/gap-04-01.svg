@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 282" role="img" aria-label="메모리 사용량을 알려주는 네 가지 출처와 각각의 이름 접두사">
+  <rect width="960" height="282" fill="#ffffff"/>
+  <defs><marker id="a0401" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#585f6b"/></marker></defs>
+  <rect x="330" y="24" width="300" height="46" rx="0" fill="none" stroke="#1a4fa0" stroke-width="1.5"/>
+  <text x="480" y="53" font-family="ui-monospace,monospace" font-size="16" fill="#1a4fa0" text-anchor="middle" font-weight="400">"메모리가 얼마나 쓰였나?"</text>
+  <rect x="24" y="128" width="216" height="130" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="38" y="156" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">cAdvisor</text>
+  <text x="38" y="182" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="start" font-weight="400">container_</text>
+  <text x="38" y="208" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">컨테이너의 실제 자원 사용</text>
+  <text x="38" y="250" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">노드마다 (kubelet 내장)</text>
+  <line x1="132" y1="122" x2="132" y2="76" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0401)"/>
+  <rect x="258" y="128" width="216" height="130" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="272" y="156" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">metrics-server</text>
+  <text x="272" y="182" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="start" font-weight="400">(API 전용)</text>
+  <text x="272" y="208" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">리소스 메트릭 API. kubectl top</text>
+  <text x="272" y="225" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">과 HPA 가 쓴다</text>
+  <text x="272" y="250" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">클러스터에 하나</text>
+  <line x1="366" y1="122" x2="366" y2="76" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0401)"/>
+  <rect x="492" y="128" width="216" height="130" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="506" y="156" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">node-exporter</text>
+  <text x="506" y="182" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="start" font-weight="400">node_</text>
+  <text x="506" y="208" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">기계의 상태 — 메모리가 몇 바이트 남았는가</text>
+  <text x="506" y="250" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">노드마다 (DaemonSet)</text>
+  <line x1="600" y1="122" x2="600" y2="76" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0401)"/>
+  <rect x="726" y="128" width="216" height="130" rx="0" fill="#f5f6f7" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="740" y="156" font-family="ui-monospace,monospace" font-size="15" fill="#15181d" text-anchor="start" font-weight="600">kube-state-metrics</text>
+  <text x="740" y="182" font-family="ui-monospace,monospace" font-size="14" fill="#1a4fa0" text-anchor="start" font-weight="400">kube_</text>
+  <text x="740" y="208" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">API 서버가 아는 상태 — 원한 3개 중</text>
+  <text x="740" y="225" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">실제 2개인가</text>
+  <text x="740" y="250" font-family="sans-serif" font-size="12" fill="#585f6b" text-anchor="start" font-weight="400">클러스터에 하나</text>
+  <line x1="834" y1="122" x2="834" y2="76" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0401)"/>
+  <text x="24" y="300" font-family="sans-serif" font-size="15" fill="#15181d" text-anchor="start" font-weight="400">같은 질문에 네 곳이 서로 다른 숫자로 답한다. 무엇을 재는지가 다르다.</text>
+</svg>

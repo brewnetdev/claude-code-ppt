@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 268" role="img" aria-label="지금 설정 파일 20줄과 나중에 노드에 진입해 고치는 경로의 대비">
+  <rect width="960" height="268" fill="#ffffff"/>
+  <defs><marker id="a0102" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#585f6b"/></marker></defs>
+  <line x1="60" y1="150" x2="900" y2="150" stroke="#585f6b" stroke-width="1.5"/>
+  <line x1="150" y1="140" x2="150" y2="160" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="150" y="178" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="middle" font-weight="400">클러스터 생성 전</text>
+  <line x1="560" y1="140" x2="560" y2="160" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="560" y="178" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="middle" font-weight="400">생성 후</text>
+  <rect x="60" y="56" width="320" height="70" rx="0" fill="#f5f6f7" stroke="#1a4fa0" stroke-width="1.5"/>
+  <text x="76" y="84" font-family="ui-monospace,monospace" font-size="16" fill="#1a4fa0" text-anchor="start" font-weight="600">설정 파일에 20줄</text>
+  <text x="76" y="108" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">kind create 한 번</text>
+  <line x1="150" y1="132" x2="150" y2="144" stroke="#1a4fa0" stroke-width="1.8" marker-end="url(#a0102)"/>
+  <text x="392" y="96" font-family="ui-monospace,monospace" font-size="15" fill="#1a4fa0" text-anchor="start" font-weight="600">5분</text>
+  <rect x="470" y="180" width="430" height="92" rx="0" fill="none" stroke="#585f6b" stroke-width="1.5"/>
+  <text x="486" y="208" font-family="ui-monospace,monospace" font-size="16" fill="#15181d" text-anchor="start" font-weight="600">컨트롤 플레인 노드 진입</text>
+  <text x="486" y="232" font-family="ui-monospace,monospace" font-size="14" fill="#585f6b" text-anchor="start" font-weight="400">매니페스트 수정 → 정적 파드 재시작</text>
+  <text x="486" y="256" font-family="ui-monospace,monospace" font-size="14" fill="#8f4408" text-anchor="start" font-weight="400">노드마다 반복 · 재현 안 됨</text>
+  <line x1="560" y1="158" x2="560" y2="174" stroke="#585f6b" stroke-width="1.8" marker-end="url(#a0102)"/>
+  <text x="24" y="40" font-family="ui-monospace,monospace" font-size="16" fill="#585f6b" text-anchor="start" font-weight="400">같은 결과, 다른 비용</text>
+</svg>

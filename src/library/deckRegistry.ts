@@ -15,11 +15,11 @@
 // `harness` scans docs/html/harness/ (the LV.9 editor deck) but NOT
 // docs/html/harness-sample/ (the hand-authored reference deck family + notes).
 const eagerHtml = import.meta.glob(
-  '../../docs/html/{presentation,portfolio,report,harness}/**/*.html',
+  '../../docs/html/{presentation,portfolio,report,harness,study}/**/*.html',
   { query: '?raw', import: 'default', eager: true },
 ) as Record<string, string>;
 
-export type DeckTemplate = 'presentation' | 'portfolio' | 'report' | 'harness';
+export type DeckTemplate = 'presentation' | 'portfolio' | 'report' | 'harness' | 'study';
 export type DeckSourceKind = 'builtin';
 
 export type DeckRegistryEntry = {
@@ -36,7 +36,7 @@ export type DeckRegistryEntry = {
   sourceHash?: string;
 };
 
-const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report', 'harness'];
+const KNOWN_TEMPLATES: ReadonlyArray<DeckTemplate> = ['presentation', 'portfolio', 'report', 'harness', 'study'];
 
 const TITLE_OVERRIDES: Record<string, string> = {
   'brewnet-presentation': 'Brewnet — Claude Code Master',
@@ -255,7 +255,7 @@ export const COURSE_OUTLINE: ReadonlyArray<CourseStage> = [
       },
       {
         level: 9,
-        label: '하네스 · Evaluator — Navy Edition',
+        label: 'Level 9 하네스 엔지니어링과 Evaluator 제어',
         topic: '바이브→검증된 코딩 · 하네스 5단계 · Evaluator 설계 · EDD 평가 게이트 (정본 · 편집 가능)',
         deckId: 'claude-code-harness-evaluator-navy',
       },
