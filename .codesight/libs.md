@@ -6,6 +6,31 @@
   - function level_diagram: (num, parts, missions)
   - function map_diagram: ()
   - function paths_diagram: ()
+- `docs/ppt/scripts/assets.py`
+  - function esc: (s) -> str
+  - function inline_svg: (rel_path) -> str
+  - function svg_id_count: (rel_path) -> int
+  - function read_tsv: (rel_path)
+  - function table_html: (rel_path, force) -> str
+  - function read_snippet: (rel_path) -> str
+  - _...3 more_
+- `docs/ppt/scripts/build_deck.py`
+  - function esc: (s)
+  - function fig: (rel, cap)
+  - function png: (name, cap)
+  - function lead: (text, wide)
+  - function cols: (left_head, left, right_head, right)
+  - function out: (rel, max_lines)
+  - _...7 more_
+- `docs/ppt/scripts/make_figures.py`
+  - function head: (w, h, label)
+  - function box: (x, y, w, h, stroke, fill, sw, rx)
+  - function t: (x, y, s, size, fill, anchor, weight, mono)
+  - function line: (x1, y1, x2, y2, stroke, sw, dash)
+  - function arrow_defs: (name, color)
+  - function arrow: (x1, y1, x2, y2, name, color, sw, dash)
+  - _...15 more_
+- `docs/ppt/scripts/standalone.py` — function css: () -> str
 - `scripts/insert-global-settings-slide.py` — function line: (inner)
 - `src/canvas/autoLinkUrl.ts` — function tryAutoLinkOnSpace: (e) => boolean
 - `src/canvas/documentEditingBridge.ts`
@@ -143,7 +168,7 @@
   - type DeckSourceKind
   - type DeckRegistryEntry
   - type CourseLevel
-  - _...4 more_
+  - _...6 more_
 - `src/persistence/idb.ts`
   - function idbGetDeck: (deckId) => Promise<unknown>
   - function idbPutDeck: (deckId, value) => Promise<void>
