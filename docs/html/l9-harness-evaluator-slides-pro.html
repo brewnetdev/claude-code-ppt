@@ -163,6 +163,15 @@
     .slide.on .agenda>div:nth-child(n+5){animation-delay:.42s}
     .slide.on :where(table,pre,.dg,.frame,.cols,.big,img){animation:rise .55s ease .12s backwards}
     .slide.on .key{animation:rise .5s ease .3s backwards}
+
+    /* 이어지는 장(2~3장이 한 장처럼 점진 완성되는 묶음) — .cont
+       앞 장에서 이미 보고 있던 내용이 다시 날아오면 청중은 "새 장"으로 읽는다.
+       그래서 연속 진입일 때는 장 전체 모션을 끄고, 직전 장과 실제로 달라진
+       요소(.enter — JS가 DOM 대조로 표시)에만 모션을 남긴다.
+       컨테이너(.cols 등)가 아니라 바뀐 자식에만 걸리므로, 그대로인 카드는
+       움직이지 않고 새 카드만 올라온다. */
+    .slide.on.cont *{animation:none!important}
+    .slide.on.cont .enter{animation:rise .45s ease .05s backwards!important}
   }
 
   /* 자동 캡처(Playwright 등 webdriver) = 항상 최종 상태 — 검증 결정성 */
@@ -2001,8 +2010,8 @@ API 레이트 리미터 (IP당 분당 60회)
       <div class="box r sm" style="width:460px">새는 곳 — <b>35건</b>은 공격을 막다가<br>사용자의 정상 작업까지 중단 (과잉 차단)</div>
     </div>
   </div>
-  <div class="key">“가드레일을 달았다”와 “공격이 막힌다”는 다르다 — <b>공격 문제집(레드팀 셋)으로 정기 시험</b>하고, 탐지율(관문 1)과 차단율(관문 2)을 따로 재라
-    <span class="d">관문 3의 해법 — 판정을 “통과/차단” 둘로만 두지 말고 “계획을 고쳐서 계속(update)”을 추가하면, 공격은 막으면서 사용자의 정상 업무는 이어 갈 수 있다</span></div>
+  <div class="key">“달았다”와 “막힌다”는 다르다 - <b>가드레일도 회귀 테스트 대상</b>이다. 레드팀 셋을 고정해두고 규칙·프롬프트를 바꿀 때마다 재채점하라. 탐지율(41건을 못 봄)과 차단율(22건을 못 막음)은 <b>고칠 곳이 서로 달라</b> 반드시 따로 잰다.
+    <span class="d">과잉 차단 35건의 해법 - 판정에 세 번째 선택지를 둔다. 웹페이지에 숨은 지시를 발견하면 작업을 통째로 중단하는 대신, 그 출처만 “오염”으로 표시하고 나머지 계획을 계속 수행 - 공격은 막고 사용자는 결과를 받는다.</span></div>
   <div class="foot"><span>⑤ 질문과 평가를 함께</span><span class="pg"></span></div>
 </section>
 
@@ -2095,7 +2104,7 @@ API 레이트 리미터 (IP당 분당 60회)
   <div class="kicker">THANK YOU</div>
   <h1>감사합니다</h1>
   <div class="sub">발표자 · 빌런 — villainscode@gmail.com<br>
-    하네스 참고자료 · github.com/claude-code-expert/carve-harness<br><br>
+    하네스 참고자료 · <a href="https://github.com/claude-code-expert/carve-harness" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;text-underline-offset:4px">github.com/claude-code-expert/carve-harness</a><br><br>
     <a href="https://inf.run/nbHiM" target="_blank" rel="noopener"
        style="color:var(--accent);text-decoration:underline;text-underline-offset:4px">인프런 — 개발 초보자도 따라하는 클로드코드 한방에 해결하기 · inf.run/nbHiM</a></div>
   <div class="foot"><span>END</span><span class="pg"></span></div>
@@ -2118,8 +2127,56 @@ API 레이트 리미터 (IP당 분당 60회)
     if(pg) pg.textContent=(k+1)+' / '+slides.length;
   });
 
+  // ── 연속 장 캐리오버 ────────────────────────────────────────────
+  // 같은 kicker + 같은 제목이면 "한 장을 나눠 놓은 것"으로 본다.
+  function head(s){
+    var k=s.querySelector('.kicker'), t=s.querySelector('h2,h1');
+    return (k?k.textContent.trim():'')+' '+(t?t.textContent.trim():'');
+  }
+  function sameGroup(a,b){
+    if(!slides[a]||!slides[b]) return false;
+    var h=head(slides[a]);
+    return h!==' ' && h===head(slides[b]);
+  }
+  // 직전 장과 달라진 곳만 .enter로 표시한다. 같으면 표시하지 않아 정지 상태로 남는다.
+  // 위치로 짝을 맞추지 않고 "직전 장 어딘가에 같은 내용이 있었나"로 판정한다 —
+  // 마지막 장에서 .cap이 .key로 바뀌는 등 자식 수가 달라지는 묶음이 많기 때문.
+  // 컨테이너가 다르면 자식으로 내려가, 실제로 바뀐 최소 단위에만 건다.
+  function markDiff(el,seen){
+    // 푸터는 페이지 번호가 매 장 바뀌는 크롬이라 내용 변화로 치지 않는다.
+    if(el.classList && el.classList.contains('foot')) return false;
+    if(seen[el.outerHTML]) return false;
+    var ch=el.children;
+    if(ch.length){
+      var deeper=false;
+      for(var k=0;k<ch.length;k++){ if(markDiff(ch[k],seen)) deeper=true; }
+      if(deeper) return true;
+    }
+    el.classList.add('enter');
+    return true;
+  }
+  function snapshot(s){
+    var seen={}, all=s.querySelectorAll('*');
+    for(var k=0;k<all.length;k++) seen[all[k].outerHTML]=1;
+    return seen;
+  }
+  function clearMarks(s){
+    s.classList.remove('cont');
+    var m=s.querySelectorAll('.enter');
+    for(var k=0;k<m.length;k++) m[k].classList.remove('enter');
+  }
+
   function show(n){
+    var prev=i;
     i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(clearMarks);
+    // 인접 이동 + 같은 묶음일 때만 캐리오버. 목차·해시로 건너뛰어 들어오면
+    // 청중이 앞 장을 못 봤으므로 평소대로 전체 모션을 준다.
+    if(Math.abs(i-prev)===1 && sameGroup(i,prev)){
+      var cur=slides[i], seen=snapshot(slides[prev]), a=cur.children;
+      for(var k=0;k<a.length;k++) markDiff(a[k],seen);
+      cur.classList.add('cont');
+    }
     slides.forEach(function(s,k){s.classList.toggle('on',k===i);});
     prog.style.width=((i+1)/slides.length*100)+'%';
     if(history.replaceState) history.replaceState(null,'','#'+(i+1));

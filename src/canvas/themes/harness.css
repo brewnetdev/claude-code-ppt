@@ -81,7 +81,12 @@
 }[data-template="harness"] .runner .chap { font-weight: 600; color: var(--text); }[data-template="harness"] .runner .pageno { font-family: var(--font-mono); }[data-template="harness"] .eyebrow {                              
   font-size: var(--fs-h3); font-weight: 600; color: var(--accent);
   letter-spacing: .04em; margin: 0 0 10px;
-}[data-template="harness"] .title {                                
+}/* `.title`은 본문 제목용 텍스트 클래스인데, 슬라이드 루트에도 같은 이름의
+    변형(`.slide.title`)이 있다. Export 번들은 `<html>`에도
+    data-template을 달기 때문에 이 선택자가 슬라이드 루트까지 내려와
+    max-width:24ch를 먹여 장을 반쪽으로 찌그러뜨렸다(실측 1280px → 459.8px,
+    89·90페이지). `:not(.slide)`로 루트를 제외한다. */
+[data-template="harness"] .title:not(.slide) {
   font-size: var(--fs-h2); font-weight: 600; line-height: 1.25;
   color: var(--text); margin: 0 0 20px; max-width: 24ch;
 }[data-template="harness"] .hero {                                 
@@ -306,4 +311,14 @@
   [data-presenting] .slide[data-skin="navy"] :where(table,pre,.dg,.frame,.cols,.big,img){
     animation:navy-rise .55s ease .12s backwards}
   [data-presenting] .slide[data-skin="navy"] .key{animation:navy-rise .5s ease .3s backwards}
+
+  /* 이어지는 장(같은 눈썹+제목으로 2~3장에 걸쳐 점진 완성되는 묶음) — .cont
+     앞 장에서 이미 보고 있던 내용이 다시 날아오면 청중은 "새 장"으로 읽는다.
+     그래서 연속 진입일 때는 장 전체 모션을 끄고, 직전 장과 실제로 달라진
+     요소(.enter — PresentationView가 DOM 대조로 표시)에만 모션을 남긴다.
+     컨테이너(.cols 등)가 아니라 바뀐 자식에만 걸리므로, 그대로인 카드는
+     움직이지 않고 새 카드만 올라온다. */
+  [data-presenting] .slide[data-skin="navy"].cont *{animation:none!important}
+  [data-presenting] .slide[data-skin="navy"].cont .enter{
+    animation:navy-rise .45s ease .05s backwards!important}
 }

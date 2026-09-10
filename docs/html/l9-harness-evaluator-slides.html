@@ -1956,8 +1956,8 @@ API 레이트 리미터 (IP당 분당 60회)
       <div class="box r sm" style="width:460px">새는 곳 — <b>35건</b>은 공격을 막다가<br>사용자의 정상 작업까지 중단 (과잉 차단)</div>
     </div>
   </div>
-  <div class="key">“가드레일을 달았다”와 “공격이 막힌다”는 다르다 — <b>공격 문제집(레드팀 셋)으로 정기 시험</b>하고, 탐지율(관문 1)과 차단율(관문 2)을 따로 재라
-    <span class="d">관문 3의 해법 — 판정을 “통과/차단” 둘로만 두지 말고 “계획을 고쳐서 계속(update)”을 추가하면, 공격은 막으면서 사용자의 정상 업무는 이어 갈 수 있다</span></div>
+  <div class="key">“달았다”와 “막힌다”는 다르다 - <b>가드레일도 회귀 테스트 대상</b>이다. 레드팀 셋을 고정해두고 규칙·프롬프트를 바꿀 때마다 재채점하라. 탐지율(41건을 못 봄)과 차단율(22건을 못 막음)은 <b>고칠 곳이 서로 달라</b> 반드시 따로 잰다.
+    <span class="d">과잉 차단 35건의 해법 - 판정에 세 번째 선택지를 둔다. 웹페이지에 숨은 지시를 발견하면 작업을 통째로 중단하는 대신, 그 출처만 “오염”으로 표시하고 나머지 계획을 계속 수행 - 공격은 막고 사용자는 결과를 받는다.</span></div>
   <div class="foot"><span>⑤ 질문과 평가를 함께</span><span class="pg"></span></div>
 </section>
 
@@ -2050,7 +2050,7 @@ API 레이트 리미터 (IP당 분당 60회)
   <div class="kicker">THANK YOU</div>
   <h1>감사합니다</h1>
   <div class="sub">발표자 · 빌런 — villainscode@gmail.com<br>
-    하네스 참고자료 · github.com/claude-code-expert/carve-harness<br><br>
+    하네스 참고자료 · <a href="https://github.com/claude-code-expert/carve-harness" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;text-underline-offset:4px">github.com/claude-code-expert/carve-harness</a><br><br>
     <a href="https://inf.run/nbHiM" target="_blank" rel="noopener"
        style="color:var(--accent);text-decoration:underline;text-underline-offset:4px">인프런 — 개발 초보자도 따라하는 클로드코드 한방에 해결하기 · inf.run/nbHiM</a></div>
   <div class="foot"><span>END</span><span class="pg"></span></div>
